@@ -1,0 +1,30 @@
+import ApiCaller from './ApiCaller';
+
+export const loginWithGoogle = (code: string) =>
+  ApiCaller.post('user', { code });
+
+export const findUser = async () => {
+  return ApiCaller.get('user');
+};
+
+export const findTeam = () => ApiCaller.get('user/team');
+
+export const getGroupChannel = (teamId: string) =>
+  ApiCaller.get(`group/${teamId}`);
+
+export const findChannel = (teamId: string) =>
+  ApiCaller.get(`channel/${teamId}`);
+
+export const getInitial = () => ApiCaller.get(`initial`);
+
+export const updateChannel = (id: string, data: any) =>
+  ApiCaller.put(`channel/${id}`, data);
+
+export const removeTeamMember = (teamId: string, userId: string) =>
+  ApiCaller.delete(`team/${teamId}/member/${userId}`);
+
+export const leaveTeam = (teamId: string) =>
+  ApiCaller.delete(`team/${teamId}/leave`);
+
+export const updateUserChannel = (channelIds: Array<string>) =>
+  ApiCaller.put(`user/channel`, { channel_ids: channelIds });

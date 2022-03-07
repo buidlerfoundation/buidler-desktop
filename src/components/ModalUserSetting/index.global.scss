@@ -1,0 +1,102 @@
+.user-setting-modal {
+  display: flex;
+  justify-content: center;
+  padding-top: 200px;
+}
+
+.user-setting__container {
+  display: flex;
+  height: 680px;
+  width: 880px;
+  border-radius: 5px !important;
+  .left-side {
+    width: 275px;
+    height: 100%;
+    background-color: var(--color-darkest-background);
+    border-right: 1px solid var(--color-stroke);
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px 0 0 5px;
+    .group-setting-title {
+      padding: 10px 20px;
+      font-size: 14px;
+      line-height: 16px;
+      color: var(--color-secondary-text);
+      font-weight: 600;
+    }
+    .ic-notification {
+      width: 25px;
+      height: 25px;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .setting-item {
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+    }
+    .setting-label {
+      font-weight: 600;
+      margin-left: 15px;
+      font-size: 16px;
+      line-height: 19px;
+    }
+  }
+  .body {
+    display: flex;
+    background-color: var(--color-lighter-background);
+    flex: 1;
+    padding: 40px 30px;
+    flex-direction: column;
+    border-radius: 0 5px 5px 0;
+    .modal-label {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 24px;
+    }
+    .user-avatar__wrapper {
+      position: relative;
+      margin-top: 40px;
+      .user-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+      }
+    }
+    .input-wrapper {
+      padding: 16px 20px;
+      background-color: var(--color-highlight);
+      border-radius: 5px;
+      border: 1px solid var(--color-stroke);
+      margin-top: 30px;
+    }
+    .tag-view__item {
+      color: var(--color-primary-text);
+    }
+    .user-channel-des {
+      font-size: 14px;
+      line-height: 19px;
+      color: var(--color-secondary-text);
+      margin-top: 25px;
+    }
+    .log-out__wrapper {
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      padding: 8px 0;
+      &:hover {
+        cursor: pointer;
+      }
+      .log-out-text {
+        font-size: 16px;
+        line-height: 19px;
+        margin-left: 15px;
+        font-weight: 600;
+      }
+    }
+  }
+}

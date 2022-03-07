@@ -1,0 +1,19 @@
+.member-child-container {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  .member-child__username {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--color-secondary-text);
+  }
+  &.selected {
+    background-color: var(--color-highlight-action);
+  }
+  &:hover {
+    border-radius: 0;
+  }
+  .active {
+    color: var(--color-primary-text);
+  }
+}

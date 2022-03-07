@@ -1,0 +1,17 @@
+.avatar-view {
+  position: relative;
+  display: flex;
+  height: fit-content;
+  .avatar-image {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+    align-self: center;
+  }
+  .status {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+  }
+}

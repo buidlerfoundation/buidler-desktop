@@ -1,0 +1,26 @@
+.popup-channel__container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  border: 1px solid var(--color-stroke);
+  background-color: var(--color-darkest-background);
+  border-radius: 5px;
+  width: 275px;
+  overflow-y: auto;
+  height: 80vh;
+  .channel-item {
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 19px;
+    color: var(--color-secondary-text);
+    &:hover {
+      border-radius: 0;
+    }
+  }
+  .channel-item__active {
+    background-color: var(--color-highlight);
+  }
+}

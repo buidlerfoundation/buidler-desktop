@@ -1,0 +1,28 @@
+import React from 'react';
+import './index.global.scss';
+import images from '../../common/images';
+import AvatarView from '../AvatarView';
+
+type AssignItemProps = {
+  isSelected: boolean;
+  user: any;
+  onClick: () => void;
+};
+
+const AssignItem = ({ isSelected, onClick, user }: AssignItemProps) => {
+  return (
+    <div className="assign__item normal-button" onClick={onClick}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {(user.avatar_url && <AvatarView user={user} />) || (
+          <img src={images.icUserCircle} alt="" />
+        )}
+        <span style={{ marginLeft: 15 }} className="username">
+          {user.full_name}
+        </span>
+      </div>
+      {isSelected && <img alt="" src={images.icCheck} />}
+    </div>
+  );
+};
+
+export default AssignItem;
