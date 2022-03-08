@@ -55,6 +55,7 @@ import icCameraDark from '../assets/images/ic_camera_dark.svg';
 import icRemoveMember from '../assets/images/ic_remove_member.svg';
 import icLeaveTeam from '../assets/images/ic_leave_team.svg';
 import icSearch from '../assets/images/ic_search.svg';
+import icCopy from '../assets/images/ic_copy.svg';
 
 const images = {
   icTeamDefault,
@@ -114,6 +115,7 @@ const images = {
   icRemoveMember,
   icLeaveTeam,
   icSearch,
+  icCopy,
 };
 
 export default images;

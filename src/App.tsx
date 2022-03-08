@@ -9,6 +9,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import GlobalVariable from './services/GlobalVariable';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from '@material-ui/core';
+import { testSC } from './common/EthereumFunction';
 
 const usr = require('os').homedir();
 const storage = require('electron-json-storage');
@@ -22,6 +23,8 @@ if (process.platform === 'darwin') {
 }
 
 function App() {
+  // console.log('XXX');
+  // testSC();
   useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,

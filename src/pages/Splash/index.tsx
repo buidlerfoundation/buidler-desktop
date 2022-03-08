@@ -21,7 +21,7 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
     await getInitial();
     await findUser();
     await findTeamAndChannel();
-    // history.replace('/create-team');
+    // history.replace('/started');
     history.replace('/home');
   }, [getInitial, findUser, findTeamAndChannel, history]);
   useEffect(() => {

@@ -11,6 +11,7 @@ import actions from '../../actions';
 import { connect } from 'react-redux';
 import CreateTeam from '../CreateTeam';
 import AppTitleBar from '../../components/AppTitleBar';
+import Started from '../Started';
 
 interface PrivateRouteProps {
   component: any;
@@ -52,6 +53,7 @@ const Main = ({ getInitial }: MainProps) => {
             <Route exact path="/" component={Splash} />
             <PrivateRoute exact path="/home" component={Home} />
             <Route exact path="/login" component={LoginScreen} />
+            <Route exact path="/started" component={Started} />
             <Route exact path="/create-team" component={CreateTeam} />
           </Switch>
         </MainWrapper>

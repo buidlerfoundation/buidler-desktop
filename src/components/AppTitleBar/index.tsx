@@ -87,6 +87,7 @@ const AppTitleBar = ({
     ipcRenderer.on('window-focus', windowFocusListener);
     ipcRenderer.on('window-blur', windowBlurListener);
     const unseenChannel = channels?.find?.((el) => !el.seen);
+    console.log('Unseen channel: ', unseenChannel);
     if (unseenChannel) {
       ipcRenderer.send('show-badge', 'ping');
     } else {
@@ -161,6 +162,7 @@ const AppTitleBar = ({
           <div
             className="action-item normal-button"
             style={{ marginRight: 10 }}
+            onClick={() => history.replace('/started')}
           >
             <img src={images.icSearch} alt="" />
           </div>

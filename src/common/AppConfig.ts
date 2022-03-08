@@ -26,3 +26,6 @@ export const ProgressStatus = [
     id: 'archived',
   },
 ];
+
+export const seedExample =
+  'sadness neither jungle loyal swarm cigar horror choice joy brick ill pen';

@@ -24,6 +24,7 @@ module.exports = {
     'react/no-danger': 'off',
     'no-cond-assign': 'off',
     radix: 'off',
+    'no-extra-boolean-cast': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
