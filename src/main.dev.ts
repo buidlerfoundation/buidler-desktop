@@ -208,7 +208,7 @@ autoUpdater.on('update-downloaded', () => {
     .showMessageBox({
       type: 'info',
       title: 'Update Available',
-      message: 'A new version of Notable is ready to be installed.',
+      message: 'A new version of Buidler is ready to be installed.',
       buttons: ['Install now', 'Install on next launch'],
     })
     .then(({ response }) => {

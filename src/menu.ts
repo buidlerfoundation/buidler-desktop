@@ -57,14 +57,14 @@ export default class MenuBuilder {
       label: 'Electron',
       submenu: [
         {
-          label: 'About Notable',
+          label: 'About Buidler',
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
         { type: 'separator' },
         {
-          label: 'Hide Notable',
+          label: 'Hide Buidler',
           accelerator: 'Command+H',
           selector: 'hide:',
         },

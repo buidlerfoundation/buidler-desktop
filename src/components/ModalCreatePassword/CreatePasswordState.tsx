@@ -62,7 +62,7 @@ const CreatePasswordState = ({
         target="_blank"
         rel="noreferrer"
       >
-        How does Notable store your password?
+        How does Buidler store your password?
       </a>
     </div>
   );

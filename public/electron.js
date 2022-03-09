@@ -9,7 +9,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
     },
-    title: 'notableapp',
+    title: 'Buidler',
     backgroundColor: '#191919',
   });
 

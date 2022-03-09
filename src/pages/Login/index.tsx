@@ -43,12 +43,12 @@ const LoginScreen = ({ login, loginGoogleUrl }: LoginScreenProps) => {
         <div className="login-info-view">
           <img className="login-logo" alt="" src={images.notableLogo} />
           <span className="login-title">
-            Notable
+            Buidler
             <br />
             is a new day
           </span>
           <span className="login-description">
-            Notable is a daily tool for chat, tasks,
+            Buidler is a daily tool for chat, tasks,
             <br />
             meeting
           </span>

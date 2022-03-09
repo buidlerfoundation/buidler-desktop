@@ -14,7 +14,7 @@ const EmptyView = ({ createTeam }: EmptyViewProps) => {
       <span className="empty-text">
         You don&apos;t have any team yet,
         <br />
-        create a new team to start using Notable.
+        create a new team to start using Buidler.
       </span>
       <NormalButton
         title="New Team"

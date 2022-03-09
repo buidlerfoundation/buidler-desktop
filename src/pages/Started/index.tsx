@@ -18,7 +18,7 @@ const Started = () => {
             is your tasks
           </span>
           <span className="started-description">
-            Notable is a daily tool for chat, tasks,
+            Buidler is a daily tool for chat, tasks,
             <br />
             meeting for remote working.
           </span>
