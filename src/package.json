@@ -1,17 +1,17 @@
 {
   "name": "today-remote",
   "productName": "today-remote",
-  "version": "1.1.46",
+  "version": "1.1.47",
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "./main.prod.js",
   "author": {
-    "name": "Today Remote",
-    "email": "todayremote.xyz@gmail.com",
-    "url": "https://github.com/todayremote/desktop_app"
+    "name": "Buidler",
+    "email": "buidlerfoundation.xyz@gmail.com",
+    "url": "https://github.com/buidlerfoundation/buidler-desktop"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/todayremote/desktop_app.git"
+    "url": "https://github.com/buidlerfoundation/buidler-desktop.git"
   },
   "scripts": {
     "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js",

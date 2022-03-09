@@ -1,4 +1,4 @@
-appId: com.today
+appId: com.buidler
 publish:
   provider: github
   token: 72f9f244a881d8d2d3a0c49019924b2485761d64

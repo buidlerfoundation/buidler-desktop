@@ -30,8 +30,8 @@ export default class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.setFeedURL({
       provider: 'github',
-      repo: 'desktop_app',
-      owner: 'remotetoday-app',
+      repo: 'buidler-desktop',
+      owner: 'buidlerfoundation',
       private: true,
       token: '72f9f244a881d8d2d3a0c49019924b2485761d64',
     });

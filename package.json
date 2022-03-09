@@ -33,8 +33,8 @@
     ]
   },
   "build": {
-    "productName": "Notable",
-    "appId": "com.notable",
+    "productName": "Buidler",
+    "appId": "com.buidler",
     "files": [
       "dist/",
       "node_modules/",
@@ -96,34 +96,23 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "todayremote",
+      "owner": "buidlerfoundation",
       "private": true
     }
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/remotetoday-app/desktop_app.git"
+    "url": "https://github.com/buidlerfoundation/buidler-desktop.git"
   },
   "author": {
     "name": "Today",
-    "email": "todayremote.xyz@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "email": "buidlerfoundation.xyz@gmail.com",
+    "url": "https://github.com/buidlerfoundation"
   },
-  "contributors": [
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    },
-    {
-      "name": "John Tran",
-      "email": "jptran318@gmail.com",
-      "url": "https://github.com/jooohhn"
-    }
-  ],
+  "contributors": [],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
+    "url": "https://github.com/buidlerfoundation/buidler-desktop/issues"
   },
   "keywords": [
     "electron",
@@ -136,7 +125,7 @@
     "hot",
     "reload"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
+  "homepage": "https://github.com/buidlerfoundation/buidler-desktop",
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {
