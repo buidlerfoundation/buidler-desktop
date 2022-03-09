@@ -33,7 +33,7 @@ export default class AppUpdater {
       repo: 'buidler-desktop',
       owner: 'buidlerfoundation',
       private: true,
-      token: '72f9f244a881d8d2d3a0c49019924b2485761d64',
+      token: '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',
     });
     autoUpdater.checkForUpdatesAndNotify();
   }

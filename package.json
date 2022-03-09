@@ -14,8 +14,8 @@
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
     "test": "jest",
-    "deploy": "export GH_TOKEN=72f9f244a881d8d2d3a0c49019924b2485761d64 && rm -rf src/dist && yarn build && electron-builder build --mac --publish always",
-    "deploy-win": "export GH_TOKEN=72f9f244a881d8d2d3a0c49019924b2485761d64 && rm -rf src/dist && yarn build && electron-builder build --win --publish always",
+    "deploy": "export GH_TOKEN=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 && rm -rf src/dist && yarn build && electron-builder build --mac --publish always",
+    "deploy-win": "export GH_TOKEN=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 && rm -rf src/dist && yarn build && electron-builder build --win --publish always",
     "build-local": "rm -rf src/dist && yarn build && electron-builder build --mac"
   },
   "lint-staged": {
@@ -97,7 +97,8 @@
     "publish": {
       "provider": "github",
       "owner": "buidlerfoundation",
-      "private": true
+      "private": true,
+      "repo": "buidler-desktop"
     }
   },
   "repository": {
