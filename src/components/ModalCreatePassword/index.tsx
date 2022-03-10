@@ -24,10 +24,9 @@ const ModalCreatePassword = ({
   handleClose,
 }: ModalCreatePasswordProps) => {
   const history = useHistory();
-  const seed = ethers.Wallet.createRandom().mnemonic.phrase;
+  const seed = useMemo(() => ethers.Wallet.createRandom().mnemonic.phrase, []);
   const [confirmSeed, setConfirmSeed] = useState(createConfirmSeedState());
   const [modalState, setModalState] = useState<ModalState>('create-password');
-  const [password, setPassword] = useState('');
   const buttonSubText = useMemo(() => {
     switch (modalState) {
       case 'create-password':
@@ -41,10 +40,7 @@ const ModalCreatePassword = ({
     }
   }, [modalState]);
   const renderBody = useMemo(() => {
-    if (modalState === 'create-password')
-      return (
-        <CreatePasswordState password={password} setPassword={setPassword} />
-      );
+    if (modalState === 'create-password') return <CreatePasswordState />;
     if (modalState === 'store-seed-phrase')
       return <StoreSeedPhraseState seed={seed} />;
     if (modalState === 'backup-seed-phrase')
@@ -56,7 +52,7 @@ const ModalCreatePassword = ({
         />
       );
     return null;
-  }, [modalState, password, confirmSeed, seed]);
+  }, [modalState, confirmSeed, seed]);
   const onNextPress = useCallback(() => {
     switch (modalState) {
       case 'create-password':

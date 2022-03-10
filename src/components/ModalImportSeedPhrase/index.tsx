@@ -20,17 +20,13 @@ const ModalImportSeedPhrase = ({
   const history = useHistory();
   const [seed, setSeed] = useState('');
   const [modalState, setModalState] = useState<ModalState>('import');
-  const [password, setPassword] = useState('');
   const renderBody = useMemo(() => {
     if (modalState === 'import')
       return <ImportState seed={seed} setSeed={setSeed} />;
-    if (modalState === 'create-password')
-      return (
-        <CreatePasswordState password={password} setPassword={setPassword} />
-      );
+    if (modalState === 'create-password') return <CreatePasswordState />;
 
     return null;
-  }, [modalState, password, seed]);
+  }, [modalState, seed]);
   const onNextPress = useCallback(() => {
     switch (modalState) {
       case 'import':

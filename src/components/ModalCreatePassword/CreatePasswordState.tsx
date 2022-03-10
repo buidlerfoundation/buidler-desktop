@@ -4,15 +4,8 @@ import AppInput from '../AppInput';
 import PasswordLevel from './PasswordLevel';
 import './index.global.scss';
 
-type CreatePasswordStateProps = {
-  password: string;
-  setPassword: (pass: string) => void;
-};
-
-const CreatePasswordState = ({
-  password,
-  setPassword,
-}: CreatePasswordStateProps) => {
+const CreatePasswordState = () => {
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(true);
   const togglePassword = () => setShowPassword(!showPassword);
   const passwordLevel = useMemo(() => {
