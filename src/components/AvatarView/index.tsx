@@ -12,10 +12,10 @@ const AvatarView = ({ user, size = 25 }: AvatarViewProps) => {
       <img
         className="avatar-image"
         alt=""
-        src={user.avatar_url}
+        src={user?.avatar_url}
         style={{ width: size, height: size }}
       />
-      {user.status && <div className={`status ${user.status}`} />}
+      {user?.status && <div className={`status ${user.status}`} />}
     </div>
   );
 };

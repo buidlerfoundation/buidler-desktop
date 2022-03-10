@@ -74,7 +74,7 @@ const ReactView = ({
             return (
               <div className="react-item" key={el.emoji_id + el.user_id}>
                 <AvatarView user={user} />
-                <span className="user-name">{user.full_name}</span>
+                <span className="user-name">{user?.full_name}</span>
                 <Emoji emoji={el.emoji_id} set="apple" size={18} />
               </div>
             );
