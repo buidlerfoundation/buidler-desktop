@@ -4,6 +4,7 @@ import { isFilterStatus } from '../helpers/TaskHelper';
 import actionTypes from './ActionTypes';
 import moment from 'moment';
 import store from '../store';
+import toast from 'react-hot-toast';
 
 export const getTaskFromUser = (
   userId: string,
@@ -138,6 +139,7 @@ export const createTask = (channelId: string, body: any) => async (
     const data = body;
     delete data.attachments;
     await api.createTask(data);
+    toast.success('Task created!');
   } catch (e) {
     dispatch({
       type: actionTypes.CREATE_TASK_FAIL,

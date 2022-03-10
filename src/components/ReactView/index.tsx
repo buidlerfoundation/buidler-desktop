@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './index.global.scss';
 import { Emoji } from 'emoji-mart';
-import Popover from '@material-ui/core/Popover';
 import Popper from '@material-ui/core/Popper';
 import AvatarView from '../AvatarView';
 import api from '../../api';
@@ -21,8 +20,9 @@ const ReactView = ({
 }: ReactViewProps) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [reactDetail, setReactDetail] = useState([]);
-
+  const currentId = useRef<string>('');
   const handlePopoverOpen = (emj: any) => async (evt: any) => {
+    currentId.current = emj.name;
     setAnchorEl(evt.currentTarget);
     const res = await api.getReactionDetail(parentId, emj.name);
     if (res.statusCode === 200) {
@@ -33,9 +33,18 @@ const ReactView = ({
   };
 
   const handlePopoverClose = () => {
+    currentId.current = '';
     setAnchorEl(null);
     setReactDetail([]);
   };
+
+  const currentReact = reacts.find((el) => el.name === currentId.current);
+
+  useEffect(() => {
+    if (!currentReact) {
+      setAnchorEl(null);
+    }
+  }, [currentReact]);
 
   const open = !!anchorEl && reactDetail.length > 0;
   return (
