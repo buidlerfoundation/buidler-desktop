@@ -28,7 +28,7 @@ const StoreSeedPhraseState = ({ seed }: StoreSeedPhraseStateProps) => {
       <div
         className="copy-button"
         onClick={async () => {
-          await navigator.clipboard.writeText('123');
+          await navigator.clipboard.writeText(seed);
           toast.success('Seed phrased is copied');
         }}
       >
