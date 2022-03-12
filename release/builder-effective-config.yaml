@@ -1,0 +1,52 @@
+directories:
+  output: release
+  buildResources: assets
+  app: src
+productName: Buidler
+appId: com.buidler
+files:
+  - filter:
+      - dist/
+      - node_modules/
+      - index.html
+      - main.prod.js
+      - main.prod.js.map
+      - package.json
+afterSign: .erb/scripts/Notarize.js
+mac:
+  target:
+    - dmg
+    - zip
+  type: distribution
+  hardenedRuntime: true
+  entitlements: assets/entitlements.mac.plist
+  entitlementsInherit: assets/entitlements.mac.plist
+  gatekeeperAssess: false
+protocols:
+  name: notableapp-protocol
+  schemes:
+    - notableapp
+dmg:
+  contents:
+    - x: 130
+      'y': 220
+    - x: 410
+      'y': 220
+      type: link
+      path: /Applications
+win:
+  target:
+    - nsis
+linux:
+  target:
+    - AppImage
+  category: Development
+extraResources:
+  - filter:
+      - ./assets/**
+publish:
+  provider: github
+  owner: buidlerfoundation
+  private: true
+  repo: buidler-desktop
+electronVersion: 16.0.5
