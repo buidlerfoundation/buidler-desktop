@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from '@material-ui/core';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 import AppInput from '../AppInput';
 import TagView from '../TagView';

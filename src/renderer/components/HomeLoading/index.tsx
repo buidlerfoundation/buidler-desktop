@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.global.scss';
+import './index.scss';
 
 const HomeLoading = () => {
   return (

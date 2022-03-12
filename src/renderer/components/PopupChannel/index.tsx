@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import images from '../../common/images';
 import GroupTitle from '../../pages/Main/Layout/SideBar/components/GroupTitle';
-import './index.global.scss';
+import './index.scss';
 
 type PopupChannelProps = {
   channel: Array<any>;

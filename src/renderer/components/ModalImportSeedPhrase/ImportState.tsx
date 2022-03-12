@@ -1,7 +1,7 @@
 import React from 'react';
 import AppInput from '../AppInput';
 import AppTextArea from '../AppTextArea';
-import './index.global.scss';
+import './index.scss';
 
 type ImportStateProps = {
   seed: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './index.global.scss';
+import './index.scss';
 import { useHistory } from 'react-router-dom';
 import TextField from '../../components/TextField';
 import CreateTeamState from './CreateTeamState';

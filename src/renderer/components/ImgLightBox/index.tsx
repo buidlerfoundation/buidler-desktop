@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import images from '../../common/images';
-import './index.global.scss';
+import './index.scss';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

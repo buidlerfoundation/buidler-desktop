@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import AppInput from '../AppInput';
 import UserItem from './UserItem';
-import './index.global.scss';
+import './index.scss';
 
 type TeamUserPopupProps = {
   teamUserData: Array<any>;

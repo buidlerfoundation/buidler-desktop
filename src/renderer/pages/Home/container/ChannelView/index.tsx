@@ -15,7 +15,7 @@ import {
   normalizeMessages,
 } from '../../../../helpers/MessageHelper';
 import SocketUtils from '../../../../utils/SocketUtils';
-import './index.global.scss';
+import './index.scss';
 import Dropzone from 'react-dropzone';
 import { getUniqueId } from '../../../../helpers/GenerateUUID';
 import api from '../../../../api';

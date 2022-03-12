@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
-import './index.global.scss';
+import './index.scss';
 
 type TeamItemProps = {
   t: any;

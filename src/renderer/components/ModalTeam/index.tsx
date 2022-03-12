@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CircularProgress, Modal } from '@material-ui/core';
-import './index.global.scss';
+import './index.scss';
 import NormalButton from '../NormalButton';
 import AppInput from '../AppInput';
 import images from '../../common/images';

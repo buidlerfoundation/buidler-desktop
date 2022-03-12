@@ -9,7 +9,7 @@ import MessagePhotoItem from '../MessagePhotoItem';
 import MessageReply from '../MessageReply';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
 import ReactView from '../ReactView';
-import './index.global.scss';
+import './index.scss';
 import { useHistory } from 'react-router-dom';
 
 type MessageItemProps = {

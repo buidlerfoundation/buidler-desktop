@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProgressStatus } from '../../common/AppConfig';
 import AppInput from '../AppInput';
-import './index.global.scss';
+import './index.scss';
 
 type StatusSelectionPopupProps = {
   onSelectedStatus: (status: any) => void;

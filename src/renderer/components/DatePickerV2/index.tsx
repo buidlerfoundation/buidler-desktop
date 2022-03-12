@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calendar, useStaticState } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 
 type DataPickerV2Props = {

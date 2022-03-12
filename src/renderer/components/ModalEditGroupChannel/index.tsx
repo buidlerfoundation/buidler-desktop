@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '@material-ui/core/Modal';
-import './index.global.scss';
+import './index.scss';
 import NormalButton from '../NormalButton';
 import AppInput from '../AppInput';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import images from '../../common/images';
-import './index.global.scss';
+import './index.scss';
 import toast, { useToaster } from 'react-hot-toast';
 
 const AppToastNotification = () => {

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { passwordRules } from '../../helpers/PasswordHelper';
 import AppInput from '../AppInput';
 import PasswordLevel from './PasswordLevel';
-import './index.global.scss';
+import './index.scss';
 
 const CreatePasswordState = () => {
   const [password, setPassword] = useState('');

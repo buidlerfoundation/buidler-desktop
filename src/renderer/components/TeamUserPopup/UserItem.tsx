@@ -1,4 +1,4 @@
-import './index.global.scss';
+import './index.scss';
 import React from 'react';
 import images from '../../common/images';
 import AvatarView from '../AvatarView';

@@ -3,7 +3,7 @@ import images from '../../common/images';
 import IconButton from '../IconButton';
 import NormalButton from '../NormalButton';
 import TagView from '../TagView';
-import './index.global.scss';
+import './index.scss';
 import Popover from '@material-ui/core/Popover';
 import StatusSelectionPopup from '../StatusSelectionPopup';
 import AssignPopup from '../AssignPopup';

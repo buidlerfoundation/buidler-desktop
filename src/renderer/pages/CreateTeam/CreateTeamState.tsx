@@ -1,6 +1,6 @@
 import React from 'react';
 import TextField from '../../components/TextField';
-import './index.global.scss';
+import './index.scss';
 
 type CreateTeamStateProps = {
   display: boolean;

@@ -4,7 +4,7 @@ import { ProgressStatus } from '../../common/AppConfig';
 import images from '../../common/images';
 import { fromNow, isOverDate } from '../../utils/DateUtils';
 import StatusSelectionPopup from '../StatusSelectionPopup';
-import './index.global.scss';
+import './index.scss';
 import TextareaAutosize from 'react-textarea-autosize';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
 import PopupChannel from '../PopupChannel';

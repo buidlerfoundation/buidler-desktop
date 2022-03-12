@@ -2,7 +2,7 @@ import { Modal } from '@material-ui/core';
 import React, { useMemo, useState, useCallback } from 'react';
 import NormalButton from '../NormalButton';
 import CreatePasswordState from './CreatePasswordState';
-import './index.global.scss';
+import './index.scss';
 import { ethers } from 'ethers';
 import StoreSeedPhraseState from './StoreSeedPhraseState';
 import BackupSeedPhraseState from './BackupSeedPhraseState';

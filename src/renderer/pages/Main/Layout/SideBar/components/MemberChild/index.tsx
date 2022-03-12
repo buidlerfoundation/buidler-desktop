@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AvatarView from '../../../../../../components/AvatarView';
-import './index.global.scss';
+import './index.scss';
 
 type MemberChildProps = {
   user: any;

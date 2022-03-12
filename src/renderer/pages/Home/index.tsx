@@ -7,7 +7,7 @@ import SideBar from '../Main/Layout/SideBar';
 import ChannelView from './container/ChannelView';
 import TaskListView from './container/TaskListView';
 import moment from 'moment';
-import './index.global.scss';
+import './index.scss';
 import ModalCreateChannel from '../../components/ModalCreateChannel';
 import {
   createLoadingSelector,

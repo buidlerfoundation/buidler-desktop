@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './index.global.scss';
+import './index.scss';
 import Popover from '@material-ui/core/Popover';
 import StatusSelectionPopup from '../StatusSelectionPopup';
 import AssignPopup from '../AssignPopup';

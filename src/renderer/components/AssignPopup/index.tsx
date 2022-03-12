@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import AppInput from '../AppInput';
 import AssignItem from './AssignItem';
-import './index.global.scss';
+import './index.scss';
 
 type AssignPopupProps = {
   teamUserData: Array<any>;

@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import './index.global.scss';
+import './index.scss';
 import Popover from '@material-ui/core/Popover';
 
 export type PopoverItem = {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { normalizeMessageText } from '../../helpers/MessageHelper';
 import AvatarView from '../AvatarView';
-import './index.global.scss';
+import './index.scss';
 
 type MessageReplyProps = {
   message: any;

@@ -2,7 +2,7 @@ import React from 'react';
 import images from '../../common/images';
 import AvatarView from '../AvatarView';
 import MessagePhotoItem from '../MessagePhotoItem';
-import './index.global.scss';
+import './index.scss';
 
 type MessageHeadProps = {
   message: any;

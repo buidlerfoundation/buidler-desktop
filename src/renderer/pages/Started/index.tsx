@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';

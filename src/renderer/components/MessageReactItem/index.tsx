@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.global.scss';
+import './index.scss';
 import { Emoji } from 'emoji-mart';
 
 type MessageReactItemProps = {

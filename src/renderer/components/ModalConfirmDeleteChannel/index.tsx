@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from '@material-ui/core/Modal';
-import './index.global.scss';
+import './index.scss';
 import NormalButton from '../NormalButton';
 
 type ModalConfirmDeleteChannelProps = {

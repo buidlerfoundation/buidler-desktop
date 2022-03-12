@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, CircularProgress } from '@material-ui/core';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 import AppInput from '../AppInput';
 import ImageHelper from '../../common/ImageHelper';
@@ -103,7 +103,7 @@ const ModalTeamSetting = ({
                 </div>
               </div>
               <div className="app-version">
-                <span>1.1.49</span>
+                <span>1.1.50</span>
               </div>
             </div>
             <div className="body">

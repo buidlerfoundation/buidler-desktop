@@ -1,7 +1,7 @@
 import React from 'react';
 import ImageHelper from '../../../../common/ImageHelper';
 import images from '../../../../common/images';
-import './index.global.scss';
+import './index.scss';
 
 type TeamViewProps = {
   team: Array<any>;

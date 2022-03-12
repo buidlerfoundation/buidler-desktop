@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import actions from '../../actions';
-import './index.global.scss';
+import './index.scss';
 import { useHistory } from 'react-router-dom';
 import { getCookie } from '../../common/Cookie';
 import { AsyncKey } from '../../common/AppConfig';

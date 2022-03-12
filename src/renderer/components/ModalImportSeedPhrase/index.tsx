@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Modal } from '@material-ui/core';
-import './index.global.scss';
+import './index.scss';
 import NormalButton from '../NormalButton';
 import ImportState from './ImportState';
 import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';

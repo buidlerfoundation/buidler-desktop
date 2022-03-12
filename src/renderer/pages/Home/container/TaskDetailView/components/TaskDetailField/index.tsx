@@ -1,6 +1,6 @@
 import React from 'react';
 import AppInput from '../../../../../../components/AppInput';
-import './index.global.scss';
+import './index.scss';
 
 type TaskDetailFieldProps = { item: any };
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import api from '../../api';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
-import './index.global.scss';
+import './index.scss';
 
 type AttachmentItemProps = {
   att: any;

@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import Modal from '@material-ui/core/Modal';
-import './index.global.scss';
+import './index.scss';
 import CreateTaskView from './CreateTaskView';
 import ModalCreateTaskFullScreen from '../ModalCreateTaskFullScreen';
 import { ProgressStatus } from '../../common/AppConfig';

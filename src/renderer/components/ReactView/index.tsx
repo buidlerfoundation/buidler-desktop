@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './index.global.scss';
+import './index.scss';
 import { Emoji } from 'emoji-mart';
 import Popper from '@material-ui/core/Popper';
 import AvatarView from '../AvatarView';

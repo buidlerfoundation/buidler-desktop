@@ -1,6 +1,6 @@
 import React from 'react';
 import AppInput from '../AppInput';
-import './index.global.scss';
+import './index.scss';
 
 type TextFieldProps = {
   placeholder?: string;

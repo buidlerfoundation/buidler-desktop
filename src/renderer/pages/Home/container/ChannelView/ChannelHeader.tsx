@@ -9,7 +9,7 @@ import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
 import PopoverButton from '../../../../components/PopoverButton';
 import ChannelSettings from './ChannelSettings';
-import './index.global.scss';
+import './index.scss';
 
 type ChannelHeaderProps = {
   currentChannel?: any;

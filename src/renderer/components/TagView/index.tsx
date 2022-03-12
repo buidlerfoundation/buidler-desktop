@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import images from '../../common/images';
 import PopoverButton from '../PopoverButton';
 import PopupChannel from '../PopupChannel';
-import './index.global.scss';
+import './index.scss';
 
 type TagViewProps = {
   channels: Array<any>;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ipcRenderer } from 'electron';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 import { bindActionCreators } from 'redux';
 import actions from '../../actions';

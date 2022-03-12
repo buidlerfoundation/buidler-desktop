@@ -4,7 +4,7 @@ import api from '../../api';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
 import ImgLightBox from '../ImgLightBox';
-import './index.global.scss';
+import './index.scss';
 
 type TaskAttachmentItemProps = {
   attachment: any;

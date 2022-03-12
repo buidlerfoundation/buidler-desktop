@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import './index.global.scss';
+import './index.scss';
 import MessageHead from '../MessageHead';
 import { connect } from 'react-redux';
 import {

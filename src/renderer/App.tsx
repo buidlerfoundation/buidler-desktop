@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import Main from './pages/Main';
-import './App.global.scss';
-import './styles/spacing.global.scss';
-import './emoji.global.scss';
+import './App.scss';
+import './styles/spacing.scss';
+import './emoji.scss';
 import path from 'path';
 import AppToastNotification from './components/AppToastNotification';
 import TextareaAutosize from 'react-textarea-autosize';

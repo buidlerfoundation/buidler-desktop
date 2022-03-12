@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import images from '../../common/images';
 import { activityFromNow, dateFormatted } from '../../utils/DateUtils';
 import AvatarView from '../AvatarView';
-import './index.global.scss';
+import './index.scss';
 
 type ActivityBodyProps = {
   activities: Array<any>;

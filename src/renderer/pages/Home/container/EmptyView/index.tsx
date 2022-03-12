@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ModalTeam from '../../../../components/ModalTeam';
 import NormalButton from '../../../../components/NormalButton';
-import './index.global.scss';
+import './index.scss';
 
 type EmptyViewProps = {
   createTeam?: (body: any) => any;

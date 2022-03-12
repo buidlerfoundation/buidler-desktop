@@ -1,7 +1,7 @@
 import React from 'react';
 import images from '../../../../common/images';
 import TaskDetailField from './components/TaskDetailField';
-import './index.global.scss';
+import './index.scss';
 import { TaskDetailUIConfigures } from './UIConfigures';
 
 const TaskDetailView = () => {

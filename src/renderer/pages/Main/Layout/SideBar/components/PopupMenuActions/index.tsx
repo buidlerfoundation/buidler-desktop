@@ -1,7 +1,7 @@
 import React from 'react';
 import { clearData } from '../../../../../../common/Cookie';
 import ActionItem from './ActionItem';
-import './index.global.scss';
+import './index.scss';
 import { useHistory } from 'react-router-dom';
 
 type PopupMenuActionProps = {
@@ -26,7 +26,7 @@ const PopupMenuActions = ({
         }}
       />
       <div className="app-version">
-        <span>1.1.49</span>
+        <span>1.1.50</span>
       </div>
     </div>
   );

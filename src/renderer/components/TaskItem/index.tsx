@@ -5,7 +5,7 @@ import { getIconByStatus } from '../../helpers/TaskHelper';
 import EmojiPicker from '../EmojiPicker';
 import ImgLightBox from '../ImgLightBox';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
-import './index.global.scss';
+import './index.scss';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import ReactView from '../ReactView';
 import { connect } from 'react-redux';

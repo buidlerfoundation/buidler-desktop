@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from 'react';
 import images from '../../common/images';
-import './index.global.scss';
+import './index.scss';
 import { connect } from 'react-redux';
 import { getIconByStatus } from '../../helpers/TaskHelper';
 import AttachmentItem from './AttachmentItem';

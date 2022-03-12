@@ -1,7 +1,7 @@
 import React from 'react';
 import { KeyboardDatePicker } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
-import './index.global.scss';
+import './index.scss';
 
 type DataPickerProps = {
   selectedDate: MaterialUiPickersDate;

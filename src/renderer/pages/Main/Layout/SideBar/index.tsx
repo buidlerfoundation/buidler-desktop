@@ -5,7 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import './index.global.scss';
+import './index.scss';
 import images from '../../../../common/images';
 import GroupTitle from './components/GroupTitle';
 import MemberChild from './components/MemberChild';

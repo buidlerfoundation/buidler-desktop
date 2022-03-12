@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import actions from '../../actions';
-import './index.global.scss';
+import './index.scss';
 import TeamItem from './TeamItem';
 import GlobalVariable from '../../services/GlobalVariable';
 import images from '../../common/images';

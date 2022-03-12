@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.global.scss';
+import './index.scss';
 import ImgLightBox from '../ImgLightBox';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';

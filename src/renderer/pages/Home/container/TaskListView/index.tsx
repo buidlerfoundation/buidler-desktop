@@ -10,7 +10,7 @@ import {
   getToggleState,
   groupTaskByFiltered,
 } from '../../../../helpers/TaskHelper';
-import './index.global.scss';
+import './index.scss';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 type TaskListViewProps = {

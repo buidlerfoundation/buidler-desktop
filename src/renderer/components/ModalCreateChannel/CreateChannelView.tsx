@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import NormalButton from '../NormalButton';
 import Popover from '@material-ui/core/Popover';
-import './index.global.scss';
+import './index.scss';
 import images from '../../common/images';
 import GroupChannelPopup from '../GroupChannelPopup';
 import AppInput from '../AppInput';
