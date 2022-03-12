@@ -11,7 +11,7 @@
 # 2.0.0
 
 ## Breaking Changes
-  
+
 - drop redux
 - remove counter example app
 - simplify directory structure
