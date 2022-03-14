@@ -49,7 +49,8 @@ const ModalCreateTask = ({
       notes: '',
       attachments: [],
     }),
-    [currentChannel?.user, currentTitle, channels]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentChannel?.user, currentTitle]
   );
   const [taskData, setTaskData] = useState<any>(initialState);
   const [isFullScreen, setFullScreen] = useState(false);
@@ -65,7 +66,7 @@ const ModalCreateTask = ({
       generateId.current = '';
       setTaskData(initialState);
     }
-  }, [open, setTaskData, initialState]);
+  }, [open, initialState]);
   useEffect(() => {
     const listener = (event: any) => {
       if (event.metaKey && event.key === 'Enter' && open) {

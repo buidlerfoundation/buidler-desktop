@@ -123,6 +123,7 @@ const TaskView = ({
     window.addEventListener('keydown', keyDownListener);
     getConversations(task.task_id);
     return () => window.removeEventListener('keydown', keyDownListener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const onAddAttachment = async (files: any) => {
     if (files == null) return;
@@ -333,9 +334,9 @@ const TaskView = ({
                     team_id: teamId,
                   });
                 }}
-                onChange={(e) =>
-                  setTaskData((data) => ({ ...data, title: e.target.value }))
-                }
+                onChange={(e) => {
+                  setTaskData((data) => ({ ...data, title: e.target.value }));
+                }}
                 className="task-title-input hide-scroll-bar"
                 onPaste={_onPasteAttachmentTask}
               />

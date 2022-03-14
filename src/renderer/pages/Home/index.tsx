@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { DragDropContext } from 'react-beautiful-dnd';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
@@ -15,7 +16,6 @@ import {
 } from '../../reducers/selectors';
 import actionTypes from '../../actions/ActionTypes';
 import HomeLoading from '../../components/HomeLoading';
-import { DragDropContext } from 'react-beautiful-dnd';
 import { PopoverItem } from '../../components/PopoverButton';
 import ModalTaskView from '../../components/ModalTaskView';
 import { groupTaskByFiltered } from '../../helpers/TaskHelper';
@@ -173,9 +173,8 @@ const Home = ({
   const [channelDelete, setChannelDelete] = useState<any>(null);
   const [isOpenInvite, setOpenInvite] = useState(false);
   const [isOpenConfirmDeleteGroup, setOpenConfirmDeleteGroup] = useState(false);
-  const [isOpenConfirmDeleteChannel, setOpenConfirmDeleteChannel] = useState(
-    false
-  );
+  const [isOpenConfirmDeleteChannel, setOpenConfirmDeleteChannel] =
+    useState(false);
   const [filter, setFilter] = useState(filterTask[0]);
   const [openCreateTask, setOpenCreateTask] = useState(false);
   const [currentTitle, setCurrentTitle] = useState<string | null>(null);

@@ -296,7 +296,9 @@ class SocketUtil {
   }
   sendMessage = (message: {
     channel_id: string;
-    text: string;
+    content: string;
+    plain_text: string;
+    mentions?: Array<any>;
     message_id?: string;
   }) => {
     this.socket.emit('NEW_MESSAGE', message);
