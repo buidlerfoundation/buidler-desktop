@@ -85,8 +85,6 @@ const ChannelHeader = forwardRef(
           {isChannelPrivate && (
             <img
               style={{
-                width: 12,
-                height: 'auto',
                 marginLeft: 15,
                 marginTop: 1,
               }}

@@ -6,36 +6,33 @@ import { getCookie, setCookie } from '../common/Cookie';
 import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
 
-export const getInitial: ActionCreator<any> = () => async (
-  dispatch: Dispatch
-) => {
-  const res = await api.getInitial();
-  ImageHelper.initial(res.img_domain, res.img_config);
-  dispatch({ type: ActionTypes.GET_INITIAL, payload: { data: res } });
-};
+export const getInitial: ActionCreator<any> =
+  () => async (dispatch: Dispatch) => {
+    const res = await api.getInitial();
+    ImageHelper.initial(res.img_domain, res.img_config);
+    dispatch({ type: ActionTypes.GET_INITIAL, payload: { data: res } });
+  };
 
 export const logout: ActionCreator<any> = () => (dispatch: Dispatch) => {
   SocketUtils.disconnect();
   dispatch({ type: ActionTypes.LOGOUT });
 };
 
-export const login: ActionCreator<any> = (
-  code,
-  callback: (res: boolean) => void
-) => async (dispatch: Dispatch) => {
-  dispatch({ type: ActionTypes.LOGIN_REQUEST });
-  const res = await api.loginWithGoogle(code);
-  if (res.statusCode === 200) {
-    setCookie(AsyncKey.accessTokenKey, res.token);
-    // TODO: call api fetch user profile with token
-    dispatch({ type: ActionTypes.LOGIN_SUCCESS });
-    dispatch({ type: ActionTypes.USER_SUCCESS, payload: { user: res.data } });
-    callback(true);
-  } else {
-    dispatch({ type: ActionTypes.LOGIN_FAIL });
-    callback(false);
-  }
-};
+export const login: ActionCreator<any> =
+  (code, callback: (res: boolean) => void) => async (dispatch: Dispatch) => {
+    dispatch({ type: ActionTypes.LOGIN_REQUEST });
+    const res = await api.loginWithGoogle(code);
+    if (res.statusCode === 200) {
+      setCookie(AsyncKey.accessTokenKey, res.token);
+      // TODO: call api fetch user profile with token
+      dispatch({ type: ActionTypes.LOGIN_SUCCESS });
+      dispatch({ type: ActionTypes.USER_SUCCESS, payload: { user: res.data } });
+      callback(true);
+    } else {
+      dispatch({ type: ActionTypes.LOGIN_FAIL });
+      callback(false);
+    }
+  };
 
 export const findUser = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.USER_REQUEST });
@@ -47,17 +44,18 @@ export const findUser = () => async (dispatch: Dispatch) => {
   }
 };
 
-export const dragChannel = (channelId: string, groupId: string) => async (
-  dispatch: Dispatch
-) => {
-  const res = await api.updateChannel(channelId, { group_channel_id: groupId });
-  if (res.statusCode === 200) {
-    dispatch({
-      type: ActionTypes.UPDATE_GROUP_CHANNEL,
-      payload: { channelId, groupId },
+export const dragChannel =
+  (channelId: string, groupId: string) => async (dispatch: Dispatch) => {
+    const res = await api.updateChannel(channelId, {
+      group_channel_id: groupId,
     });
-  }
-};
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.UPDATE_GROUP_CHANNEL,
+        payload: { channelId, groupId },
+      });
+    }
+  };
 
 export const findTeamAndChannel = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.TEAM_REQUEST });
@@ -141,66 +139,62 @@ export const setCurrentChannel = (channel: any) => (dispatch: Dispatch) => {
   });
 };
 
-export const updateChannel = (channelId: string, body: any) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.UPDATE_CHANNEL_REQUEST,
-    payload: { channelId, body },
-  });
-  const res = await api.updateChannel(channelId, body);
-  if (res.statusCode === 200) {
-    dispatch({ type: ActionTypes.UPDATE_CHANNEL_SUCCESS, payload: res });
-  } else {
-    dispatch({ type: ActionTypes.UPDATE_CHANNEL_FAIL, payload: res });
-  }
-};
-
-export const deleteChannel = (channelId: string) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.DELETE_CHANNEL_PREFIX,
-    payload: { channelId },
-  });
-  const res = await api.deleteChannel(channelId);
-  if (res.statusCode === 200) {
+export const updateChannel =
+  (channelId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.DELETE_CHANNEL_SUCCESS,
-      payload: { ...res, channelId },
+      type: ActionTypes.UPDATE_CHANNEL_REQUEST,
+      payload: { channelId, body },
     });
-  } else {
-    dispatch({ type: ActionTypes.DELETE_CHANNEL_FAIL, payload: res });
-  }
-};
+    const res = await api.updateChannel(channelId, body);
+    if (res.statusCode === 200) {
+      dispatch({ type: ActionTypes.UPDATE_CHANNEL_SUCCESS, payload: res });
+    } else {
+      dispatch({ type: ActionTypes.UPDATE_CHANNEL_FAIL, payload: res });
+    }
+  };
 
-export const createNewChannel = (
-  teamId: string,
-  body: any,
-  groupName: string
-) => async (dispatch: Dispatch) => {
-  dispatch({
-    type: ActionTypes.CREATE_CHANNEL_REQUEST,
-    payload: { teamId, body },
-  });
-  const res = await api.createChannel(teamId, body);
-  if (res.statusCode === 200) {
+export const deleteChannel =
+  (channelId: string) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.CREATE_CHANNEL_SUCCESS,
-      payload: {
-        ...res,
-        group_channel: {
-          group_channel_name: groupName,
+      type: ActionTypes.DELETE_CHANNEL_PREFIX,
+      payload: { channelId },
+    });
+    const res = await api.deleteChannel(channelId);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.DELETE_CHANNEL_SUCCESS,
+        payload: { ...res, channelId },
+      });
+    } else {
+      dispatch({ type: ActionTypes.DELETE_CHANNEL_FAIL, payload: res });
+    }
+  };
+
+export const createNewChannel =
+  (teamId: string, body: any, groupName: string) =>
+  async (dispatch: Dispatch) => {
+    dispatch({
+      type: ActionTypes.CREATE_CHANNEL_REQUEST,
+      payload: { teamId, body },
+    });
+    const res = await api.createChannel(teamId, body);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.CREATE_CHANNEL_SUCCESS,
+        payload: {
+          ...res,
+          group_channel: {
+            group_channel_name: groupName,
+          },
         },
-      },
-    });
-  } else {
-    dispatch({
-      type: ActionTypes.CREATE_CHANNEL_FAIL,
-      payload: res,
-    });
-  }
-};
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.CREATE_CHANNEL_FAIL,
+        payload: res,
+      });
+    }
+  };
 
 const actionSetCurrentTeam = async (
   team: any,
@@ -268,74 +262,70 @@ const actionSetCurrentTeam = async (
   }
 };
 
-export const setCurrentTeam = (team: any, channelId?: string) => async (
-  dispatch: Dispatch
-) => {
-  actionSetCurrentTeam(team, dispatch, channelId);
-};
+export const setCurrentTeam =
+  (team: any, channelId?: string) => async (dispatch: Dispatch) => {
+    actionSetCurrentTeam(team, dispatch, channelId);
+  };
 
-export const deleteGroupChannel = (groupId: string) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.DELETE_GROUP_CHANNEL_REQUEST,
-    payload: { groupId },
-  });
-  const res = await api.deleteGroupChannel(groupId);
-  if (res.statusCode === 200) {
+export const deleteGroupChannel =
+  (groupId: string) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
-      payload: { ...res, groupId },
+      type: ActionTypes.DELETE_GROUP_CHANNEL_REQUEST,
+      payload: { groupId },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.DELETE_GROUP_CHANNEL_FAIL,
-      payload: res,
-    });
-  }
-};
+    const res = await api.deleteGroupChannel(groupId);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
+        payload: { ...res, groupId },
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.DELETE_GROUP_CHANNEL_FAIL,
+        payload: res,
+      });
+    }
+  };
 
-export const updateGroupChannel = (groupId: string, body: any) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.UPDATE_GROUP_CHANNEL_REQUEST,
-    payload: { groupId, body },
-  });
-  const res = await api.updateGroupChannel(groupId, body);
-  if (res.statusCode === 200) {
+export const updateGroupChannel =
+  (groupId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.UPDATE_GROUP_CHANNEL_SUCCESS,
-      payload: res,
+      type: ActionTypes.UPDATE_GROUP_CHANNEL_REQUEST,
+      payload: { groupId, body },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.UPDATE_GROUP_CHANNEL_FAIL,
-      payload: res,
-    });
-  }
-};
+    const res = await api.updateGroupChannel(groupId, body);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.UPDATE_GROUP_CHANNEL_SUCCESS,
+        payload: res,
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.UPDATE_GROUP_CHANNEL_FAIL,
+        payload: res,
+      });
+    }
+  };
 
-export const createGroupChannel = (teamId: string, body: any) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.CREATE_GROUP_CHANNEL_REQUEST,
-    payload: { teamId, body },
-  });
-  const res = await api.createGroupChannel(teamId, body);
-  if (res.statusCode === 200) {
+export const createGroupChannel =
+  (teamId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
-      payload: res,
+      type: ActionTypes.CREATE_GROUP_CHANNEL_REQUEST,
+      payload: { teamId, body },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.CREATE_CHANNEL_FAIL,
-      payload: res,
-    });
-  }
-};
+    const res = await api.createGroupChannel(teamId, body);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
+        payload: res,
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.CREATE_CHANNEL_FAIL,
+        payload: res,
+      });
+    }
+  };
 
 export const createTeam = (body: any) => async (dispatch: Dispatch) => {
   dispatch({
@@ -357,26 +347,25 @@ export const createTeam = (body: any) => async (dispatch: Dispatch) => {
   }
 };
 
-export const removeTeamMember = (teamId: string, userId: string) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.REMOVE_MEMBER_REQUEST,
-    payload: { teamId, userId },
-  });
-  const res = await api.removeTeamMember(teamId, userId);
-  if (res.statusCode === 200) {
+export const removeTeamMember =
+  (teamId: string, userId: string) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.REMOVE_MEMBER_SUCCESS,
+      type: ActionTypes.REMOVE_MEMBER_REQUEST,
       payload: { teamId, userId },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.REMOVE_MEMBER_FAIL,
-      payload: res,
-    });
-  }
-};
+    const res = await api.removeTeamMember(teamId, userId);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.REMOVE_MEMBER_SUCCESS,
+        payload: { teamId, userId },
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.REMOVE_MEMBER_FAIL,
+        payload: res,
+      });
+    }
+  };
 
 export const leaveTeam = (teamId: string) => async (dispatch: Dispatch) => {
   dispatch({
@@ -398,49 +387,49 @@ export const leaveTeam = (teamId: string) => async (dispatch: Dispatch) => {
   return res.statusCode === 200;
 };
 
-export const updateUserChannel = (channels: Array<any>) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.USER_CHANNEL_REQUEST,
-    payload: { channels },
-  });
-  const res = await api.updateUserChannel(channels.map((el) => el.channel_id));
-  if (res.statusCode === 200) {
+export const updateUserChannel =
+  (channels: Array<any>) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.USER_CHANNEL_SUCCESS,
+      type: ActionTypes.USER_CHANNEL_REQUEST,
       payload: { channels },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.USER_CHANNEL_FAIL,
-      payload: res,
-    });
-  }
-  return res.statusCode === 200;
-};
+    const res = await api.updateUserChannel(
+      channels.map((el) => el.channel_id)
+    );
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.USER_CHANNEL_SUCCESS,
+        payload: { channels },
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.USER_CHANNEL_FAIL,
+        payload: res,
+      });
+    }
+    return res.statusCode === 200;
+  };
 
-export const updateTeam = (teamId: string, body: any) => async (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ActionTypes.UPDATE_TEAM_REQUEST,
-    payload: { teamId, body },
-  });
-  const res = await api.updateTeam(teamId, body);
-  if (res.statusCode === 200) {
+export const updateTeam =
+  (teamId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
-      type: ActionTypes.UPDATE_TEAM_SUCCESS,
-      payload: { teamId, body, res },
+      type: ActionTypes.UPDATE_TEAM_REQUEST,
+      payload: { teamId, body },
     });
-  } else {
-    dispatch({
-      type: ActionTypes.UPDATE_TEAM_FAIL,
-      payload: res,
-    });
-  }
-  return res.statusCode === 200;
-};
+    const res = await api.updateTeam(teamId, body);
+    if (res.statusCode === 200) {
+      dispatch({
+        type: ActionTypes.UPDATE_TEAM_SUCCESS,
+        payload: { teamId, body, res },
+      });
+    } else {
+      dispatch({
+        type: ActionTypes.UPDATE_TEAM_FAIL,
+        payload: res,
+      });
+    }
+    return res.statusCode === 200;
+  };
 
 export const deleteTeam = (teamId: string) => async (dispatch: Dispatch) => {
   dispatch({

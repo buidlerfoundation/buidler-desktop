@@ -86,10 +86,8 @@ const SideBar = forwardRef(
     const toggleCollapsed = () => setCollapsed(!isCollapsed);
     const [selectedMenuChannel, setSelectedMenuChannel] = useState<any>(null);
     const [selectedMenuMember, setSelectedMenuMember] = useState<any>(null);
-    const [
-      selectedMenuGroupChannel,
-      setSelectedMenuGroupChannel,
-    ] = useState<any>(null);
+    const [selectedMenuGroupChannel, setSelectedMenuGroupChannel] =
+      useState<any>(null);
     const bottomBodyRef = useRef<any>();
     const menuPrivateChannelRef = useRef<any>();
     const menuChannelRef = useRef<any>();
@@ -99,8 +97,9 @@ const SideBar = forwardRef(
     const [anchorPopupActions, setPopupActions] = useState(null);
     const openActions = Boolean(anchorPopupActions);
     const idPopupActions = openActions ? 'action-popover' : undefined;
-    const role = teamUserData?.find?.((el) => el.user_id === userData?.user_id)
-      ?.role;
+    const role = teamUserData?.find?.(
+      (el) => el.user_id === userData?.user_id
+    )?.role;
     useEffect(() => {
       if (team == null && errorTeam === '') {
         findTeamAndChannel?.();

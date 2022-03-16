@@ -64,6 +64,11 @@ class SocketUtil {
         this.socket.off('ON_DELETE_MESSAGE');
         this.socket.off('ON_REACTION_ADDED');
         this.socket.off('ON_REACTION_REMOVED');
+        this.socket.off('ON_USER_JOIN_TEAM');
+        this.socket.off('ON_CREATE_NEW_PUBLIC_CHANNEL');
+        this.socket.off('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL');
+        this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
+        this.socket.off('ON_CREATE_NEW_DIRECT_CHANNEL');
         this.socket.off('disconnect');
       });
       loadMessageIfNeeded();
@@ -73,6 +78,76 @@ class SocketUtil {
     });
   }
   listenSocket() {
+    this.socket.on('ON_CREATE_NEW_PUBLIC_CHANNEL', (data: any) => {
+      const user: any = store.getState()?.user;
+      const { currentTeam } = user;
+      if (currentTeam.team_id === data.team_id) {
+        store.dispatch({
+          type: actionTypes.NEW_CHANNEL,
+          payload: data,
+        });
+      }
+    });
+    this.socket.on('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL', (data: any) => {
+      const user: any = store.getState()?.user;
+      const { currentTeam, channel, userData } = user;
+      if (currentTeam.team_id === data.team_id) {
+        const isExistChannel = !!channel.find(
+          (el: any) => el.channel_id === data.channel_id
+        );
+        if (isExistChannel) {
+          store.dispatch({
+            type: actionTypes.UPDATE_CHANNEL_SUCCESS,
+            payload: data,
+          });
+        } else if (
+          !!data.channel_member.find((el: string) => el === userData.user_id)
+        ) {
+          store.dispatch({
+            type: actionTypes.NEW_CHANNEL,
+            payload: data,
+          });
+        }
+      }
+    });
+    this.socket.on('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL', (data: any) => {
+      const user: any = store.getState()?.user;
+      const { currentTeam, channel, userData } = user;
+      if (currentTeam.team_id === data.team_id) {
+        const isExistChannel = !!channel.find(
+          (el: any) => el.channel_id === data.channel_id
+        );
+        if (
+          isExistChannel &&
+          !data.channel_member.find((el: string) => el === userData.user_id)
+        ) {
+          store.dispatch({
+            type: actionTypes.DELETE_CHANNEL_SUCCESS,
+            payload: { channelId: data.channel_id },
+          });
+        }
+      }
+    });
+    this.socket.on('ON_CREATE_NEW_DIRECT_CHANNEL', (data: any) => {
+      const user: any = store.getState()?.user;
+      const { currentTeam } = user;
+      if (currentTeam.team_id === data.team_id) {
+        store.dispatch({
+          type: actionTypes.NEW_CHANNEL,
+          payload: data,
+        });
+      }
+    });
+    this.socket.on('ON_USER_JOIN_TEAM', (data: any) => {
+      const user: any = store.getState()?.user;
+      const { currentTeam } = user;
+      if (currentTeam.team_id === data.team_id) {
+        store.dispatch({
+          type: actionTypes.NEW_USER,
+          payload: data,
+        });
+      }
+    });
     this.socket.on('ON_REACTION_ADDED', (data: any) => {
       const { attachment_id, emoji_id, user_id } = data.reaction_data;
       store.dispatch({

@@ -19,6 +19,18 @@ const initialState = {
 const userReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.NEW_USER: {
+      return {
+        ...state,
+        teamUserData: [...state.teamUserData, payload],
+      };
+    }
+    case actionTypes.NEW_CHANNEL: {
+      return {
+        ...state,
+        channel: [...state.channel, payload],
+      };
+    }
     case actionTypes.DELETE_GROUP_CHANNEL_SUCCESS: {
       return {
         ...state,

@@ -28,6 +28,7 @@ module.exports = {
     'no-cond-assign': 'off',
     radix: 'off',
     'no-extra-boolean-cast': 'off',
+    'no-nested-ternary': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

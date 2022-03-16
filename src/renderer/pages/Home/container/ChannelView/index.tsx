@@ -117,6 +117,7 @@ const ChannelView = forwardRef(
       setReplyTask(null);
       setMessageEdit(null);
       setFiles([]);
+      generateId.current = '';
     }, [
       messageReply,
       replyTask,

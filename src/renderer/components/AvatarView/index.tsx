@@ -14,6 +14,7 @@ const AvatarView = ({ user, size = 25 }: AvatarViewProps) => {
         alt=""
         src={user?.avatar_url}
         style={{ width: size, height: size }}
+        referrerPolicy="no-referrer"
       />
       {user?.status && <div className={`status ${user.status}`} />}
     </div>

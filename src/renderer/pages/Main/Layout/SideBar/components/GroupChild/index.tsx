@@ -28,7 +28,12 @@ const GroupChild = ({
   }
   const prefix = !isPrivate ? '# ' : '';
   const filter: any =
-    isSelected || isUnSeen || isHover ? null : 'brightness(0.5)';
+    isSelected || isUnSeen || isHover
+      ? null
+      : isMuted
+      ? 'brightness(0.2)'
+      : 'brightness(0.5)';
+
   return (
     <div
       className={`group-child-container ${isMuted && 'muted'} ${
@@ -42,7 +47,7 @@ const GroupChild = ({
       <div className="ml15" style={{ display: 'flex', alignItems: 'center' }}>
         {isPrivate && (
           <img
-            style={{ marginLeft: 5, width: 12, height: 'auto', filter }}
+            style={{ marginLeft: 5, filter }}
             alt=""
             src={images.icPrivateWhite}
           />

@@ -50,11 +50,7 @@ const SettingChannel = ({
               justifyContent: 'center',
             }}
           >
-            <img
-              style={{ width: 11, height: 13 }}
-              src={images.icPrivateWhite}
-              alt=""
-            />
+            <img src={images.icPrivateWhite} alt="" />
           </div>
           <span className="setting-label">Channel Type</span>
           <PopoverButton
