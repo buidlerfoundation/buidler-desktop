@@ -262,7 +262,6 @@ const userReducers = (state = initialState, action) => {
     case actionTypes.CREATE_CHANNEL_SUCCESS: {
       return {
         ...state,
-        channel: [...state.channel, payload],
         currentChannel: payload,
         lastChannel: {
           ...state.lastChannel,

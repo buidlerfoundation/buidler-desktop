@@ -126,7 +126,12 @@ const ChannelHeader = forwardRef(
                   className="avatar__wrapper"
                   style={{ left: 15 * index }}
                 >
-                  <img className="avatar" src={el.avatar_url} alt="" />
+                  <img
+                    className="avatar"
+                    src={el.avatar_url}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
               ))}
               {users.length - 10 > 0 && (

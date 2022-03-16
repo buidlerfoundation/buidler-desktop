@@ -65,10 +65,9 @@ class SocketUtil {
         this.socket.off('ON_REACTION_ADDED');
         this.socket.off('ON_REACTION_REMOVED');
         this.socket.off('ON_USER_JOIN_TEAM');
-        this.socket.off('ON_CREATE_NEW_PUBLIC_CHANNEL');
+        this.socket.off('ON_CREATE_NEW_CHANNEL');
         this.socket.off('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL');
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
-        this.socket.off('ON_CREATE_NEW_DIRECT_CHANNEL');
         this.socket.off('disconnect');
       });
       loadMessageIfNeeded();
@@ -78,7 +77,7 @@ class SocketUtil {
     });
   }
   listenSocket() {
-    this.socket.on('ON_CREATE_NEW_PUBLIC_CHANNEL', (data: any) => {
+    this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const user: any = store.getState()?.user;
       const { currentTeam } = user;
       if (currentTeam.team_id === data.team_id) {
@@ -126,16 +125,6 @@ class SocketUtil {
             payload: { channelId: data.channel_id },
           });
         }
-      }
-    });
-    this.socket.on('ON_CREATE_NEW_DIRECT_CHANNEL', (data: any) => {
-      const user: any = store.getState()?.user;
-      const { currentTeam } = user;
-      if (currentTeam.team_id === data.team_id) {
-        store.dispatch({
-          type: actionTypes.NEW_CHANNEL,
-          payload: data,
-        });
       }
     });
     this.socket.on('ON_USER_JOIN_TEAM', (data: any) => {
