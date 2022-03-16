@@ -9,10 +9,15 @@ const CreatePasswordState = () => {
   const [showPassword, setShowPassword] = useState(true);
   const togglePassword = () => setShowPassword(!showPassword);
   const passwordLevel = useMemo(() => {
-    const requiredPassRules = passwordRules().filter(
-      (el) => el.isRequired && el.regex.test(password)
+    const requiredPassRules = passwordRules().filter((el) => el.isRequired);
+    const passRequired = requiredPassRules.filter((el) =>
+      el.regex.test(password)
     );
-    if (requiredPassRules.length === 0) return 0;
+    if (
+      requiredPassRules.length > 0 &&
+      passRequired.length < requiredPassRules.length
+    )
+      return 0;
     return passwordRules().filter((el) => el.regex.test(password)).length;
   }, [password]);
   return (
