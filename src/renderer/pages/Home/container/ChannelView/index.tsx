@@ -298,7 +298,8 @@ const ChannelView = forwardRef(
         file_ids: msg?.message_attachment?.map?.((a: any) => a.file_id),
         task_id: msg.message_id,
         team_id: currentTeam.team_id,
-        assignee_id: currentChannel?.user?.user_id,
+        assignee_id:
+          msg.message_tag?.[0]?.mention_id || currentChannel?.user?.user_id,
       };
       createTask(currentChannel?.channel_id, body);
     };
