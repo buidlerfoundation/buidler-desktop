@@ -7,8 +7,133 @@ import toast from 'react-hot-toast';
 import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
 import GlobalVariable from '../services/GlobalVariable';
+import { Dispatch } from 'redux';
 
 const SocketIO = require('socket.io-client');
+
+const getTasks = async (channelId: string, dispatch: Dispatch) => {
+  dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
+  try {
+    const [taskRes, archivedCountRes] = await Promise.all([
+      api.getTasks(channelId),
+      api.getArchivedTaskCount(channelId),
+    ]);
+    if (taskRes.statusCode === 200 && archivedCountRes.statusCode === 200) {
+      dispatch({
+        type: actionTypes.TASK_SUCCESS,
+        payload: {
+          channelId,
+          tasks: taskRes.data,
+          archivedCount: archivedCountRes.total,
+        },
+      });
+    } else {
+      dispatch({
+        type: actionTypes.TASK_FAIL,
+        payload: { message: 'Error', taskRes, archivedCountRes },
+      });
+    }
+  } catch (e) {
+    dispatch({ type: actionTypes.TASK_FAIL, payload: { message: e } });
+  }
+};
+
+const getTaskFromUser = async (
+  userId: string,
+  channelId: string,
+  teamId: string,
+  dispatch: Dispatch
+) => {
+  dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
+  try {
+    const [taskRes, archivedCountRes] = await Promise.all([
+      api.getTaskFromUser(userId, teamId),
+      api.getArchivedTaskCountFromUser(userId, teamId),
+    ]);
+    if (taskRes.statusCode === 200 && archivedCountRes.statusCode === 200) {
+      dispatch({
+        type: actionTypes.TASK_SUCCESS,
+        payload: {
+          channelId,
+          tasks: taskRes.data,
+          archivedCount: archivedCountRes.total,
+        },
+      });
+    } else {
+      dispatch({
+        type: actionTypes.TASK_FAIL,
+        payload: { message: 'Error', taskRes, archivedCountRes },
+      });
+    }
+  } catch (e) {
+    dispatch({ type: actionTypes.TASK_FAIL, payload: { message: e } });
+  }
+};
+
+const getMessages = async (channelId: string, dispatch: Dispatch) => {
+  const messageRes = await api.getMessages(channelId, 50);
+  if (messageRes.statusCode === 200) {
+    dispatch({
+      type: actionTypes.MESSAGE_SUCCESS,
+      payload: { data: messageRes.data, channelId },
+    });
+  }
+};
+
+const actionSetCurrentTeam = async (
+  team: any,
+  dispatch: Dispatch,
+  channelId?: string
+) => {
+  dispatch({
+    type: actionTypes.CHANNEL_REQUEST,
+  });
+  const teamUsersRes = await api.getTeamUsers(team.team_id);
+  let lastChannelId: any = null;
+  if (channelId) {
+    lastChannelId = channelId;
+  } else {
+    lastChannelId = await getCookie(AsyncKey.lastChannelId);
+  }
+  const resChannel = await api.findChannel(team.team_id);
+  if (teamUsersRes.statusCode === 200) {
+    dispatch({
+      type: actionTypes.GET_TEAM_USER,
+      payload: { teamUsers: teamUsersRes.data, teamId: team.team_id },
+    });
+  }
+  dispatch({
+    type: actionTypes.SET_CURRENT_TEAM,
+    payload: { team, resChannel, lastChannelId },
+  });
+  setCookie(AsyncKey.lastTeamId, team.team_id);
+  const resGroupChannel = await api.getGroupChannel(team.team_id);
+  if (resGroupChannel.statusCode === 200) {
+    dispatch({
+      type: actionTypes.GROUP_CHANNEL,
+      payload: resGroupChannel.data,
+    });
+  }
+  if (resChannel.statusCode === 200) {
+    if (resChannel.data.length > 0) {
+      dispatch({
+        type: actionTypes.CHANNEL_SUCCESS,
+        payload: {
+          channel: resChannel.data.map((c: any) => {
+            if (c.channel_id === lastChannelId) {
+              c.seen = true;
+            }
+            return c;
+          }),
+        },
+      });
+    } else {
+      dispatch({
+        type: actionTypes.CHANNEL_FAIL,
+      });
+    }
+  }
+};
 
 const loadMessageIfNeeded = async () => {
   const refreshSelector = createRefreshSelector([actionTypes.MESSAGE_PREFIX]);
@@ -35,6 +160,7 @@ const loadMessageIfNeeded = async () => {
 
 class SocketUtil {
   socket: any = null;
+  firstLoad = false;
   async init(teamId?: string) {
     if (this.socket?.connected) return;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
@@ -47,10 +173,14 @@ class SocketUtil {
         transports: ['websocket'],
         upgrade: false,
         reconnectionAttempts: 5,
-        reconnectionDelay: 3000,
+        reconnectionDelay: 1000,
       }
     );
     this.socket.on('connect', () => {
+      if (this.firstLoad) {
+        this.reloadData();
+      }
+      this.firstLoad = true;
       this.listenSocket();
       this.socket.on('disconnect', (reason: string) => {
         this.socket.off('ON_NEW_MESSAGE');
@@ -76,6 +206,31 @@ class SocketUtil {
       this.socket.emit('ONLINE', { team_id: teamId || currentTeam?.team_id });
     });
   }
+  reloadData = () => {
+    const user: any = store.getState()?.user;
+    const { currentTeam, currentChannel } = user;
+    if (currentTeam && currentChannel) {
+      console.log('XXX: reload from socket');
+      actionSetCurrentTeam(
+        currentTeam,
+        store.dispatch,
+        currentChannel.channel_id
+      );
+      // load message
+      getMessages(currentChannel.channel_id, store.dispatch);
+      // load task
+      if (currentChannel?.user) {
+        getTaskFromUser(
+          currentChannel.user.user_id,
+          currentChannel.channel_id || currentChannel.user.user_id,
+          currentTeam?.team_id,
+          store.dispatch
+        );
+      } else {
+        getTasks(currentChannel.channel_id, store.dispatch);
+      }
+    }
+  };
   listenSocket() {
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const user: any = store.getState()?.user;
