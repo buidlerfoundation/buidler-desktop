@@ -85,9 +85,6 @@ const actionSetCurrentTeam = async (
   dispatch: Dispatch,
   channelId?: string
 ) => {
-  dispatch({
-    type: actionTypes.CHANNEL_REQUEST,
-  });
   const teamUsersRes = await api.getTeamUsers(team.team_id);
   let lastChannelId: any = null;
   if (channelId) {

@@ -68,12 +68,14 @@ export const normalizeMessageText = (text: string, isShowNote = false) => {
 };
 
 export const getMentionData = (s: string) => {
-  const mentionRegex = /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/g;
+  const mentionRegex =
+    /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/g;
   const mentionMatches = s.match(mentionRegex);
   return mentionMatches?.map((el) => {
-    const match = /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/.exec(
-      el
-    );
+    const match =
+      /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/.exec(
+        el
+      );
     const split = match?.[2]?.split('=');
     return {
       mention_id: split?.[1],
@@ -89,4 +91,11 @@ export const getLastIndexOfMention = (s: string) => {
     return s.lastIndexOf(mentionMatches[mentionMatches.length - 1]);
   }
   return -1;
+};
+
+export const newMessages = (v1: Array<any>, v2: Array<any>) => {
+  if (!v1 || v1.length === 0) return v2;
+  const latestId = v1[0].message_id;
+  const index = v2.findIndex((el: any) => el.message_id === latestId);
+  return v2.slice(0, index);
 };
