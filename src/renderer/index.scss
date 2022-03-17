@@ -51,11 +51,11 @@ span {
 
 ::-moz-selection {
   /* Code for Firefox */
-  background: var(--color-primary-text);
+  // background: var(--color-primary-text);
 }
 
 ::selection {
-  background: var(--color-primary-text);
+  // background: var(--color-primary-text);
 }
 
 input {
