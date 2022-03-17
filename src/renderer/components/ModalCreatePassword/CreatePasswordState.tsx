@@ -4,8 +4,16 @@ import AppInput from '../AppInput';
 import PasswordLevel from './PasswordLevel';
 import './index.scss';
 
-const CreatePasswordState = () => {
-  const [password, setPassword] = useState('');
+type CreatePasswordStateProps = {
+  password: string;
+  onChangeText: (e: any) => void;
+};
+
+const CreatePasswordState = ({
+  password,
+  onChangeText,
+}: CreatePasswordStateProps) => {
+  // const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(true);
   const togglePassword = () => setShowPassword(!showPassword);
   const passwordLevel = useMemo(() => {
@@ -30,7 +38,7 @@ const CreatePasswordState = () => {
           type={showPassword ? 'text' : 'password'}
           style={{ paddingRight: 80, width: 'calc(100% - 100px)' }}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={onChangeText}
         />
         <div className="toggle-password normal-button" onClick={togglePassword}>
           {showPassword ? 'Hide' : 'Show'}

@@ -133,7 +133,7 @@ class SocketUtil {
       if (currentTeam.team_id === data.team_id) {
         store.dispatch({
           type: actionTypes.NEW_USER,
-          payload: data,
+          payload: data.user,
         });
       }
     });

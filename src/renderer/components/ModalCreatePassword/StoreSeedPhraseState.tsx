@@ -29,7 +29,9 @@ const StoreSeedPhraseState = ({ seed }: StoreSeedPhraseStateProps) => {
         className="copy-button"
         onClick={async () => {
           await navigator.clipboard.writeText(seed);
-          toast.success('Seed phrased is copied');
+          toast.success('Seed phrased is copied', {
+            className: 'Copied !',
+          });
         }}
       >
         <img src={images.icCopy} alt="" />

@@ -5,6 +5,8 @@ import NormalButton from '../NormalButton';
 import ImportState from './ImportState';
 import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';
 import { useHistory } from 'react-router-dom';
+import { ethers } from 'ethers';
+import toast from 'react-hot-toast';
 
 type ModalImportSeedPhraseProps = {
   open: boolean;
@@ -17,34 +19,52 @@ const ModalImportSeedPhrase = ({
   open,
   handleClose,
 }: ModalImportSeedPhraseProps) => {
+  const [password, setPassword] = useState('');
   const history = useHistory();
   const [seed, setSeed] = useState('');
   const [modalState, setModalState] = useState<ModalState>('import');
+  const loggedOn = useCallback(() => {
+    history.replace('/home');
+  }, [history]);
   const renderBody = useMemo(() => {
     if (modalState === 'import')
       return <ImportState seed={seed} setSeed={setSeed} />;
-    if (modalState === 'create-password') return <CreatePasswordState />;
+    if (modalState === 'create-password')
+      return (
+        <CreatePasswordState
+          password={password}
+          onChangeText={(e) => setPassword(e.target.value)}
+        />
+      );
 
     return null;
-  }, [modalState, seed]);
+  }, [modalState, password, seed]);
   const onNextPress = useCallback(() => {
     switch (modalState) {
-      case 'import':
-        setModalState('create-password');
+      case 'import': {
+        if (ethers.utils.isValidMnemonic(seed)) {
+          setModalState('create-password');
+        } else {
+          toast.error('Invalid seed phrase', { className: 'Failed !' });
+        }
+
         break;
-      case 'create-password':
-        history.replace('/home');
+      }
+      case 'create-password': {
+        if (!password) {
+          toast.error('Password can not be empty');
+          return;
+        }
+        loggedOn();
         break;
+      }
       default:
         break;
     }
-  }, [modalState, history]);
+  }, [modalState, seed, password, loggedOn]);
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleClose();
-      }}
       className="import-seed-modal"
       BackdropProps={{
         style: {

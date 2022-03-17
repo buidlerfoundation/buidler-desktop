@@ -8,6 +8,7 @@ import StoreSeedPhraseState from './StoreSeedPhraseState';
 import BackupSeedPhraseState from './BackupSeedPhraseState';
 import { createConfirmSeedState } from '../../helpers/SeedHelper';
 import { useHistory } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 type ModalCreatePasswordProps = {
   open: boolean;
@@ -24,6 +25,7 @@ const ModalCreatePassword = ({
   handleClose,
 }: ModalCreatePasswordProps) => {
   const history = useHistory();
+  const [password, setPassword] = useState('');
   const seed = useMemo(() => ethers.Wallet.createRandom().mnemonic.phrase, []);
   const [confirmSeed, setConfirmSeed] = useState(createConfirmSeedState());
   const [modalState, setModalState] = useState<ModalState>('create-password');
@@ -40,7 +42,13 @@ const ModalCreatePassword = ({
     }
   }, [modalState]);
   const renderBody = useMemo(() => {
-    if (modalState === 'create-password') return <CreatePasswordState />;
+    if (modalState === 'create-password')
+      return (
+        <CreatePasswordState
+          password={password}
+          onChangeText={(e) => setPassword(e.target.value)}
+        />
+      );
     if (modalState === 'store-seed-phrase')
       return <StoreSeedPhraseState seed={seed} />;
     if (modalState === 'backup-seed-phrase')
@@ -52,28 +60,62 @@ const ModalCreatePassword = ({
         />
       );
     return null;
-  }, [modalState, confirmSeed, seed]);
-  const onNextPress = useCallback(() => {
+  }, [modalState, confirmSeed, password, seed]);
+  const loggedOn = useCallback(() => {
+    history.replace('/home');
+  }, [history]);
+  const onCancelText = useCallback(() => {
     switch (modalState) {
       case 'create-password':
-        setModalState('store-seed-phrase');
+        handleClose();
         break;
       case 'store-seed-phrase':
-        setModalState('backup-seed-phrase');
+        loggedOn();
         break;
       case 'backup-seed-phrase':
-        history.replace('/home');
+        setModalState('store-seed-phrase');
         break;
       default:
         break;
     }
-  }, [modalState, history]);
+  }, [modalState, loggedOn, handleClose]);
+  const onNextPress = useCallback(() => {
+    switch (modalState) {
+      case 'create-password': {
+        if (!password) {
+          toast.error('Password can not be empty');
+          return;
+        }
+        setModalState('store-seed-phrase');
+        break;
+      }
+      case 'store-seed-phrase':
+        setModalState('backup-seed-phrase');
+        break;
+      case 'backup-seed-phrase': {
+        const compareSeed = confirmSeed
+          .map((el) => el.title)
+          .join(' ')
+          .trim();
+        if (compareSeed !== seed) {
+          toast.error('Seed phrase is incorrect', {
+            className: 'Failed !',
+          });
+        } else {
+          toast.success('Your wallet was successfully created', {
+            className: 'Success !',
+          });
+          loggedOn();
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }, [modalState, confirmSeed, seed, password, loggedOn]);
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleClose();
-      }}
       className="create-password-modal"
       BackdropProps={{
         style: {
@@ -87,7 +129,7 @@ const ModalCreatePassword = ({
           <div className="password__bottom">
             <NormalButton
               title={buttonSubText}
-              onPress={handleClose}
+              onPress={onCancelText}
               type="normal"
             />
             <div style={{ width: 10 }} />
