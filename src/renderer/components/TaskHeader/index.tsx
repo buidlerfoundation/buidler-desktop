@@ -1,5 +1,7 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import images from '../../common/images';
+import AvatarView from '../AvatarView';
 import './index.scss';
 
 type TaskHeaderProps = {
@@ -7,6 +9,7 @@ type TaskHeaderProps = {
   count?: number | null;
   toggle: () => void;
   onCreate?: () => void;
+  filterValue?: string;
 };
 
 const TaskHeader = ({
@@ -14,7 +17,13 @@ const TaskHeader = ({
   count = null,
   toggle,
   onCreate,
+  filterValue,
 }: TaskHeaderProps) => {
+  const teamUserData = useSelector((state: any) => state.user.teamUserData);
+  const user =
+    filterValue === 'Assignee' && title !== 'Unassigned'
+      ? teamUserData.find((el: any) => el.user_id === title)
+      : null;
   return (
     <div className="task-header-container">
       <div className="task-header-label__wrapper">
@@ -22,7 +31,14 @@ const TaskHeader = ({
           className={`task-header__label normal-button ${title.toLowerCase()}`}
           onClick={toggle}
         >
-          <span>{title}</span>
+          {user ? (
+            <>
+              <AvatarView user={user} />
+              <span className="user-name">{user.full_name}</span>
+            </>
+          ) : (
+            <span>{title}</span>
+          )}
         </div>
         {!!onCreate && (
           <div className="create-task-button" onClick={onCreate}>

@@ -11,6 +11,7 @@ type GroupChildProps = {
   isPrivate?: boolean;
   isUnSeen?: boolean;
   isMuted?: boolean;
+  isQuiet?: boolean;
 };
 
 const GroupChild = ({
@@ -21,6 +22,7 @@ const GroupChild = ({
   isPrivate,
   isUnSeen,
   isMuted,
+  isQuiet,
 }: GroupChildProps) => {
   const [isHover, setHover] = useState(false);
   if (type === 'task') {
@@ -44,7 +46,10 @@ const GroupChild = ({
       onMouseLeave={() => setHover(false)}
     >
       <div style={{ width: 25 }} />
-      <div className="ml15" style={{ display: 'flex', alignItems: 'center' }}>
+      <div
+        className="ml15"
+        style={{ display: 'flex', alignItems: 'center', flex: 1 }}
+      >
         {isPrivate && (
           <img
             style={{ marginLeft: 5, filter }}
@@ -52,10 +57,19 @@ const GroupChild = ({
             src={images.icPrivateWhite}
           />
         )}
-        <span className="group-child__title ml5">
-          {prefix}
-          {title}
-        </span>
+        <div style={{ flex: 1 }}>
+          <span className="group-child__title ml5">
+            {prefix}
+            {title}
+          </span>
+        </div>
+        {isQuiet && (
+          <img
+            style={{ marginLeft: 5, marginRight: 15, filter }}
+            alt=""
+            src={images.icBellQuite}
+          />
+        )}
       </div>
     </div>
   );

@@ -30,6 +30,15 @@
       font-weight: 600;
       font-size: 16px;
       margin-left: 18px;
+      display: flex;
+      align-items: center;
+    }
+    .user-name {
+      margin-left: 14px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 26px;
+      color: var(--color-primary-text);
     }
     .create-task-button {
       width: 30px;

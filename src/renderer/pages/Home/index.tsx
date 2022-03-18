@@ -107,6 +107,7 @@ const filterTask: Array<PopoverItem> = [
   },
   { label: 'Due Date', value: 'Due Date' },
   { label: 'Channel', value: 'Channel' },
+  { label: 'Assignee', value: 'Assignee' },
 ];
 
 const Home = ({

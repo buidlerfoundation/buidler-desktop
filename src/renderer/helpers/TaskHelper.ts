@@ -67,6 +67,25 @@ export const groupTaskByFiltered = (filterName: string, task: Array<any>) => {
       );
       return result;
     }, {});
+  } else if (filterName === 'Assignee') {
+    res = task.reduce(
+      (result, val) => {
+        const key = val?.assignee?.user_id || val?.assignee_id || 'Unassigned';
+        if (result[key] == null) {
+          result[key] = [val];
+        } else {
+          result[key].push(val);
+        }
+        result[key].sort((item1: any, item2: any) =>
+          item1.up_votes > item2.up_votes ? -1 : 1
+        );
+        return result;
+      },
+      { Unassigned: [] }
+    );
+    if (res.Unassigned.length === 0) {
+      delete res.Unassigned;
+    }
   }
   return res;
 };

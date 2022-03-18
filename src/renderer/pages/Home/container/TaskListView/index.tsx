@@ -136,6 +136,7 @@ const TaskListView = ({
                     [key]: !state[key],
                   }));
                 }}
+                filterValue={filter.value}
               />
               <Droppable droppableId={`${key}`} isCombineEnabled>
                 {(provided, snapshot) => {

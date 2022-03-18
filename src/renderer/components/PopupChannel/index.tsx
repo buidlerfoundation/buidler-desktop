@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import images from '../../common/images';
 import GroupTitle from '../../pages/Main/Layout/SideBar/components/GroupTitle';
+import AppInput from '../AppInput';
 import './index.scss';
 
 type PopupChannelProps = {
@@ -17,18 +18,37 @@ const PopupChannel = ({
   onChange,
   groupChannel,
 }: PopupChannelProps) => {
+  const [search, setSearch] = useState('');
+  const channels = useCallback(
+    (data) => {
+      if (!search) return data;
+      return data.filter((el: any) =>
+        el.channel_name.toLowerCase().includes(search.toLowerCase())
+      );
+    },
+    [search]
+  );
   return (
     <div className="popup-channel__container hide-scroll-bar">
-      {groupChannel.map((g) => {
+      <AppInput
+        placeholder="Search channel"
+        className="search-channel"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      {groupChannel.map((g, index) => {
         return (
-          <div key={g?.group_channel_name}>
+          <div
+            key={g?.group_channel_name}
+            style={{ marginTop: index === 0 ? 60 : 0 }}
+          >
             <GroupTitle title={g?.group_channel_name} />
-            {channel
+            {channels(channel)
               ?.filter(
-                (c) =>
+                (c: any) =>
                   c.group_channel?.group_channel_name === g?.group_channel_name
               )
-              ?.map?.((c) => {
+              ?.map?.((c: any) => {
                 const isActive = selected?.find(
                   (el) => el.channel_id === c.channel_id
                 );

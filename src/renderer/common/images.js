@@ -56,6 +56,7 @@ import icRemoveMember from '../assets/images/ic_remove_member.svg';
 import icLeaveTeam from '../assets/images/ic_leave_team.svg';
 import icSearch from '../assets/images/ic_search.svg';
 import icCopy from '../assets/images/ic_copy.svg';
+import icBellQuite from '../assets/images/ic_bell_quite.svg';
 
 const images = {
   icTeamDefault,
@@ -116,6 +117,7 @@ const images = {
   icLeaveTeam,
   icSearch,
   icCopy,
+  icBellQuite,
 };
 
 export default images;

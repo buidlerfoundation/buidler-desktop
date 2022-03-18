@@ -81,6 +81,7 @@ const GroupItem = ({
                               isPrivate={c.channel_type === 'Private'}
                               isUnSeen={!c.seen}
                               isMuted={c.notification_type === 'Muted'}
+                              isQuiet={c.notification_type === 'Quiet'}
                             />
                           </div>
                         )}

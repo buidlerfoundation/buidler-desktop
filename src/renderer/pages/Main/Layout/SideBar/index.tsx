@@ -169,7 +169,7 @@ const SideBar = forwardRef(
     return (
       <div id="sidebar">
         {team?.length > 0 ? (
-          <div className={`sidebar-body ${isOwner && 'owner'}`}>
+          <div className="sidebar-body">
             {/* <div className="news-feed__container">
             <div className="border-news-feed">
               <div className="circle-news-feed" />
@@ -322,7 +322,7 @@ const SideBar = forwardRef(
             </Droppable>
           </div>
         ) : (
-          <div className={`sidebar-body ${isOwner && 'owner'}`} />
+          <div className="sidebar-body" />
         )}
         {isOwner ? (
           <div className="app-setting" onClick={() => setOpenTeamSetting(true)}>

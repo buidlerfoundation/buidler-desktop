@@ -8,6 +8,19 @@
   width: 275px;
   overflow-y: auto;
   height: 80vh;
+  position: relative;
+  .search-channel {
+    padding: 0 20px;
+    height: 60px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 26px;
+    background-color: var(--color-highlight);
+    color: var(--color-secondary-text);
+    border-bottom: 1px solid var(--color-stroke);
+    position: fixed;
+    width: 235px;
+  }
   .channel-item {
     padding: 10px 40px;
     display: flex;
