@@ -249,14 +249,14 @@ class SocketUtil {
         if (isExistChannel) {
           store.dispatch({
             type: actionTypes.UPDATE_CHANNEL_SUCCESS,
-            payload: data,
+            payload: data.channel,
           });
         } else if (
           !!data.channel_member.find((el: string) => el === userData.user_id)
         ) {
           store.dispatch({
             type: actionTypes.NEW_CHANNEL,
-            payload: data,
+            payload: data.channel,
           });
         }
       }
@@ -274,7 +274,7 @@ class SocketUtil {
         ) {
           store.dispatch({
             type: actionTypes.DELETE_CHANNEL_SUCCESS,
-            payload: { channelId: data.channel_id },
+            payload: { channelId: data.channel.channel_id },
           });
         }
       }
