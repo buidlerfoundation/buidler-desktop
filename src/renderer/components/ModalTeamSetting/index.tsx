@@ -103,7 +103,7 @@ const ModalTeamSetting = ({
                 </div>
               </div>
               <div className="app-version">
-                <span>1.1.52</span>
+                <span>1.1.53</span>
               </div>
             </div>
             <div className="body">
