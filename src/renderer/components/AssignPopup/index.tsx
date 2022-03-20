@@ -28,7 +28,7 @@ const AssignPopup = ({
       <div style={{ height: 10 }} />
       <AssignItem
         isSelected={false}
-        user={{ user_id: '', full_name: 'Unassigned' }}
+        user={{ user_id: '', user_name: 'Unassigned' }}
         onClick={() => onChanged(null)}
       />
       {teamUserData

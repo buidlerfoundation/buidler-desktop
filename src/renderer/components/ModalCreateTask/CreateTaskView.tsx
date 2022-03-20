@@ -14,6 +14,7 @@ import Dropzone, { useDropzone } from 'react-dropzone';
 import { CircularProgress } from '@material-ui/core';
 import TextareaAutosize from 'react-textarea-autosize';
 import PopoverButton from '../PopoverButton';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 
 type CreateTaskViewProps = {
   onCancel: () => void;
@@ -178,7 +179,9 @@ const CreateTaskView = ({
           </div>
           <div className="task__actions">
             <IconButton
-              title={taskData?.assignee?.user_name || 'Unassigned'}
+              title={
+                normalizeUserName(taskData?.assignee?.user_name) || 'Unassigned'
+              }
               icon={taskData.assignee?.avatar_url || images.icUser}
               onPress={openAssigneeSelection}
               imgStyle={

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import AvatarView from '../../../../../../components/AvatarView';
 import './index.scss';
 
@@ -36,7 +37,7 @@ const MemberChild = ({
           isHover || isUnSeen || isSelected ? 'active' : ''
         }`}
       >
-        {user.user_name}
+        {normalizeUserName(user.user_name)}
       </span>
     </div>
   );

@@ -17,6 +17,7 @@ import GlobalVariable from '../../services/GlobalVariable';
 import {
   extractContent,
   getLastIndexOfMention,
+  normalizeUserName,
   removeTagHTML,
 } from '../../helpers/MessageHelper';
 
@@ -373,7 +374,9 @@ const MessageInput = ({
               onClick={enterMention}
             >
               <AvatarView user={el} size={25} />
-              <span className="mention-name">{el.user_name}</span>
+              <span className="mention-name">
+                {normalizeUserName(el.user_name)}
+              </span>
             </div>
           ))}
         </div>

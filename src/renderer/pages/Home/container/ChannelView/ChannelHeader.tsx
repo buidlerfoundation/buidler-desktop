@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
 import PopoverButton from '../../../../components/PopoverButton';
@@ -105,8 +106,9 @@ const ChannelHeader = forwardRef(
               className="channel-view__title"
               style={{ marginLeft: isChannelPrivate ? 5 : 15 }}
             >
-              {currentChannel?.user?.user_name ||
-                `${prefix}${currentChannel?.channel_name}`}
+              {currentChannel?.user?.user_name
+                ? normalizeUserName(currentChannel?.user?.user_name)
+                : `${prefix}${currentChannel?.channel_name}`}
             </span>
           </div>
           {isChannelPrivate && (

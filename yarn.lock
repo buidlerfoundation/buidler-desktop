@@ -1343,6 +1343,13 @@
   resolved "https://registry.yarnpkg.com/@types/electron-json-storage/-/electron-json-storage-4.5.0.tgz#c0ca8fd6a694c5a0fa28ffccd5cafc8f538f2b61"
   integrity sha512-wzDtkJHEENo4yLARfPjdYD6Foa7IORXFiNYLacZ6lJThkrGUWh5vlSSMu925ov5zv8tQHtajn2O7BpHcBtqU3g==
 
+"@types/emoji-mart@^3.0.9":
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/@types/emoji-mart/-/emoji-mart-3.0.9.tgz#2f7ef5d9ec194f28029c46c81a5fc1e5b0efa73c"
+  integrity sha512-qdBo/2Y8MXaJ/2spKjDZocuq79GpnOhkwMHnK2GnVFa8WYFgfA+ei6sil3aeWQPCreOKIx9ogPpR5+7MaOqYAA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.3.tgz#125b88504b61e3c8bc6f870882003253005c3224"

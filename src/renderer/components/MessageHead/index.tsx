@@ -1,4 +1,5 @@
 import React from 'react';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../common/images';
 import AvatarView from '../AvatarView';
 import MessagePhotoItem from '../MessagePhotoItem';
@@ -18,7 +19,9 @@ const MessageHead = ({ message, sender, teamId }: MessageHeadProps) => {
       </div>
       <div className="message-head__content">
         <div className="message-head__user">
-          <span className="message-head__user-name">{sender?.user_name}</span>
+          <span className="message-head__user-name">
+            {normalizeUserName(sender?.user_name)}
+          </span>
         </div>
         <div
           className="message-head__message enable-user-select"

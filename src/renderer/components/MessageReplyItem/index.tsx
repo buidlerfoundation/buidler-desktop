@@ -1,7 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import images from '../../common/images';
-import { normalizeMessageText } from '../../helpers/MessageHelper';
+import {
+  normalizeMessageText,
+  normalizeUserName,
+} from '../../helpers/MessageHelper';
 import { dateFormatted, messageFromNow } from '../../utils/DateUtils';
 import AvatarView from '../AvatarView';
 import EmojiPicker from '../EmojiPicker';
@@ -118,7 +121,7 @@ const MessageReplyItem = ({
           {head && (
             <div className="message-reply-item__user" onClick={onUserClick}>
               <span className="message-reply-item__user-name">
-                {sender?.user_name}
+                {normalizeUserName(sender?.user_name)}
               </span>
               <span
                 className="message-reply-item__time"

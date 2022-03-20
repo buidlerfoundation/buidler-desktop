@@ -13,6 +13,7 @@ import {
   getMentionData,
   normalizeMessage,
   normalizeMessages,
+  normalizeUserName,
 } from '../../../../helpers/MessageHelper';
 import SocketUtils from '../../../../utils/SocketUtils';
 import './index.scss';
@@ -460,8 +461,9 @@ const ChannelView = forwardRef(
               </div>
               <MessageInput
                 placeholder={`message to ${
-                  currentChannel?.user?.user_name ||
-                  `# ${currentChannel?.channel_name}`
+                  currentChannel?.user?.user_name
+                    ? normalizeUserName(currentChannel?.user?.user_name)
+                    : `# ${currentChannel?.channel_name}`
                 }`}
                 attachments={files}
                 onRemoveFile={(file) => {

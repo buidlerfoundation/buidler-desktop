@@ -1,7 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import images from '../../common/images';
-import { normalizeMessageText } from '../../helpers/MessageHelper';
+import {
+  normalizeMessageText,
+  normalizeUserName,
+} from '../../helpers/MessageHelper';
 import { dateFormatted, messageFromNow } from '../../utils/DateUtils';
 import AvatarView from '../AvatarView';
 import EmojiPicker from '../EmojiPicker';
@@ -112,7 +115,7 @@ const MessageItem = ({
           {isHead && (
             <div className="message-item__user" onClick={onUserClick}>
               <span className="message-item__user-name">
-                {sender?.user_name}
+                {normalizeUserName(sender?.user_name)}
               </span>
               <span className="message-item__time" style={{ marginLeft: 5 }}>
                 {messageFromNow(message.createdAt)}

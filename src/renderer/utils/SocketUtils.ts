@@ -8,6 +8,7 @@ import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
 import GlobalVariable from '../services/GlobalVariable';
 import { Dispatch } from 'redux';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 
 const SocketIO = require('socket.io-client');
 
@@ -396,7 +397,9 @@ class SocketUtil {
             title: `${notification_data?.channel_name} (${notification_data?.team_name})`,
             body: notification_data.body,
             icon: notification_data?.sender_data?.avatar_url,
-            subtitle: notification_data?.sender_data?.user_name || 'Message',
+            subtitle:
+              normalizeUserName(notification_data?.sender_data?.user_name) ||
+              'Message',
           });
         }
         const teamNotification = team.find(

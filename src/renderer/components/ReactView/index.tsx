@@ -4,6 +4,7 @@ import { Emoji } from 'emoji-mart';
 import Popper from '@material-ui/core/Popper';
 import AvatarView from '../AvatarView';
 import api from '../../api';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 
 type ReactViewProps = {
   reacts: Array<any>;
@@ -83,7 +84,9 @@ const ReactView = ({
             return (
               <div className="react-item" key={el.emoji_id + el.user_id}>
                 <AvatarView user={user} />
-                <span className="user-name">{user?.user_name}</span>
+                <span className="user-name">
+                  {normalizeUserName(user?.user_name)}
+                </span>
                 <Emoji emoji={el.emoji_id} set="apple" size={18} />
               </div>
             );

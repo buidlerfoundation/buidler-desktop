@@ -18,6 +18,7 @@ import {
   extractContent,
   getMentionData,
   normalizeMessage,
+  normalizeUserName,
 } from '../../helpers/MessageHelper';
 import { debounce } from 'lodash';
 import AssignPopup from '../AssignPopup';
@@ -450,7 +451,8 @@ const TaskView = ({
                             : 'un-assigned-text'
                         }`}
                       >
-                        {taskData.assignee?.user_name || 'Unassigned'}
+                        {normalizeUserName(taskData.assignee?.user_name) ||
+                          'Unassigned'}
                       </span>
                     </div>
                   }

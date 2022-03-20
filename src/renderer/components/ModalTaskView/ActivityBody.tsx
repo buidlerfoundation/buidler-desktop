@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../common/images';
 import { activityFromNow, dateFormatted } from '../../utils/DateUtils';
 import AvatarView from '../AvatarView';
@@ -86,7 +87,7 @@ const ActivityBody = ({ activities, teamUserData }: ActivityBodyProps) => {
             <div className="activity-action__container">
               <div className="action-row">
                 <span className="action-title">
-                  {updater.user_name}
+                  {normalizeUserName(updater.user_name)}
                   {item.action}
                 </span>
                 {renderTitleUpdateValue(item)}

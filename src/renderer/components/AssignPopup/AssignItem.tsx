@@ -2,6 +2,7 @@ import React from 'react';
 import './index.scss';
 import images from '../../common/images';
 import AvatarView from '../AvatarView';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 
 type AssignItemProps = {
   isSelected: boolean;
@@ -17,7 +18,7 @@ const AssignItem = ({ isSelected, onClick, user }: AssignItemProps) => {
           <img src={images.icUserCircle} alt="" />
         )}
         <span style={{ marginLeft: 15 }} className="username">
-          {user.user_name}
+          {normalizeUserName(user.user_name)}
         </span>
       </div>
       {isSelected && <img alt="" src={images.icCheck} />}
