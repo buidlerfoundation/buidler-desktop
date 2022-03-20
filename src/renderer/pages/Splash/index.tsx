@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import actions from '../../actions';
 import './index.scss';
 import { useHistory } from 'react-router-dom';
-import { getCookie } from '../../common/Cookie';
+import { clearData, getCookie } from '../../common/Cookie';
 import { AsyncKey } from '../../common/AppConfig';
 import HomeLoading from '../../components/HomeLoading';
 
@@ -15,6 +15,7 @@ type SplashProps = {
 };
 
 const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
+  clearData();
   const eventConnection = useRef<any>(null);
   const history = useHistory();
   const initApp = useCallback(async () => {
