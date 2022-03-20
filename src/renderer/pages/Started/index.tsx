@@ -3,10 +3,44 @@ import './index.scss';
 import images from '../../common/images';
 import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
+import { useHistory } from 'react-router-dom';
+import { ethers, utils } from 'ethers';
+import {
+  decryptString,
+  encryptData,
+  encryptString,
+  getIV,
+} from 'renderer/utils/DataCrypto';
+import GlobalVariable from 'renderer/services/GlobalVariable';
+import { setCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
+import api from 'renderer/api';
 
 const Started = () => {
+  const history = useHistory();
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
   const [isOpenImportModal, setOpenImportModal] = useState(false);
+  const loggedOn = async (seed: string, password: string) => {
+    const iv = await getIV();
+    const wallet = ethers.Wallet.fromMnemonic(seed);
+    const { privateKey } = wallet;
+    const publicKey = utils.computePublicKey(privateKey, true);
+    GlobalVariable.privateKey = publicKey;
+    const data = { [publicKey]: privateKey };
+    const encryptedData = encryptString(JSON.stringify(data), password, iv);
+    setCookie(AsyncKey.encryptedDataKey, encryptedData);
+    const { nonce } = await api.requestNonce(publicKey);
+    if (nonce) {
+      const msgHash = utils.hashMessage(nonce);
+      const msgHashBytes = utils.arrayify(msgHash);
+      const signature = wallet._signingKey().signDigest(msgHashBytes);
+      const res = await api.verifyNonce(nonce, signature.compact);
+      if (res.statusCode === 200) {
+        setCookie(AsyncKey.accessTokenKey, res.token);
+        history.replace('/home');
+      }
+    }
+  };
   return (
     <div className="started-container">
       <div className="started-body">
@@ -39,10 +73,12 @@ const Started = () => {
       <ModalCreatePassword
         open={isOpenPasswordModal}
         handleClose={() => setOpenPasswordModal(false)}
+        loggedOn={loggedOn}
       />
       <ModalImportSeedPhrase
         open={isOpenImportModal}
         handleClose={() => setOpenImportModal(false)}
+        loggedOn={loggedOn}
       />
     </div>
   );

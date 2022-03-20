@@ -21,7 +21,6 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
     await getInitial();
     await findUser();
     await findTeamAndChannel();
-    // history.replace('/started');
     history.replace('/home');
   }, [getInitial, findUser, findTeamAndChannel, history]);
   useEffect(() => {
@@ -34,7 +33,7 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
     getCookie(AsyncKey.accessTokenKey)
       .then(async (res: any) => {
         if (Object.keys(res || {}).length === 0) {
-          history.replace('/login');
+          history.replace('/started');
         } else {
           if (navigator.onLine) {
             initApp();
@@ -49,7 +48,7 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
       })
       .catch((e) => {
         console.log(e);
-        // history.replace('/login');
+        // history.replace('/started');
       });
   }, [history, initApp, findUser]);
   return <HomeLoading />;

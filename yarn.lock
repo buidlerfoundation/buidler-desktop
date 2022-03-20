@@ -1326,12 +1326,22 @@
   dependencies:
     "@types/node" "*"
 
+"@types/crypto-js@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-4.1.1.tgz#602859584cecc91894eb23a4892f38cfa927890d"
+  integrity sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==
+
 "@types/debug@^4.1.6":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.7.tgz#7cc0ea761509124709b8b2d1090d8f6c17aadb82"
   integrity sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==
   dependencies:
     "@types/ms" "*"
+
+"@types/electron-json-storage@^4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@types/electron-json-storage/-/electron-json-storage-4.5.0.tgz#c0ca8fd6a694c5a0fa28ffccd5cafc8f538f2b61"
+  integrity sha512-wzDtkJHEENo4yLARfPjdYD6Foa7IORXFiNYLacZ6lJThkrGUWh5vlSSMu925ov5zv8tQHtajn2O7BpHcBtqU3g==
 
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
@@ -3263,6 +3273,11 @@ cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+crypto-js@3.1.9-1:
+  version "3.1.9-1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.1.9-1.tgz#fda19e761fc077e01ffbfdc6e9fdfc59e8806cd8"
+  integrity sha1-/aGedh/Ad+Af+/3G6f38WeiAbNg=
 
 crypto-random-string@^2.0.0:
   version "2.0.0"

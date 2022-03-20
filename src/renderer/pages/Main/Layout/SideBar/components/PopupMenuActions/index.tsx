@@ -22,7 +22,7 @@ const PopupMenuActions = ({
         onPress={() => {
           clearData();
           onLogout();
-          history.replace('/login');
+          history.replace('/started');
         }}
       />
       <div className="app-version">

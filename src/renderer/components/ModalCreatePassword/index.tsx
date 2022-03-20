@@ -7,12 +7,12 @@ import { ethers } from 'ethers';
 import StoreSeedPhraseState from './StoreSeedPhraseState';
 import BackupSeedPhraseState from './BackupSeedPhraseState';
 import { createConfirmSeedState } from '../../helpers/SeedHelper';
-import { useHistory } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 type ModalCreatePasswordProps = {
   open: boolean;
   handleClose: () => void;
+  loggedOn: (seed: string, password: string) => void;
 };
 
 type ModalState =
@@ -23,8 +23,8 @@ type ModalState =
 const ModalCreatePassword = ({
   open,
   handleClose,
+  loggedOn,
 }: ModalCreatePasswordProps) => {
-  const history = useHistory();
   const [password, setPassword] = useState('');
   const seed = useMemo(() => ethers.Wallet.createRandom().mnemonic.phrase, []);
   const [confirmSeed, setConfirmSeed] = useState(createConfirmSeedState());
@@ -61,16 +61,13 @@ const ModalCreatePassword = ({
       );
     return null;
   }, [modalState, confirmSeed, password, seed]);
-  const loggedOn = useCallback(() => {
-    history.replace('/home');
-  }, [history]);
   const onCancelText = useCallback(() => {
     switch (modalState) {
       case 'create-password':
         handleClose();
         break;
       case 'store-seed-phrase':
-        loggedOn();
+        loggedOn(seed, password);
         break;
       case 'backup-seed-phrase':
         setModalState('store-seed-phrase');
@@ -78,7 +75,7 @@ const ModalCreatePassword = ({
       default:
         break;
     }
-  }, [modalState, loggedOn, handleClose]);
+  }, [modalState, loggedOn, handleClose, seed, password]);
   const onNextPress = useCallback(() => {
     switch (modalState) {
       case 'create-password': {
@@ -105,7 +102,7 @@ const ModalCreatePassword = ({
           toast.success('Your wallet was successfully created', {
             className: 'Success !',
           });
-          loggedOn();
+          loggedOn(seed, password);
         }
         break;
       }

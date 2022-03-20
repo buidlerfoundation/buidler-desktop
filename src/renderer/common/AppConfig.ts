@@ -13,6 +13,8 @@ export const AsyncKey = {
   accessTokenKey: `${TodayPrefix}_access_token`,
   lastChannelId: `${TodayPrefix}_last_channel_id`,
   lastTeamId: `${TodayPrefix}_last_team_id`,
+  ivKey: `${TodayPrefix}_iv_key`,
+  encryptedDataKey: `${TodayPrefix}_encrypted_data_key`,
 };
 
 export const ProgressStatus = [

@@ -28,3 +28,9 @@ export const leaveTeam = (teamId: string) =>
 
 export const updateUserChannel = (channelIds: Array<string>) =>
   ApiCaller.put(`user/channel`, { channel_ids: channelIds });
+
+export const requestNonce = (pubKey: string) =>
+  ApiCaller.post('user/nonce', { public_key: pubKey });
+
+export const verifyNonce = (nonce: string, signature: string) =>
+  ApiCaller.post('user/verify', { nonce, signature });

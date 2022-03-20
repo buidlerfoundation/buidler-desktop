@@ -4,13 +4,13 @@ import './index.scss';
 import NormalButton from '../NormalButton';
 import ImportState from './ImportState';
 import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';
-import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 
 type ModalImportSeedPhraseProps = {
   open: boolean;
   handleClose: () => void;
+  loggedOn: (seed: string, password: string) => void;
 };
 
 type ModalState = 'import' | 'create-password';
@@ -18,14 +18,11 @@ type ModalState = 'import' | 'create-password';
 const ModalImportSeedPhrase = ({
   open,
   handleClose,
+  loggedOn,
 }: ModalImportSeedPhraseProps) => {
   const [password, setPassword] = useState('');
-  const history = useHistory();
   const [seed, setSeed] = useState('');
   const [modalState, setModalState] = useState<ModalState>('import');
-  const loggedOn = useCallback(() => {
-    history.replace('/home');
-  }, [history]);
   const renderBody = useMemo(() => {
     if (modalState === 'import')
       return <ImportState seed={seed} setSeed={setSeed} />;
@@ -55,7 +52,7 @@ const ModalImportSeedPhrase = ({
           toast.error('Password can not be empty');
           return;
         }
-        loggedOn();
+        loggedOn(seed, password);
         break;
       }
       default:

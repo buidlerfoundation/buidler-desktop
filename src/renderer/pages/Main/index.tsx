@@ -25,12 +25,12 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
         if (Object.keys(res || {}).length === 0) {
-          history.replace('/login');
+          history.replace('/started');
         }
         return null;
       })
       .catch(() => {
-        history.replace('/login');
+        history.replace('/started');
       });
   }, [history]);
   return <Route {...rest} render={(props) => <Component {...props} />} />;

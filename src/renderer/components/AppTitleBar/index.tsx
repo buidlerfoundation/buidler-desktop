@@ -196,7 +196,7 @@ const AppTitleBar = ({
         onLogout={() => {
           clearData(() => {
             setOpenModalUser(false);
-            history.replace('/login');
+            history.replace('/started');
             logout?.();
           });
         }}
