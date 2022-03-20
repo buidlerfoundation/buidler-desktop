@@ -18,7 +18,7 @@ const MessageHead = ({ message, sender, teamId }: MessageHeadProps) => {
       </div>
       <div className="message-head__content">
         <div className="message-head__user">
-          <span className="message-head__user-name">{sender?.full_name}</span>
+          <span className="message-head__user-name">{sender?.user_name}</span>
         </div>
         <div
           className="message-head__message enable-user-select"

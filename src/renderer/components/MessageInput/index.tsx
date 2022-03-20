@@ -181,7 +181,7 @@ const MessageInput = ({
       .map((id: any) => teamUserData.find((el) => el?.user_id === id));
   }, [currentChannel, teamUserData]);
   const dataMention = users.filter((el: any) =>
-    el?.full_name?.toLowerCase?.()?.includes?.(mentionStr?.toLowerCase?.())
+    el?.user_name?.toLowerCase?.()?.includes?.(mentionStr?.toLowerCase?.())
   );
   const onCloseMention = useCallback(() => {
     setPopup(null);
@@ -212,7 +212,7 @@ const MessageInput = ({
       idx
     )} <a href='$mention_location?user_id=${
       el.user_id
-    }' class='mention-string'>@${el.full_name}</a>&nbsp;${text.substring(
+    }' class='mention-string'>@${el.user_name}</a>&nbsp;${text.substring(
       idx + 1 + (mentionStr?.length || 0)
     )}`;
     setText(newText);
@@ -276,7 +276,7 @@ const MessageInput = ({
     if (
       mentionStr !== null &&
       users.filter((el: any) =>
-        el.full_name.toLowerCase().includes(mentionStr.toLowerCase())
+        el.user_name.toLowerCase().includes(mentionStr.toLowerCase())
       ).length > 0 &&
       text.length > 0
     ) {
@@ -373,7 +373,7 @@ const MessageInput = ({
               onClick={enterMention}
             >
               <AvatarView user={el} size={25} />
-              <span className="mention-name">{el.full_name}</span>
+              <span className="mention-name">{el.user_name}</span>
             </div>
           ))}
         </div>

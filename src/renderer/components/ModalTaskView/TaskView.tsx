@@ -450,7 +450,7 @@ const TaskView = ({
                             : 'un-assigned-text'
                         }`}
                       >
-                        {taskData.assignee?.full_name || 'Unassigned'}
+                        {taskData.assignee?.user_name || 'Unassigned'}
                       </span>
                     </div>
                   }

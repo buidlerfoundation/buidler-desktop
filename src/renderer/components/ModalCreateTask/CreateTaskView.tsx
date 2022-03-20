@@ -178,7 +178,7 @@ const CreateTaskView = ({
           </div>
           <div className="task__actions">
             <IconButton
-              title={taskData?.assignee?.full_name || 'Unassigned'}
+              title={taskData?.assignee?.user_name || 'Unassigned'}
               icon={taskData.assignee?.avatar_url || images.icUser}
               onPress={openAssigneeSelection}
               imgStyle={

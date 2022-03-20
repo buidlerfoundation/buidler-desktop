@@ -1,6 +1,6 @@
 import images from './images';
 
-const TodayPrefix = 'TodayApp';
+const Prefix = 'Buidler';
 
 const AppConfig = {
   baseUrl: 'https://api.remotetoday.app/',
@@ -10,11 +10,11 @@ const AppConfig = {
 export default AppConfig;
 
 export const AsyncKey = {
-  accessTokenKey: `${TodayPrefix}_access_token`,
-  lastChannelId: `${TodayPrefix}_last_channel_id`,
-  lastTeamId: `${TodayPrefix}_last_team_id`,
-  ivKey: `${TodayPrefix}_iv_key`,
-  encryptedDataKey: `${TodayPrefix}_encrypted_data_key`,
+  accessTokenKey: `${Prefix}_access_token`,
+  lastChannelId: `${Prefix}_last_channel_id`,
+  lastTeamId: `${Prefix}_last_team_id`,
+  ivKey: `${Prefix}_iv_key`,
+  encryptedDataKey: `${Prefix}_encrypted_data_key`,
 };
 
 export const ProgressStatus = [

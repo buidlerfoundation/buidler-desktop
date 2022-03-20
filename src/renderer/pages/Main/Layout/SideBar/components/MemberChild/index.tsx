@@ -36,7 +36,7 @@ const MemberChild = ({
           isHover || isUnSeen || isSelected ? 'active' : ''
         }`}
       >
-        {user.full_name}
+        {user.user_name}
       </span>
     </div>
   );

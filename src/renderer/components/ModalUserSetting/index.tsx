@@ -57,7 +57,7 @@ const ModalUserSetting = ({
               className="app-input"
               placeholder="Enter your name"
               onChange={(e) => {}}
-              value={user?.full_name}
+              value={user?.user_name}
               disabled
             />
           </div>

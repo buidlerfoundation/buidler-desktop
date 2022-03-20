@@ -34,7 +34,7 @@ const TaskHeader = ({
           {user ? (
             <>
               <AvatarView user={user} />
-              <span className="user-name">{user.full_name}</span>
+              <span className="user-name">{user.user_name}</span>
             </>
           ) : (
             <span>{title}</span>

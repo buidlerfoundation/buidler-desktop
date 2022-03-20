@@ -67,7 +67,7 @@ const ActivityBody = ({ activities, teamUserData }: ActivityBodyProps) => {
       return (
         <div className="assignee-container">
           <AvatarView user={assignee} />
-          <span className="assignee-name">{assignee.full_name}</span>
+          <span className="assignee-name">{assignee.user_name}</span>
         </div>
       );
     }
@@ -86,7 +86,7 @@ const ActivityBody = ({ activities, teamUserData }: ActivityBodyProps) => {
             <div className="activity-action__container">
               <div className="action-row">
                 <span className="action-title">
-                  {updater.full_name}
+                  {updater.user_name}
                   {item.action}
                 </span>
                 {renderTitleUpdateValue(item)}

@@ -460,7 +460,7 @@ const ChannelView = forwardRef(
               </div>
               <MessageInput
                 placeholder={`message to ${
-                  currentChannel?.user?.full_name ||
+                  currentChannel?.user?.user_name ||
                   `# ${currentChannel?.channel_name}`
                 }`}
                 attachments={files}

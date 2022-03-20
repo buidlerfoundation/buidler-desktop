@@ -118,7 +118,7 @@ const MessageReplyItem = ({
           {head && (
             <div className="message-reply-item__user" onClick={onUserClick}>
               <span className="message-reply-item__user-name">
-                {sender?.full_name}
+                {sender?.user_name}
               </span>
               <span
                 className="message-reply-item__time"

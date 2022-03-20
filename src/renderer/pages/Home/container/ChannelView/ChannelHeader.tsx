@@ -105,7 +105,7 @@ const ChannelHeader = forwardRef(
               className="channel-view__title"
               style={{ marginLeft: isChannelPrivate ? 5 : 15 }}
             >
-              {currentChannel?.user?.full_name ||
+              {currentChannel?.user?.user_name ||
                 `${prefix}${currentChannel?.channel_name}`}
             </span>
           </div>

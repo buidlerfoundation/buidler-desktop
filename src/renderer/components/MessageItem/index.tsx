@@ -112,7 +112,7 @@ const MessageItem = ({
           {isHead && (
             <div className="message-item__user" onClick={onUserClick}>
               <span className="message-item__user-name">
-                {sender?.full_name}
+                {sender?.user_name}
               </span>
               <span className="message-item__time" style={{ marginLeft: 5 }}>
                 {messageFromNow(message.createdAt)}

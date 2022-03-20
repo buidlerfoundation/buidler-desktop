@@ -32,7 +32,7 @@ const AssignPopup = ({
         onClick={() => onChanged(null)}
       />
       {teamUserData
-        .filter((u) => u.full_name.toLowerCase().includes(filter.toLowerCase()))
+        .filter((u) => u.user_name.toLowerCase().includes(filter.toLowerCase()))
         .map((u) => (
           <AssignItem
             key={u.user_id}

@@ -17,7 +17,7 @@ const AssignItem = ({ isSelected, onClick, user }: AssignItemProps) => {
           <img src={images.icUserCircle} alt="" />
         )}
         <span style={{ marginLeft: 15 }} className="username">
-          {user.full_name}
+          {user.user_name}
         </span>
       </div>
       {isSelected && <img alt="" src={images.icCheck} />}

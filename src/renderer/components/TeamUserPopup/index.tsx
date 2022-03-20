@@ -27,7 +27,7 @@ const TeamUserPopup = ({
       </div>
       <div style={{ height: 10 }} />
       {teamUserData
-        .filter((u) => u.full_name.toLowerCase().includes(filter.toLowerCase()))
+        .filter((u) => u.user_name.toLowerCase().includes(filter.toLowerCase()))
         .map((u) => (
           <UserItem
             key={u.user_id}

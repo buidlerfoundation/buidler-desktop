@@ -396,7 +396,7 @@ class SocketUtil {
             title: `${notification_data?.channel_name} (${notification_data?.team_name})`,
             body: notification_data.body,
             icon: notification_data?.sender_data?.avatar_url,
-            subtitle: notification_data?.sender_data?.full_name || 'Message',
+            subtitle: notification_data?.sender_data?.user_name || 'Message',
           });
         }
         const teamNotification = team.find(

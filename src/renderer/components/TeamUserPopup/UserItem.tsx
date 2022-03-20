@@ -15,7 +15,7 @@ const UserItem = ({ isSelected, onClick, user }: UserItemProps) => {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <AvatarView user={user} />
         <span style={{ marginLeft: 15 }} className="username">
-          {user.full_name}
+          {user.user_name}
         </span>
       </div>
       {isSelected && <img alt="" src={images.icCheck} />}

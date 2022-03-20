@@ -33,7 +33,7 @@ const SettingMember = ({
       {users.map((el: any) => (
         <div key={el.user_id} className="setting-member-item">
           <AvatarView user={el} />
-          <span className="member-name">{el.full_name}</span>
+          <span className="member-name">{el.user_name}</span>
         </div>
       ))}
       <PopoverButton
