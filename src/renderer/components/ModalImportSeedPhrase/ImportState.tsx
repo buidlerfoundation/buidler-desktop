@@ -18,6 +18,7 @@ const ImportState = ({ seed, setSeed }: ImportStateProps) => {
         value={seed}
         style={{ height: 110, marginTop: 56 }}
         onChange={(e) => setSeed(e.target.value)}
+        autoFocus
       />
       <div style={{ height: 36 }} />
     </div>
