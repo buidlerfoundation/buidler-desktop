@@ -10,19 +10,22 @@ import HomeLoading from '../../components/HomeLoading';
 
 type SplashProps = {
   findUser: () => any;
-  findTeamAndChannel: () => any;
+  findTeamAndChannel: (showLoading?: boolean) => any;
   getInitial: () => any;
 };
 
 const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
   const eventConnection = useRef<any>(null);
   const history = useHistory();
-  const initApp = useCallback(async () => {
-    await getInitial();
-    await findUser();
-    await findTeamAndChannel();
-    history.replace('/home');
-  }, [getInitial, findUser, findTeamAndChannel, history]);
+  const initApp = useCallback(
+    async (showLoading = true) => {
+      await getInitial();
+      await findUser();
+      await findTeamAndChannel(showLoading);
+      history.replace('/home');
+    },
+    [getInitial, findUser, findTeamAndChannel, history]
+  );
   useEffect(() => {
     return () => {
       if (eventConnection.current)
@@ -39,7 +42,7 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
             initApp();
           } else {
             eventConnection.current = window.addEventListener('online', () => {
-              initApp();
+              initApp(false);
             });
           }
           return null;

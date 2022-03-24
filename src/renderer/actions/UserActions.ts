@@ -57,78 +57,82 @@ export const dragChannel =
     }
   };
 
-export const findTeamAndChannel = () => async (dispatch: Dispatch) => {
-  dispatch({ type: ActionTypes.TEAM_REQUEST });
-  const res = await api.findTeam();
-  const lastTeamId = await getCookie(AsyncKey.lastTeamId);
-  if (res.statusCode === 200) {
-    if (res.data.length > 0) {
-      const currentTeam =
-        res.data.find((t: any) => t.team_id === lastTeamId) || res.data[0];
-      const teamId = currentTeam.team_id;
-      const resGroupChannel = await api.getGroupChannel(teamId);
-      if (resGroupChannel.statusCode === 200) {
-        dispatch({
-          type: ActionTypes.GROUP_CHANNEL,
-          payload: resGroupChannel.data,
-        });
-      }
-      const resChannel = await api.findChannel(teamId);
-      const lastChannelId = await getCookie(AsyncKey.lastChannelId);
-      const teamUsersRes = await api.getTeamUsers(currentTeam.team_id);
-      // const teamActivityRes = await api.getTeamActivity(currentTeam.team_id);
-      // if (teamActivityRes.statusCode === 200) {
-      //   dispatch({
-      //     type: ActionTypes.GET_TEAM_ACTIVITY,
-      //     payload: {
-      //       teamId: currentTeam.team_id,
-      //       activity: teamActivityRes.data,
-      //     },
-      //   });
-      // }
-      if (teamUsersRes.statusCode === 200) {
-        dispatch({
-          type: ActionTypes.GET_TEAM_USER,
-          payload: {
-            teamUsers: teamUsersRes.data,
-            teamId: currentTeam.team_id,
-          },
-        });
-      }
-      SocketUtils.init(currentTeam.team_id);
-      const directChannelUser = teamUsersRes?.data?.find(
-        (u: any) => u.direct_channel === lastChannelId
-      );
-      dispatch({
-        type: ActionTypes.SET_CURRENT_TEAM,
-        payload: {
-          team: currentTeam,
-          lastChannelId,
-          directChannelUser,
-          resChannel,
-        },
-      });
-      if (resChannel.statusCode === 200) {
-        if (resChannel.data.length > 0) {
+export const findTeamAndChannel =
+  (showLoading = true) =>
+  async (dispatch: Dispatch) => {
+    if (showLoading) {
+      dispatch({ type: ActionTypes.TEAM_REQUEST });
+    }
+    const res = await api.findTeam();
+    const lastTeamId = await getCookie(AsyncKey.lastTeamId);
+    if (res.statusCode === 200) {
+      if (res.data.length > 0) {
+        const currentTeam =
+          res.data.find((t: any) => t.team_id === lastTeamId) || res.data[0];
+        const teamId = currentTeam.team_id;
+        const resGroupChannel = await api.getGroupChannel(teamId);
+        if (resGroupChannel.statusCode === 200) {
           dispatch({
-            type: ActionTypes.CHANNEL_SUCCESS,
-            payload: { channel: resChannel.data },
+            type: ActionTypes.GROUP_CHANNEL,
+            payload: resGroupChannel.data,
           });
         }
-      } else {
+        const resChannel = await api.findChannel(teamId);
+        const lastChannelId = await getCookie(AsyncKey.lastChannelId);
+        const teamUsersRes = await api.getTeamUsers(currentTeam.team_id);
+        // const teamActivityRes = await api.getTeamActivity(currentTeam.team_id);
+        // if (teamActivityRes.statusCode === 200) {
+        //   dispatch({
+        //     type: ActionTypes.GET_TEAM_ACTIVITY,
+        //     payload: {
+        //       teamId: currentTeam.team_id,
+        //       activity: teamActivityRes.data,
+        //     },
+        //   });
+        // }
+        if (teamUsersRes.statusCode === 200) {
+          dispatch({
+            type: ActionTypes.GET_TEAM_USER,
+            payload: {
+              teamUsers: teamUsersRes.data,
+              teamId: currentTeam.team_id,
+            },
+          });
+        }
+        SocketUtils.init(currentTeam.team_id);
+        const directChannelUser = teamUsersRes?.data?.find(
+          (u: any) => u.direct_channel === lastChannelId
+        );
         dispatch({
-          type: ActionTypes.CHANNEL_FAIL,
+          type: ActionTypes.SET_CURRENT_TEAM,
+          payload: {
+            team: currentTeam,
+            lastChannelId,
+            directChannelUser,
+            resChannel,
+          },
         });
+        if (resChannel.statusCode === 200) {
+          if (resChannel.data.length > 0) {
+            dispatch({
+              type: ActionTypes.CHANNEL_SUCCESS,
+              payload: { channel: resChannel.data },
+            });
+          }
+        } else {
+          dispatch({
+            type: ActionTypes.CHANNEL_FAIL,
+          });
+        }
       }
+      dispatch({ type: ActionTypes.TEAM_SUCCESS, payload: { team: res.data } });
+    } else {
+      dispatch({ type: ActionTypes.TEAM_FAIL, payload: { message: res } });
+      dispatch({
+        type: ActionTypes.CHANNEL_FAIL,
+      });
     }
-    dispatch({ type: ActionTypes.TEAM_SUCCESS, payload: { team: res.data } });
-  } else {
-    dispatch({ type: ActionTypes.TEAM_FAIL, payload: { message: res } });
-    dispatch({
-      type: ActionTypes.CHANNEL_FAIL,
-    });
-  }
-};
+  };
 
 export const setCurrentChannel = (channel: any) => (dispatch: Dispatch) => {
   if (channel?.channel_id)

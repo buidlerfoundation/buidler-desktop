@@ -10,6 +10,7 @@ import GlobalVariable from './services/GlobalVariable';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core';
 import { testSC } from './common/EthereumFunction';
+import SocketUtils from './utils/SocketUtils';
 
 const usr = require('os').homedir();
 const storage = require('electron-json-storage');
@@ -35,6 +36,9 @@ function App() {
         GlobalVariable.isInputFocus = false;
       },
     };
+    window.addEventListener('offline', () => {
+      SocketUtils.socket?.disconnect?.();
+    });
     window.addEventListener('paste', (e: any) => {
       e.preventDefault();
       if (!e.clipboardData.types.includes('Files')) {

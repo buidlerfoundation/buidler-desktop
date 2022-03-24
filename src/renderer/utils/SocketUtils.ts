@@ -100,9 +100,12 @@ const actionSetCurrentTeam = async (
       payload: { teamUsers: teamUsersRes.data, teamId: team.team_id },
     });
   }
+  const directChannelUser = teamUsersRes?.data?.find(
+    (u: any) => u.direct_channel === lastChannelId
+  );
   dispatch({
     type: actionTypes.SET_CURRENT_TEAM,
-    payload: { team, resChannel, lastChannelId },
+    payload: { team, resChannel, directChannelUser, lastChannelId },
   });
   setCookie(AsyncKey.lastTeamId, team.team_id);
   const resGroupChannel = await api.getGroupChannel(team.team_id);
