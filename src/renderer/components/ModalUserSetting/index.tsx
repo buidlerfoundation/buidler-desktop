@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '@material-ui/core';
 import './index.scss';
 import images from '../../common/images';
-import AppInput from '../AppInput';
-import TagView from '../TagView';
+import UpdateUserProfile from './UpdateUserProfile';
+import UpdateNotification from './UpdateNotification';
+import UpdateDefaultChannel from './UpdateDefaultChannel';
+import api from 'renderer/api';
+import NormalButton from '../NormalButton';
 
 type ModalUserSettingProps = {
   open: boolean;
@@ -13,6 +16,7 @@ type ModalUserSettingProps = {
   updateUserChannel?: (channels: Array<any>) => any;
   channels?: Array<any>;
   onLogout: () => void;
+  updateUser: (userData: any) => any;
 };
 
 const ModalUserSetting = ({
@@ -23,7 +27,60 @@ const ModalUserSetting = ({
   updateUserChannel,
   channels,
   onLogout,
+  updateUser,
 }: ModalUserSettingProps) => {
+  const [userData, setUserData] = useState({
+    avatarUrl: user?.avatar_url,
+    userName: user?.user_name,
+    ensAsset: null,
+    nftAsset: null,
+  });
+  const [collectibleData, setCollectibleData] = useState({ ens: [], nft: [] });
+  const fetchData = async () => {
+    const res = await api.getCollectibles();
+    if (res.statusCode === 200) {
+      setCollectibleData({
+        ens: res.ens_assets,
+        nft: res.nft_assets,
+      });
+    }
+  };
+  useEffect(() => {
+    if (open) {
+      fetchData();
+      setUserData({
+        avatarUrl: user?.avatar_url,
+        userName: user?.user_name,
+        ensAsset: user?.is_verified_username ? user?.user_name : null,
+        nftAsset: null,
+      });
+    }
+  }, [user, open]);
+  const settings = [
+    {
+      label: 'User profile',
+      activeIcon: images.icUserCircleWhite,
+      icon: images.icUserCircle,
+      id: '1',
+    },
+    {
+      label: 'Notification',
+      activeIcon: images.icUserSettingNotificationWhite,
+      icon: images.icUserSettingNotification,
+      id: '2',
+    },
+    {
+      label: 'Default channel',
+      activeIcon: images.icUserSettingDefaultChannelWhite,
+      icon: images.icUserSettingDefaultChannel,
+      id: '3',
+    },
+  ];
+  const [currentPageId, setCurrentPageId] = useState(settings[0].id);
+  const onSave = async () => {
+    await updateUser(userData);
+    handleClose();
+  };
   return (
     <Modal
       open={open}
@@ -36,56 +93,54 @@ const ModalUserSetting = ({
           <div className="group-setting-title" style={{ marginTop: 10 }}>
             <span>GENERAL</span>
           </div>
-          <div className="setting-item">
-            <img alt="" src={images.icUserCircle} />
-            <span className="setting-label">User profile</span>
-          </div>
-          <div className="setting-item">
-            <div className="ic-notification">
-              <img alt="" src={images.icSettingChannelNotification} />
-            </div>
-            <span className="setting-label">Notification</span>
-          </div>
-        </div>
-        <div className="body">
-          <span className="modal-label">Update user profile</span>
-          <div className="user-avatar__wrapper">
-            <img className="user-avatar" src={user?.avatar_url} alt="" />
-          </div>
-          <div className="input-wrapper">
-            <AppInput
-              className="app-input"
-              placeholder="Enter your name"
-              onChange={(e) => {}}
-              value={user?.user_name}
-              disabled
-            />
-          </div>
-          <span className="modal-label" style={{ marginTop: 36 }}>
-            User channel default
-          </span>
-          <div style={{ height: 35 }} />
-          <TagView
-            isUserChannel
-            channels={
-              user?.user_channels?.map?.((el: any) =>
-                channels?.find((c) => c.channel_id === el)
-              ) || []
-            }
-            currentChannel={currentChannel}
-            onChange={(c) => {
-              updateUserChannel?.(
-                c.filter((el) => el.channel_type !== 'Direct')
-              );
-            }}
-          />
-          <span className="user-channel-des">
-            Your task will be automatically added to channels default when a
-            task has been created in a direct message.
-          </span>
+          {settings.map((el) => {
+            const isActive = currentPageId === el.id;
+            return (
+              <div
+                className={`setting-item ${isActive && 'active'}`}
+                key={el.label}
+                onClick={() => setCurrentPageId(el.id)}
+              >
+                <img alt="" src={isActive ? el.activeIcon : el.icon} />
+                <span className="setting-label">{el.label}</span>
+              </div>
+            );
+          })}
           <div className="log-out__wrapper" onClick={onLogout}>
             <img alt="" src={images.icLeaveTeam} />
             <span className="log-out-text">Logout</span>
+          </div>
+        </div>
+        <div className="body">
+          {currentPageId === '1' && (
+            <UpdateUserProfile
+              collectibleData={collectibleData}
+              userData={userData}
+              user={user}
+              onUpdateAvatar={(url) =>
+                setUserData({ ...userData, avatarUrl: url || user?.avatar_url })
+              }
+              onUpdateENS={(ens) => setUserData({ ...userData, ensAsset: ens })}
+              onUpdateNFT={(nft) => setUserData({ ...userData, nftAsset: nft })}
+              onUpdateUserName={(name) =>
+                setUserData({ ...userData, userName: name })
+              }
+            />
+          )}
+          {currentPageId === '2' && <UpdateNotification />}
+          {currentPageId === '3' && (
+            <UpdateDefaultChannel
+              user={user}
+              channels={channels}
+              currentChannel={currentChannel}
+              updateUserChannel={updateUserChannel}
+            />
+          )}
+          <div style={{ flex: 1 }} />
+          <div className="bottom">
+            <NormalButton title="Cancel" onPress={handleClose} type="normal" />
+            <div style={{ width: 10 }} />
+            <NormalButton title="Save" onPress={onSave} type="main" />
           </div>
         </div>
       </div>

@@ -19,6 +19,7 @@ class ImageHelper {
     options: imageOptions = {},
     noParams = false
   ) => {
+    if (name.includes('http')) return name;
     if (this.imgDomain === '' || this.imgConfig == null || name == null)
       return '';
     if (name.includes('.gif') || noParams) {

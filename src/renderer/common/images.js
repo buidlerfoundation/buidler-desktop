@@ -13,6 +13,7 @@ import icPlusCircle from '../assets/images/ic_plus_circle.svg';
 import icPlus from '../assets/images/ic_plus.svg';
 import icAssign from '../assets/images/ic_assign.svg';
 import icUserCircle from '../assets/images/ic_user_circle.svg';
+import icUserCircleWhite from '../assets/images/ic_user_circle_white.svg';
 import icUser from '../assets/images/ic_user.svg';
 import icAttachment from '../assets/images/ic_attachment.svg';
 import icCollapseLine from '../assets/images/ic_collapse_line.svg';
@@ -57,6 +58,10 @@ import icLeaveTeam from '../assets/images/ic_leave_team.svg';
 import icSearch from '../assets/images/ic_search.svg';
 import icCopy from '../assets/images/ic_copy.svg';
 import icBellQuite from '../assets/images/ic_bell_quite.svg';
+import icUserSettingNotification from '../assets/images/ic_user_setting_notification.svg';
+import icUserSettingNotificationWhite from '../assets/images/ic_user_setting_notification_white.svg';
+import icUserSettingDefaultChannel from '../assets/images/ic_user_setting_default_channel.svg';
+import icUserSettingDefaultChannelWhite from '../assets/images/ic_user_setting_default_channel_white.svg';
 
 const images = {
   icTeamDefault,
@@ -118,6 +123,11 @@ const images = {
   icSearch,
   icCopy,
   icBellQuite,
+  icUserCircleWhite,
+  icUserSettingNotification,
+  icUserSettingNotificationWhite,
+  icUserSettingDefaultChannel,
+  icUserSettingDefaultChannelWhite,
 };
 
 export default images;

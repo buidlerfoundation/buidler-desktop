@@ -1,4 +1,5 @@
 import React from 'react';
+import ImageHelper from 'renderer/common/ImageHelper';
 import './index.scss';
 
 type AvatarViewProps = {
@@ -12,7 +13,7 @@ const AvatarView = ({ user, size = 25 }: AvatarViewProps) => {
       <img
         className="avatar-image"
         alt=""
-        src={user?.avatar_url}
+        src={ImageHelper.normalizeImage(user?.avatar_url, user?.user_id)}
         style={{ width: size, height: size }}
         referrerPolicy="no-referrer"
       />

@@ -34,3 +34,9 @@ export const requestNonce = (pubKey: string) =>
 
 export const verifyNonce = (nonce: string, signature: string) =>
   ApiCaller.post('user/verify', { nonce, signature });
+
+export const getCollectibles = (page = 1, limit = 10) => {
+  return ApiCaller.get(`user/nft?page=${page}&limit=${limit}`);
+};
+
+export const updateUser = (data: any) => ApiCaller.put('user', data);

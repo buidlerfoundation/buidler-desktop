@@ -454,3 +454,28 @@ export const deleteTeam = (teamId: string) => async (dispatch: Dispatch) => {
   }
   return res.statusCode === 200;
 };
+
+export const updateUser = (userData: any) => async (dispatch: Dispatch) => {
+  dispatch({ type: ActionTypes.UPDATE_USER_REQUEST, payload: userData });
+  const dataUpdate = {
+    ens_asset: userData?.ensAsset,
+    nft_asset: userData?.nftAsset
+      ? {
+          address: userData?.nftAsset?.asset_contract_address,
+          token_id: userData?.nftAsset?.token_id,
+        }
+      : null,
+    username: userData?.userName,
+    avatar_url: userData?.avatarUrl,
+  };
+  try {
+    const res = await api.updateUser(dataUpdate);
+    if (res.statusCode === 200) {
+      dispatch({ type: ActionTypes.UPDATE_USER_SUCCESS, payload: res });
+    } else {
+      dispatch({ type: ActionTypes.UPDATE_USER_FAIL, message: res.message });
+    }
+  } catch (error) {
+    dispatch({ type: ActionTypes.UPDATE_USER_FAIL, message: error });
+  }
+};

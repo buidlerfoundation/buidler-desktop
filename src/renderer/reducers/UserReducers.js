@@ -19,6 +19,24 @@ const initialState = {
 const userReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.UPDATE_USER_SUCCESS: {
+      return {
+        ...state,
+        userData: {
+          ...state.userData,
+          ...payload,
+        },
+        teamUserData: state.teamUserData.map((el) => {
+          if (el.user_id === payload.user_id) {
+            return {
+              ...el,
+              ...payload,
+            };
+          }
+          return el;
+        }),
+      };
+    }
     case actionTypes.NEW_USER: {
       return {
         ...state,

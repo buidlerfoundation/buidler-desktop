@@ -6,18 +6,23 @@ type BackupSeedPhraseStateProps = {
   seed: string;
   confirmSeed: Array<{ index: number; title: string }>;
   setConfirmSeed: any;
+  onClear: () => void;
 };
 
 const BackupSeedPhraseState = ({
   seed,
   confirmSeed,
   setConfirmSeed,
+  onClear,
 }: BackupSeedPhraseStateProps) => {
   const shuffleSeedData = useMemo(() => shuffle(seed.split(' ')), [seed]);
   return (
     <div className="modal-state__container">
       <span className="title">Confirm seed phrase</span>
-      <Grid container spacing={2} style={{ marginTop: 25 }}>
+      <div className="normal-button clear-button" onClick={onClear}>
+        <span>clear</span>
+      </div>
+      <Grid container spacing={2} style={{ marginTop: 35 }}>
         {confirmSeed.map((el, index) => (
           <Grid item xs={3} key={el.index + el.title}>
             {!!el.title ? (

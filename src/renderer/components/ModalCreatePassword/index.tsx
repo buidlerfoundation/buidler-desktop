@@ -57,6 +57,7 @@ const ModalCreatePassword = ({
           seed={seed}
           confirmSeed={confirmSeed}
           setConfirmSeed={setConfirmSeed}
+          onClear={() => setConfirmSeed(createConfirmSeedState())}
         />
       );
     return null;

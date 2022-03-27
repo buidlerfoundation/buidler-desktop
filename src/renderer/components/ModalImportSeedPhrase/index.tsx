@@ -6,6 +6,7 @@ import ImportState from './ImportState';
 import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
+import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
 
 type ModalImportSeedPhraseProps = {
   open: boolean;
@@ -39,7 +40,7 @@ const ModalImportSeedPhrase = ({
   const onNextPress = useCallback(() => {
     switch (modalState) {
       case 'import': {
-        if (ethers.utils.isValidMnemonic(seed)) {
+        if (ethers.utils.isValidMnemonic(seed) || isValidPrivateKey(seed)) {
           setModalState('create-password');
         } else {
           toast.error('Invalid seed phrase', { className: 'Failed !' });

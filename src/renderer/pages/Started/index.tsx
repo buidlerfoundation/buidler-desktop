@@ -15,6 +15,7 @@ import GlobalVariable from 'renderer/services/GlobalVariable';
 import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
+import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
 
 const Started = () => {
   const history = useHistory();
@@ -22,8 +23,19 @@ const Started = () => {
   const [isOpenImportModal, setOpenImportModal] = useState(false);
   const loggedOn = async (seed: string, password: string) => {
     const iv = await getIV();
-    const wallet = ethers.Wallet.fromMnemonic(seed);
-    const { privateKey } = wallet;
+    let privateKey;
+    let signingKey;
+    if (isValidPrivateKey(seed)) {
+      privateKey = seed;
+      if (privateKey.substring(0, 2) !== '0x') {
+        privateKey = `0x${privateKey}`;
+      }
+      signingKey = new utils.SigningKey(privateKey);
+    } else {
+      const wallet = ethers.Wallet.fromMnemonic(seed);
+      privateKey = wallet.privateKey;
+      signingKey = wallet._signingKey();
+    }
     const publicKey = utils.computePublicKey(privateKey, true);
     GlobalVariable.privateKey = publicKey;
     const data = { [publicKey]: privateKey };
@@ -33,7 +45,7 @@ const Started = () => {
     if (nonce) {
       const msgHash = utils.hashMessage(nonce);
       const msgHashBytes = utils.arrayify(msgHash);
-      const signature = wallet._signingKey().signDigest(msgHashBytes);
+      const signature = signingKey.signDigest(msgHashBytes);
       const res = await api.verifyNonce(nonce, signature.compact);
       if (res.statusCode === 200) {
         setCookie(AsyncKey.accessTokenKey, res.token);

@@ -37,12 +37,37 @@
       padding: 10px 20px;
       display: flex;
       align-items: center;
+      color: var(--color-secondary-text);
+      &.active {
+        background-color: var(--color-highlight);
+        color: var(--color-primary-text);
+      }
+      &:hover {
+        cursor: pointer;
+        background-color: var(--color-highlight);
+        color: var(--color-primary-text);
+      }
     }
     .setting-label {
       font-weight: 600;
       margin-left: 15px;
       font-size: 16px;
       line-height: 19px;
+    }
+    .log-out__wrapper {
+      display: flex;
+      align-items: center;
+      padding: 8px 20px;
+      &:hover {
+        cursor: pointer;
+        background-color: var(--color-highlight);
+      }
+      .log-out-text {
+        font-size: 16px;
+        line-height: 19px;
+        margin-left: 15px;
+        font-weight: 600;
+      }
     }
   }
   .body {
@@ -57,21 +82,128 @@
       font-size: 20px;
       line-height: 24px;
     }
-    .user-avatar__wrapper {
-      position: relative;
+    .avatar-view {
+      display: flex;
       margin-top: 40px;
-      .user-avatar {
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
+      align-items: flex-end;
+      .user-avatar__wrapper {
+        position: relative;
+        &:hover {
+          cursor: pointer;
+        }
+        .user-avatar {
+          width: 90px;
+          height: 90px;
+          border-radius: 50%;
+          background-color: var(--color-highlight);
+        }
+        .ic-camera {
+          top: -5px;
+          right: -5px;
+          position: absolute;
+        }
+        .attachment-loading {
+          position: absolute;
+          width: 90px;
+          height: 90px;
+          border-radius: 45px;
+          top: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(0, 0, 0, 0.75);
+        }
+      }
+      .nft-avatar__wrapper {
+        display: flex;
+        flex-direction: column;
+        margin-left: 30px;
+        flex: 1;
+        .nft-avatar-des {
+          font-size: 14px;
+          line-height: 19px;
+          color: var(--color-secondary-text);
+          font-weight: 600;
+        }
+        .nft-view {
+          display: flex;
+          flex: 1;
+          align-items: center;
+          overflow-y: auto;
+          margin-top: 10px;
+          .ntf-avatar {
+            width: 95px;
+            height: 95px;
+            border-radius: 5px;
+          }
+        }
       }
     }
-    .input-wrapper {
-      padding: 16px 20px;
-      background-color: var(--color-highlight);
-      border-radius: 5px;
-      border: 1px solid var(--color-stroke);
+    .user-name-wrapper {
       margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      .ens-input {
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+        border: 1px solid var(--color-stroke);
+        position: relative;
+        height: 50px;
+        background-color: var(--color-highlight);
+        .ens-signal {
+          position: absolute;
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
+          width: 50px;
+          height: 50px;
+          font-size: 14px;
+          line-height: 22px;
+          font-weight: 600;
+          color: var(--color-primary-text);
+          background-color: var(--color-mention);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .ens-user-name {
+          margin-left: 70px;
+          font-size: 16px;
+          line-height: 26px;
+          font-weight: 600;
+          color: var(--color-primary-text);
+          flex: 1;
+        }
+        .icon-clear {
+          padding: 10px;
+          margin: 0 10px;
+        }
+      }
+      .ens-view {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        .ens-item {
+          padding: 7px 10px;
+          border-radius: 5px;
+          color: var(--color-secondary-text);
+          background-color: var(--color-highlight);
+          margin-right: 10px;
+          margin-bottom: 10px;
+          font-weight: 600;
+          font-size: 16px;
+          line-height: 26px;
+        }
+      }
+      .ens-description {
+        margin-top: 4px;
+        margin-left: 10px;
+        font-size: 14px;
+        line-height: 19px;
+        font-weight: 600;
+        color: var(--color-secondary-text);
+      }
     }
     .tag-view__item {
       color: var(--color-primary-text);
@@ -80,23 +212,11 @@
       font-size: 14px;
       line-height: 19px;
       color: var(--color-secondary-text);
-      margin-top: 25px;
     }
-    .log-out__wrapper {
-      margin-top: 30px;
-      display: flex;
-      align-items: center;
-      width: fit-content;
-      padding: 8px 0;
-      &:hover {
-        cursor: pointer;
-      }
-      .log-out-text {
-        font-size: 16px;
-        line-height: 19px;
-        margin-left: 15px;
-        font-weight: 600;
-      }
-    }
+  }
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 }

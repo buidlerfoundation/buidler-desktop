@@ -25,6 +25,7 @@ type AppTitleBarProps = {
   currentChannel?: any;
   updateUserChannel?: (channels: Array<any>) => any;
   logout?: () => any;
+  updateUser: (userData: any) => any;
 };
 
 const AppTitleBar = ({
@@ -39,6 +40,7 @@ const AppTitleBar = ({
   currentChannel,
   updateUserChannel,
   logout,
+  updateUser,
 }: AppTitleBarProps) => {
   const history = useHistory();
   const teamMenu = [
@@ -193,6 +195,7 @@ const AppTitleBar = ({
         currentChannel={currentChannel}
         updateUserChannel={updateUserChannel}
         channels={channels}
+        updateUser={updateUser}
         onLogout={() => {
           clearData(() => {
             setOpenModalUser(false);
