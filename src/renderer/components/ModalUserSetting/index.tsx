@@ -29,6 +29,7 @@ const ModalUserSetting = ({
   onLogout,
   updateUser,
 }: ModalUserSettingProps) => {
+  const [uploading, setUploading] = useState(false);
   const [userData, setUserData] = useState({
     avatarUrl: user?.avatar_url,
     userName: user?.user_name,
@@ -41,7 +42,7 @@ const ModalUserSetting = ({
     if (res.statusCode === 200) {
       setCollectibleData({
         ens: res.ens_assets,
-        nft: res.nft_assets,
+        nft: res.nft_assets.filter((el: any) => el.is_active),
       });
     }
   };
@@ -78,6 +79,7 @@ const ModalUserSetting = ({
   ];
   const [currentPageId, setCurrentPageId] = useState(settings[0].id);
   const onSave = async () => {
+    if (uploading) return;
     await updateUser(userData);
     handleClose();
   };
@@ -114,6 +116,7 @@ const ModalUserSetting = ({
         <div className="body">
           {currentPageId === '1' && (
             <UpdateUserProfile
+              setUploading={setUploading}
               collectibleData={collectibleData}
               userData={userData}
               user={user}

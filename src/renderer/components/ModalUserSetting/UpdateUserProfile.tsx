@@ -15,6 +15,7 @@ type UpdateUserProfileProps = {
   onUpdateAvatar: (url: string) => void;
   onUpdateUserName: (name: string) => void;
   collectibleData: { ens: Array<any>; nft: Array<any> };
+  setUploading: (uploading: boolean) => void;
 };
 
 const UpdateUserProfile = ({
@@ -25,6 +26,7 @@ const UpdateUserProfile = ({
   onUpdateENS,
   onUpdateUserName,
   collectibleData,
+  setUploading,
 }: UpdateUserProfileProps) => {
   const inputRef = useRef<any>();
   const generateId = useRef<string>('');
@@ -49,10 +51,12 @@ const UpdateUserProfile = ({
       loading: true,
       type: f.type,
     };
+    setUploading(true);
     setFile({ attachment, loading: true });
     api.uploadFile(undefined, user?.user_id, f).then((res) => {
       onUpdateAvatar(res.file_url);
       setFile({ attachment, loading: false, url: res.file_url });
+      setUploading(true);
       return null;
     });
   };
