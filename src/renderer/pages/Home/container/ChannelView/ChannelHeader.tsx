@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import ImageHelper from 'renderer/common/ImageHelper';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
@@ -130,7 +131,7 @@ const ChannelHeader = forwardRef(
                 >
                   <img
                     className="avatar"
-                    src={el.avatar_url}
+                    src={ImageHelper.normalizeImage(el.avatar_url, el.user_id)}
                     alt=""
                     referrerPolicy="no-referrer"
                   />
