@@ -9,7 +9,6 @@ import images from '../../common/images';
 import './index.scss';
 import { connect } from 'react-redux';
 import { getIconByStatus } from '../../helpers/TaskHelper';
-import AttachmentItem from './AttachmentItem';
 import AvatarView from '../AvatarView';
 import ContentEditable from 'react-contenteditable';
 import Popper from '@material-ui/core/Popper';
@@ -20,6 +19,7 @@ import {
   normalizeUserName,
   removeTagHTML,
 } from '../../helpers/MessageHelper';
+import AttachmentItem from '../AttachmentItem';
 
 type MessageInputProps = {
   placeholder: string;

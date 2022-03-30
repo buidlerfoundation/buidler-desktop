@@ -143,6 +143,7 @@ const ModalCreateTask = ({
                 randomId: Math.random(),
                 loading: true,
                 type: f.type,
+                name: f.name,
               };
               setTaskData((task: any) => ({
                 ...task,
@@ -160,6 +161,7 @@ const ModalCreateTask = ({
                       ...newAttachments[index],
                       loading: false,
                       url: res.file_url,
+                      id: res.file.file_id,
                     };
                     return {
                       ...task,

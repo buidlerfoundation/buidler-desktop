@@ -15,6 +15,8 @@ import { CircularProgress } from '@material-ui/core';
 import TextareaAutosize from 'react-textarea-autosize';
 import PopoverButton from '../PopoverButton';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
+import { useSelector } from 'react-redux';
+import AttachmentItem from '../AttachmentItem';
 
 type CreateTaskViewProps = {
   onCancel: () => void;
@@ -39,6 +41,7 @@ const CreateTaskView = ({
 }: CreateTaskViewProps) => {
   const pasteFile = useRef(false);
   const inputRef = useRef<any>();
+  const currentTeam = useSelector((state: any) => state.user.currentTeam);
   const popupDatePickerRef = useRef<any>();
   const [anchorPopupStatus, setPopupStatus] = useState(null);
   const [anchorPopupAssignee, setPopupAssignee] = useState(null);
@@ -57,6 +60,14 @@ const CreateTaskView = ({
     update('dueDate', date);
   };
   const renderAttachment = (att: any, index: number) => {
+    return (
+      <AttachmentItem
+        att={att}
+        key={att.randomId || att.id || index}
+        onRemove={() => onRemoveFile(att)}
+        teamId={currentTeam.team_id}
+      />
+    );
     if (att.type.includes('video')) {
       return (
         <div
@@ -278,7 +289,7 @@ const CreateTaskView = ({
           <input
             {...getInputProps()}
             ref={inputRef}
-            accept="image/*,video/*"
+            accept="image/*,video/*,application/*"
             onChange={(e: any) => {
               onAddFiles(e.target.files);
               e.target.value = null;
