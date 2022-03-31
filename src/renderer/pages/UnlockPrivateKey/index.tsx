@@ -11,6 +11,7 @@ import ImageHelper from 'renderer/common/ImageHelper';
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
+// import EthCrypto from 'eth-crypto';
 
 type UnlockPrivateKeyProps = {
   findUser: () => any;
@@ -30,6 +31,21 @@ const UnlockPrivateKey = ({
   const history = useHistory();
   const [pass, setPass] = useState('');
   const dispatch = useDispatch();
+  // const test = async () => {
+  //   const encrypted = await EthCrypto.encryptWithPublicKey(
+  //     '033333db2859fb5dc791edf29e73adc5e6addff1fa4c2e443af30b8990102ef374', // publicKey
+  //     'foobar' // message
+  //   );
+  //   const message = await EthCrypto.decryptWithPrivateKey(
+  //     '0x3e8a25bedd79c30cc8e535dde02466efc4324b9ce0a7d0a4591babcde7ef550d', // privateKey
+  //     encrypted
+  //   );
+  //   console.log('XXX: ', encrypted);
+  //   console.log('XXX: ', message);
+  // };
+  // useEffect(() => {
+  //   test();
+  // }, []);
   useEffect(() => {
     if (team == null && errorTeam === '') {
       findTeamAndChannel?.();
