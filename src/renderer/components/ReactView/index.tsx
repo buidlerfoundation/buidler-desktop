@@ -81,6 +81,7 @@ const ReactView = ({
         <div className="react-detail__container">
           {reactDetail.map((el: any) => {
             const user = teamUserData.find((u) => u.user_id === el.user_id);
+            if (!user) return null;
             return (
               <div className="react-item" key={el.emoji_id + el.user_id}>
                 <AvatarView user={user} />

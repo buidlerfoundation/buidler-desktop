@@ -10,6 +10,22 @@
   cursor: pointer;
   transition: background 0.8s;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.loading-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invisible {
+  opacity: 0;
 }
 
 .button-success {

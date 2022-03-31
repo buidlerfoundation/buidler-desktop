@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import images from '../../common/images';
 import GroupTitle from '../../pages/Main/Layout/SideBar/components/GroupTitle';
@@ -19,15 +19,12 @@ const PopupChannel = ({
   groupChannel,
 }: PopupChannelProps) => {
   const [search, setSearch] = useState('');
-  const channels = useCallback(
-    (data) => {
-      if (!search) return data;
-      return data.filter((el: any) =>
-        el.channel_name.toLowerCase().includes(search.toLowerCase())
-      );
-    },
-    [search]
-  );
+  const channels = useMemo(() => {
+    if (!search) return channel;
+    return channel.filter((el: any) =>
+      el.channel_name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, channel]);
   return (
     <div className="popup-channel__container hide-scroll-bar">
       <AppInput
@@ -39,15 +36,12 @@ const PopupChannel = ({
       {groupChannel.map((g, index) => {
         return (
           <div
-            key={g?.group_channel_name}
+            key={g?.group_channel_id}
             style={{ marginTop: index === 0 ? 60 : 0 }}
           >
             <GroupTitle title={g?.group_channel_name} />
-            {channels(channel)
-              ?.filter(
-                (c: any) =>
-                  c.group_channel?.group_channel_name === g?.group_channel_name
-              )
+            {channels
+              ?.filter((c: any) => c.group_channel_id === g?.group_channel_id)
               ?.map?.((c: any) => {
                 const isActive = selected?.find(
                   (el) => el.channel_id === c.channel_id

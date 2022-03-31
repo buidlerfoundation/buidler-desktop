@@ -14,6 +14,7 @@ const PageWrapper = ({ children }: PageWrapperProps) => {
       history.replace('/unlock');
     }
   }, [privateKey, history]);
+  if (!privateKey) return <div className="page-wrapper-container" />;
   return <div>{children}</div>;
 };
 

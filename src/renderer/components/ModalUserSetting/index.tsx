@@ -30,6 +30,7 @@ const ModalUserSetting = ({
   updateUser,
 }: ModalUserSettingProps) => {
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState({
     avatarUrl: user?.avatar_url,
     userName: user?.user_name,
@@ -80,7 +81,9 @@ const ModalUserSetting = ({
   const [currentPageId, setCurrentPageId] = useState(settings[0].id);
   const onSave = async () => {
     if (uploading) return;
+    setLoading(true);
     await updateUser?.(userData);
+    setLoading(false);
     handleClose();
   };
   return (
@@ -143,7 +146,12 @@ const ModalUserSetting = ({
           <div className="bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
             <div style={{ width: 10 }} />
-            <NormalButton title="Save" onPress={onSave} type="main" />
+            <NormalButton
+              title="Save"
+              onPress={onSave}
+              type="main"
+              loading={loading}
+            />
           </div>
         </div>
       </div>
