@@ -12,6 +12,7 @@ import actions from '../../actions';
 import CreateTeam from '../CreateTeam';
 import AppTitleBar from '../../components/AppTitleBar';
 import Started from '../Started';
+import UnlockPrivateKey from '../UnlockPrivateKey';
 
 interface PrivateRouteProps {
   component: any;
@@ -52,6 +53,7 @@ const Main = ({ getInitial }: MainProps) => {
           <Switch>
             <Route exact path="/" component={Splash} />
             <PrivateRoute exact path="/home" component={Home} />
+            <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
             <Route exact path="/login" component={LoginScreen} />
             <Route exact path="/started" component={Started} />
             <Route exact path="/create-team" component={CreateTeam} />

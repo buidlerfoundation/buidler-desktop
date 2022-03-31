@@ -16,7 +16,7 @@ type ModalUserSettingProps = {
   updateUserChannel?: (channels: Array<any>) => any;
   channels?: Array<any>;
   onLogout: () => void;
-  updateUser: (userData: any) => any;
+  updateUser?: (userData: any) => any;
 };
 
 const ModalUserSetting = ({
@@ -80,7 +80,7 @@ const ModalUserSetting = ({
   const [currentPageId, setCurrentPageId] = useState(settings[0].id);
   const onSave = async () => {
     if (uploading) return;
-    await updateUser(userData);
+    await updateUser?.(userData);
     handleClose();
   };
   return (

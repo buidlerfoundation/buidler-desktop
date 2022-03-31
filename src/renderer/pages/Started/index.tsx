@@ -16,8 +16,11 @@ import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
+import { useDispatch } from 'react-redux';
+import actionTypes from 'renderer/actions/ActionTypes';
 
 const Started = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
   const [isOpenImportModal, setOpenImportModal] = useState(false);
@@ -37,7 +40,7 @@ const Started = () => {
       signingKey = wallet._signingKey();
     }
     const publicKey = utils.computePublicKey(privateKey, true);
-    GlobalVariable.privateKey = publicKey;
+    dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
     const data = { [publicKey]: privateKey };
     const encryptedData = encryptString(JSON.stringify(data), password, iv);
     setCookie(AsyncKey.encryptedDataKey, encryptedData);

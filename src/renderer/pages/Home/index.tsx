@@ -30,6 +30,7 @@ import ModalInviteMember from '../../components/ModalInviteMember';
 import api from '../../api';
 import EmptyView from './container/EmptyView';
 import ModalEditGroupChannel from '../../components/ModalEditGroupChannel';
+import PageWrapper from 'renderer/components/PageWrapper';
 
 type HomeProps = {
   team?: any;
@@ -463,217 +464,219 @@ const Home = ({
     setCurrentTask(task);
   };
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="home-container">
-        <SideBar
-          ref={sideBarRef}
-          onCreateChannel={(initGroup) => {
-            setInitialGroup(initGroup);
-            setOpenCreateChannel(true);
-          }}
-          onCreateGroupChannel={() => {
-            setOpenCreateGroupChannel(true);
-          }}
-          onEditGroupChannel={(g) => {
-            setSelectedGroup(g);
-            setOpenEditGroupChannel(true);
-          }}
-          onDeleteGroupChannel={(g) => {
-            setSelectedGroup(g);
-            setOpenConfirmDeleteGroup(true);
-          }}
-          onDeleteChannel={(channel) => {
-            setChannelDelete(channel);
-            setOpenConfirmDeleteChannel(true);
-          }}
-          onRemoveTeamMember={(u) => {
-            removeTeamMember(currentTeam.team_id, u.user_id);
-          }}
-          onEditChannelMember={(channel) => {
-            setCurrentChannel?.(channel);
-            channelViewRef.current.showSetting('edit-member');
-          }}
-          onEditChannelName={(channel) => {
-            setCurrentChannel?.(channel);
-            channelViewRef.current.showSetting('edit-name');
-          }}
-          onInviteMember={() => setOpenInvite(true)}
-          deleteTeam={deleteTeam}
-          updateTeam={updateTeam}
-          findTeamAndChannel={findTeamAndChannel}
-          findUser={findUser}
-        />
+    <PageWrapper>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="home-container">
+          <SideBar
+            ref={sideBarRef}
+            onCreateChannel={(initGroup) => {
+              setInitialGroup(initGroup);
+              setOpenCreateChannel(true);
+            }}
+            onCreateGroupChannel={() => {
+              setOpenCreateGroupChannel(true);
+            }}
+            onEditGroupChannel={(g) => {
+              setSelectedGroup(g);
+              setOpenEditGroupChannel(true);
+            }}
+            onDeleteGroupChannel={(g) => {
+              setSelectedGroup(g);
+              setOpenConfirmDeleteGroup(true);
+            }}
+            onDeleteChannel={(channel) => {
+              setChannelDelete(channel);
+              setOpenConfirmDeleteChannel(true);
+            }}
+            onRemoveTeamMember={(u) => {
+              removeTeamMember(currentTeam.team_id, u.user_id);
+            }}
+            onEditChannelMember={(channel) => {
+              setCurrentChannel?.(channel);
+              channelViewRef.current.showSetting('edit-member');
+            }}
+            onEditChannelName={(channel) => {
+              setCurrentChannel?.(channel);
+              channelViewRef.current.showSetting('edit-name');
+            }}
+            onInviteMember={() => setOpenInvite(true)}
+            deleteTeam={deleteTeam}
+            updateTeam={updateTeam}
+            findTeamAndChannel={findTeamAndChannel}
+            findUser={findUser}
+          />
 
-        <div className="home-body">
-          {team?.length > 0 ? (
-            <>
-              <ChannelView
-                ref={channelViewRef}
-                inputRef={inputRef}
-                currentChannel={currentChannel}
-                messages={uniqBy(messages, 'message_id')}
-                currentTeam={currentTeam}
-                createTask={createTask}
-                openConversation={(message) => {
-                  setCurrentMessage(message);
-                  setOpenConversation(true);
-                }}
-                onMoreMessage={onMoreMessage}
-                loadMoreMessage={loadMoreMessage}
-                messageCanMore={messageCanMore}
-                scrollData={scrollData}
-                setScrollData={setScrollData}
-                replyTask={replyTask}
-                setReplyTask={setReplyTask}
-                onAddReact={addReact}
-                onRemoveReact={removeReact}
-                openTaskView={openTaskView}
-                onSelectTask={openTaskDetail}
-                onRemoveAttachment={onRemoveAttachment}
-                setCurrentChannel={setCurrentChannel}
-                isOpenConversation={openConversation}
-                deleteMessage={deleteMessage}
-                deleteChannel={deleteChannel}
-                updateChannel={updateChannel}
-                channel={channels}
-                teamUserData={teamUserData}
-              />
-              <TaskListView
-                channelId={currentChannel?.channel_id}
-                getArchivedTasks={getArchivedTasks}
-                archivedCount={archivedCount}
-                teamId={currentTeam?.team_id}
-                tasks={tasks || []}
-                archivedTasks={archivedTasks || []}
-                onAddTask={(title) => {
-                  setCurrentTitle(title);
-                  setOpenCreateTask(true);
-                }}
-                onUpdateStatus={onUpdateStatus}
-                onHoverChange={(key, index) => setHoverInfo({ key, index })}
-                onHoverLeave={() => {
-                  setHoverInfo({ key: null, index: null });
-                }}
-                filter={filter}
-                filterData={filterTask}
-                onUpdateFilter={(st) => setFilter(st)}
-                onDeleteTask={onDeleteTask}
-                onSelectTask={openTaskDetail}
-                updateTask={updateTask}
-                onAddReact={addReact}
-                onRemoveReact={removeReact}
-                onReplyTask={onReplyTask}
-                hoverTask={hoverTask}
-                directUserId={currentChannel?.user?.user_id}
-              />
-            </>
-          ) : (
-            <EmptyView createTeam={createTeam} />
+          <div className="home-body">
+            {team?.length > 0 ? (
+              <>
+                <ChannelView
+                  ref={channelViewRef}
+                  inputRef={inputRef}
+                  currentChannel={currentChannel}
+                  messages={uniqBy(messages, 'message_id')}
+                  currentTeam={currentTeam}
+                  createTask={createTask}
+                  openConversation={(message) => {
+                    setCurrentMessage(message);
+                    setOpenConversation(true);
+                  }}
+                  onMoreMessage={onMoreMessage}
+                  loadMoreMessage={loadMoreMessage}
+                  messageCanMore={messageCanMore}
+                  scrollData={scrollData}
+                  setScrollData={setScrollData}
+                  replyTask={replyTask}
+                  setReplyTask={setReplyTask}
+                  onAddReact={addReact}
+                  onRemoveReact={removeReact}
+                  openTaskView={openTaskView}
+                  onSelectTask={openTaskDetail}
+                  onRemoveAttachment={onRemoveAttachment}
+                  setCurrentChannel={setCurrentChannel}
+                  isOpenConversation={openConversation}
+                  deleteMessage={deleteMessage}
+                  deleteChannel={deleteChannel}
+                  updateChannel={updateChannel}
+                  channel={channels}
+                  teamUserData={teamUserData}
+                />
+                <TaskListView
+                  channelId={currentChannel?.channel_id}
+                  getArchivedTasks={getArchivedTasks}
+                  archivedCount={archivedCount}
+                  teamId={currentTeam?.team_id}
+                  tasks={tasks || []}
+                  archivedTasks={archivedTasks || []}
+                  onAddTask={(title) => {
+                    setCurrentTitle(title);
+                    setOpenCreateTask(true);
+                  }}
+                  onUpdateStatus={onUpdateStatus}
+                  onHoverChange={(key, index) => setHoverInfo({ key, index })}
+                  onHoverLeave={() => {
+                    setHoverInfo({ key: null, index: null });
+                  }}
+                  filter={filter}
+                  filterData={filterTask}
+                  onUpdateFilter={(st) => setFilter(st)}
+                  onDeleteTask={onDeleteTask}
+                  onSelectTask={openTaskDetail}
+                  updateTask={updateTask}
+                  onAddReact={addReact}
+                  onRemoveReact={removeReact}
+                  onReplyTask={onReplyTask}
+                  hoverTask={hoverTask}
+                  directUserId={currentChannel?.user?.user_id}
+                />
+              </>
+            ) : (
+              <EmptyView createTeam={createTeam} />
+            )}
+          </div>
+
+          <ModalConversation
+            message={currentMessage}
+            open={openConversation}
+            handleClose={() => {
+              setOpenConversation(false);
+              setCurrentMessage(null);
+            }}
+            onAddReact={addReact}
+            onRemoveReact={removeReact}
+          />
+          <ModalTaskView
+            task={currentTask}
+            conversations={conversationData?.[currentTask?.task_id] || []}
+            open={openTaskView}
+            handleClose={() => {
+              setOpenTask(false);
+              setCurrentTask(null);
+            }}
+            teamId={currentTeam?.team_id}
+            channelId={currentChannel?.channel_id}
+            updateTask={updateTask}
+            getConversations={getConversations}
+            getActivities={getActivities}
+            activities={activityData?.[currentTask?.task_id]?.data || []}
+            onDeleteTask={onDeleteTask}
+          />
+          <ModalCreateTask
+            onCreateTask={onCreateTask}
+            open={openCreateTask}
+            handleClose={() => {
+              setCurrentTitle(null);
+              setOpenCreateTask(false);
+            }}
+            currentTitle={currentTitle}
+            currentTeam={currentTeam}
+            currentChannel={currentChannel}
+            channels={channels}
+          />
+          {openCreateGroupChannel && (
+            <ModalCreateGroupChannel
+              open={openCreateGroupChannel}
+              handleClose={() => setOpenCreateGroupChannel(false)}
+              onCreateGroupChannel={onCreateGroupChannel}
+            />
           )}
-        </div>
-
-        <ModalConversation
-          message={currentMessage}
-          open={openConversation}
-          handleClose={() => {
-            setOpenConversation(false);
-            setCurrentMessage(null);
-          }}
-          onAddReact={addReact}
-          onRemoveReact={removeReact}
-        />
-        <ModalTaskView
-          task={currentTask}
-          conversations={conversationData?.[currentTask?.task_id] || []}
-          open={openTaskView}
-          handleClose={() => {
-            setOpenTask(false);
-            setCurrentTask(null);
-          }}
-          teamId={currentTeam?.team_id}
-          channelId={currentChannel?.channel_id}
-          updateTask={updateTask}
-          getConversations={getConversations}
-          getActivities={getActivities}
-          activities={activityData?.[currentTask?.task_id]?.data || []}
-          onDeleteTask={onDeleteTask}
-        />
-        <ModalCreateTask
-          onCreateTask={onCreateTask}
-          open={openCreateTask}
-          handleClose={() => {
-            setCurrentTitle(null);
-            setOpenCreateTask(false);
-          }}
-          currentTitle={currentTitle}
-          currentTeam={currentTeam}
-          currentChannel={currentChannel}
-          channels={channels}
-        />
-        {openCreateGroupChannel && (
-          <ModalCreateGroupChannel
-            open={openCreateGroupChannel}
-            handleClose={() => setOpenCreateGroupChannel(false)}
-            onCreateGroupChannel={onCreateGroupChannel}
-          />
-        )}
-        {openEditGroupChannel && (
-          <ModalEditGroupChannel
-            open={openEditGroupChannel}
-            handleClose={() => setOpenEditGroupChannel(false)}
-            onEditGroupChannel={onEditGroupChannel}
-            groupName={selectedGroup?.group_channel_name}
-          />
-        )}
-        {openCreateChannel && (
-          <ModalCreateChannel
-            group={group}
-            onCreateChannel={onCreateChannel}
-            open={openCreateChannel}
-            handleClose={() => setOpenCreateChannel(false)}
-            initialGroup={initialGroup}
-          />
-        )}
-        {isOpenInvite && (
-          <ModalInviteMember
-            open={isOpenInvite}
-            handleClose={() => setOpenInvite(false)}
-            onInvite={async (emails) => {
-              const res = await api.invitation(
-                currentTeam.team_id,
-                emails.split(', ')
-              );
-              if (res.statusCode === 200) {
-                toast.success('Invitation sent');
-              }
-              setOpenInvite(false);
+          {openEditGroupChannel && (
+            <ModalEditGroupChannel
+              open={openEditGroupChannel}
+              handleClose={() => setOpenEditGroupChannel(false)}
+              onEditGroupChannel={onEditGroupChannel}
+              groupName={selectedGroup?.group_channel_name}
+            />
+          )}
+          {openCreateChannel && (
+            <ModalCreateChannel
+              group={group}
+              onCreateChannel={onCreateChannel}
+              open={openCreateChannel}
+              handleClose={() => setOpenCreateChannel(false)}
+              initialGroup={initialGroup}
+            />
+          )}
+          {isOpenInvite && (
+            <ModalInviteMember
+              open={isOpenInvite}
+              handleClose={() => setOpenInvite(false)}
+              onInvite={async (emails) => {
+                const res = await api.invitation(
+                  currentTeam.team_id,
+                  emails.split(', ')
+                );
+                if (res.statusCode === 200) {
+                  toast.success('Invitation sent');
+                }
+                setOpenInvite(false);
+              }}
+            />
+          )}
+          <ModalConfirmDeleteChannel
+            open={isOpenConfirmDeleteChannel}
+            handleClose={() => setOpenConfirmDeleteChannel(false)}
+            channelName={channelDelete?.channel_name}
+            onDelete={async () => {
+              if (!channelDelete?.channel_id) return;
+              await deleteChannel(channelDelete?.channel_id);
+              setChannelDelete(null);
+              setOpenConfirmDeleteChannel(false);
             }}
           />
-        )}
-        <ModalConfirmDeleteChannel
-          open={isOpenConfirmDeleteChannel}
-          handleClose={() => setOpenConfirmDeleteChannel(false)}
-          channelName={channelDelete?.channel_name}
-          onDelete={async () => {
-            if (!channelDelete?.channel_id) return;
-            await deleteChannel(channelDelete?.channel_id);
-            setChannelDelete(null);
-            setOpenConfirmDeleteChannel(false);
-          }}
-        />
-        <ModalConfirmDeleteGroupChannel
-          open={isOpenConfirmDeleteGroup}
-          groupName={selectedGroup?.group_channel_name}
-          handleClose={() => setOpenConfirmDeleteGroup(false)}
-          onDelete={async () => {
-            if (!selectedGroup?.group_channel_id) return;
-            await deleteGroupChannel(selectedGroup?.group_channel_id);
-            setSelectedGroup(null);
-            setOpenConfirmDeleteGroup(false);
-          }}
-        />
-      </div>
-    </DragDropContext>
+          <ModalConfirmDeleteGroupChannel
+            open={isOpenConfirmDeleteGroup}
+            groupName={selectedGroup?.group_channel_name}
+            handleClose={() => setOpenConfirmDeleteGroup(false)}
+            onDelete={async () => {
+              if (!selectedGroup?.group_channel_id) return;
+              await deleteGroupChannel(selectedGroup?.group_channel_id);
+              setSelectedGroup(null);
+              setOpenConfirmDeleteGroup(false);
+            }}
+          />
+        </div>
+      </DragDropContext>
+    </PageWrapper>
   );
 };
 

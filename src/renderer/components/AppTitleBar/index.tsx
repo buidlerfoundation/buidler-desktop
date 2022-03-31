@@ -25,7 +25,7 @@ type AppTitleBarProps = {
   currentChannel?: any;
   updateUserChannel?: (channels: Array<any>) => any;
   logout?: () => any;
-  updateUser: (userData: any) => any;
+  updateUser?: (userData: any) => any;
 };
 
 const AppTitleBar = ({
