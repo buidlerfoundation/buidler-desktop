@@ -19,10 +19,10 @@ class ImageHelper {
     options: imageOptions = {},
     noParams = false
   ) => {
-    if (name.includes('http')) return name;
+    if (name?.includes?.('http')) return name;
     if (this.imgDomain === '' || this.imgConfig == null || name == null)
       return '';
-    if (name.includes('.gif') || noParams) {
+    if (name?.includes?.('.gif') || noParams) {
       return `${this.imgDomain}${teamId}/${name}`;
     }
     let params = '?auto=format&fit=crop';
