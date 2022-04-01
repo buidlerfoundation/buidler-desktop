@@ -82,6 +82,7 @@ const UnlockPrivateKey = ({
           placeholder="Password"
           className="input-password"
           type="password"
+          autoFocus
           onKeyDown={async (e) => {
             if (e.code === 'Enter') {
               try {

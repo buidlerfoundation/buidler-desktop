@@ -56,7 +56,7 @@ const UpdateUserProfile = ({
     api.uploadFile(undefined, user?.user_id, f).then((res) => {
       onUpdateAvatar(res.file_url);
       setFile({ attachment, loading: false, url: res.file_url });
-      setUploading(true);
+      setUploading(false);
       return null;
     });
   };

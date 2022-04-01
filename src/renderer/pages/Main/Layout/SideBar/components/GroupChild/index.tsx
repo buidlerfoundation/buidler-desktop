@@ -52,7 +52,7 @@ const GroupChild = ({
       >
         {isPrivate && (
           <img
-            style={{ marginLeft: 5, filter }}
+            style={{ marginLeft: 5, marginBottom: 3, filter }}
             alt=""
             src={images.icPrivateWhite}
           />

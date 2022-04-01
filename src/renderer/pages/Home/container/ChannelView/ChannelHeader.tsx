@@ -88,7 +88,6 @@ const ChannelHeader = forwardRef(
             <img
               style={{
                 marginLeft: 15,
-                marginTop: 1,
               }}
               alt=""
               src={images.icPrivateWhite}
