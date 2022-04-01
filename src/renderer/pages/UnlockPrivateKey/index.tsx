@@ -59,46 +59,58 @@ const UnlockPrivateKey = ({
   if (!userData) return <div className="unlock-private-key__container" />;
   return (
     <div className="unlock-private-key__container">
-      <img
-        className="avatar"
-        src={ImageHelper.normalizeImage(
-          userData?.avatar_url,
-          userData?.user_id
-        )}
-        alt=""
-      />
-      <span className="user-name">{userData.user_name}</span>
-      <input
-        value={pass}
-        onChange={(e) => setPass(e.target.value)}
-        placeholder="Password"
-        className="input-password"
-        type="password"
-        onKeyDown={async (e) => {
-          if (e.code === 'Enter') {
-            try {
-              const iv = await getIV();
-              const encryptedStr: any = await getCookie(
-                AsyncKey.encryptedDataKey
-              );
-              const decryptedStr = decryptString(encryptedStr, pass, iv);
-              if (!decryptedStr) {
-                toast.error('Invalid Password');
-              } else {
-                const json = JSON.parse(decryptedStr);
-                const privateKey = json?.[userData.user_id];
-                dispatch({
-                  type: actionTypes.SET_PRIVATE_KEY,
-                  payload: privateKey,
-                });
-                history.replace('/home');
-              }
-            } catch (error) {
-              toast.error('Invalid Password');
-            }
-          }
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
-      />
+      >
+        <img
+          className="avatar"
+          src={ImageHelper.normalizeImage(
+            userData?.avatar_url,
+            userData?.user_id
+          )}
+          alt=""
+        />
+        <span className="user-name">{userData.user_name}</span>
+        <input
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          placeholder="Password"
+          className="input-password"
+          type="password"
+          onKeyDown={async (e) => {
+            if (e.code === 'Enter') {
+              try {
+                const iv = await getIV();
+                const encryptedStr: any = await getCookie(
+                  AsyncKey.encryptedDataKey
+                );
+                const decryptedStr = decryptString(encryptedStr, pass, iv);
+                if (!decryptedStr) {
+                  toast.error('Invalid Password');
+                } else {
+                  const json = JSON.parse(decryptedStr);
+                  const privateKey = json?.[userData.user_id];
+                  dispatch({
+                    type: actionTypes.SET_PRIVATE_KEY,
+                    payload: privateKey,
+                  });
+                  history.replace('/home');
+                }
+              } catch (error) {
+                toast.error('Invalid Password');
+              }
+            }
+          }}
+        />
+      </div>
+      <div className="add-other-button normal-button">
+        <span>Add other account</span>
+      </div>
     </div>
   );
 };

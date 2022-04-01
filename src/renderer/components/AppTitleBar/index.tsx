@@ -26,6 +26,7 @@ type AppTitleBarProps = {
   updateUserChannel?: (channels: Array<any>) => any;
   logout?: () => any;
   updateUser?: (userData: any) => any;
+  privateKey?: string;
 };
 
 const AppTitleBar = ({
@@ -41,6 +42,7 @@ const AppTitleBar = ({
   updateUserChannel,
   logout,
   updateUser,
+  privateKey,
 }: AppTitleBarProps) => {
   const history = useHistory();
   const teamMenu = [
@@ -121,6 +123,9 @@ const AppTitleBar = ({
     }
     setSelectedMenuTeam(null);
   };
+  if (!privateKey) {
+    return <div id="title-bar" className="hide" />;
+  }
   return (
     <div id="title-bar">
       <div style={{ width: !isFullscreen ? 100 : 0 }} />
@@ -223,6 +228,7 @@ const mapStateToProps = (state: any) => {
     channels: state.user.channel,
     userData: state.user.userData,
     currentChannel: state.user.currentChannel,
+    privateKey: state.configs.privateKey,
   };
 };
 
