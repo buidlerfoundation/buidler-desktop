@@ -11,7 +11,8 @@ import ModalTeam from '../ModalTeam';
 import ModalUserSetting from '../ModalUserSetting';
 import PopoverButton from '../PopoverButton';
 import { clearData } from '../../common/Cookie';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import ModalBackup from '../ModalBackup';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -45,6 +46,7 @@ const AppTitleBar = ({
   privateKey,
 }: AppTitleBarProps) => {
   const history = useHistory();
+  const location = useLocation();
   const teamMenu = [
     {
       label: 'Leave team',
@@ -56,6 +58,7 @@ const AppTitleBar = ({
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
+  const [isOpenModalBackup, setOpenModalBackup] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
   const [hoverTeam, setHoverTeam] = useState(false);
   useEffect(() => {
@@ -123,8 +126,19 @@ const AppTitleBar = ({
     }
     setSelectedMenuTeam(null);
   };
+
+  const onBackupPress = () => {
+    setOpenModalUser(false);
+    setOpenModalBackup(true);
+  };
+
   if (!privateKey) {
-    return <div id="title-bar" className="hide" />;
+    return (
+      <div
+        id="title-bar"
+        className={location.pathname === '/unlock' ? 'hide' : ''}
+      />
+    );
   }
   return (
     <div id="title-bar">
@@ -208,6 +222,11 @@ const AppTitleBar = ({
             logout?.();
           });
         }}
+        onBackupPress={onBackupPress}
+      />
+      <ModalBackup
+        open={isOpenModalBackup}
+        handleClose={() => setOpenModalBackup(false)}
       />
       <PopoverButton
         popupOnly

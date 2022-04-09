@@ -5,13 +5,7 @@ import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
 import { useHistory } from 'react-router-dom';
 import { ethers, utils } from 'ethers';
-import {
-  decryptString,
-  encryptData,
-  encryptString,
-  getIV,
-} from 'renderer/utils/DataCrypto';
-import GlobalVariable from 'renderer/services/GlobalVariable';
+import { encryptString, getIV } from 'renderer/utils/DataCrypto';
 import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
@@ -24,7 +18,11 @@ const Started = () => {
   const history = useHistory();
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
   const [isOpenImportModal, setOpenImportModal] = useState(false);
-  const loggedOn = async (seed: string, password: string) => {
+  const loggedOn = async (
+    seed: string,
+    password: string,
+    backupLater?: boolean
+  ) => {
     const iv = await getIV();
     let privateKey;
     let signingKey;
@@ -43,6 +41,11 @@ const Started = () => {
     dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
     const data = { [publicKey]: privateKey };
     const encryptedData = encryptString(JSON.stringify(data), password, iv);
+    if (backupLater) {
+      const encryptedSeed = encryptString(seed, password, iv);
+      setCookie(AsyncKey.encryptedSeedKey, encryptedSeed);
+      dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
+    }
     setCookie(AsyncKey.encryptedDataKey, encryptedData);
     const { nonce } = await api.requestNonce(publicKey);
     if (nonce) {

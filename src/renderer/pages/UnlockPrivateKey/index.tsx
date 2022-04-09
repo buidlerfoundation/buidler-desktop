@@ -90,6 +90,17 @@ const UnlockPrivateKey = ({
                 const encryptedStr: any = await getCookie(
                   AsyncKey.encryptedDataKey
                 );
+                const encryptedSeed: any = await getCookie(
+                  AsyncKey.encryptedSeedKey
+                );
+
+                if (Object.keys(encryptedSeed || {}).length > 0) {
+                  const seed = decryptString(encryptedSeed, pass, iv);
+                  dispatch({
+                    type: actionTypes.SET_SEED_PHRASE,
+                    payload: seed,
+                  });
+                }
                 const decryptedStr = decryptString(encryptedStr, pass, iv);
                 if (!decryptedStr) {
                   toast.error('Invalid Password');

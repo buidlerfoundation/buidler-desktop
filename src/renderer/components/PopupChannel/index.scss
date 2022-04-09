@@ -22,7 +22,7 @@
     width: 235px;
   }
   .channel-item {
-    padding: 10px 40px;
+    padding: 10px 10px 10px 40px;
     display: flex;
     align-items: center;
     font-size: 16px;
@@ -31,6 +31,13 @@
     color: var(--color-secondary-text);
     &:hover {
       border-radius: 0;
+    }
+    .channel-name {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      flex: 1;
+      display: inline-block;
     }
   }
   .channel-item__active {

@@ -7,6 +7,8 @@ import UpdateNotification from './UpdateNotification';
 import UpdateDefaultChannel from './UpdateDefaultChannel';
 import api from 'renderer/api';
 import NormalButton from '../NormalButton';
+import SettingWallet from './SettingWallet';
+import { useSelector } from 'react-redux';
 
 type ModalUserSettingProps = {
   open: boolean;
@@ -17,6 +19,7 @@ type ModalUserSettingProps = {
   channels?: Array<any>;
   onLogout: () => void;
   updateUser?: (userData: any) => any;
+  onBackupPress: () => void;
 };
 
 const ModalUserSetting = ({
@@ -28,7 +31,9 @@ const ModalUserSetting = ({
   channels,
   onLogout,
   updateUser,
+  onBackupPress,
 }: ModalUserSettingProps) => {
+  const seed = useSelector((state: any) => state.configs.seed);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState({
@@ -61,21 +66,24 @@ const ModalUserSetting = ({
   const settings = [
     {
       label: 'User profile',
-      activeIcon: images.icUserCircleWhite,
       icon: images.icUserCircle,
       id: '1',
     },
     {
       label: 'Notification',
-      activeIcon: images.icUserSettingNotificationWhite,
-      icon: images.icUserSettingNotification,
+      icon: images.icSettingChannelNotification,
       id: '2',
     },
     {
-      label: 'Default channel',
-      activeIcon: images.icUserSettingDefaultChannelWhite,
-      icon: images.icUserSettingDefaultChannel,
+      label: 'Wallet',
+      icon: images.icSettingWallet,
       id: '3',
+      badge: !!seed,
+    },
+    {
+      label: 'Default channel',
+      icon: images.icUserSettingDefaultChannelWhite,
+      id: '4',
     },
   ];
   const [currentPageId, setCurrentPageId] = useState(settings[0].id);
@@ -86,6 +94,7 @@ const ModalUserSetting = ({
     setLoading(false);
     handleClose();
   };
+
   return (
     <Modal
       open={open}
@@ -106,8 +115,9 @@ const ModalUserSetting = ({
                 key={el.label}
                 onClick={() => setCurrentPageId(el.id)}
               >
-                <img alt="" src={isActive ? el.activeIcon : el.icon} />
+                <img alt="" src={el.icon} />
                 <span className="setting-label">{el.label}</span>
+                {el.badge && <div className="badge-backup mr10" />}
               </div>
             );
           })}
@@ -135,6 +145,9 @@ const ModalUserSetting = ({
           )}
           {currentPageId === '2' && <UpdateNotification />}
           {currentPageId === '3' && (
+            <SettingWallet onBackupPress={onBackupPress} />
+          )}
+          {currentPageId === '4' && (
             <UpdateDefaultChannel
               user={user}
               channels={channels}

@@ -62,6 +62,9 @@ import icUserSettingNotification from '../assets/images/ic_user_setting_notifica
 import icUserSettingNotificationWhite from '../assets/images/ic_user_setting_notification_white.svg';
 import icUserSettingDefaultChannel from '../assets/images/ic_user_setting_default_channel.svg';
 import icUserSettingDefaultChannelWhite from '../assets/images/ic_user_setting_default_channel_white.svg';
+import icSettingWallet from '../assets/images/ic_setting_wallet.svg';
+import icEth from '../assets/images/ic_eth.svg';
+import icChevronRight from '../assets/images/ic_chevron_right.svg';
 
 const images = {
   icTeamDefault,
@@ -128,6 +131,9 @@ const images = {
   icUserSettingNotificationWhite,
   icUserSettingDefaultChannel,
   icUserSettingDefaultChannelWhite,
+  icSettingWallet,
+  icEth,
+  icChevronRight,
 };
 
 export default images;

@@ -53,6 +53,7 @@
       margin-left: 15px;
       font-size: 16px;
       line-height: 19px;
+      flex: 1;
     }
     .log-out__wrapper {
       display: flex;
@@ -77,6 +78,59 @@
     padding: 40px 30px;
     flex-direction: column;
     border-radius: 0 5px 5px 0;
+    .address-view {
+      display: flex;
+      margin-top: 60px;
+      height: 50px;
+      align-items: center;
+      border-radius: 5px;
+      border: 1px solid var(--color-stroke);
+      background-color: var(--color-highlight);
+      .icon-view {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-stroke);
+      }
+      .address {
+        flex: 1;
+        padding: 0 20px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-primary-text);
+      }
+      .btn-copy {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+    .btn-backup {
+      display: flex;
+      margin-top: 30px;
+      height: 50px;
+      align-items: center;
+      border-radius: 5px;
+      border: 1px solid var(--color-stroke);
+      background-color: var(--color-highlight);
+      padding: 0 25px 0 20px;
+      &:hover {
+        cursor: pointer;
+      }
+      .backup-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-primary-text);
+      }
+    }
     .modal-label {
       font-weight: 700;
       font-size: 20px;
@@ -219,4 +273,11 @@
     align-items: center;
     justify-content: flex-end;
   }
+}
+
+.badge-backup {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-mention);
 }

@@ -15,6 +15,7 @@ export const AsyncKey = {
   lastTeamId: `${Prefix}_last_team_id`,
   ivKey: `${Prefix}_iv_key`,
   encryptedDataKey: `${Prefix}_encrypted_data_key`,
+  encryptedSeedKey: `${Prefix}_encrypted_seed_key`,
 };
 
 export const ProgressStatus = [

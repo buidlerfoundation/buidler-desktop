@@ -1,38 +1,28 @@
 import { Modal } from '@material-ui/core';
 import React, { useMemo, useState, useCallback } from 'react';
 import NormalButton from '../NormalButton';
-import CreatePasswordState from './CreatePasswordState';
 import './index.scss';
-import { ethers } from 'ethers';
-import StoreSeedPhraseState from './StoreSeedPhraseState';
-import BackupSeedPhraseState from './BackupSeedPhraseState';
 import { createConfirmSeedState } from '../../helpers/SeedHelper';
 import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import StoreSeedPhraseState from '../ModalCreatePassword/StoreSeedPhraseState';
+import BackupSeedPhraseState from '../ModalCreatePassword/BackupSeedPhraseState';
+import actionTypes from 'renderer/actions/ActionTypes';
 
-type ModalCreatePasswordProps = {
+type ModalBackupProps = {
   open: boolean;
   handleClose: () => void;
-  loggedOn: (seed: string, password: string, backupLater?: boolean) => void;
 };
 
-type ModalState =
-  | 'create-password'
-  | 'store-seed-phrase'
-  | 'backup-seed-phrase';
+type ModalState = 'store-seed-phrase' | 'backup-seed-phrase';
 
-const ModalCreatePassword = ({
-  open,
-  handleClose,
-  loggedOn,
-}: ModalCreatePasswordProps) => {
-  const [password, setPassword] = useState('');
-  const seed = useMemo(() => ethers.Wallet.createRandom().mnemonic.phrase, []);
+const ModalBackup = ({ open, handleClose }: ModalBackupProps) => {
+  const dispatch = useDispatch();
+  const seed = useSelector((state: any) => state.configs.seed);
   const [confirmSeed, setConfirmSeed] = useState(createConfirmSeedState());
-  const [modalState, setModalState] = useState<ModalState>('create-password');
+  const [modalState, setModalState] = useState<ModalState>('store-seed-phrase');
   const buttonSubText = useMemo(() => {
     switch (modalState) {
-      case 'create-password':
-        return 'Cancel';
       case 'store-seed-phrase':
         return 'Do it later';
       case 'backup-seed-phrase':
@@ -42,13 +32,6 @@ const ModalCreatePassword = ({
     }
   }, [modalState]);
   const renderBody = useMemo(() => {
-    if (modalState === 'create-password')
-      return (
-        <CreatePasswordState
-          password={password}
-          onChangeText={(e) => setPassword(e.target.value)}
-        />
-      );
     if (modalState === 'store-seed-phrase')
       return <StoreSeedPhraseState seed={seed} />;
     if (modalState === 'backup-seed-phrase')
@@ -61,14 +44,11 @@ const ModalCreatePassword = ({
         />
       );
     return null;
-  }, [modalState, confirmSeed, password, seed]);
+  }, [modalState, confirmSeed, seed]);
   const onCancelText = useCallback(() => {
     switch (modalState) {
-      case 'create-password':
-        handleClose();
-        break;
       case 'store-seed-phrase':
-        loggedOn(seed, password, true);
+        handleClose();
         break;
       case 'backup-seed-phrase':
         setModalState('store-seed-phrase');
@@ -76,17 +56,9 @@ const ModalCreatePassword = ({
       default:
         break;
     }
-  }, [modalState, loggedOn, handleClose, seed, password]);
+  }, [modalState, handleClose]);
   const onNextPress = useCallback(() => {
     switch (modalState) {
-      case 'create-password': {
-        if (!password) {
-          toast.error('Password can not be empty');
-          return;
-        }
-        setModalState('store-seed-phrase');
-        break;
-      }
       case 'store-seed-phrase':
         setModalState('backup-seed-phrase');
         break;
@@ -100,17 +72,18 @@ const ModalCreatePassword = ({
             className: 'Failed !',
           });
         } else {
-          toast.success('Your wallet was successfully created', {
+          toast.success('Seed phrase was correct.', {
             className: 'Success !',
           });
-          loggedOn(seed, password);
+          dispatch({ type: actionTypes.REMOVE_SEED_PHRASE });
+          handleClose();
         }
         break;
       }
       default:
         break;
     }
-  }, [modalState, confirmSeed, seed, password, loggedOn]);
+  }, [modalState, seed, dispatch, handleClose, confirmSeed]);
   return (
     <Modal
       open={open}
@@ -139,4 +112,4 @@ const ModalCreatePassword = ({
   );
 };
 
-export default ModalCreatePassword;
+export default ModalBackup;

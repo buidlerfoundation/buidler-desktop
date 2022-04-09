@@ -37,7 +37,7 @@ const SettingChannel = ({
   }, [currentChannel.channel_name, isOpenEditName]);
   return (
     <div className="setting-body">
-      {currentChannel?.channel_type !== 'Direct' && (
+      {currentChannel?.channel_type !== 'Direct' && false && (
         <div className="setting-item">
           <div
             style={{
@@ -69,19 +69,7 @@ const SettingChannel = ({
         </div>
       )}
       <div className="setting-item normal-button" onClick={toggleEditName}>
-        <div
-          style={{
-            borderRadius: '50%',
-            width: 25,
-            height: 25,
-            backgroundColor: '#FCB828',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <img src={images.icSettingChannelEdit} alt="" />
-        </div>
+        <img src={images.icSettingChannelEdit} alt="" />
         <span className="setting-label">Edit channel name</span>
       </div>
       {isOpenEditName && (
@@ -111,19 +99,7 @@ const SettingChannel = ({
       )}
       {currentChannel?.notification_type && (
         <div className="setting-item">
-          <div
-            style={{
-              borderRadius: '50%',
-              width: 25,
-              height: 25,
-              backgroundColor: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <img src={images.icSettingChannelNotification} alt="" />
-          </div>
+          <img src={images.icSettingChannelNotification} alt="" />
           <span className="setting-label">Notification</span>
           <PopoverButton
             title={currentChannel?.notification_type}

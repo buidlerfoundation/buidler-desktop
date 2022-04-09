@@ -62,7 +62,7 @@ const PopupChannel = ({
                       }
                     }}
                   >
-                    <span>
+                    <span className="channel-name">
                       {c.channel_type === 'Private' ? (
                         <img src={images.icPrivate} alt="" />
                       ) : (
@@ -70,7 +70,6 @@ const PopupChannel = ({
                       )}{' '}
                       {c.channel_name}
                     </span>
-                    <div style={{ flex: 1 }} />
                     {isActive && <img alt="" src={images.icCheck} />}
                   </div>
                 );
