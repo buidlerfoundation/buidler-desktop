@@ -9,6 +9,12 @@ import { createRefreshSelector } from '../reducers/selectors';
 import GlobalVariable from '../services/GlobalVariable';
 import { Dispatch } from 'redux';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
+import {
+  getChannelPrivateKey,
+  normalizeMessageData,
+  normalizeMessageItem,
+  storePrivateChannel,
+} from 'renderer/helpers/ChannelHelper';
 
 const SocketIO = require('socket.io-client');
 
@@ -71,12 +77,19 @@ const getTaskFromUser = async (
   }
 };
 
-const getMessages = async (channelId: string, dispatch: Dispatch) => {
+const getMessages = async (
+  channelId: string,
+  isPrivate: boolean,
+  dispatch: Dispatch
+) => {
   const messageRes = await api.getMessages(channelId, 50);
+  const messageData = isPrivate
+    ? await normalizeMessageData(messageRes.data, channelId)
+    : messageRes.data;
   if (messageRes.statusCode === 200) {
     dispatch({
       type: actionTypes.MESSAGE_SUCCESS,
-      payload: { data: messageRes.data, channelId },
+      payload: { data: messageData, channelId },
     });
   }
 };
@@ -147,11 +160,15 @@ const loadMessageIfNeeded = async () => {
     payload: { channelId: currentChannel.channel_id },
   });
   const messageRes = await api.getMessages(currentChannel.channel_id);
+  const messageData =
+    currentChannel.channel_type === 'Private'
+      ? await normalizeMessageData(messageRes.data, currentChannel.channel_id)
+      : messageRes.data;
   if (messageRes.statusCode === 200) {
     store.dispatch({
       type: actionTypes.MESSAGE_SUCCESS,
       payload: {
-        data: messageRes.data,
+        data: messageData,
         channelId: currentChannel.channel_id,
         isFresh: true,
       },
@@ -166,7 +183,8 @@ class SocketUtil {
     if (this.socket?.connected) return;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
     this.socket = SocketIO(
-      `${AppConfig.baseUrl}`,
+      // `${AppConfig.baseUrl}`,
+      `${AppConfig.stagingBaseUrl}`,
       {
         query: { token: accessToken },
       },
@@ -199,9 +217,11 @@ class SocketUtil {
         this.socket.off('ON_CREATE_NEW_CHANNEL');
         this.socket.off('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL');
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
+        this.socket.off('ON_CREATE_NEW_PRIVATE_CHANNEL');
+        this.socket.off('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL');
         this.socket.off('disconnect');
       });
-      loadMessageIfNeeded();
+      // loadMessageIfNeeded();
       const user: any = store.getState()?.user;
       const { currentTeam } = user || {};
       this.socket.emit('ONLINE', { team_id: teamId || currentTeam?.team_id });
@@ -211,14 +231,17 @@ class SocketUtil {
     const user: any = store.getState()?.user;
     const { currentTeam, currentChannel } = user;
     if (currentTeam && currentChannel) {
-      console.log('XXX: reload from socket');
       actionSetCurrentTeam(
         currentTeam,
         store.dispatch,
         currentChannel.channel_id
       );
       // load message
-      getMessages(currentChannel.channel_id, store.dispatch);
+      getMessages(
+        currentChannel.channel_id,
+        currentChannel.channel_type === 'Private',
+        store.dispatch
+      );
       // load task
       if (currentChannel?.user) {
         getTaskFromUser(
@@ -233,6 +256,37 @@ class SocketUtil {
     }
   };
   listenSocket() {
+    this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
+      const configs: any = store.getState()?.configs;
+      const { channelPrivateKey, privateKey } = configs;
+      const { channel, key, timestamp } = data;
+      const decrypted = await getChannelPrivateKey(key, privateKey);
+      storePrivateChannel(channel.channel_id, key, timestamp);
+      store.dispatch({
+        type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+        payload: {
+          ...channelPrivateKey,
+          [channel.channel_id]: [
+            ...(channelPrivateKey?.[channel.channel_id] || []),
+            { key: decrypted, timestamp },
+          ],
+        },
+      });
+    });
+    this.socket.on('ON_CREATE_NEW_PRIVATE_CHANNEL', async (data: any) => {
+      const configs: any = store.getState()?.configs;
+      const { channelPrivateKey, privateKey } = configs;
+      const { channel, key, timestamp } = data;
+      const decrypted = await getChannelPrivateKey(key, privateKey);
+      storePrivateChannel(channel.channel_id, key, timestamp);
+      store.dispatch({
+        type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+        payload: {
+          ...channelPrivateKey,
+          [channel.channel_id]: [{ key: decrypted, timestamp }],
+        },
+      });
+    });
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const user: any = store.getState()?.user;
       const { currentTeam } = user;
@@ -349,9 +403,11 @@ class SocketUtil {
       });
     });
     this.socket.on('ON_USER_OFFLINE', (data: any) => {});
-    this.socket.on('ON_NEW_MESSAGE', (data: any) => {
+    this.socket.on('ON_NEW_MESSAGE', async (data: any) => {
       const { message_data, notification_data } = data;
       const { notification_type } = notification_data;
+      const configs: any = store.getState()?.configs;
+      const { channelPrivateKey } = configs;
       const user: any = store.getState()?.user;
       const {
         userData,
@@ -362,6 +418,9 @@ class SocketUtil {
         currentChannel,
       } = user;
       const messageData: any = store.getState()?.message.messageData;
+      const channelNotification = channel.find(
+        (c: any) => c.channel_id === message_data.channel_id
+      );
       if (!currentChannel.channel_id) {
         store.dispatch({
           type: actionTypes.SET_CURRENT_CHANNEL,
@@ -408,9 +467,6 @@ class SocketUtil {
         const teamNotification = team.find(
           (t: any) => t.team_id === notification_data.team_id
         );
-        const channelNotification = channel.find(
-          (c: any) => c.channel_id === message_data.channel_id
-        );
         if (channelNotification?.channel_type === 'Direct') {
           channelNotification.user = teamUserData.find(
             (u: any) =>
@@ -455,9 +511,18 @@ class SocketUtil {
           });
         }
       }
+      let res = message_data;
+      if (channelNotification.channel_type === 'Private') {
+        const keys = channelPrivateKey[message_data.channel_id];
+        res = await normalizeMessageItem(
+          message_data,
+          keys[keys.length - 1].key,
+          message_data.channel_id
+        );
+      }
       store.dispatch({
         type: actionTypes.RECEIVE_MESSAGE,
-        payload: { data: message_data },
+        payload: { data: res },
       });
     });
     this.socket.on('ON_NEW_TASK', (data: any) => {
@@ -475,11 +540,27 @@ class SocketUtil {
         },
       });
     });
-    this.socket.on('ON_EDIT_MESSAGE', (data: any) => {
+    this.socket.on('ON_EDIT_MESSAGE', async (data: any) => {
       if (!data) return;
+      const configs: any = store.getState()?.configs;
+      const { channelPrivateKey } = configs;
+      const user: any = store.getState()?.user;
+      const { channel } = user;
+      const channelNotification = channel.find(
+        (c: any) => c.channel_id === data.channel_id
+      );
+      let res = data;
+      if (channelNotification.channel_type === 'Private') {
+        const keys = channelPrivateKey[data.channel_id];
+        res = await normalizeMessageItem(
+          data,
+          keys[keys.length - 1].key,
+          data.channel_id
+        );
+      }
       store.dispatch({
         type: actionTypes.EDIT_MESSAGE,
-        payload: { data },
+        payload: { data: res },
       });
     });
     this.socket.on('ON_UPDATE_TASK', (data: any) => {

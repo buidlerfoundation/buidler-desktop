@@ -4,6 +4,7 @@ const Prefix = 'Buidler';
 
 const AppConfig = {
   baseUrl: 'https://api.remotetoday.app/',
+  stagingBaseUrl: 'https://testnet.buidler.app/',
   // baseUrl: 'http://127.0.0.1:8888/',
 };
 
@@ -16,6 +17,7 @@ export const AsyncKey = {
   ivKey: `${Prefix}_iv_key`,
   encryptedDataKey: `${Prefix}_encrypted_data_key`,
   encryptedSeedKey: `${Prefix}_encrypted_seed_key`,
+  channelPrivateKey: `${Prefix}_channel_private_key`,
 };
 
 export const ProgressStatus = [

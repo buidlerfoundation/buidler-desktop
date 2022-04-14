@@ -27,6 +27,8 @@ import { CircularProgress } from '@material-ui/core';
 import ChannelHeader from './ChannelHeader';
 import { useLocation } from 'react-router-dom';
 import { titleMessageFromNow } from '../../../../utils/DateUtils';
+import { useSelector } from 'react-redux';
+import { encryptMessage } from 'renderer/helpers/ChannelHelper';
 
 type ChannelViewProps = {
   currentChannel: any;
@@ -95,6 +97,9 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
+    const channelPrivateKey = useSelector(
+      (state: any) => state.configs.channelPrivateKey
+    );
     const location = useLocation();
     const [messageReply, setMessageReply] = useState<any>(null);
     const [messageEdit, setMessageEdit] = useState<any>(null);
@@ -155,6 +160,7 @@ const ChannelView = forwardRef(
           channel.find((c: any) => c?.channel_id === channelId)
         );
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
     useEffect(() => {
       const keyDownListener = (e: any) => {
@@ -187,10 +193,20 @@ const ChannelView = forwardRef(
       const loadingAttachment = files.find((att: any) => att.loading);
       if (loadingAttachment != null) return;
       if (extractContent(text).trim() !== '' || files.length > 0) {
+        let content = text.trim();
+        let plain_text = extractContent(text.trim());
+        if (currentChannel.channel_type === 'Private') {
+          const { key } =
+            channelPrivateKey[currentChannel.channel_id][
+              channelPrivateKey[currentChannel.channel_id].length - 1
+            ];
+          content = await encryptMessage(content, key);
+          plain_text = await encryptMessage(plain_text, key);
+        }
         api.editMessage(
           messageEdit.message_id,
-          text.trim(),
-          extractContent(text.trim()),
+          content,
+          plain_text,
           files.map((el) => el.id)
         );
         setText('');
@@ -209,6 +225,16 @@ const ChannelView = forwardRef(
           plain_text: extractContent(text),
           mentions: getMentionData(text.trim()),
         };
+        if (currentChannel.channel_type === 'Private') {
+          const { key } =
+            channelPrivateKey[currentChannel.channel_id][
+              channelPrivateKey[currentChannel.channel_id].length - 1
+            ];
+          const content = await encryptMessage(message.content, key);
+          const plain_text = await encryptMessage(message.plain_text, key);
+          message.content = content;
+          message.plain_text = plain_text;
+        }
         if (currentChannel.channel_id) {
           message.channel_id = currentChannel.channel_id;
         } else if (currentChannel.user) {

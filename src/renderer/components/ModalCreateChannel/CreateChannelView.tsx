@@ -5,6 +5,8 @@ import './index.scss';
 import images from '../../common/images';
 import GroupChannelPopup from '../GroupChannelPopup';
 import AppInput from '../AppInput';
+import { useSelector } from 'react-redux';
+import TeamUserItem from '../TeamUserItem';
 
 type CreateChannelViewProps = {
   onCancel: () => void;
@@ -30,7 +32,8 @@ const CreateChannelView = ({
   const openGroupChannelSelection = (event: any) => {
     setPopupGroupChannel(event.currentTarget);
   };
-
+  const teamUserData = useSelector((state: any) => state.user.teamUserData);
+  const user = useSelector((state: any) => state.user.userData);
   return (
     <div className="create-channel-view__container">
       <span className="create-channel__title">Create channel</span>
@@ -61,6 +64,7 @@ const CreateChannelView = ({
         <div
           style={{ display: 'flex' }}
           onClick={() => {
+            update('members', !channelData.isPrivate ? [user] : []);
             update('isPrivate', !channelData.isPrivate);
           }}
         >
@@ -72,6 +76,31 @@ const CreateChannelView = ({
           />
         </div>
       </div>
+      {channelData.isPrivate && (
+        <div className="team-user hide-scroll-bar">
+          <div style={{ height: 10 }} />
+          {teamUserData.map((el: any) => {
+            const isSelected = !!channelData?.members?.find(
+              (u: any) => u.user_id === el.user_id
+            );
+            const { members } = channelData;
+            return (
+              <TeamUserItem
+                user={el}
+                key={el.user_id}
+                isSelected={isSelected}
+                disabled={el.user_id === user.user_id}
+                onClick={() => {
+                  const newMembers = isSelected
+                    ? members.filter((u: any) => u.user_id !== el.user_id)
+                    : [...members, el];
+                  update('members', newMembers);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
       <div className="channel__bottom">
         <NormalButton title="Cancel" onPress={onCancel} type="normal" />
         <div style={{ width: 10 }} />

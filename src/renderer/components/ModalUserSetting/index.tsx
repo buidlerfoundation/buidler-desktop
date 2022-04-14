@@ -9,6 +9,7 @@ import api from 'renderer/api';
 import NormalButton from '../NormalButton';
 import SettingWallet from './SettingWallet';
 import { useSelector } from 'react-redux';
+import SettingSecurity from './SettingSecurity';
 
 type ModalUserSettingProps = {
   open: boolean;
@@ -85,6 +86,11 @@ const ModalUserSetting = ({
       icon: images.icUserSettingDefaultChannelWhite,
       id: '4',
     },
+    {
+      label: 'Security',
+      icon: images.icSettingSecure,
+      id: '5',
+    },
   ];
   const [currentPageId, setCurrentPageId] = useState(settings[0].id);
   const onSave = async () => {
@@ -155,6 +161,7 @@ const ModalUserSetting = ({
               updateUserChannel={updateUserChannel}
             />
           )}
+          {currentPageId === '5' && <SettingSecurity />}
           <div style={{ flex: 1 }} />
           <div className="bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />

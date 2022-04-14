@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
@@ -34,8 +33,4 @@ const MainWrapper = (props: any) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps)(MainWrapper);
+export default MainWrapper;

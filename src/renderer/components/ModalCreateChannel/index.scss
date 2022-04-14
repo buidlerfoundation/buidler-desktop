@@ -42,4 +42,12 @@
   .MuiSwitch-root {
     overflow: visible;
   }
+  .team-user {
+    margin-top: 18px;
+    height: 250px;
+    background-color: var(--color-highlight);
+    border-radius: 5px;
+    border: 1px solid var(--color-stroke);
+    overflow-y: auto;
+  }
 }

@@ -65,6 +65,7 @@ import icUserSettingDefaultChannelWhite from '../assets/images/ic_user_setting_d
 import icSettingWallet from '../assets/images/ic_setting_wallet.svg';
 import icEth from '../assets/images/ic_eth.svg';
 import icChevronRight from '../assets/images/ic_chevron_right.svg';
+import icSettingSecure from '../assets/images/ic_setting_secure.svg';
 
 const images = {
   icTeamDefault,
@@ -134,6 +135,7 @@ const images = {
   icSettingWallet,
   icEth,
   icChevronRight,
+  icSettingSecure,
 };
 
 export default images;

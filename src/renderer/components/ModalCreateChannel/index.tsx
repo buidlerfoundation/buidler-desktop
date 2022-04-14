@@ -22,6 +22,7 @@ const ModalCreateChannel = ({
     name: '',
     group: null,
     isPrivate: false,
+    members: [],
   });
   useEffect(() => {
     setChannelData((data: any) => ({ ...data, group: initialGroup }));

@@ -3,11 +3,18 @@ import actionTypes from 'renderer/actions/ActionTypes';
 const initialState = {
   privateKey: '',
   seed: '',
+  channelPrivateKey: {},
 };
 
 const configReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.SET_CHANNEL_PRIVATE_KEY: {
+      return {
+        ...state,
+        channelPrivateKey: payload,
+      };
+    }
     case actionTypes.SET_PRIVATE_KEY: {
       return {
         ...state,
@@ -24,6 +31,12 @@ const configReducers = (state = initialState, action) => {
       return {
         ...state,
         seed: '',
+      };
+    }
+    case actionTypes.REMOVE_PRIVATE_KEY: {
+      return {
+        ...state,
+        privateKey: '',
       };
     }
     case actionTypes.LOGOUT: {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './index.scss';
 import MessageHead from '../MessageHead';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import {
   extractContent,
   getMentionData,
@@ -14,6 +14,7 @@ import api from '../../api';
 import SocketUtils from '../../utils/SocketUtils';
 import MessageInput from '../MessageInput';
 import { debounce } from 'lodash';
+import { encryptMessage } from 'renderer/helpers/ChannelHelper';
 
 type ConversationViewProps = {
   message: any;
@@ -35,6 +36,9 @@ const ConversationView = ({
   onRemoveReact,
 }: ConversationViewProps) => {
   const inputRef = useRef<any>();
+  const channelPrivateKey = useSelector(
+    (state: any) => state.configs.channelPrivateKey
+  );
   const [isScrolling, setScrolling] = useState(false);
   const [messageEdit, setMessageEdit] = useState<any>(null);
   const timeoutScrollRef = useRef<any>(null);
@@ -62,11 +66,17 @@ const ConversationView = ({
     const loadingAttachment = files.find((att: any) => att.loading);
     if (loadingAttachment != null) return;
     if (extractContent(text).trim() !== '' || files.length > 0) {
-      api.editMessage(
-        messageEdit.message_id,
-        text.trim(),
-        extractContent(text.trim())
-      );
+      let content = text.trim();
+      let plain_text = extractContent(text.trim());
+      if (currentChannel.channel_type === 'Private') {
+        const { key } =
+          channelPrivateKey[currentChannel.channel_id][
+            channelPrivateKey[currentChannel.channel_id].length - 1
+          ];
+        content = await encryptMessage(content, key);
+        plain_text = await encryptMessage(plain_text, key);
+      }
+      api.editMessage(messageEdit.message_id, content, plain_text);
       setText('');
       setFiles([]);
       setMessageEdit(null);
@@ -84,6 +94,16 @@ const ConversationView = ({
         parent_id: message.parent_id,
         mentions: getMentionData(text.trim()),
       };
+      if (currentChannel.channel_type === 'Private') {
+        const { key } =
+          channelPrivateKey[currentChannel.channel_id][
+            channelPrivateKey[currentChannel.channel_id].length - 1
+          ];
+        const content = await encryptMessage(msg.content, key);
+        const plain_text = await encryptMessage(msg.plain_text, key);
+        msg.content = content;
+        msg.plain_text = plain_text;
+      }
       if (files.length > 0) {
         msg.message_id = generateId.current;
       }

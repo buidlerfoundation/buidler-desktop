@@ -1,4 +1,5 @@
 import { ActionCreator, Dispatch } from 'redux';
+import { normalizeMessageData } from 'renderer/helpers/ChannelHelper';
 import api from '../api';
 import actionTypes from './ActionTypes';
 
@@ -44,7 +45,7 @@ export const onRemoveAttachment: ActionCreator<any> =
   };
 
 export const getMessages: ActionCreator<any> =
-  (channelId: string, before?: string, isFresh = false) =>
+  (channelId: string, isPrivate: boolean, before?: string, isFresh = false) =>
   async (dispatch: Dispatch) => {
     if (before) {
       dispatch({ type: actionTypes.MESSAGE_MORE, payload: { channelId } });
@@ -54,10 +55,13 @@ export const getMessages: ActionCreator<any> =
       dispatch({ type: actionTypes.MESSAGE_REQUEST, payload: { channelId } });
     }
     const messageRes = await api.getMessages(channelId, 50, before);
+    const messageData = isPrivate
+      ? await normalizeMessageData(messageRes.data, channelId)
+      : messageRes.data;
     if (messageRes.statusCode === 200) {
       dispatch({
         type: actionTypes.MESSAGE_SUCCESS,
-        payload: { data: messageRes.data, channelId, before, isFresh },
+        payload: { data: messageData, channelId, before, isFresh },
       });
     }
   };

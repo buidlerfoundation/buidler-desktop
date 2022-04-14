@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import actions from '../../actions';
@@ -31,6 +31,8 @@ import api from '../../api';
 import EmptyView from './container/EmptyView';
 import ModalEditGroupChannel from '../../components/ModalEditGroupChannel';
 import PageWrapper from 'renderer/components/PageWrapper';
+import { useHistory } from 'react-router-dom';
+import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 
 type HomeProps = {
   team?: any;
@@ -61,7 +63,12 @@ type HomeProps = {
   archivedCount?: number;
   addReact: (id: string, name: string, userId: string) => any;
   removeReact: (id: string, name: string, userId: string) => any;
-  getMessages: (channelId: string, before?: string, isFresh?: boolean) => any;
+  getMessages: (
+    channelId: string,
+    isPrivate: boolean,
+    before?: string,
+    isFresh?: boolean
+  ) => any;
   getConversations: (
     parentId: string,
     before?: string,
@@ -158,6 +165,9 @@ const Home = ({
   findUser,
   findTeamAndChannel,
 }: HomeProps) => {
+  const dispatch = useDispatch();
+  const privateKey = useSelector((state: any) => state.configs.privateKey);
+  const history = useHistory();
   const inputRef = useRef<any>();
   const channelViewRef = useRef<any>();
   const sideBarRef = useRef<any>();
@@ -202,13 +212,19 @@ const Home = ({
     sideBarRef.current?.scrollToBottom?.();
   };
   const onCreateChannel = async (channelData: any) => {
+    const body: any = {
+      channel_name: channelData.name,
+      group_channel_id: channelData.group?.group_channel_id,
+      channel_type: channelData.isPrivate ? 'Private' : 'Public',
+    };
+    if (channelData.isPrivate) {
+      body.channel_member_data = await createMemberChannelData(
+        channelData.members
+      );
+    }
     await createNewChannel(
       currentTeam.team_id,
-      {
-        channel_name: channelData.name,
-        group_channel_id: channelData.group?.group_channel_id,
-        channel_type: channelData.isPrivate ? 'Private' : 'Public',
-      },
+      body,
       channelData.group?.group_channel_name
     );
     setOpenCreateChannel(false);
@@ -282,17 +298,24 @@ const Home = ({
       } else {
         getTasks(currentChannel.channel_id);
       }
-      if (currentChannel.channel_id) {
-        getMessages(currentChannel.channel_id, undefined, true);
+      if (currentChannel.channel_id && privateKey) {
+        getMessages(
+          currentChannel.channel_id,
+          currentChannel.channel_type === 'Private',
+          undefined,
+          true
+        );
       }
     }
   }, [
     currentChannel?.user,
     currentChannel?.channel_id,
+    currentChannel?.channel_type,
     getTasks,
     getTaskFromUser,
     getMessages,
     currentTeam?.team_id,
+    privateKey,
   ]);
 
   useEffect(() => {
@@ -373,13 +396,23 @@ const Home = ({
             index: current.index ? current.index - 1 : null,
           }));
         }
+      } else if (e.metaKey && e.key === 'l') {
+        dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
+        history.replace('/unlock');
       }
     };
     window.addEventListener('keydown', keyDownListener);
     return () => {
       window.removeEventListener('keydown', keyDownListener);
     };
-  }, [updateTask, currentTeam?.team_id, currentChannel?.channel_id, hoverTask]);
+  }, [
+    updateTask,
+    history,
+    currentTeam?.team_id,
+    currentChannel?.channel_id,
+    hoverTask,
+    dispatch,
+  ]);
   if (loading) {
     return <HomeLoading />;
   }

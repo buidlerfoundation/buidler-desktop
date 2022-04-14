@@ -8,6 +8,7 @@ import actionTypes from 'renderer/actions/ActionTypes';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import { getCookie } from 'renderer/common/Cookie';
 import ImageHelper from 'renderer/common/ImageHelper';
+import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
@@ -110,6 +111,11 @@ const UnlockPrivateKey = ({
                   dispatch({
                     type: actionTypes.SET_PRIVATE_KEY,
                     payload: privateKey,
+                  });
+                  const privateKeyChannel = await getPrivateChannel(privateKey);
+                  dispatch({
+                    type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+                    payload: privateKeyChannel,
                   });
                   history.replace('/home');
                 }

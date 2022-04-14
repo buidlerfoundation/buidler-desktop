@@ -34,7 +34,7 @@ const StoreSeedPhraseState = ({ seed }: StoreSeedPhraseStateProps) => {
           });
         }}
       >
-        <img src={images.icCopy} alt="" />
+        <img src={images.icCopy} alt="" className="ml5" />
         <span className="copy-text">Copy to clipboard</span>
       </div>
     </div>

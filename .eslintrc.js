@@ -29,6 +29,7 @@ module.exports = {
     radix: 'off',
     'no-extra-boolean-cast': 'off',
     'no-nested-ternary': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

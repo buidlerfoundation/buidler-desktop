@@ -215,4 +215,17 @@
       color: var(--color-primary-text);
     }
   }
+  .team-user-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    .user-item {
+      padding: 0 15px;
+    }
+    .user-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
 }

@@ -1,4 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import NormalButton from 'renderer/components/NormalButton';
+import TeamUserItem from 'renderer/components/TeamUserItem';
+import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import api from '../../../../api';
 import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
@@ -16,6 +20,10 @@ const SettingMember = ({
   setCurrentChannel,
   teamUserData,
 }: SettingMemberProps) => {
+  const user = useSelector((state: any) => state.user.userData);
+  const [isOpenUser, setOpenUser] = useState(false);
+  const toggleUser = () => setOpenUser(!isOpenUser);
+  const [members, setMembers] = useState(currentChannel.channel_member);
   const users = useMemo(() => {
     if (!currentChannel) return [];
     const { channel_type, channel_member } = currentChannel;
@@ -27,18 +35,36 @@ const SettingMember = ({
       .filter((id: string) => !!teamUserData.find((el) => el.user_id === id))
       .map((id: any) => teamUserData.find((el) => el.user_id === id));
   }, [currentChannel, teamUserData]);
+  const onSave = async () => {
+    const channel_member_data = await createMemberChannelData(
+      members.map((el: string) => ({ user_id: el }))
+    );
+    const res = await api.updateChannelMember(currentChannel.channel_id, {
+      channel_member_data,
+    });
+    if (res.statusCode === 200) {
+      setCurrentChannel?.({
+        ...currentChannel,
+        channel_member: members,
+      });
+    }
+    toggleUser();
+  };
   return (
     <div className="setting-body">
       <div style={{ height: 7.5 }} />
-      {users.map((el: any) => (
-        <div key={el.user_id} className="setting-member-item">
-          <AvatarView user={el} />
-          <span className="member-name">{el.user_name}</span>
-        </div>
-      ))}
-      <PopoverButton
-        componentButton={
-          <div className="setting-member-item">
+      {!isOpenUser && (
+        <>
+          {users.map((el: any) => (
+            <div key={el.user_id} className="setting-member-item">
+              <AvatarView user={el} />
+              <span className="member-name">{el.user_name}</span>
+            </div>
+          ))}
+          <div
+            className="setting-member-item normal-button"
+            onClick={toggleUser}
+          >
             <div
               style={{
                 width: 25,
@@ -52,38 +78,35 @@ const SettingMember = ({
             </div>
             <span className="member-name">Edit member</span>
           </div>
-        }
-        componentPopup={
-          <TeamUserPopup
-            selected={users}
-            onClick={async (u) => {
-              const isSelected = !!users.find(
-                (el: any) => el.user_id === u.user_id
-              );
-              const res = isSelected
-                ? await api.removeUserFromChannel(
-                    currentChannel.channel_id,
-                    u.user_id
-                  )
-                : await api.addUserToChannel(
-                    currentChannel.channel_id,
-                    u.user_id
-                  );
-
-              if (res.statusCode === 200) {
-                setCurrentChannel?.({
-                  ...currentChannel,
-                  channel_member: isSelected
-                    ? currentChannel.channel_member.filter(
-                        (el: string) => el !== u.user_id
-                      )
-                    : [...currentChannel.channel_member, u.user_id],
-                });
-              }
-            }}
-          />
-        }
-      />
+        </>
+      )}
+      {isOpenUser && (
+        <div className="team-user-container">
+          {teamUserData.map((el) => {
+            const isSelected = members.find((u: string) => u === el.user_id);
+            return (
+              <TeamUserItem
+                key={el.user_id}
+                user={el}
+                disabled={el.user_id === user.user_id}
+                isSelected={isSelected}
+                onClick={() => {
+                  const newMembers = isSelected
+                    ? members.filter((u: string) => u !== el.user_id)
+                    : [...members, el.user_id];
+                  setMembers(newMembers);
+                }}
+              />
+            );
+          })}
+          <div style={{ flex: 1 }} />
+          <div className="user-bottom">
+            <NormalButton title="Cancel" type="normal" onPress={toggleUser} />
+            <div style={{ width: 10 }} />
+            <NormalButton title="Save" type="main" onPress={onSave} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

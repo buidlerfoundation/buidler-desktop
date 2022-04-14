@@ -136,6 +136,33 @@
       font-size: 20px;
       line-height: 24px;
     }
+    .security-action-view {
+      border: 1px solid var(--color-stroke);
+      background-color: var(--color-highlight);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      margin-top: 50px;
+      .action-item {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        color: var(--color-primary-text);
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 26px;
+      }
+    }
+    .security-des {
+      color: var(--color-secondary-text);
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 26px;
+      margin-top: 15px;
+      display: block;
+    }
     .avatar-view {
       display: flex;
       margin-top: 40px;

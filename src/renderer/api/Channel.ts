@@ -34,3 +34,6 @@ export const addUserToChannel = (channelId: string, userId: string) =>
 
 export const removeUserFromChannel = (channelId: string, userId: string) =>
   ApiCaller.delete(`channel/${channelId}/member/${userId}`);
+
+export const updateChannelMember = (channelId: string, body: any) =>
+  ApiCaller.put(`channel/${channelId}/member`, body);
