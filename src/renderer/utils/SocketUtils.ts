@@ -262,7 +262,7 @@ class SocketUtil {
       const { channel, key, timestamp } = data;
       const decrypted = await getChannelPrivateKey(key, privateKey);
       storePrivateChannel(channel.channel_id, key, timestamp);
-      this.emitReceivedKey(channel.channel_id);
+      this.emitReceivedKey(channel.channel_id, timestamp);
       store.dispatch({
         type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
         payload: {
@@ -280,7 +280,7 @@ class SocketUtil {
       const { channel, key, timestamp } = data;
       const decrypted = await getChannelPrivateKey(key, privateKey);
       storePrivateChannel(channel.channel_id, key, timestamp);
-      this.emitReceivedKey(channel.channel_id);
+      this.emitReceivedKey(channel.channel_id, timestamp);
       store.dispatch({
         type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
         payload: {
@@ -288,6 +288,14 @@ class SocketUtil {
           [channel.channel_id]: [{ key: decrypted, timestamp }],
         },
       });
+      const user: any = store.getState()?.user;
+      const { currentTeam } = user;
+      if (currentTeam.team_id === channel.team_id) {
+        store.dispatch({
+          type: actionTypes.NEW_CHANNEL,
+          payload: channel,
+        });
+      }
     });
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const user: any = store.getState()?.user;
@@ -603,11 +611,12 @@ class SocketUtil {
     const deviceCode = await getDeviceCode();
     this.socket.emit('ONLINE', { team_id: teamId, device_code: deviceCode });
   }
-  async emitReceivedKey(channelId: string) {
+  async emitReceivedKey(channelId: string, timestamp: number) {
     const deviceCode = await getDeviceCode();
     this.socket.emit('ON_CHANNEL_KEY_RECEIVED', {
       channel_id: channelId,
       device_code: deviceCode,
+      timestamp,
     });
   }
   sendMessage = (message: {
