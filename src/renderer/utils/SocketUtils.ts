@@ -219,6 +219,7 @@ class SocketUtil {
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
         this.socket.off('ON_CREATE_NEW_PRIVATE_CHANNEL');
         this.socket.off('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL');
+        this.socket.off('ON_CHANNEL_KEY_SEND');
         this.socket.off('disconnect');
       });
       // loadMessageIfNeeded();
@@ -255,11 +256,36 @@ class SocketUtil {
       }
     }
   };
+  handleChannelPrivateKey = async (
+    channel_id: string,
+    key: string,
+    timestamp: number
+  ) => {
+    const configs: any = store.getState()?.configs;
+    const { channelPrivateKey, privateKey } = configs;
+    const decrypted = await getChannelPrivateKey(key, privateKey);
+    storePrivateChannel(channel_id, key, timestamp);
+    this.emitReceivedKey(channel_id, timestamp);
+    store.dispatch({
+      type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+      payload: {
+        ...channelPrivateKey,
+        [channel_id]: [
+          ...(channelPrivateKey?.[channel_id] || []),
+          { key: decrypted, timestamp },
+        ],
+      },
+    });
+  };
   listenSocket() {
+    this.socket.on('ON_CHANNEL_KEY_SEND', async (data: any) => {
+      Object.keys(data).forEach((k) => {
+        const { key, timestamp } = data[k];
+        this.handleChannelPrivateKey(k, key, timestamp);
+      });
+    });
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
       const user: any = store.getState()?.user;
-      const configs: any = store.getState()?.configs;
-      const { channelPrivateKey, privateKey } = configs;
       const { channel, key, timestamp } = data;
       if (user.currentTeam.team_id === channel.team_id) {
         const isExistChannel = !!user.channel.find(
@@ -291,34 +317,11 @@ class SocketUtil {
           });
         }
       }
-      const decrypted = await getChannelPrivateKey(key, privateKey);
-      storePrivateChannel(channel.channel_id, key, timestamp);
-      this.emitReceivedKey(channel.channel_id, timestamp);
-      store.dispatch({
-        type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
-        payload: {
-          ...channelPrivateKey,
-          [channel.channel_id]: [
-            ...(channelPrivateKey?.[channel.channel_id] || []),
-            { key: decrypted, timestamp },
-          ],
-        },
-      });
+      this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
     });
     this.socket.on('ON_CREATE_NEW_PRIVATE_CHANNEL', async (data: any) => {
-      const configs: any = store.getState()?.configs;
-      const { channelPrivateKey, privateKey } = configs;
       const { channel, key, timestamp } = data;
-      const decrypted = await getChannelPrivateKey(key, privateKey);
-      storePrivateChannel(channel.channel_id, key, timestamp);
-      this.emitReceivedKey(channel.channel_id, timestamp);
-      store.dispatch({
-        type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
-        payload: {
-          ...channelPrivateKey,
-          [channel.channel_id]: [{ key: decrypted, timestamp }],
-        },
-      });
+      this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
       const user: any = store.getState()?.user;
       const { currentTeam } = user;
       if (currentTeam.team_id === channel.team_id) {
