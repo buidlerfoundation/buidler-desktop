@@ -21,10 +21,10 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
     async (showLoading = true) => {
       await getInitial();
       await findUser();
-      await findTeamAndChannel(showLoading);
+      // await findTeamAndChannel(showLoading);
       history.replace('/home');
     },
-    [getInitial, findUser, findTeamAndChannel, history]
+    [getInitial, findUser, history]
   );
   useEffect(() => {
     return () => {

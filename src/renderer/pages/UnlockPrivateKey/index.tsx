@@ -48,11 +48,6 @@ const UnlockPrivateKey = ({
   //   test();
   // }, []);
   useEffect(() => {
-    if (team == null && errorTeam === '') {
-      findTeamAndChannel?.();
-    }
-  }, [team, errorTeam, findTeamAndChannel]);
-  useEffect(() => {
     if (!userData) {
       findUser();
     }
@@ -117,6 +112,7 @@ const UnlockPrivateKey = ({
                     type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
                     payload: privateKeyChannel,
                   });
+                  await findTeamAndChannel?.();
                   history.replace('/home');
                 }
               } catch (error) {
