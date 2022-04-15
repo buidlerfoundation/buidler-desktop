@@ -280,8 +280,11 @@ class SocketUtil {
   listenSocket() {
     this.socket.on('ON_CHANNEL_KEY_SEND', async (data: any) => {
       Object.keys(data).forEach((k) => {
-        const { key, timestamp } = data[k];
-        this.handleChannelPrivateKey(k, key, timestamp);
+        const arr = data[k];
+        arr.forEach((el: any) => {
+          const { key, timestamp } = el;
+          this.handleChannelPrivateKey(k, key, timestamp);
+        });
       });
     });
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
