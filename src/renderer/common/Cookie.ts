@@ -1,4 +1,6 @@
 import storage from 'electron-json-storage';
+import { getUniqueId } from 'renderer/helpers/GenerateUUID';
+import { AsyncKey } from './AppConfig';
 
 export const clearData = (callback = () => {}) => storage.clear(callback);
 
@@ -13,4 +15,14 @@ export const getCookie = async (key: string) => {
       return resolve(data);
     });
   });
+};
+
+export const getDeviceCode = async () => {
+  const current = await getCookie(AsyncKey.deviceCode);
+  if (typeof current === 'string') {
+    return current;
+  }
+  const uuid = getUniqueId();
+  setCookie(AsyncKey.deviceCode, uuid);
+  return uuid;
 };

@@ -13,6 +13,7 @@ import CreateTeam from '../CreateTeam';
 import AppTitleBar from '../../components/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
+import ModalOTP from 'renderer/components/ModalOTP';
 
 interface PrivateRouteProps {
   component: any;
@@ -59,6 +60,7 @@ const Main = ({ getInitial }: MainProps) => {
             <Route exact path="/create-team" component={CreateTeam} />
           </Switch>
         </MainWrapper>
+        <ModalOTP />
       </div>
     </HashRouter>
   );

@@ -4,11 +4,18 @@ const initialState = {
   privateKey: '',
   seed: '',
   channelPrivateKey: {},
+  openOTP: false,
 };
 
 const configReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.TOGGLE_OTP: {
+      return {
+        ...state,
+        openOTP: !state.openOTP,
+      };
+    }
     case actionTypes.SET_CHANNEL_PRIVATE_KEY: {
       return {
         ...state,

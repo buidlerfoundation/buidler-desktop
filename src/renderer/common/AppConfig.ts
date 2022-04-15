@@ -18,6 +18,7 @@ export const AsyncKey = {
   encryptedDataKey: `${Prefix}_encrypted_data_key`,
   encryptedSeedKey: `${Prefix}_encrypted_seed_key`,
   channelPrivateKey: `${Prefix}_channel_private_key`,
+  deviceCode: `${Prefix}_device_code`,
 };
 
 export const ProgressStatus = [

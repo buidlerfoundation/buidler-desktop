@@ -20,7 +20,7 @@ const NormalButton = ({ title, type, onPress, loading }: NormalButtonProps) => {
         onPress();
       }}
     >
-      <span className={`${loading && 'invisible'}`}>{title}</span>
+      <span className={`${loading ? 'invisible' : ''}`}>{title}</span>
       {loading && (
         <div className="loading-container">
           <CircularProgress size={16} color="inherit" />

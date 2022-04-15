@@ -1,6 +1,6 @@
 import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey } from '../common/AppConfig';
-import { getCookie, setCookie } from '../common/Cookie';
+import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
 import store from '../store';
 import { ipcRenderer } from 'electron';
 import toast from 'react-hot-toast';
@@ -224,7 +224,7 @@ class SocketUtil {
       // loadMessageIfNeeded();
       const user: any = store.getState()?.user;
       const { currentTeam } = user || {};
-      this.socket.emit('ONLINE', { team_id: teamId || currentTeam?.team_id });
+      this.emitOnline(teamId || currentTeam?.team_id);
     });
   }
   reloadData = () => {
@@ -262,6 +262,7 @@ class SocketUtil {
       const { channel, key, timestamp } = data;
       const decrypted = await getChannelPrivateKey(key, privateKey);
       storePrivateChannel(channel.channel_id, key, timestamp);
+      this.emitReceivedKey(channel.channel_id);
       store.dispatch({
         type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
         payload: {
@@ -279,6 +280,7 @@ class SocketUtil {
       const { channel, key, timestamp } = data;
       const decrypted = await getChannelPrivateKey(key, privateKey);
       storePrivateChannel(channel.channel_id, key, timestamp);
+      this.emitReceivedKey(channel.channel_id);
       store.dispatch({
         type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
         payload: {
@@ -595,7 +597,18 @@ class SocketUtil {
       await this.init(teamId);
       return;
     }
-    this.socket.emit('ONLINE', { team_id: teamId });
+    this.emitOnline(teamId);
+  }
+  async emitOnline(teamId: string) {
+    const deviceCode = await getDeviceCode();
+    this.socket.emit('ONLINE', { team_id: teamId, device_code: deviceCode });
+  }
+  async emitReceivedKey(channelId: string) {
+    const deviceCode = await getDeviceCode();
+    this.socket.emit('ON_CHANNEL_KEY_RECEIVED', {
+      channel_id: channelId,
+      device_code: deviceCode,
+    });
   }
   sendMessage = (message: {
     channel_id: string;
