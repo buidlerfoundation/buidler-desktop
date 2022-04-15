@@ -257,9 +257,40 @@ class SocketUtil {
   };
   listenSocket() {
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
+      const user: any = store.getState()?.user;
       const configs: any = store.getState()?.configs;
       const { channelPrivateKey, privateKey } = configs;
       const { channel, key, timestamp } = data;
+      if (user.currentTeam.team_id === channel.team_id) {
+        const isExistChannel = !!user.channel.find(
+          (el: any) => el.channel_id === channel.channel_id
+        );
+        if (
+          isExistChannel &&
+          !channel.channel_member.find(
+            (el: string) => el === user.userData.user_id
+          )
+        ) {
+          store.dispatch({
+            type: actionTypes.DELETE_CHANNEL_SUCCESS,
+            payload: { channelId: channel.channel_id },
+          });
+        } else if (isExistChannel) {
+          store.dispatch({
+            type: actionTypes.UPDATE_CHANNEL_SUCCESS,
+            payload: data.channel,
+          });
+        } else if (
+          !!channel.channel_member.find(
+            (el: string) => el === user.userData.user_id
+          )
+        ) {
+          store.dispatch({
+            type: actionTypes.NEW_CHANNEL,
+            payload: data.channel,
+          });
+        }
+      }
       const decrypted = await getChannelPrivateKey(key, privateKey);
       storePrivateChannel(channel.channel_id, key, timestamp);
       this.emitReceivedKey(channel.channel_id, timestamp);

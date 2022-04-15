@@ -39,15 +39,9 @@ const SettingMember = ({
     const channel_member_data = await createMemberChannelData(
       members.map((el: string) => ({ user_id: el }))
     );
-    const res = await api.updateChannelMember(currentChannel.channel_id, {
+    await api.updateChannelMember(currentChannel.channel_id, {
       channel_member_data,
     });
-    if (res.statusCode === 200) {
-      setCurrentChannel?.({
-        ...currentChannel,
-        channel_member: members,
-      });
-    }
     toggleUser();
   };
   return (
