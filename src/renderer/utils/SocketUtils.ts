@@ -557,16 +557,22 @@ class SocketUtil {
         channelNotification?.channel_type === 'Direct'
       ) {
         const keys = channelPrivateKey[message_data.channel_id];
-        res = await normalizeMessageItem(
-          message_data,
-          keys[keys.length - 1].key,
-          message_data.channel_id
-        );
+        if (keys?.length > 0) {
+          res = await normalizeMessageItem(
+            message_data,
+            keys[keys.length - 1].key,
+            message_data.channel_id
+          );
+        } else {
+          res = null;
+        }
       }
-      store.dispatch({
-        type: actionTypes.RECEIVE_MESSAGE,
-        payload: { data: res },
-      });
+      if (res) {
+        store.dispatch({
+          type: actionTypes.RECEIVE_MESSAGE,
+          payload: { data: res },
+        });
+      }
     });
     this.socket.on('ON_NEW_TASK', (data: any) => {
       if (!data) return;
