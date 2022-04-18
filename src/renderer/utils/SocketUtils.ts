@@ -329,7 +329,7 @@ class SocketUtil {
       }
       const user: any = store.getState()?.user;
       const { currentTeam } = user;
-      if (currentTeam.team_id === data.team_id) {
+      if (currentTeam.team_id === channel.team_id) {
         store.dispatch({
           type: actionTypes.NEW_CHANNEL,
           payload: channel,
