@@ -260,7 +260,7 @@ const ChannelView = forwardRef(
           );
           message.content = content;
           message.plain_text = plain_text;
-          message.member_data = res;
+          message.channel_member_data = res;
         }
         if (messageReply) {
           message.parent_id = messageReply.parent_id || messageReply.message_id;
