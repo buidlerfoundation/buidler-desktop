@@ -553,7 +553,8 @@ class SocketUtil {
       let res = message_data;
       if (
         !channelNotification ||
-        channelNotification?.channel_type === 'Private'
+        channelNotification?.channel_type === 'Private' ||
+        channelNotification?.channel_type === 'Direct'
       ) {
         const keys = channelPrivateKey[message_data.channel_id];
         res = await normalizeMessageItem(
