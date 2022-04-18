@@ -69,7 +69,7 @@ export const createMemberChannelData = async (members: Array<any>) => {
   const timestamp = new Date().getTime();
   const req = members.map((el) => memberData(el, privateKey, timestamp));
   const res = await Promise.all(req);
-  return res;
+  return { res, privateKey };
 };
 
 export const getChannelPrivateKey = async (

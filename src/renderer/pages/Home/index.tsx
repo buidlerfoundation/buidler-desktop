@@ -65,7 +65,7 @@ type HomeProps = {
   removeReact: (id: string, name: string, userId: string) => any;
   getMessages: (
     channelId: string,
-    isPrivate: boolean,
+    channelType: string,
     before?: string,
     isFresh?: boolean
   ) => any;
@@ -218,9 +218,8 @@ const Home = ({
       channel_type: channelData.isPrivate ? 'Private' : 'Public',
     };
     if (channelData.isPrivate) {
-      body.channel_member_data = await createMemberChannelData(
-        channelData.members
-      );
+      const { res } = await createMemberChannelData(channelData.members);
+      body.channel_member_data = res;
     }
     await createNewChannel(
       currentTeam.team_id,
@@ -301,7 +300,7 @@ const Home = ({
       if (currentChannel.channel_id && privateKey) {
         getMessages(
           currentChannel.channel_id,
-          currentChannel.channel_type === 'Private',
+          currentChannel.channel_type,
           undefined,
           true
         );
@@ -487,7 +486,11 @@ const Home = ({
   const onMoreMessage = () => {
     if (messages.length === 0) return;
     const lastMsg = messages[messages.length - 1];
-    getMessages(currentChannel.channel_id, lastMsg.createdAt);
+    getMessages(
+      currentChannel.channel_id,
+      currentChannel.channel_type,
+      lastMsg.createdAt
+    );
   };
   const onReplyTask = (task: any) => {
     setReplyTask(task);

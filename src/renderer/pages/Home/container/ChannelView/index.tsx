@@ -28,7 +28,10 @@ import ChannelHeader from './ChannelHeader';
 import { useLocation } from 'react-router-dom';
 import { titleMessageFromNow } from '../../../../utils/DateUtils';
 import { useSelector } from 'react-redux';
-import { encryptMessage } from 'renderer/helpers/ChannelHelper';
+import {
+  createMemberChannelData,
+  encryptMessage,
+} from 'renderer/helpers/ChannelHelper';
 
 type ChannelViewProps = {
   currentChannel: any;
@@ -97,6 +100,7 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
+    const userData = useSelector((state: any) => state.user.userData);
     const channelPrivateKey = useSelector(
       (state: any) => state.configs.channelPrivateKey
     );
@@ -225,7 +229,11 @@ const ChannelView = forwardRef(
           plain_text: extractContent(text),
           mentions: getMentionData(text.trim()),
         };
-        if (currentChannel.channel_type === 'Private') {
+        if (
+          currentChannel.channel_type === 'Private' ||
+          (currentChannel.channel_type === 'Direct' &&
+            currentChannel.channel_id)
+        ) {
           const { key } =
             channelPrivateKey[currentChannel.channel_id][
               channelPrivateKey[currentChannel.channel_id].length - 1
@@ -240,6 +248,19 @@ const ChannelView = forwardRef(
         } else if (currentChannel.user) {
           message.other_user_id = currentChannel?.user?.user_id;
           message.team_id = currentTeam.team_id;
+          const members = [{ user_id: message.other_user_id }];
+          if (message.other_user_id !== userData.user_id) {
+            members.push({ user_id: userData.user_id });
+          }
+          const { res, privateKey } = await createMemberChannelData(members);
+          const content = await encryptMessage(message.content, privateKey);
+          const plain_text = await encryptMessage(
+            message.plain_text,
+            privateKey
+          );
+          message.content = content;
+          message.plain_text = plain_text;
+          message.member_data = res;
         }
         if (messageReply) {
           message.parent_id = messageReply.parent_id || messageReply.message_id;

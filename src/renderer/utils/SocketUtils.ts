@@ -79,10 +79,11 @@ const getTaskFromUser = async (
 
 const getMessages = async (
   channelId: string,
-  isPrivate: boolean,
+  channelType: string,
   dispatch: Dispatch
 ) => {
   const messageRes = await api.getMessages(channelId, 50);
+  const isPrivate = channelType === 'Private' || channelType === 'Direct';
   const messageData = isPrivate
     ? await normalizeMessageData(messageRes.data, channelId)
     : messageRes.data;
@@ -217,7 +218,6 @@ class SocketUtil {
         this.socket.off('ON_CREATE_NEW_CHANNEL');
         this.socket.off('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL');
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
-        this.socket.off('ON_CREATE_NEW_PRIVATE_CHANNEL');
         this.socket.off('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL');
         this.socket.off('ON_CHANNEL_KEY_SEND');
         this.socket.off('disconnect');
@@ -240,7 +240,7 @@ class SocketUtil {
       // load message
       getMessages(
         currentChannel.channel_id,
-        currentChannel.channel_type === 'Private',
+        currentChannel.channel_type,
         store.dispatch
       );
       // load task
@@ -322,25 +322,17 @@ class SocketUtil {
       }
       this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
     });
-    this.socket.on('ON_CREATE_NEW_PRIVATE_CHANNEL', async (data: any) => {
-      const { channel, key, timestamp } = data;
-      this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
-      const user: any = store.getState()?.user;
-      const { currentTeam } = user;
-      if (currentTeam.team_id === channel.team_id) {
-        store.dispatch({
-          type: actionTypes.NEW_CHANNEL,
-          payload: channel,
-        });
-      }
-    });
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
+      const { channel, key, timestamp } = data;
+      if (key && timestamp) {
+        this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
+      }
       const user: any = store.getState()?.user;
       const { currentTeam } = user;
       if (currentTeam.team_id === data.team_id) {
         store.dispatch({
           type: actionTypes.NEW_CHANNEL,
-          payload: data,
+          payload: channel,
         });
       }
     });
@@ -662,6 +654,7 @@ class SocketUtil {
     plain_text: string;
     mentions?: Array<any>;
     message_id?: string;
+    member_data?: Array<{ key: string; timestamp: number; user_id: string }>;
   }) => {
     this.socket.emit('NEW_MESSAGE', message);
   };

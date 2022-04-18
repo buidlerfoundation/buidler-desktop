@@ -36,9 +36,10 @@ const SettingMember = ({
       .map((id: any) => teamUserData.find((el) => el.user_id === id));
   }, [currentChannel, teamUserData]);
   const onSave = async () => {
-    const channel_member_data = await createMemberChannelData(
+    const { res } = await createMemberChannelData(
       members.map((el: string) => ({ user_id: el }))
     );
+    const channel_member_data = res;
     await api.updateChannelMember(currentChannel.channel_id, {
       channel_member_data,
     });

@@ -45,7 +45,7 @@ export const onRemoveAttachment: ActionCreator<any> =
   };
 
 export const getMessages: ActionCreator<any> =
-  (channelId: string, isPrivate: boolean, before?: string, isFresh = false) =>
+  (channelId: string, channelType: string, before?: string, isFresh = false) =>
   async (dispatch: Dispatch) => {
     if (before) {
       dispatch({ type: actionTypes.MESSAGE_MORE, payload: { channelId } });
@@ -55,6 +55,7 @@ export const getMessages: ActionCreator<any> =
       dispatch({ type: actionTypes.MESSAGE_REQUEST, payload: { channelId } });
     }
     const messageRes = await api.getMessages(channelId, 50, before);
+    const isPrivate = channelType === 'Private' || channelType === 'Direct';
     const messageData = isPrivate
       ? await normalizeMessageData(messageRes.data, channelId)
       : messageRes.data;
