@@ -32,6 +32,7 @@ import {
   createMemberChannelData,
   encryptMessage,
 } from 'renderer/helpers/ChannelHelper';
+import DirectDescription from './DirectDescription';
 
 type ChannelViewProps = {
   currentChannel: any;
@@ -426,6 +427,12 @@ const ChannelView = forwardRef(
               deleteChannel={deleteChannel}
               updateChannel={updateChannel}
             />
+            {!currentChannel.channel_id && (
+              <DirectDescription
+                currentChannel={currentChannel}
+                teamId={currentTeam.team_id}
+              />
+            )}
             <div
               ref={msgListRef}
               className="channel-view__body"
@@ -486,57 +493,59 @@ const ChannelView = forwardRef(
                 <CircularProgress size={30} color="inherit" />
               </div>
             )}
-            <div className="message-bottom">
-              <div style={{ position: 'relative' }}>
-                {scrollData?.showScrollDown &&
-                  !openTaskView &&
-                  !isOpenConversation && (
-                    <div className="message-scroll-down__wrapper">
-                      {scrollData.unreadCount > 0 && (
-                        <div className="unread-count">
-                          <span>{scrollData.unreadCount}</span>
+            {currentChannel.channel_id && (
+              <div className="message-bottom">
+                <div style={{ position: 'relative' }}>
+                  {scrollData?.showScrollDown &&
+                    !openTaskView &&
+                    !isOpenConversation && (
+                      <div className="message-scroll-down__wrapper">
+                        {scrollData.unreadCount > 0 && (
+                          <div className="unread-count">
+                            <span>{scrollData.unreadCount}</span>
+                          </div>
+                        )}
+                        <div
+                          className="btn-scroll-down normal-button"
+                          onClick={scrollDown}
+                        >
+                          <img src={images.icScrollDown} alt="" />
                         </div>
-                      )}
-                      <div
-                        className="btn-scroll-down normal-button"
-                        onClick={scrollDown}
-                      >
-                        <img src={images.icScrollDown} alt="" />
                       </div>
-                    </div>
-                  )}
-              </div>
-              <MessageInput
-                placeholder={`message to ${
-                  currentChannel?.user?.user_name
-                    ? normalizeUserName(currentChannel?.user?.user_name)
-                    : `# ${currentChannel?.channel_name}`
-                }`}
-                attachments={files}
-                onRemoveFile={(file) => {
-                  if (messageEdit) {
-                    onRemoveAttachment(
-                      currentChannel.channel_id,
-                      messageEdit.message_id,
-                      file.id
+                    )}
+                </div>
+                <MessageInput
+                  placeholder={`message to ${
+                    currentChannel?.user?.user_name
+                      ? normalizeUserName(currentChannel?.user?.user_name)
+                      : `# ${currentChannel?.channel_name}`
+                  }`}
+                  attachments={files}
+                  onRemoveFile={(file) => {
+                    if (messageEdit) {
+                      onRemoveAttachment(
+                        currentChannel.channel_id,
+                        messageEdit.message_id,
+                        file.id
+                      );
+                    }
+                    setFiles((current) =>
+                      current.filter((f) => f.id !== file.id)
                     );
-                  }
-                  setFiles((current) =>
-                    current.filter((f) => f.id !== file.id)
-                  );
-                }}
-                inputRef={inputRef}
-                onKeyDown={onKeyDown}
-                onPaste={_onPaste}
-                text={text}
-                setText={setText}
-                onCircleClick={onCircleClick}
-                messageReply={messageReply}
-                replyTask={replyTask}
-                onRemoveReply={onRemoveReply}
-                messageEdit={messageEdit}
-              />
-            </div>
+                  }}
+                  inputRef={inputRef}
+                  onKeyDown={onKeyDown}
+                  onPaste={_onPaste}
+                  text={text}
+                  setText={setText}
+                  onCircleClick={onCircleClick}
+                  messageReply={messageReply}
+                  replyTask={replyTask}
+                  onRemoveReply={onRemoveReply}
+                  messageEdit={messageEdit}
+                />
+              </div>
+            )}
             <input
               {...getInputProps()}
               ref={inputFileRef}

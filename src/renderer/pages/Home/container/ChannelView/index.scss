@@ -229,3 +229,30 @@
     }
   }
 }
+
+.direct-description__container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  margin: auto;
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    color: var(--color-secondary-text);
+  }
+  .description {
+    color: var(--color-secondary-text);
+    font-weight: 500;
+    font-size: 16px;
+    margin-top: 20px;
+    line-height: 26px;
+    .link {
+      text-decoration: underline;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}

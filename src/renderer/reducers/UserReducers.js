@@ -45,6 +45,7 @@ const userReducers = (state = initialState, action) => {
     }
     case actionTypes.NEW_CHANNEL: {
       let newTeamUserData = state.teamUserData;
+      const { currentChannel } = state;
       if (payload.channel_type === 'Direct') {
         newTeamUserData = newTeamUserData.map((el) => {
           if (
@@ -56,11 +57,19 @@ const userReducers = (state = initialState, action) => {
           }
           return el;
         });
+        if (
+          !!payload.channel_member.find(
+            (el) => el === currentChannel.user?.user_id
+          )
+        ) {
+          currentChannel.channel_id = payload.channel_id;
+        }
       }
       return {
         ...state,
         channel: [...state.channel, payload],
         teamUserData: newTeamUserData,
+        currentChannel,
       };
     }
     case actionTypes.DELETE_GROUP_CHANNEL_SUCCESS: {
