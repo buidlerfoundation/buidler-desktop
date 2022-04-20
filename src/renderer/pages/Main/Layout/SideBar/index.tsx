@@ -332,7 +332,7 @@ const SideBar = forwardRef(
           </div>
         ) : (
           <div className="app-version">
-            <span>1.1.59</span>
+            <span>1.1.60</span>
           </div>
         )}
         <ModalTeamSetting
