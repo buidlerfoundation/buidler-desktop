@@ -44,8 +44,12 @@ export const encryptMessage = async (str: string, key: string) => {
 };
 
 export const decryptMessage = async (str: string, key: string) => {
-  const res = await EthCrypto.decryptWithPrivateKey(key, JSON.parse(str));
-  return res;
+  try {
+    const res = await EthCrypto.decryptWithPrivateKey(key, JSON.parse(str));
+    return res;
+  } catch (error) {
+    return null;
+  }
 };
 
 const memberData = async (
@@ -172,7 +176,8 @@ export const normalizeMessageData = async (
       channelId
     )
   );
-  return Promise.all(req);
+  const res = await Promise.all(req);
+  return res.filter((el) => !!el.content);
 };
 
 const findKey = (keys: Array<any>, created: number) => {
