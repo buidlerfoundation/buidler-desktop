@@ -11,6 +11,8 @@ import { Dispatch } from 'redux';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import {
   getChannelPrivateKey,
+  getPrivateChannel,
+  getRawPrivateChannel,
   normalizeMessageData,
   normalizeMessageItem,
   storePrivateChannel,
@@ -220,6 +222,8 @@ class SocketUtil {
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
         this.socket.off('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL');
         this.socket.off('ON_CHANNEL_KEY_SEND');
+        this.socket.off('ON_VERIFY_DEVICE_OTP_SEND');
+        this.socket.off('ON_SYNC_DATA_SEND');
         this.socket.off('disconnect');
       });
       // loadMessageIfNeeded();
@@ -278,14 +282,60 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_SYNC_DATA_SEND', async (data: any) => {
+      const dataKey = await getRawPrivateChannel();
+      const deviceCode = await getDeviceCode();
+      const res = await api.syncChannelKey({
+        requested_device_code: data?.[0],
+        channel_key_data: dataKey,
+      });
+      if (res.statusCode === 200) {
+        this.socket.emit('ON_SYNC_DATA_RECEIVED', {
+          device_code: deviceCode,
+          requested_device_code: data?.[0],
+        });
+      }
+    });
+    this.socket.on('ON_VERIFY_DEVICE_OTP_SEND', async (data: any) => {
+      const deviceCode = await getDeviceCode();
+      if (Object.keys(data).length > 0) {
+        store.dispatch({
+          type: actionTypes.TOGGLE_OTP,
+          payload: !Object.keys(data).find((el) => el === deviceCode)
+            ? { otp: Object.values(data)?.[0] }
+            : {},
+        });
+        if (!Object.keys(data).find((el) => el === deviceCode)) {
+          this.socket.emit('ON_VERIFY_DEVICE_OTP_RECEIVED', {
+            device_code: deviceCode,
+            requested_device_code: Object.keys(data)?.[0],
+          });
+        }
+      }
+    });
     this.socket.on('ON_CHANNEL_KEY_SEND', async (data: any) => {
+      const configs: any = store.getState()?.configs;
+      const { privateKey } = configs;
+      const current = await getCookie(AsyncKey.channelPrivateKey);
+      let dataLocal: any = {};
+      if (typeof current === 'string') {
+        dataLocal = JSON.parse(current);
+      }
       Object.keys(data).forEach((k) => {
         const arr = data[k];
+        dataLocal[k] = [...(dataLocal?.[k] || []), ...arr];
         arr.forEach((el: any) => {
-          const { key, timestamp } = el;
-          this.handleChannelPrivateKey(k, key, timestamp);
+          const { timestamp } = el;
+          this.emitReceivedKey(k, timestamp);
         });
       });
+      setCookie(AsyncKey.channelPrivateKey, JSON.stringify(dataLocal));
+      const res = await getPrivateChannel(privateKey);
+      store.dispatch({
+        type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+        payload: res,
+      });
+      return null;
     });
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
       const user: any = store.getState()?.user;

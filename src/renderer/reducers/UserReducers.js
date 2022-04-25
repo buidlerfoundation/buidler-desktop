@@ -165,7 +165,13 @@ const userReducers = (state = initialState, action) => {
       };
     }
     case actionTypes.SET_CURRENT_TEAM: {
-      const { lastChannelId, resChannel, directChannelUser, team } = payload;
+      const {
+        lastChannelId,
+        resChannel,
+        directChannelUser,
+        team,
+        teamUsersRes,
+      } = payload;
       let channel;
       if (directChannelUser && lastChannelId) {
         const directChannel = resChannel.data.find(
@@ -190,6 +196,11 @@ const userReducers = (state = initialState, action) => {
               c.channel_id === lastChannelId ||
               c.channel_id === state.lastChannel?.[team.team_id]?.channel_id
           ) || resChannel.data.filter((c) => c.channel_type !== 'Direct')[0];
+        if (channel.channel_type === 'Direct') {
+          channel.user = teamUsersRes?.data?.find(
+            (u) => u.direct_channel === channel.channel_id
+          );
+        }
       }
       setCookie(AsyncKey.lastChannelId, channel?.channel_id);
       return {

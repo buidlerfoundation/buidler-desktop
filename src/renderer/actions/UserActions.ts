@@ -110,6 +110,7 @@ export const findTeamAndChannel =
             lastChannelId,
             directChannelUser,
             resChannel,
+            teamUsersRes,
           },
         });
         if (resChannel.statusCode === 200) {
@@ -235,7 +236,7 @@ const actionSetCurrentTeam = async (
   SocketUtils.changeTeam(team.team_id);
   dispatch({
     type: ActionTypes.SET_CURRENT_TEAM,
-    payload: { team, resChannel, lastChannelId },
+    payload: { team, resChannel, lastChannelId, teamUsersRes },
   });
   setCookie(AsyncKey.lastTeamId, team.team_id);
   const resGroupChannel = await api.getGroupChannel(team.team_id);

@@ -5,6 +5,7 @@ const initialState = {
   seed: '',
   channelPrivateKey: {},
   openOTP: false,
+  requestOtpCode: '',
 };
 
 const configReducers = (state = initialState, action) => {
@@ -14,6 +15,7 @@ const configReducers = (state = initialState, action) => {
       return {
         ...state,
         openOTP: !state.openOTP,
+        requestOtpCode: payload?.otp || '',
       };
     }
     case actionTypes.SET_CHANNEL_PRIVATE_KEY: {

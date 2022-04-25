@@ -40,3 +40,9 @@ export const getCollectibles = (page = 1, limit = 10) => {
 };
 
 export const updateUser = (data: any) => ApiCaller.put('user', data);
+
+export const verifyOtp = (data: any) =>
+  ApiCaller.post('user/device/verify', data);
+
+export const syncChannelKey = (data: any) =>
+  ApiCaller.post('user/device/sync', data);

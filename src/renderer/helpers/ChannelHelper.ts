@@ -87,6 +87,15 @@ export const getChannelPrivateKey = async (
   return res;
 };
 
+export const getRawPrivateChannel = async () => {
+  const current = await getCookie(AsyncKey.channelPrivateKey);
+  let res: any = {};
+  if (typeof current === 'string') {
+    res = JSON.parse(current);
+  }
+  return res;
+};
+
 export const storePrivateChannel = async (
   channelId: string,
   key: string,

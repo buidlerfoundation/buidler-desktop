@@ -12,6 +12,7 @@ import api from 'renderer/api';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
 import { useDispatch } from 'react-redux';
 import actionTypes from 'renderer/actions/ActionTypes';
+import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 
 const Started = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,11 @@ const Started = () => {
       const res = await api.verifyNonce(nonce, signature.compact);
       if (res.statusCode === 200) {
         setCookie(AsyncKey.accessTokenKey, res.token);
+        const privateKeyChannel = await getPrivateChannel(privateKey);
+        dispatch({
+          type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+          payload: privateKeyChannel,
+        });
         history.replace('/home');
       }
     }

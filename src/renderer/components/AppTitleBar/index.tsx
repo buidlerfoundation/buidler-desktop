@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -61,6 +61,13 @@ const AppTitleBar = ({
   const [isOpenModalBackup, setOpenModalBackup] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
   const [hoverTeam, setHoverTeam] = useState(false);
+  const setTeam = useCallback(
+    (t: any) => {
+      history.replace('/home');
+      setCurrentTeam?.(t);
+    },
+    [setCurrentTeam, history]
+  );
   useEffect(() => {
     const listener = (event: any) => {
       if (event.metaKey) {
@@ -72,7 +79,7 @@ const AppTitleBar = ({
           num <= (team?.length || 0)
         ) {
           if (currentTeam.team_id !== team?.[num - 1].team_id)
-            setCurrentTeam?.(team?.[num - 1]);
+            setTeam(team?.[num - 1]);
         }
       }
     };
@@ -107,7 +114,7 @@ const AppTitleBar = ({
       ipcRenderer.removeListener('window-blur', windowBlurListener);
       document.removeEventListener('keydown', listener);
     };
-  }, [team, setCurrentTeam, currentTeam, channels]);
+  }, [team, setTeam, currentTeam, channels]);
   const onSelectedMenu = async (menu: any) => {
     switch (menu.value) {
       case 'Leave team': {
@@ -117,7 +124,7 @@ const AppTitleBar = ({
             : null;
         const success = await leaveTeam?.(selectedMenuTeam.team_id);
         if (nextTeam && success) {
-          setCurrentTeam?.(nextTeam);
+          setTeam(nextTeam);
         }
         break;
       }
@@ -157,7 +164,7 @@ const AppTitleBar = ({
                 isSelected={isSelected}
                 t={t}
                 onChangeTeam={() => {
-                  if (currentTeam.team_id !== t.team_id) setCurrentTeam?.(t);
+                  if (currentTeam.team_id !== t.team_id) setTeam(t);
                 }}
                 onContextMenu={(e) => {
                   setSelectedMenuTeam(t);
