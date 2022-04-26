@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { connect, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -20,6 +20,7 @@ type UnlockPrivateKeyProps = {
   team?: any;
   errorTeam?: any;
   userData?: any;
+  getInitial: () => any;
 };
 
 const UnlockPrivateKey = ({
@@ -28,30 +29,20 @@ const UnlockPrivateKey = ({
   team,
   errorTeam,
   userData,
+  getInitial,
 }: UnlockPrivateKeyProps) => {
   const history = useHistory();
   const [pass, setPass] = useState('');
   const dispatch = useDispatch();
-  // const test = async () => {
-  //   const encrypted = await EthCrypto.encryptWithPublicKey(
-  //     '033333db2859fb5dc791edf29e73adc5e6addff1fa4c2e443af30b8990102ef374', // publicKey
-  //     'foobar' // message
-  //   );
-  //   const message = await EthCrypto.decryptWithPrivateKey(
-  //     '0x3e8a25bedd79c30cc8e535dde02466efc4324b9ce0a7d0a4591babcde7ef550d', // privateKey
-  //     encrypted
-  //   );
-  //   console.log('XXX: ', encrypted);
-  //   console.log('XXX: ', message);
-  // };
-  // useEffect(() => {
-  //   test();
-  // }, []);
+  const initApp = useCallback(async () => {
+    await getInitial();
+    await findUser();
+  }, [getInitial, findUser]);
   useEffect(() => {
     if (!userData) {
-      findUser();
+      initApp();
     }
-  }, [userData, findUser]);
+  }, [userData, initApp]);
   if (!userData) return <div className="unlock-private-key__container" />;
   return (
     <div className="unlock-private-key__container">
