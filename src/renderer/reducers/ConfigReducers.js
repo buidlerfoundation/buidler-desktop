@@ -14,7 +14,7 @@ const configReducers = (state = initialState, action) => {
     case actionTypes.TOGGLE_OTP: {
       return {
         ...state,
-        openOTP: !state.openOTP,
+        openOTP: state.open != null ? state.open : !state.openOTP,
         requestOtpCode: payload?.otp || '',
       };
     }

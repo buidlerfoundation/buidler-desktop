@@ -302,7 +302,7 @@ class SocketUtil {
         store.dispatch({
           type: actionTypes.TOGGLE_OTP,
           payload: !Object.keys(data).find((el) => el === deviceCode)
-            ? { otp: Object.values(data)?.[0] }
+            ? { otp: Object.values(data)?.[0], open: true }
             : {},
         });
         if (!Object.keys(data).find((el) => el === deviceCode)) {
