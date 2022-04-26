@@ -101,7 +101,6 @@ const AppTitleBar = ({
     ipcRenderer.on('window-focus', windowFocusListener);
     ipcRenderer.on('window-blur', windowBlurListener);
     const unseenChannel = channels?.find?.((el) => !el.seen);
-    console.log('Unseen channel: ', unseenChannel);
     if (unseenChannel) {
       ipcRenderer.send('show-badge', 'ping');
     } else {
