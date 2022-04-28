@@ -1,10 +1,11 @@
 .member-space__container {
-  margin: 10px 10px 0 10px;
+  margin: 10px;
   border-radius: 5px;
   background-color: var(--color-lighter-background);
   padding: 10px 0;
+  border: 1px solid var(--color-lighter-background);
   &.space-open {
-    border: 1px solid var(--color-stroke);
+    border-color: var(--color-stroke);
   }
   .title-wrapper {
     display: flex;

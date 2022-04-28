@@ -3,8 +3,9 @@
   border-radius: 5px;
   background-color: var(--color-lighter-background);
   padding: 10px 0;
+  border: 1px solid var(--color-lighter-background);
   &.space-open {
-    border: 1px solid var(--color-stroke);
+    border-color: var(--color-stroke);
   }
   .title-wrapper {
     display: flex;
@@ -29,6 +30,7 @@
     color: var(--color-secondary-text);
     .img-private {
       margin-bottom: 3.5px;
+      margin-right: 15px;
       filter: brightness(0.5);
     }
     .img-bell {

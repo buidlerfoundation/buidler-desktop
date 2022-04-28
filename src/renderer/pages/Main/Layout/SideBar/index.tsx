@@ -260,7 +260,7 @@ const SideBar = forwardRef(
         ) : (
           <div className="sidebar-body" />
         )}
-        {isOwner ? (
+        {/* {isOwner ? (
           <div className="app-setting" onClick={() => setOpenTeamSetting(true)}>
             <img src={images.icSetting} alt="" />
             <div style={{ width: 8 }} />
@@ -270,7 +270,7 @@ const SideBar = forwardRef(
           <div className="app-version">
             <span>1.1.60</span>
           </div>
-        )}
+        )} */}
         <ModalTeamSetting
           open={openTeamSetting}
           handleClose={() => setOpenTeamSetting(false)}
