@@ -16,14 +16,6 @@ export const updateTask = (body: any, id: string) =>
 
 export const deleteTask = (id: string) => ApiCaller.delete(`task/${id}`);
 
-// {
-//   "channel_name": "test",
-//   "group_channel_id": {{group_channel_id}}
-// }
-
-export const createChannel = (teamId: string, body: any) =>
-  ApiCaller.post(`channel/${teamId}`, body);
-
 export const getTasks = (channelId: string) =>
   ApiCaller.get(`tasks/${channelId}`);
 

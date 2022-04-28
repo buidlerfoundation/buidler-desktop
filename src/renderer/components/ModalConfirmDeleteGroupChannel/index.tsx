@@ -7,14 +7,14 @@ type ModalConfirmDeleteGroupChannelProps = {
   open: boolean;
   handleClose: () => void;
   onDelete: () => void;
-  groupName: string;
+  spaceName: string;
 };
 
 const ModalConfirmDeleteGroupChannel = ({
   open,
   handleClose,
   onDelete,
-  groupName,
+  spaceName,
 }: ModalConfirmDeleteGroupChannelProps) => {
   return (
     <Modal
@@ -25,23 +25,21 @@ const ModalConfirmDeleteGroupChannel = ({
     >
       <div style={{ display: 'table' }}>
         <div className="confirm-delete-channel-view__container">
-          <span className="confirm-delete-channel__title">
-            Delete Group Channel
-          </span>
+          <span className="confirm-delete-channel__title">Delete space</span>
           <div style={{ height: 24 }} />
           <div className="confirm-delete-channel__content-wrapper">
             <span className="confirm-delete-channel__content">
               Are you sure you want to delete?
             </span>
             <div className="channel-name">
-              <span>{groupName}</span>
+              <span>{spaceName}</span>
             </div>
           </div>
           <div className="confirm-delete-channel__bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
             <div style={{ width: 10 }} />
             <NormalButton
-              title="Delete Group Channel"
+              title="Delete space"
               onPress={onDelete}
               type="danger"
             />

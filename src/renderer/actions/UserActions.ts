@@ -70,11 +70,11 @@ export const findTeamAndChannel =
         const currentTeam =
           res.data.find((t: any) => t.team_id === lastTeamId) || res.data[0];
         const teamId = currentTeam.team_id;
-        const resGroupChannel = await api.getGroupChannel(teamId);
-        if (resGroupChannel.statusCode === 200) {
+        const resSpace = await api.getSpaceChannel(teamId);
+        if (resSpace.statusCode === 200) {
           dispatch({
             type: ActionTypes.GROUP_CHANNEL,
-            payload: resGroupChannel.data,
+            payload: resSpace.data,
           });
         }
         const resChannel = await api.findChannel(teamId);
@@ -239,11 +239,11 @@ const actionSetCurrentTeam = async (
     payload: { team, resChannel, lastChannelId, teamUsersRes },
   });
   setCookie(AsyncKey.lastTeamId, team.team_id);
-  const resGroupChannel = await api.getGroupChannel(team.team_id);
-  if (resGroupChannel.statusCode === 200) {
+  const resSpace = await api.getSpaceChannel(team.team_id);
+  if (resSpace.statusCode === 200) {
     dispatch({
       type: ActionTypes.GROUP_CHANNEL,
-      payload: resGroupChannel.data,
+      payload: resSpace.data,
     });
   }
   if (resChannel.statusCode === 200) {
@@ -272,17 +272,17 @@ export const setCurrentTeam =
     actionSetCurrentTeam(team, dispatch, channelId);
   };
 
-export const deleteGroupChannel =
-  (groupId: string) => async (dispatch: Dispatch) => {
+export const deleteSpaceChannel =
+  (spaceId: string) => async (dispatch: Dispatch) => {
     dispatch({
       type: ActionTypes.DELETE_GROUP_CHANNEL_REQUEST,
-      payload: { groupId },
+      payload: { spaceId },
     });
-    const res = await api.deleteGroupChannel(groupId);
+    const res = await api.deleteSpaceChannel(spaceId);
     if (res.statusCode === 200) {
       dispatch({
         type: ActionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
-        payload: { ...res, groupId },
+        payload: { ...res, spaceId },
       });
     } else {
       dispatch({
@@ -292,13 +292,13 @@ export const deleteGroupChannel =
     }
   };
 
-export const updateGroupChannel =
-  (groupId: string, body: any) => async (dispatch: Dispatch) => {
+export const updateSpaceChannel =
+  (spaceId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
       type: ActionTypes.UPDATE_GROUP_CHANNEL_REQUEST,
-      payload: { groupId, body },
+      payload: { spaceId, body },
     });
-    const res = await api.updateGroupChannel(groupId, body);
+    const res = await api.updateSpaceChannel(spaceId, body);
     if (res.statusCode === 200) {
       dispatch({
         type: ActionTypes.UPDATE_GROUP_CHANNEL_SUCCESS,
@@ -312,13 +312,13 @@ export const updateGroupChannel =
     }
   };
 
-export const createGroupChannel =
+export const createSpaceChannel =
   (teamId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({
       type: ActionTypes.CREATE_GROUP_CHANNEL_REQUEST,
       payload: { teamId, body },
     });
-    const res = await api.createGroupChannel(teamId, body);
+    const res = await api.createSpaceChannel(teamId, body);
     if (res.statusCode === 200) {
       dispatch({
         type: ActionTypes.CREATE_GROUP_CHANNEL_SUCCESS,

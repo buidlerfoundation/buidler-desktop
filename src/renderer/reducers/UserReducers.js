@@ -6,7 +6,7 @@ const initialState = {
   userData: null,
   team: null,
   channel: [],
-  groupChannel: [],
+  spaceChannel: [],
   currentTeam: null,
   currentChannel: null,
   imgDomain: null,
@@ -75,22 +75,22 @@ const userReducers = (state = initialState, action) => {
     case actionTypes.DELETE_GROUP_CHANNEL_SUCCESS: {
       return {
         ...state,
-        groupChannel: state.groupChannel.filter(
-          (el) => el.group_channel_id !== payload.groupId
+        spaceChannel: state.spaceChannel.filter(
+          (el) => el.space_id !== payload.spaceId
         ),
       };
     }
     case actionTypes.CREATE_GROUP_CHANNEL_SUCCESS: {
       return {
         ...state,
-        groupChannel: [...state.groupChannel, payload],
+        spaceChannel: [...state.spaceChannel, payload],
       };
     }
     case actionTypes.UPDATE_GROUP_CHANNEL_SUCCESS: {
       return {
         ...state,
-        groupChannel: state.groupChannel.map((el) => {
-          if (el.group_channel_id === payload.group_channel_id) {
+        spaceChannel: state.spaceChannel.map((el) => {
+          if (el.space_id === payload.space_id) {
             return {
               ...el,
               ...payload,
@@ -138,7 +138,7 @@ const userReducers = (state = initialState, action) => {
         userData: null,
         team: null,
         channel: [],
-        groupChannel: [],
+        spaceChannel: [],
         currentTeam: null,
         currentChannel: null,
         lastChannel: {},
@@ -161,7 +161,7 @@ const userReducers = (state = initialState, action) => {
     case actionTypes.GROUP_CHANNEL: {
       return {
         ...state,
-        groupChannel: payload,
+        spaceChannel: payload,
       };
     }
     case actionTypes.SET_CURRENT_TEAM: {
@@ -237,17 +237,15 @@ const userReducers = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATE_GROUP_CHANNEL: {
-      const { channelId, groupId } = payload;
-      const group = state.groupChannel.find(
-        (g) => g.group_channel_id === groupId
-      );
-      if (!group) return state;
+      const { channelId, spaceId } = payload;
+      const space = state.spaceChannel.find((g) => g.space_id === spaceId);
+      if (!space) return state;
       return {
         ...state,
         channel: state.channel.map((c) => {
           if (c.channel_id === channelId) {
-            c.group_channel_id = groupId;
-            c.group_channel = group;
+            c.space_id = spaceId;
+            c.space = space;
           }
           return c;
         }),

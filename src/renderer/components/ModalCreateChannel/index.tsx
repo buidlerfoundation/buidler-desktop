@@ -7,26 +7,26 @@ type ModalCreateChannelProps = {
   open: boolean;
   handleClose: () => void;
   onCreateChannel: (channelData: any) => void;
-  group: Array<any>;
-  initialGroup?: any;
+  space: Array<any>;
+  initialSpace?: any;
 };
 
 const ModalCreateChannel = ({
   open,
   handleClose,
   onCreateChannel,
-  group,
-  initialGroup,
+  space,
+  initialSpace,
 }: ModalCreateChannelProps) => {
   const [channelData, setChannelData] = useState<any>({
     name: '',
-    group: null,
+    space: null,
     isPrivate: false,
     members: [],
   });
   useEffect(() => {
-    setChannelData((data: any) => ({ ...data, group: initialGroup }));
-  }, [initialGroup]);
+    setChannelData((data: any) => ({ ...data, space: initialSpace }));
+  }, [initialSpace]);
   return (
     <Modal
       open={open}
@@ -36,10 +36,10 @@ const ModalCreateChannel = ({
     >
       <div style={{ display: 'table' }}>
         <CreateChannelView
-          group={group}
+          space={space}
           onCancel={handleClose}
           onCreate={() => {
-            if (channelData.group == null) {
+            if (channelData.space == null) {
               // show error
               return;
             }

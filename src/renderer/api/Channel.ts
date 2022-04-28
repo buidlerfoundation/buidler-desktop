@@ -1,16 +1,7 @@
 import ApiCaller from './ApiCaller';
 
-export const createChanel = (teamId: string, body: any) =>
+export const createChannel = (teamId: string, body: any) =>
   ApiCaller.post(`channel/${teamId}`, body);
-
-export const createGroupChannel = (teamId: string, body: any) =>
-  ApiCaller.post(`group/${teamId}`, body);
-
-export const updateGroupChannel = (groupId: string, body: any) =>
-  ApiCaller.put(`group/${groupId}`, body);
-
-export const deleteGroupChannel = (groupId: string) =>
-  ApiCaller.delete(`group/${groupId}`);
 
 export const getChannels = (teamId: string) =>
   ApiCaller.get(`channel/${teamId}`);
@@ -37,3 +28,12 @@ export const removeUserFromChannel = (channelId: string, userId: string) =>
 
 export const updateChannelMember = (channelId: string, body: any) =>
   ApiCaller.put(`channel/${channelId}/member`, body);
+
+export const createSpaceChannel = (teamId: string, body: any) =>
+  ApiCaller.post(`space/${teamId}`, body);
+
+export const updateSpaceChannel = (spaceId: string, body: any) =>
+  ApiCaller.put(`space/${spaceId}`, body);
+
+export const deleteSpaceChannel = (spaceId: string) =>
+  ApiCaller.delete(`space/${spaceId}`);

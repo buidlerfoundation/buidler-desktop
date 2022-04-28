@@ -13,7 +13,7 @@ type CreateChannelViewProps = {
   onCreate: () => void;
   channelData: any;
   update: (key: string, val: any) => void;
-  group: Array<any>;
+  space: Array<any>;
 };
 
 const CreateChannelView = ({
@@ -21,7 +21,7 @@ const CreateChannelView = ({
   onCreate,
   channelData,
   update,
-  group,
+  space,
 }: CreateChannelViewProps) => {
   const [anchorPopupGroupChannel, setPopupGroupChannel] = useState(null);
   const openGroupChannel = Boolean(anchorPopupGroupChannel);
@@ -53,7 +53,7 @@ const CreateChannelView = ({
         onClick={openGroupChannelSelection}
       >
         <span className="add-channel-group">
-          {channelData?.group?.group_channel_name || 'Add Channel to Group'}
+          {channelData?.space?.space_name || 'Add Channel to Space'}
         </span>
         <img className="group-title__icon" alt="" src={images.icCollapse} />
       </div>
@@ -122,9 +122,9 @@ const CreateChannelView = ({
         }}
       >
         <GroupChannelPopup
-          group={group}
+          space={space}
           onSelect={(item) => {
-            update('group', item);
+            update('space', item);
             setPopupGroupChannel(null);
           }}
         />

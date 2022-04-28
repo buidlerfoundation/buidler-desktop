@@ -7,15 +7,15 @@ import AppInput from '../AppInput';
 type ModalCreateGroupChannelProps = {
   open: boolean;
   handleClose: () => void;
-  onCreateGroupChannel: (groupChannelData: any) => void;
+  onCreateSpaceChannel: (spaceData: any) => void;
 };
 
 const ModalCreateGroupChannel = ({
   open,
   handleClose,
-  onCreateGroupChannel,
+  onCreateSpaceChannel,
 }: ModalCreateGroupChannelProps) => {
-  const [groupChannelData, setGroupChannelData] = useState({
+  const [spaceData, setSpaceData] = useState({
     name: '',
   });
 
@@ -28,27 +28,25 @@ const ModalCreateGroupChannel = ({
     >
       <div style={{ display: 'table' }}>
         <div className="create-group-channel-view__container">
-          <span className="create-group-channel__title">
-            Create group channel
-          </span>
+          <span className="create-group-channel__title">Create space</span>
           <div style={{ height: 95 }} />
           <AppInput
             className="app-input-highlight"
-            placeholder="Enter group channel name"
+            placeholder="Enter space name"
             onChange={(e) =>
-              setGroupChannelData({ name: e.target.value.toUpperCase() })
+              setSpaceData({ name: e.target.value.toUpperCase() })
             }
-            value={groupChannelData?.name}
+            value={spaceData?.name}
             autoFocus
           />
           <div className="group-channel__bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
             <div style={{ width: 10 }} />
             <NormalButton
-              title="Create group channel"
+              title="Create space"
               onPress={() => {
-                if (!groupChannelData.name) return;
-                onCreateGroupChannel(groupChannelData);
+                if (!spaceData.name) return;
+                onCreateSpaceChannel(spaceData);
               }}
               type="main"
             />

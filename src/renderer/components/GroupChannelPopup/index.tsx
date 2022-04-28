@@ -2,20 +2,20 @@ import React from 'react';
 import './index.scss';
 
 type GroupChannelPopupProps = {
-  group: Array<any>;
+  space: Array<any>;
   onSelect: (item: any) => void;
 };
 
-const GroupChannelPopup = ({ group, onSelect }: GroupChannelPopupProps) => {
+const GroupChannelPopup = ({ space, onSelect }: GroupChannelPopupProps) => {
   return (
     <div className="channel-popup__container">
-      {group.map((g) => (
+      {space.map((g) => (
         <div
-          key={g?.group_channel_name}
+          key={g?.space_id}
           className="group-item normal-button"
           onClick={() => onSelect(g)}
         >
-          <span>{g?.group_channel_name}</span>
+          <span>{g?.space_name}</span>
         </div>
       ))}
     </div>

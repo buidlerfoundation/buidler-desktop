@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { Collapse } from 'react-collapse';
 
 type GroupItemProps = {
-  group: any;
+  space: any;
   onCreateChannel: (group: any) => void;
   channel: Array<any>;
   currentChannel: any;
@@ -15,7 +15,7 @@ type GroupItemProps = {
 };
 
 const GroupItem = ({
-  group,
+  space,
   onCreateChannel,
   channel,
   currentChannel,
@@ -26,24 +26,22 @@ const GroupItem = ({
   const [isCollapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   return (
-    <Droppable droppableId={`group-channel-${group.group_channel_id}`}>
+    <Droppable droppableId={`group-channel-${space.space_id}`}>
       {(provided) => {
         return (
           <div ref={provided.innerRef} {...provided.droppableProps}>
             <div>
               <div onContextMenu={onContextGroupChannel}>
                 <GroupTitle
-                  title={group?.group_channel_name}
-                  onCreateChannel={() => onCreateChannel(group)}
+                  title={space?.space_name}
+                  onCreateChannel={() => onCreateChannel(space)}
                   isCollapsed={isCollapsed}
                   toggleCollapsed={toggleCollapsed}
                 />
               </div>
               <Collapse isOpened={!isCollapsed}>
                 {channel
-                  ?.filter(
-                    (c: any) => c?.group_channel_id === group?.group_channel_id
-                  )
+                  ?.filter((c: any) => c?.space_id === space?.space_id)
                   .sort((a1, a2) => {
                     if (a1.channel_name < a2.channel_name) return 1;
                     if (a1.channel_name > a2.channel_name) return -1;

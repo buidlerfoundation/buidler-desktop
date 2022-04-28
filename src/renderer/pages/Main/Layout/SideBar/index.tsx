@@ -15,22 +15,23 @@ import Popover from '@material-ui/core/Popover';
 import { createErrorMessageSelector } from '../../../../reducers/selectors';
 import actionTypes from '../../../../actions/ActionTypes';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import GroupItem from './components/GroupItem';
 import { useHistory } from 'react-router-dom';
 import PopoverButton from '../../../../components/PopoverButton';
 import {
   channelMenu,
-  groupChannelMenu,
   memberMenu,
   privateChannelMenu,
+  spaceChannelMenu,
 } from '../../../../utils/Menu';
 import ModalTeamSetting from '../../../../components/ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../../../../components/ModalConfirmDeleteTeam';
+import SpaceItem from './components/SpaceItem';
+import MemberSpace from './components/MemberSpace';
 
 type SideBarProps = {
   team?: any;
   channel?: any;
-  groupChannel?: any;
+  spaceChannel?: any;
   currentChannel?: any;
   logout?: any;
   errorTeam?: any;
@@ -48,7 +49,7 @@ type SideBarProps = {
   deleteTeam: (teamId: string) => any;
   findUser: () => any;
   findTeamAndChannel: () => any;
-  onCreateChannel: (initGroup?: any) => void;
+  onCreateChannel: (initSpace?: any) => void;
   onCreateGroupChannel: () => void;
 };
 
@@ -60,7 +61,7 @@ const SideBar = forwardRef(
       findTeamAndChannel,
       teamUserData,
       onCreateChannel,
-      groupChannel,
+      spaceChannel,
       currentChannel,
       errorTeam,
       findUser,
@@ -86,12 +87,12 @@ const SideBar = forwardRef(
     const toggleCollapsed = () => setCollapsed(!isCollapsed);
     const [selectedMenuChannel, setSelectedMenuChannel] = useState<any>(null);
     const [selectedMenuMember, setSelectedMenuMember] = useState<any>(null);
-    const [selectedMenuGroupChannel, setSelectedMenuGroupChannel] =
+    const [selectedMenuSpaceChannel, setSelectedMenuSpaceChannel] =
       useState<any>(null);
     const bottomBodyRef = useRef<any>();
     const menuPrivateChannelRef = useRef<any>();
     const menuChannelRef = useRef<any>();
-    const menuGroupChannelRef = useRef<any>();
+    const menuSpaceChannelRef = useRef<any>();
     const menuMemberRef = useRef<any>();
     const history = useHistory();
     const [anchorPopupActions, setPopupActions] = useState(null);
@@ -123,19 +124,19 @@ const SideBar = forwardRef(
     const onSelectedMenu = (menu: any) => {
       switch (menu.value) {
         case 'Create channel': {
-          onCreateChannel(selectedMenuGroupChannel);
+          onCreateChannel(selectedMenuSpaceChannel);
           break;
         }
-        case 'Create group channel': {
+        case 'Create space': {
           onCreateGroupChannel();
           break;
         }
-        case 'Edit group channel name': {
-          onEditGroupChannel(selectedMenuGroupChannel);
+        case 'Edit space name': {
+          onEditGroupChannel(selectedMenuSpaceChannel);
           break;
         }
-        case 'Delete group channel': {
-          onDeleteGroupChannel(selectedMenuGroupChannel);
+        case 'Delete space': {
+          onDeleteGroupChannel(selectedMenuSpaceChannel);
           break;
         }
         case 'Edit member': {
@@ -157,7 +158,7 @@ const SideBar = forwardRef(
         default:
           break;
       }
-      setSelectedMenuGroupChannel(null);
+      setSelectedMenuSpaceChannel(null);
       setSelectedMenuChannel(null);
       setSelectedMenuMember(null);
     };
@@ -180,11 +181,11 @@ const SideBar = forwardRef(
               {(provided) => {
                 return (
                   <div ref={provided.innerRef} {...provided.droppableProps}>
-                    {groupChannel.map((group: any, idx: number) => {
+                    {spaceChannel.map((space: any, idx: number) => {
                       return (
                         <Draggable
-                          key={group.group_channel_id}
-                          draggableId={group.group_channel_id}
+                          key={space.space_id}
+                          draggableId={space.space_id}
                           index={idx}
                           isDragDisabled
                         >
@@ -194,14 +195,14 @@ const SideBar = forwardRef(
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
                             >
-                              <GroupItem
-                                group={group}
+                              <SpaceItem
+                                space={space}
                                 channel={channel}
                                 currentChannel={currentChannel}
                                 onCreateChannel={onCreateChannel}
-                                onContextGroupChannel={(e) => {
-                                  setSelectedMenuGroupChannel(group);
-                                  menuGroupChannelRef.current?.show(
+                                onContextSpaceChannel={(e) => {
+                                  setSelectedMenuSpaceChannel(space);
+                                  menuSpaceChannelRef.current?.show(
                                     e.currentTarget,
                                     {
                                       x: e.pageX,
@@ -241,85 +242,20 @@ const SideBar = forwardRef(
               }}
             </Droppable>
             <div ref={bottomBodyRef} />
-            <Droppable droppableId="member" isDropDisabled>
-              {(provided) => {
-                return (
-                  <div ref={provided.innerRef} {...provided.droppableProps}>
-                    <GroupTitle
-                      title="MEMBER"
-                      onCreateChannel={onInviteMember}
-                      isCollapsed={isCollapsed}
-                      toggleCollapsed={toggleCollapsed}
-                    />
-                    {!isCollapsed && (
-                      <>
-                        {user && (
-                          <MemberChild
-                            user={user}
-                            isUnSeen={
-                              channel.find(
-                                (c: any) =>
-                                  c?.channel_id === user.direct_channel
-                              )?.seen === false
-                            }
-                            isSelected={
-                              currentChannel?.channel_id ===
-                                user.direct_channel ||
-                              currentChannel?.user?.user_id === user.user_id
-                            }
-                            onPress={() => {
-                              history.replace(`/home?user_id=${user.user_id}`);
-                            }}
-                          />
-                        )}
-                        {teamUserData
-                          ?.filter?.((u) => u.user_id !== userData?.user_id)
-                          ?.map?.((u) => (
-                            <MemberChild
-                              onContextChannel={(e) => {
-                                setSelectedMenuMember(u);
-                                menuMemberRef.current?.show(e.currentTarget, {
-                                  x: e.pageX,
-                                  y: e.pageY,
-                                });
-                              }}
-                              user={u}
-                              key={u.user_id}
-                              isUnSeen={
-                                channel.find(
-                                  (c: any) => c?.channel_id === u.direct_channel
-                                )?.seen === false
-                              }
-                              isSelected={
-                                currentChannel?.channel_id ===
-                                  u.direct_channel ||
-                                currentChannel?.user?.user_id === u.user_id
-                              }
-                              onPress={() => {
-                                history.replace(`/home?user_id=${u.user_id}`);
-                              }}
-                            />
-                          ))}
-                        <div
-                          className="member-child-container normal-button"
-                          onClick={onInviteMember}
-                        >
-                          <img
-                            alt=""
-                            src={images.icEditMember}
-                            style={{ marginLeft: 30 }}
-                          />
-                          <span className="member-child__username ml10">
-                            Invite member
-                          </span>
-                        </div>
-                      </>
-                    )}
-                    {provided.placeholder}
-                  </div>
-                );
+            <MemberSpace
+              userData={userData}
+              teamUserData={teamUserData}
+              channel={channel}
+              currentChannel={currentChannel}
+              onContextMenu={(u) => (e) => {
+                setSelectedMenuMember(u);
+                menuMemberRef.current?.show(e.currentTarget, {
+                  x: e.pageX,
+                  y: e.pageY,
+                });
               }}
-            </Droppable>
+              onInviteMember={onInviteMember}
+            />
           </div>
         ) : (
           <div className="sidebar-body" />
@@ -344,8 +280,8 @@ const SideBar = forwardRef(
         />
         <PopoverButton
           popupOnly
-          ref={menuGroupChannelRef}
-          data={groupChannelMenu}
+          ref={menuSpaceChannelRef}
+          data={spaceChannelMenu}
           onSelected={onSelectedMenu}
           onClose={() => {}}
         />
@@ -416,7 +352,7 @@ const mapStateToProps = (state: any) => {
     teamUserData: state.user.teamUserData,
     channel: state.user.channel,
     currentChannel: state.user.currentChannel,
-    groupChannel: state.user.groupChannel,
+    spaceChannel: state.user.spaceChannel,
     errorTeam: errorSelector(state),
     userData: state.user.userData,
     currentTeam: state.user.currentTeam,

@@ -1,24 +1,24 @@
 import images from '../common/images';
 
-export const groupChannelMenu = [
+export const spaceChannelMenu = [
   {
     label: 'Create channel',
     value: 'Create channel',
     icon: images.icSettingCreateChannel,
   },
   {
-    label: 'Create group channel',
-    value: 'Create group channel',
+    label: 'Create space',
+    value: 'Create space',
     icon: images.icSettingCreateGroupChannel,
   },
   {
-    label: 'Edit group channel name',
-    value: 'Edit group channel name',
+    label: 'Edit space name',
+    value: 'Edit space name',
     icon: images.icSettingChannelEdit,
   },
   {
-    label: 'Delete group channel',
-    value: 'Delete group channel',
+    label: 'Delete space',
+    value: 'Delete space',
     icon: images.icSettingChannelDelete,
   },
 ];

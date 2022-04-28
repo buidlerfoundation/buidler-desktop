@@ -7,23 +7,23 @@ import AppInput from '../AppInput';
 type ModalEditGroupChannelProps = {
   open: boolean;
   handleClose: () => void;
-  onEditGroupChannel: (groupChannelData: any) => void;
-  groupName: string;
+  onEditSpaceChannel: (spaceData: any) => void;
+  spaceName: string;
 };
 
 const ModalEditGroupChannel = ({
   open,
   handleClose,
-  onEditGroupChannel,
-  groupName,
+  onEditSpaceChannel,
+  spaceName,
 }: ModalEditGroupChannelProps) => {
-  const [groupChannelData, setGroupChannelData] = useState({
+  const [spaceData, setSpaceData] = useState({
     name: '',
   });
 
   useEffect(() => {
-    setGroupChannelData({ name: groupName });
-  }, [groupName]);
+    setSpaceData({ name: spaceName });
+  }, [spaceName]);
 
   return (
     <Modal
@@ -34,17 +34,15 @@ const ModalEditGroupChannel = ({
     >
       <div style={{ display: 'table' }}>
         <div className="edit-group-channel-view__container">
-          <span className="edit-group-channel__title">
-            Edit group channel name
-          </span>
+          <span className="edit-group-channel__title">Edit space name</span>
           <div style={{ height: 95 }} />
           <AppInput
             className="app-input-highlight"
-            placeholder="Enter group channel name"
+            placeholder="Enter space name"
             onChange={(e) =>
-              setGroupChannelData({ name: e.target.value.toUpperCase() })
+              setSpaceData({ name: e.target.value.toUpperCase() })
             }
-            value={groupChannelData?.name}
+            value={spaceData?.name}
             autoFocus
           />
           <div className="group-channel__bottom">
@@ -53,8 +51,8 @@ const ModalEditGroupChannel = ({
             <NormalButton
               title="Save"
               onPress={() => {
-                if (!groupChannelData.name) return;
-                onEditGroupChannel(groupChannelData);
+                if (!spaceData.name) return;
+                onEditSpaceChannel(spaceData);
               }}
               type="main"
             />

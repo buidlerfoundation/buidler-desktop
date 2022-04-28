@@ -37,7 +37,7 @@ import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 type HomeProps = {
   team?: any;
   currentChannel: any;
-  group: Array<any>;
+  space: Array<any>;
   currentTeam: any;
   loading: boolean;
   createNewChannel: (teamId: string, body: any, groupName: string) => any;
@@ -96,9 +96,9 @@ type HomeProps = {
   ) => any;
   deleteChannel: (channelId: string) => any;
   updateChannel: (channelId: string, body: any) => any;
-  createGroupChannel: (teamId: string, body: any) => any;
-  updateGroupChannel: (groupId: string, body: any) => any;
-  deleteGroupChannel: (group: any) => any;
+  createSpaceChannel: (teamId: string, body: any) => any;
+  updateSpaceChannel: (spaceId: string, body: any) => any;
+  deleteSpaceChannel: (group: any) => any;
   removeTeamMember: (teamId: string, userId: string) => any;
   teamUserData: Array<any>;
   createTeam?: (body: any) => any;
@@ -123,7 +123,7 @@ const Home = ({
   currentChannel,
   dragChannel,
   currentTeam,
-  group,
+  space,
   loading,
   createNewChannel,
   tasks,
@@ -154,11 +154,11 @@ const Home = ({
   deleteMessage,
   deleteChannel,
   updateChannel,
-  createGroupChannel,
-  deleteGroupChannel,
+  createSpaceChannel,
+  deleteSpaceChannel,
   teamUserData,
   createTeam,
-  updateGroupChannel,
+  updateSpaceChannel,
   removeTeamMember,
   updateTeam,
   deleteTeam,
@@ -180,11 +180,11 @@ const Home = ({
     index: null,
   });
   const [hoverTask, setHoverTask] = useState<any>(null);
-  const [initialGroup, setInitialGroup] = useState(null);
-  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [initialSpace, setInitialSpace] = useState(null);
+  const [selectedSpace, setSelectedSpace] = useState<any>(null);
   const [channelDelete, setChannelDelete] = useState<any>(null);
   const [isOpenInvite, setOpenInvite] = useState(false);
-  const [isOpenConfirmDeleteGroup, setOpenConfirmDeleteGroup] = useState(false);
+  const [isOpenConfirmDeleteSpace, setOpenConfirmDeleteSpace] = useState(false);
   const [isOpenConfirmDeleteChannel, setOpenConfirmDeleteChannel] =
     useState(false);
   const [filter, setFilter] = useState(filterTask[0]);
@@ -192,21 +192,21 @@ const Home = ({
   const [currentTitle, setCurrentTitle] = useState<string | null>(null);
   const [openCreateChannel, setOpenCreateChannel] = useState(false);
   const [openCreateGroupChannel, setOpenCreateGroupChannel] = useState(false);
-  const [openEditGroupChannel, setOpenEditGroupChannel] = useState(false);
+  const [openEditSpaceChannel, setOpenEditSpaceChannel] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [openTaskView, setOpenTask] = useState(false);
   const [currentMessage, setCurrentMessage] = useState<any>(null);
   const [openConversation, setOpenConversation] = useState(false);
-  const onEditGroupChannel = async (groupChannelData: any) => {
-    await updateGroupChannel(selectedGroup.group_channel_id, {
-      group_channel_name: groupChannelData.name,
+  const onEditSpaceChannel = async (spaceData: any) => {
+    await updateSpaceChannel(selectedSpace.space_id, {
+      space_name: spaceData.name,
     });
-    setOpenEditGroupChannel(false);
+    setOpenEditSpaceChannel(false);
   };
-  const onCreateGroupChannel = async (groupChannelData: any) => {
-    await createGroupChannel(currentTeam.team_id, {
-      group_channel_name: groupChannelData.name,
-      order: group?.[group.length - 1].order + 1,
+  const onCreateSpaceChannel = async (spaceData: any) => {
+    await createSpaceChannel(currentTeam.team_id, {
+      space_name: spaceData.name,
+      order: space?.[space.length - 1].order + 1,
     });
     setOpenCreateGroupChannel(false);
     sideBarRef.current?.scrollToBottom?.();
@@ -214,7 +214,7 @@ const Home = ({
   const onCreateChannel = async (channelData: any) => {
     const body: any = {
       channel_name: channelData.name,
-      group_channel_id: channelData.group?.group_channel_id,
+      space_id: channelData.space?.space_id,
       channel_type: channelData.isPrivate ? 'Private' : 'Public',
     };
     if (channelData.isPrivate) {
@@ -224,7 +224,7 @@ const Home = ({
     await createNewChannel(
       currentTeam.team_id,
       body,
-      channelData.group?.group_channel_name
+      channelData.space?.space_name
     );
     setOpenCreateChannel(false);
   };
@@ -505,20 +505,20 @@ const Home = ({
         <div className="home-container">
           <SideBar
             ref={sideBarRef}
-            onCreateChannel={(initGroup) => {
-              setInitialGroup(initGroup);
+            onCreateChannel={(initSpace) => {
+              setInitialSpace(initSpace);
               setOpenCreateChannel(true);
             }}
             onCreateGroupChannel={() => {
               setOpenCreateGroupChannel(true);
             }}
             onEditGroupChannel={(g) => {
-              setSelectedGroup(g);
-              setOpenEditGroupChannel(true);
+              setSelectedSpace(g);
+              setOpenEditSpaceChannel(true);
             }}
             onDeleteGroupChannel={(g) => {
-              setSelectedGroup(g);
-              setOpenConfirmDeleteGroup(true);
+              setSelectedSpace(g);
+              setOpenConfirmDeleteSpace(true);
             }}
             onDeleteChannel={(channel) => {
               setChannelDelete(channel);
@@ -652,24 +652,24 @@ const Home = ({
             <ModalCreateGroupChannel
               open={openCreateGroupChannel}
               handleClose={() => setOpenCreateGroupChannel(false)}
-              onCreateGroupChannel={onCreateGroupChannel}
+              onCreateSpaceChannel={onCreateSpaceChannel}
             />
           )}
-          {openEditGroupChannel && (
+          {openEditSpaceChannel && (
             <ModalEditGroupChannel
-              open={openEditGroupChannel}
-              handleClose={() => setOpenEditGroupChannel(false)}
-              onEditGroupChannel={onEditGroupChannel}
-              groupName={selectedGroup?.group_channel_name}
+              open={openEditSpaceChannel}
+              handleClose={() => setOpenEditSpaceChannel(false)}
+              onEditSpaceChannel={onEditSpaceChannel}
+              spaceName={selectedSpace?.space_name}
             />
           )}
           {openCreateChannel && (
             <ModalCreateChannel
-              group={group}
+              space={space}
               onCreateChannel={onCreateChannel}
               open={openCreateChannel}
               handleClose={() => setOpenCreateChannel(false)}
-              initialGroup={initialGroup}
+              initialSpace={initialSpace}
             />
           )}
           {isOpenInvite && (
@@ -700,14 +700,14 @@ const Home = ({
             }}
           />
           <ModalConfirmDeleteGroupChannel
-            open={isOpenConfirmDeleteGroup}
-            groupName={selectedGroup?.group_channel_name}
-            handleClose={() => setOpenConfirmDeleteGroup(false)}
+            open={isOpenConfirmDeleteSpace}
+            spaceName={selectedSpace?.space_name}
+            handleClose={() => setOpenConfirmDeleteSpace(false)}
             onDelete={async () => {
-              if (!selectedGroup?.group_channel_id) return;
-              await deleteGroupChannel(selectedGroup?.group_channel_id);
-              setSelectedGroup(null);
-              setOpenConfirmDeleteGroup(false);
+              if (!selectedSpace?.space_id) return;
+              await deleteSpaceChannel(selectedSpace?.space_id);
+              setSelectedSpace(null);
+              setOpenConfirmDeleteSpace(false);
             }}
           />
         </div>
@@ -735,7 +735,7 @@ const mapStateToProps = (state: any) => {
     teamUserData: state.user.teamUserData,
     currentChannel: state.user.currentChannel,
     currentTeam: state.user.currentTeam,
-    group: state.user.groupChannel,
+    space: state.user.spaceChannel,
     loading: loadingSelector(state),
     tasks: channelId ? state.task.taskData?.[channelId]?.tasks || [] : [],
     channels: state.user.channel,

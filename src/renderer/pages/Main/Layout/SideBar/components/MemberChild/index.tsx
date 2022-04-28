@@ -29,7 +29,7 @@ const MemberChild = ({
       onClick={onPress}
       onContextMenu={onContextChannel}
     >
-      <div style={{ marginLeft: 30 }}>
+      <div style={{ marginLeft: 20 }}>
         <AvatarView user={user} />
       </div>
       <span

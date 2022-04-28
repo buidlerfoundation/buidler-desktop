@@ -124,11 +124,11 @@ const actionSetCurrentTeam = async (
     payload: { team, resChannel, directChannelUser, lastChannelId },
   });
   setCookie(AsyncKey.lastTeamId, team.team_id);
-  const resGroupChannel = await api.getGroupChannel(team.team_id);
-  if (resGroupChannel.statusCode === 200) {
+  const resSpace = await api.getSpaceChannel(team.team_id);
+  if (resSpace.statusCode === 200) {
     dispatch({
       type: actionTypes.GROUP_CHANNEL,
-      payload: resGroupChannel.data,
+      payload: resSpace.data,
     });
   }
   if (resChannel.statusCode === 200) {
