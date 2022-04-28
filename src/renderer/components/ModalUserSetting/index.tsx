@@ -131,6 +131,9 @@ const ModalUserSetting = ({
             <img alt="" src={images.icLeaveTeam} />
             <span className="log-out-text">Logout</span>
           </div>
+          <div className="app-version">
+            <span>1.1.60</span>
+          </div>
         </div>
         <div className="body">
           {currentPageId === '1' && (

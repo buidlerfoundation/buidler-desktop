@@ -10,6 +10,7 @@
   width: 880px;
   border-radius: 5px !important;
   .left-side {
+    position: relative;
     width: 275px;
     height: 100%;
     background-color: var(--color-darkest-background);
@@ -307,4 +308,17 @@
   height: 10px;
   border-radius: 5px;
   background-color: var(--color-mention);
+}
+
+.app-version {
+  height: 47px;
+  width: 275px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-secondary-text);
+  position: absolute;
+  bottom: 0;
 }

@@ -56,7 +56,7 @@
     }
     &:hover {
       cursor: pointer;
-      background-color: var(--color-highlight-action-high);
+      background-color: var(--color-stroke);
       color: var(--color-primary-text);
       .img-private {
         filter: brightness(1);
