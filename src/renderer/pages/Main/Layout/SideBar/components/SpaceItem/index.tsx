@@ -47,16 +47,6 @@ const SpaceItem = ({
       >
         <span className="title">{space.space_name}</span>
       </div>
-      <Collapse isOpened={!isCollapsed}>
-        {channelSpace?.map?.((c: any) => (
-          <ChannelItem
-            key={c.channel_id}
-            c={c}
-            currentChannel={currentChannel}
-            onContextChannel={onContextChannel}
-          />
-        ))}
-      </Collapse>
       {!!currentChannelSpace && (
         <div
           className={`fake-channel-child ${
@@ -70,6 +60,16 @@ const SpaceItem = ({
           />
         </div>
       )}
+      <Collapse isOpened={!isCollapsed}>
+        {channelSpace?.map?.((c: any) => (
+          <ChannelItem
+            key={c.channel_id}
+            c={c}
+            currentChannel={currentChannel}
+            onContextChannel={onContextChannel}
+          />
+        ))}
+      </Collapse>
     </div>
   );
 };

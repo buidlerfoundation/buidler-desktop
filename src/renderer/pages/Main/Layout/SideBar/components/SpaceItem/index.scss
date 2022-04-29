@@ -87,14 +87,14 @@
       white-space: nowrap;
       display: inline-block;
     }
-    .fake-channel-child {
-      transition: 400ms ease;
-      height: 0;
-      opacity: 0;
-    }
-    .fake-channel-child-open {
-      height: 40px;
-      opacity: 1;
-    }
+  }
+  .fake-channel-child {
+    transition: 400ms ease;
+    height: 0;
+    opacity: 0;
+  }
+  .fake-channel-child-open {
+    height: 40px;
+    opacity: 1;
   }
 }
