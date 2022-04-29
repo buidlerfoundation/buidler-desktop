@@ -26,6 +26,11 @@ const MemberSpace = ({
   const [isCollapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   const user = teamUserData?.find?.((u) => u.user_id === userData?.user_id);
+  const selectedUser = teamUserData?.find?.(
+    (el) =>
+      currentChannel?.channel_id === el.direct_channel ||
+      currentChannel?.user?.user_id === el.user_id
+  );
   return (
     <div
       className={`member-space__container ${isCollapsed ? '' : 'space-open'}`}
@@ -33,6 +38,21 @@ const MemberSpace = ({
       <div className="title-wrapper" onClick={toggleCollapsed}>
         <span className="title">Members</span>
       </div>
+      {!!selectedUser && (
+        <div
+          className={`fake-member-child ${
+            isCollapsed ? 'fake-member-child-open' : ''
+          }`}
+        >
+          <MemberChild
+            user={selectedUser}
+            isSelected
+            onPress={() => {
+              history.replace(`/home?user_id=${user.user_id}`);
+            }}
+          />
+        </div>
+      )}
       <Collapse isOpened={!isCollapsed}>
         {user && (
           <MemberChild

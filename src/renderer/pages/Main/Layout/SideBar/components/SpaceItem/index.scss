@@ -4,7 +4,9 @@
   background-color: var(--color-lighter-background);
   padding: 10px 0;
   border: 1px solid var(--color-lighter-background);
+  color: var(--color-secondary-text);
   &.space-open {
+    color: var(--color-primary-text);
     border-color: var(--color-stroke);
   }
   .title-wrapper {
@@ -84,6 +86,15 @@
       overflow: hidden;
       white-space: nowrap;
       display: inline-block;
+    }
+    .fake-channel-child {
+      transition: 400ms ease;
+      height: 0;
+      opacity: 0;
+    }
+    .fake-channel-child-open {
+      height: 40px;
+      opacity: 1;
     }
   }
 }

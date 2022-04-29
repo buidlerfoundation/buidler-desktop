@@ -2,18 +2,23 @@
   display: flex;
   align-items: center;
   min-height: 40px;
+  margin: 0 10px;
+  border-radius: 5px;
+  color: var(--color-secondary-text);
   .member-child__username {
     font-weight: 600;
     font-size: 16px;
-    color: var(--color-secondary-text);
-  }
-  &.selected {
-    background-color: var(--color-highlight-action);
+    color: inherit;
   }
   &:hover {
-    border-radius: 0;
+    background-color: var(--color-stroke);
+    cursor: pointer;
   }
-  .active {
+  &.un-seen {
     color: var(--color-primary-text);
+  }
+  &.active {
+    color: var(--color-primary-text);
+    background-color: var(--color-highlight-action-high);
   }
 }

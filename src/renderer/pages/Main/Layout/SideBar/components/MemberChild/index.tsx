@@ -18,25 +18,18 @@ const MemberChild = ({
   isSelected,
   onContextChannel,
 }: MemberChildProps) => {
-  const [isHover, setHover] = useState(false);
   return (
     <div
-      className={`member-child-container normal-button ${
-        isSelected ? 'selected' : ''
+      className={`member-child-container ${isSelected ? 'active' : ''} ${
+        isUnSeen ? 'un-seen' : ''
       }`}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       onClick={onPress}
       onContextMenu={onContextChannel}
     >
       <div style={{ marginLeft: 20 }}>
         <AvatarView user={user} />
       </div>
-      <span
-        className={`member-child__username ml10 ${
-          isHover || isUnSeen || isSelected ? 'active' : ''
-        }`}
-      >
+      <span className="member-child__username ml10">
         {normalizeUserName(user.user_name)}
       </span>
     </div>
