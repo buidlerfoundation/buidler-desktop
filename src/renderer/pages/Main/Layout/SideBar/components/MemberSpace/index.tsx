@@ -22,7 +22,7 @@ const MemberSpace = ({
   onContextMenu,
 }: MemberSpaceProps) => {
   const history = useHistory();
-  const [isCollapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setCollapsed] = useState(true);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   const user = teamUserData?.find?.((u) => u.user_id === userData?.user_id);
   return (

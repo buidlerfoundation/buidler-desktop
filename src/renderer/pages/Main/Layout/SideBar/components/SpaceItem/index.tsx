@@ -19,7 +19,7 @@ const SpaceItem = ({
   onContextChannel,
   onContextSpaceChannel,
 }: SpaceItemProps) => {
-  const [isCollapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setCollapsed] = useState(true);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   const channelSpace = useMemo(() => {
     return channel
