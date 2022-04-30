@@ -92,6 +92,7 @@
     transition: 400ms ease;
     height: 0;
     opacity: 0;
+    overflow: hidden;
   }
   .fake-channel-child-open {
     height: 40px;

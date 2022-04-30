@@ -26,6 +26,7 @@
     transition: 100ms ease;
     height: 0;
     opacity: 0;
+    overflow: hidden;
   }
   .fake-member-child-open {
     height: 40px;
