@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import AvatarView from '../../../../../../components/AvatarView';
 import './index.scss';
@@ -9,6 +8,7 @@ type MemberChildProps = {
   isUnSeen?: boolean;
   isSelected?: boolean;
   onContextChannel?: (e: any) => void;
+  collapsed: boolean;
 };
 
 const MemberChild = ({
@@ -17,12 +17,13 @@ const MemberChild = ({
   isUnSeen,
   isSelected,
   onContextChannel,
+  collapsed,
 }: MemberChildProps) => {
   return (
     <div
-      className={`member-child-container ${isSelected ? 'active' : ''} ${
-        isUnSeen ? 'un-seen' : ''
-      }`}
+      className={`member-child-container ${collapsed ? 'collapsed' : ''} ${
+        isSelected ? 'active' : ''
+      } ${isUnSeen ? 'un-seen' : ''}`}
       onClick={onPress}
       onContextMenu={onContextChannel}
     >

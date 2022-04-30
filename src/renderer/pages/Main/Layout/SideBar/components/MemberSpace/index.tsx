@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Collapse } from 'react-collapse';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import images from 'renderer/common/images';
 import MemberChild from '../MemberChild';
@@ -26,11 +25,6 @@ const MemberSpace = ({
   const [isCollapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   const user = teamUserData?.find?.((u) => u.user_id === userData?.user_id);
-  const selectedUser = teamUserData?.find?.(
-    (el) =>
-      currentChannel?.channel_id === el.direct_channel ||
-      currentChannel?.user?.user_id === el.user_id
-  );
   return (
     <div
       className={`member-space__container ${isCollapsed ? '' : 'space-open'}`}
@@ -38,59 +32,44 @@ const MemberSpace = ({
       <div className="title-wrapper" onClick={toggleCollapsed}>
         <span className="title">Members</span>
       </div>
-      {!!selectedUser && (
-        <div
-          className={`fake-member-child ${
-            isCollapsed ? 'fake-member-child-open' : ''
-          }`}
-        >
-          <MemberChild
-            user={selectedUser}
-            isSelected
-            onPress={() => {
-              history.replace(`/home?user_id=${user.user_id}`);
-            }}
-          />
-        </div>
+      {user && (
+        <MemberChild
+          user={user}
+          isUnSeen={
+            channel.find((c: any) => c?.channel_id === user.direct_channel)
+              ?.seen === false
+          }
+          isSelected={
+            currentChannel?.channel_id === user.direct_channel ||
+            currentChannel?.user?.user_id === user.user_id
+          }
+          onPress={() => {
+            history.replace(`/home?user_id=${user.user_id}`);
+          }}
+          collapsed={isCollapsed}
+        />
       )}
-      <Collapse isOpened={!isCollapsed}>
-        {user && (
+      {teamUserData
+        ?.filter?.((u) => u.user_id !== userData?.user_id)
+        ?.map?.((u) => (
           <MemberChild
-            user={user}
+            onContextChannel={onContextMenu(u)}
+            user={u}
+            key={u.user_id}
             isUnSeen={
-              channel.find((c: any) => c?.channel_id === user.direct_channel)
+              channel.find((c: any) => c?.channel_id === u.direct_channel)
                 ?.seen === false
             }
             isSelected={
-              currentChannel?.channel_id === user.direct_channel ||
-              currentChannel?.user?.user_id === user.user_id
+              currentChannel?.channel_id === u.direct_channel ||
+              currentChannel?.user?.user_id === u.user_id
             }
             onPress={() => {
-              history.replace(`/home?user_id=${user.user_id}`);
+              history.replace(`/home?user_id=${u.user_id}`);
             }}
+            collapsed={isCollapsed}
           />
-        )}
-        {teamUserData
-          ?.filter?.((u) => u.user_id !== userData?.user_id)
-          ?.map?.((u) => (
-            <MemberChild
-              onContextChannel={onContextMenu(u)}
-              user={u}
-              key={u.user_id}
-              isUnSeen={
-                channel.find((c: any) => c?.channel_id === u.direct_channel)
-                  ?.seen === false
-              }
-              isSelected={
-                currentChannel?.channel_id === u.direct_channel ||
-                currentChannel?.user?.user_id === u.user_id
-              }
-              onPress={() => {
-                history.replace(`/home?user_id=${u.user_id}`);
-              }}
-            />
-          ))}
-      </Collapse>
+        ))}
       <div
         className="member-child-container normal-button"
         onClick={onInviteMember}

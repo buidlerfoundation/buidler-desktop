@@ -30,6 +30,13 @@
     padding: 0 20px;
     border-radius: 5px;
     color: var(--color-secondary-text);
+    transition: 200ms ease;
+    overflow: hidden;
+    opacity: 1;
+    &.collapsed {
+      height: 0;
+      opacity: 0;
+    }
     .img-private {
       margin-bottom: 3.5px;
       margin-right: 15px;
@@ -70,6 +77,8 @@
     &.channel-selected {
       background-color: var(--color-highlight-action-high);
       color: var(--color-primary-text);
+      height: 40px;
+      opacity: 1;
       .img-private {
         filter: brightness(1);
       }
@@ -87,15 +96,5 @@
       white-space: nowrap;
       display: inline-block;
     }
-  }
-  .fake-channel-child {
-    transition: 400ms ease;
-    height: 0;
-    opacity: 0;
-    overflow: hidden;
-  }
-  .fake-channel-child-open {
-    height: 40px;
-    opacity: 1;
   }
 }

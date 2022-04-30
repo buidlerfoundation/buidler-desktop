@@ -6,12 +6,14 @@ type ChannelItemProps = {
   c: any;
   currentChannel: any;
   onContextChannel: (e: any, channel: any) => void;
+  collapsed: boolean;
 };
 
 const ChannelItem = ({
   c,
   currentChannel,
   onContextChannel,
+  collapsed,
 }: ChannelItemProps) => {
   const history = useHistory();
   const isSelected = c.channel_id === currentChannel.channel_id;
@@ -22,9 +24,9 @@ const ChannelItem = ({
   const prefix = !isPrivate ? '# ' : '';
   return (
     <div
-      className={`channel-wrapper ${isSelected ? 'channel-selected' : ''} ${
-        isMuted ? 'channel-muted' : ''
-      } ${isUnSeen ? 'channel-un-seen' : ''}`}
+      className={`channel-wrapper ${collapsed ? 'collapsed' : ''} ${
+        isSelected ? 'channel-selected' : ''
+      } ${isMuted ? 'channel-muted' : ''} ${isUnSeen ? 'channel-un-seen' : ''}`}
       onClick={() => history.replace(`/home?channel_id=${c.channel_id}`)}
       onContextMenu={(e) => onContextChannel(e, c)}
     >

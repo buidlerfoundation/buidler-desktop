@@ -1,5 +1,4 @@
-import React, { useMemo, useState } from 'react';
-import { Collapse } from 'react-collapse';
+import { useMemo, useState } from 'react';
 import ChannelItem from './ChannelItem';
 import './index.scss';
 
@@ -35,9 +34,6 @@ const SpaceItem = ({
         return -1;
       });
   }, [channel, space?.space_id]);
-  const currentChannelSpace = channelSpace.find(
-    (el) => el.channel_id === currentChannel.channel_id
-  );
   return (
     <div className={`space-item__container ${isCollapsed ? '' : 'space-open'}`}>
       <div
@@ -47,29 +43,15 @@ const SpaceItem = ({
       >
         <span className="title">{space.space_name}</span>
       </div>
-      <Collapse isOpened={!isCollapsed}>
-        {channelSpace?.map?.((c: any) => (
-          <ChannelItem
-            key={c.channel_id}
-            c={c}
-            currentChannel={currentChannel}
-            onContextChannel={onContextChannel}
-          />
-        ))}
-      </Collapse>
-      {!!currentChannelSpace && (
-        <div
-          className={`fake-channel-child ${
-            isCollapsed ? 'fake-channel-child-open' : ''
-          }`}
-        >
-          <ChannelItem
-            c={currentChannelSpace}
-            currentChannel={currentChannel}
-            onContextChannel={onContextChannel}
-          />
-        </div>
-      )}
+      {channelSpace?.map?.((c: any) => (
+        <ChannelItem
+          key={c.channel_id}
+          c={c}
+          currentChannel={currentChannel}
+          onContextChannel={onContextChannel}
+          collapsed={isCollapsed}
+        />
+      ))}
     </div>
   );
 };

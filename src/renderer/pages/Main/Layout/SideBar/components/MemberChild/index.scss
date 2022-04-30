@@ -1,10 +1,17 @@
 .member-child-container {
   display: flex;
   align-items: center;
-  min-height: 40px;
+  height: 40px;
   margin: 0 10px;
   border-radius: 5px;
   color: var(--color-secondary-text);
+  opacity: 1;
+  transition: 200ms ease;
+  overflow: hidden;
+  &.collapsed {
+    height: 0;
+    opacity: 0;
+  }
   .member-child__username {
     font-weight: 600;
     font-size: 16px;
@@ -20,5 +27,7 @@
   &.active {
     color: var(--color-primary-text);
     background-color: var(--color-highlight-action-high);
+    height: 40px;
+    opacity: 1;
   }
 }
