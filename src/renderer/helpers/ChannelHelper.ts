@@ -3,6 +3,7 @@ import EthCrypto from 'eth-crypto';
 import { getCookie, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import store from 'renderer/store';
+import { uniqBy } from 'lodash';
 
 const testData = {
   'cc388ba9-bdee-44af-849e-4cc1b670b2b2': [
@@ -106,7 +107,10 @@ export const storePrivateChannel = async (
   if (typeof current === 'string') {
     res = JSON.parse(current);
   }
-  res[channelId] = [...(res?.[channelId] || []), { key, timestamp }];
+  res[channelId] = uniqBy(
+    [...(res?.[channelId] || []), { key, timestamp }],
+    'key'
+  );
   setCookie(AsyncKey.channelPrivateKey, JSON.stringify(res));
 };
 
@@ -196,4 +200,17 @@ const findKey = (keys: Array<any>, created: number) => {
     }
     return true;
   });
+};
+
+export const uniqChannelPrivateKey = async () => {
+  const current = await getCookie(AsyncKey.channelPrivateKey);
+  let dataLocal: any = {};
+  if (typeof current === 'string') {
+    dataLocal = JSON.parse(current);
+    const newObj: any = {};
+    Object.keys(dataLocal).forEach((k) => {
+      newObj[k] = uniqBy(dataLocal[k], 'key');
+    });
+    setCookie(AsyncKey.channelPrivateKey, JSON.stringify(newObj));
+  }
 };

@@ -8,7 +8,10 @@ import actionTypes from 'renderer/actions/ActionTypes';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import { getCookie } from 'renderer/common/Cookie';
 import ImageHelper from 'renderer/common/ImageHelper';
-import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
+import {
+  getPrivateChannel,
+  uniqChannelPrivateKey,
+} from 'renderer/helpers/ChannelHelper';
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
@@ -35,6 +38,7 @@ const UnlockPrivateKey = ({
   const [pass, setPass] = useState('');
   const dispatch = useDispatch();
   const initApp = useCallback(async () => {
+    await uniqChannelPrivateKey();
     await getInitial();
     await findUser();
   }, [getInitial, findUser]);
