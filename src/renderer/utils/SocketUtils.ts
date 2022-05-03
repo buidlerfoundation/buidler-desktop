@@ -303,7 +303,7 @@ class SocketUtil {
           type: actionTypes.TOGGLE_OTP,
           payload: !Object.keys(data).find((el) => el === deviceCode)
             ? { otp: Object.values(data)?.[0], open: true }
-            : {},
+            : { open: true },
         });
         if (!Object.keys(data).find((el) => el === deviceCode)) {
           this.socket.emit('ON_VERIFY_DEVICE_OTP_RECEIVED', {
