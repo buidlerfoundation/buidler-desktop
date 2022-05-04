@@ -49,3 +49,6 @@ export const verifyOtp = (data: any) =>
 
 export const syncChannelKey = (data: any) =>
   ApiCaller.post('user/device/sync', data);
+
+export const acceptInvitation = (invitationId: string) =>
+  ApiCaller.post(`team/invitation/${invitationId}/accept`);

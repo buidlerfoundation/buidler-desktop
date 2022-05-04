@@ -111,6 +111,11 @@ const createWindow = async () => {
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
+  app.on('open-url', (evt, data) => {
+    evt.preventDefault();
+    mainWindow?.webContents.send('open-url', data);
+  });
+
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');

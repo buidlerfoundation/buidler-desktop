@@ -11,8 +11,8 @@ export const createTeam = (body: any) => ApiCaller.post('team', body);
 export const getTeamUsers = (teamId: string) =>
   ApiCaller.get(`team/${teamId}/members`);
 
-export const invitation = (teamId: string, emails: Array<string>) =>
-  ApiCaller.post(`team/invitation/${teamId}/members`, { emails });
+export const invitation = (teamId: string) =>
+  ApiCaller.post(`team/invitation/${teamId}/members`);
 
 export const updateTeam = (teamId: string, body: any) =>
   ApiCaller.put(`team/${teamId}`, body);

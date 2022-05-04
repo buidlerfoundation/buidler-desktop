@@ -676,16 +676,6 @@ const Home = ({
             <ModalInviteMember
               open={isOpenInvite}
               handleClose={() => setOpenInvite(false)}
-              onInvite={async (emails) => {
-                const res = await api.invitation(
-                  currentTeam.team_id,
-                  emails.split(', ')
-                );
-                if (res.statusCode === 200) {
-                  toast.success('Invitation sent');
-                }
-                setOpenInvite(false);
-              }}
             />
           )}
           <ModalConfirmDeleteChannel

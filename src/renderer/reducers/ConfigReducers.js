@@ -6,11 +6,24 @@ const initialState = {
   channelPrivateKey: {},
   openOTP: false,
   requestOtpCode: '',
+  dataFromUrl: '',
 };
 
 const configReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.SET_DATA_FROM_URL: {
+      return {
+        ...state,
+        dataFromUrl: payload,
+      };
+    }
+    case actionTypes.REMOVE_DATA_FROM_URL: {
+      return {
+        ...state,
+        dataFromUrl: '',
+      };
+    }
     case actionTypes.TOGGLE_OTP: {
       return {
         ...state,

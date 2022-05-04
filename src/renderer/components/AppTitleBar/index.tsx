@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { ipcRenderer } from 'electron';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import actions from '../../actions';
 import './index.scss';
@@ -13,6 +13,7 @@ import PopoverButton from '../PopoverButton';
 import { clearData } from '../../common/Cookie';
 import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
+import actionTypes from 'renderer/actions/ActionTypes';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -45,6 +46,7 @@ const AppTitleBar = ({
   updateUser,
   privateKey,
 }: AppTitleBarProps) => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
   const teamMenu = [
@@ -83,6 +85,9 @@ const AppTitleBar = ({
         }
       }
     };
+    const openUrlListener = (evt, data) => {
+      dispatch({ type: actionTypes.SET_DATA_FROM_URL, payload: data });
+    };
     const enterFullscreenListener = () => {
       setFullscreen(true);
     };
@@ -96,6 +101,7 @@ const AppTitleBar = ({
       GlobalVariable.isWindowFocus = false;
     };
     document.addEventListener('keydown', listener);
+    ipcRenderer.on('open-url', openUrlListener);
     ipcRenderer.on('enter-fullscreen', enterFullscreenListener);
     ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
     ipcRenderer.on('window-focus', windowFocusListener);
@@ -107,13 +113,14 @@ const AppTitleBar = ({
       ipcRenderer.send('hide-badge', 'ping');
     }
     return () => {
+      ipcRenderer.removeListener('open-url', openUrlListener);
       ipcRenderer.removeListener('enter-fullscreen', enterFullscreenListener);
       ipcRenderer.removeListener('leave-fullscreen', leaveFullscreenListener);
       ipcRenderer.removeListener('window-focus', windowFocusListener);
       ipcRenderer.removeListener('window-blur', windowBlurListener);
       document.removeEventListener('keydown', listener);
     };
-  }, [team, setTeam, currentTeam, channels]);
+  }, [team, setTeam, currentTeam, channels, dispatch]);
   const onSelectedMenu = async (menu: any) => {
     switch (menu.value) {
       case 'Leave team': {

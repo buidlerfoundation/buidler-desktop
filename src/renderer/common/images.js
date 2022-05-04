@@ -66,6 +66,7 @@ import icSettingWallet from '../assets/images/ic_setting_wallet.svg';
 import icEth from '../assets/images/ic_eth.svg';
 import icChevronRight from '../assets/images/ic_chevron_right.svg';
 import icSettingSecure from '../assets/images/ic_setting_secure.svg';
+import icLink from '../assets/images/ic_link.svg';
 
 const images = {
   icTeamDefault,
@@ -136,6 +137,7 @@ const images = {
   icEth,
   icChevronRight,
   icSettingSecure,
+  icLink,
 };
 
 export default images;

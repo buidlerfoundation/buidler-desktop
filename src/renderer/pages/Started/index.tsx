@@ -10,13 +10,14 @@ import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 
 const Started = () => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
   const [isOpenImportModal, setOpenImportModal] = useState(false);
   const loggedOn = async (
@@ -61,6 +62,10 @@ const Started = () => {
           type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
           payload: privateKeyChannel,
         });
+        if (dataFromUrl?.includes?.('invitation')) {
+          const invitationId = dataFromUrl.split('=')[1];
+          await api.acceptInvitation(invitationId);
+        }
         history.replace('/home');
       }
     }
