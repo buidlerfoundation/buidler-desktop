@@ -26,7 +26,7 @@ const PopupMenuActions = ({
         }}
       />
       <div className="app-version">
-        <span>1.1.63</span>
+        <span>1.1.64</span>
       </div>
     </div>
   );
