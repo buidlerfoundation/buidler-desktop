@@ -5,9 +5,10 @@ import './index.scss';
 
 type EmptyViewProps = {
   createTeam?: (body: any) => any;
+  findTeamAndChannel: () => any;
 };
 
-const EmptyView = ({ createTeam }: EmptyViewProps) => {
+const EmptyView = ({ createTeam, findTeamAndChannel }: EmptyViewProps) => {
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   return (
     <div className="empty-view__container">
@@ -31,6 +32,9 @@ const EmptyView = ({ createTeam }: EmptyViewProps) => {
             team_icon: body.teamIcon?.url,
           });
           setOpenModalTeam(false);
+        }}
+        onAcceptTeam={() => {
+          findTeamAndChannel();
         }}
       />
     </div>

@@ -606,7 +606,10 @@ const Home = ({
                 />
               </>
             ) : (
-              <EmptyView createTeam={createTeam} />
+              <EmptyView
+                createTeam={createTeam}
+                findTeamAndChannel={findTeamAndChannel}
+              />
             )}
           </div>
 

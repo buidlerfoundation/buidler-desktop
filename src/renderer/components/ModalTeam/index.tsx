@@ -7,17 +7,29 @@ import images from '../../common/images';
 import Dropzone from 'react-dropzone';
 import { getUniqueId } from '../../helpers/GenerateUUID';
 import api from '../../api';
+import CreateCommunityState from './CreateCommunityState';
+import JoinCommunityState from './JoinCommunityState';
+import toast from 'react-hot-toast';
 
 type ModalTeamProps = {
   open: boolean;
   handleClose: () => void;
   onCreateTeam: (teamData: any) => void;
+  onAcceptTeam: () => void;
 };
 
-const ModalTeam = ({ open, handleClose, onCreateTeam }: ModalTeamProps) => {
+const ModalTeam = ({
+  open,
+  handleClose,
+  onCreateTeam,
+  onAcceptTeam,
+}: ModalTeamProps) => {
+  const [tabIndex, setTabIndex] = useState(0);
+  const tabs = [{ name: 'Create Community' }, { name: 'Join Community' }];
   const [teamData, setTeamData] = useState({
     name: '',
   });
+  const [link, setLink] = useState('');
   const [file, setFile] = useState<any>(null);
   const inputFileRef = useRef<any>();
   const generateId = useRef<string>('');
@@ -63,52 +75,29 @@ const ModalTeam = ({ open, handleClose, onCreateTeam }: ModalTeamProps) => {
           style={{ backgroundColor: 'var(--color-backdrop)' }}
         >
           <div className="team-view__container" {...getRootProps()}>
-            <span className="team__title">Create Team</span>
-            <div style={{ height: 65 }} />
-            <div className="team-body">
-              <div
-                className="input-team-icon normal-button"
-                onClick={() => inputFileRef.current?.click()}
-              >
-                {file?.file ? (
-                  <div className="team-icon__wrapper">
-                    <img className="team-icon" alt="" src={file?.file} />
-                    {file?.loading && (
-                      <div className="attachment-loading">
-                        <CircularProgress />
-                      </div>
-                    )}
+            <div className="label-wrapper">
+              {tabs.map((tab, index) => {
+                const isActive = index === tabIndex;
+                return (
+                  <div
+                    className={`tab-item ${isActive ? 'active' : ''}`}
+                    key={tab.name}
+                    onClick={() => setTabIndex(index)}
+                  >
+                    <span>{tab.name}</span>
                   </div>
-                ) : (
-                  <span>
-                    Team
-                    <br />
-                    Icon
-                  </span>
-                )}
-                <img className="icon-camera" alt="" src={images.icCameraDark} />
-              </div>
-              <div className="input-team-item__container">
-                <AppInput
-                  className="app-input-highlight"
-                  placeholder="Team name"
-                  onChange={(e) => setTeamData({ name: e.target.value })}
-                  value={teamData?.name}
-                  autoFocus
-                  onPaste={onPaste}
-                />
-              </div>
+                );
+              })}
             </div>
-            <div className="group-channel__bottom">
-              <NormalButton
-                title="Cancel"
-                onPress={handleClose}
-                type="normal"
-              />
-              <div style={{ width: 10 }} />
-              <NormalButton
-                title="Create team"
-                onPress={() => {
+            {tabIndex === 0 && (
+              <CreateCommunityState
+                onAvatarPress={() => inputFileRef.current?.click()}
+                onChangeTeamName={(e) => setTeamData({ name: e.target.value })}
+                onPaste={onPaste}
+                file={file}
+                teamName={teamData?.name || ''}
+                handleClose={handleClose}
+                onCreatePress={() => {
                   if (!teamData.name) return;
                   onCreateTeam({
                     ...teamData,
@@ -116,9 +105,24 @@ const ModalTeam = ({ open, handleClose, onCreateTeam }: ModalTeamProps) => {
                     teamId: generateId.current,
                   });
                 }}
-                type="main"
               />
-            </div>
+            )}
+            {tabIndex === 1 && (
+              <JoinCommunityState
+                handleClose={handleClose}
+                onJoinPress={async () => {
+                  if (!link || !link.includes('invitation/')) {
+                    toast.error('Invalid invitation link');
+                    return;
+                  }
+                  const invitationId = link.split('invitation/')[1];
+                  await api.acceptInvitation(invitationId);
+                  onAcceptTeam();
+                }}
+                link={link}
+                onChange={(e) => setLink(e.target.value)}
+              />
+            )}
             <input
               {...getInputProps()}
               ref={inputFileRef}

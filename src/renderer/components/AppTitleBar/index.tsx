@@ -29,6 +29,7 @@ type AppTitleBarProps = {
   logout?: () => any;
   updateUser?: (userData: any) => any;
   privateKey?: string;
+  findTeamAndChannel: () => any;
 };
 
 const AppTitleBar = ({
@@ -45,6 +46,7 @@ const AppTitleBar = ({
   logout,
   updateUser,
   privateKey,
+  findTeamAndChannel,
 }: AppTitleBarProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -218,6 +220,9 @@ const AppTitleBar = ({
             team_icon: body.teamIcon?.url,
           });
           setOpenModalTeam(false);
+        }}
+        onAcceptTeam={() => {
+          findTeamAndChannel();
         }}
       />
       <ModalUserSetting
