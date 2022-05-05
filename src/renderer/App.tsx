@@ -39,6 +39,9 @@ function App() {
     window.addEventListener('offline', () => {
       SocketUtils.socket?.disconnect?.();
     });
+    window.addEventListener('online', () => {
+      SocketUtils.reconnectIfNeeded();
+    });
     window.addEventListener('paste', (e: any) => {
       e.preventDefault();
       if (!e.clipboardData.types.includes('Files')) {

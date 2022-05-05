@@ -17,8 +17,7 @@ import {
   normalizeMessageItem,
   storePrivateChannel,
 } from 'renderer/helpers/ChannelHelper';
-
-const SocketIO = require('socket.io-client');
+import { io } from 'socket.io-client';
 
 const getTasks = async (channelId: string, dispatch: Dispatch) => {
   dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
@@ -185,13 +184,11 @@ class SocketUtil {
   async init(teamId?: string) {
     if (this.socket?.connected) return;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
-    this.socket = SocketIO(
+    this.socket = io(
       // `${AppConfig.baseUrl}`,
       `${AppConfig.stagingBaseUrl}`,
       {
         query: { token: accessToken },
-      },
-      {
         transports: ['websocket'],
         upgrade: false,
         reconnectionAttempts: 5,
@@ -199,12 +196,14 @@ class SocketUtil {
       }
     );
     this.socket.on('connect', () => {
+      console.log('socket connected');
       if (this.firstLoad) {
         this.reloadData();
       }
       this.firstLoad = true;
       this.listenSocket();
       this.socket.on('disconnect', (reason: string) => {
+        console.log(`socket disconnect: ${reason}`);
         this.socket.off('ON_NEW_MESSAGE');
         this.socket.off('ON_NEW_TASK');
         this.socket.off('ON_UPDATE_TASK');
@@ -772,6 +771,11 @@ class SocketUtil {
     if (this.socket) {
       this.socket?.disconnect?.();
       this.socket = null;
+    }
+  };
+  reconnectIfNeeded = () => {
+    if (!this.socket?.connected) {
+      this.socket?.connect?.();
     }
   };
 }
