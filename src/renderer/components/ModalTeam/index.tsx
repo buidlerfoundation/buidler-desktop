@@ -111,13 +111,16 @@ const ModalTeam = ({
               <JoinCommunityState
                 handleClose={handleClose}
                 onJoinPress={async () => {
-                  if (!link || !link.includes('invitation/')) {
+                  if (!link || !link.includes('invite.buidler')) {
                     toast.error('Invalid invitation link');
                     return;
                   }
-                  const invitationId = link.split('invitation/')[1];
-                  await api.acceptInvitation(invitationId);
-                  onAcceptTeam();
+                  const idx = link.lastIndexOf('/');
+                  const invitationId = link.substring(idx + 1);
+                  const res = await api.acceptInvitation(invitationId);
+                  if (res.statusCode === 200) {
+                    onAcceptTeam();
+                  }
                 }}
                 link={link}
                 onChange={(e) => setLink(e.target.value)}

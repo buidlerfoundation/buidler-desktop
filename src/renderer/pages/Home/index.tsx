@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -165,6 +165,7 @@ const Home = ({
   findUser,
   findTeamAndChannel,
 }: HomeProps) => {
+  const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const dispatch = useDispatch();
   const privateKey = useSelector((state: any) => state.configs.privateKey);
   const history = useHistory();
@@ -284,6 +285,19 @@ const Home = ({
     createTask(currentChannel?.channel_id, body);
     setOpenCreateTask(false);
   };
+  const handleDataFromUrl = useCallback(async () => {
+    if (dataFromUrl?.includes('invitation=')) {
+      const invitationId = dataFromUrl.split('=')[1];
+      const res = await api.acceptInvitation();
+      if (res.statusCode === 200) {
+        dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
+        findTeamAndChannel();
+      }
+    }
+  }, [dataFromUrl, dispatch, findTeamAndChannel]);
+  useEffect(() => {
+    if (dataFromUrl) handleDataFromUrl();
+  }, [dataFromUrl, handleDataFromUrl]);
   useEffect(() => {
     inputRef.current?.focus();
     if (currentChannel?.channel_id || currentChannel?.user) {

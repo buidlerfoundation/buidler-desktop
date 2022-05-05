@@ -64,7 +64,10 @@ const Started = () => {
         });
         if (dataFromUrl?.includes?.('invitation')) {
           const invitationId = dataFromUrl.split('=')[1];
-          await api.acceptInvitation(invitationId);
+          const acceptRes = await api.acceptInvitation(invitationId);
+          if (acceptRes.statusCode === 200) {
+            dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
+          }
         }
         history.replace('/home');
       }
