@@ -15,8 +15,8 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
     "prepare": "husky install",
-    "deploy": "export GH_TOKEN=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 && ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --mac --publish always",
-    "build-local": "rm -rf src/dist && yarn build && electron-builder build --mac"
+    "deploy": "export GH_TOKEN=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 && ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --mac --universal --publish always",
+    "build-local": "rm -rf src/dist && yarn build && electron-builder build --mac --universal"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
