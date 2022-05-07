@@ -33,6 +33,8 @@ import ModalEditGroupChannel from '../../components/ModalEditGroupChannel';
 import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
+import { setCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
 
 type HomeProps = {
   team?: any;
@@ -106,6 +108,7 @@ type HomeProps = {
   deleteTeam: (teamId: string) => any;
   findUser: () => any;
   findTeamAndChannel: () => any;
+  setCurrentTeam: (team: any) => any;
 };
 
 const filterTask: Array<PopoverItem> = [
@@ -164,6 +167,7 @@ const Home = ({
   deleteTeam,
   findUser,
   findTeamAndChannel,
+  setCurrentTeam,
 }: HomeProps) => {
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const dispatch = useDispatch();
@@ -290,7 +294,9 @@ const Home = ({
       const invitationId = dataFromUrl.split('=')[1];
       const res = await api.acceptInvitation(invitationId);
       if (res.statusCode === 200) {
+        toast.success('You have successfully joined new team.');
         dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
+        setCookie(AsyncKey.lastTeamId, res.team_id);
         findTeamAndChannel();
       }
     }
