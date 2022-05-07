@@ -288,7 +288,7 @@ const Home = ({
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.includes('invitation=')) {
       const invitationId = dataFromUrl.split('=')[1];
-      const res = await api.acceptInvitation();
+      const res = await api.acceptInvitation(invitationId);
       if (res.statusCode === 200) {
         dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
         findTeamAndChannel();
