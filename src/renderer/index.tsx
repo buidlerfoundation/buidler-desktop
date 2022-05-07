@@ -5,6 +5,12 @@ import './index.scss';
 import App from './App';
 import store from './store';
 
+if (process.env.NODE_ENV === 'production') {
+  console.log = () => {};
+  console.error = () => {};
+  console.debug = () => {};
+}
+
 ReactDOM.render(
   <Provider store={store}>
     <Router>

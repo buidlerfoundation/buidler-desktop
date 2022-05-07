@@ -157,21 +157,36 @@ export const getPrivateChannel = async (privateKey: string) => {
 export const normalizeMessageItem = async (
   item: any,
   key: string,
-  channelId: string
+  channelId?: string
 ) => {
   const content = await decryptMessage(item.content, key);
   const plain_text = await decryptMessage(item.plain_text, key);
   if (item?.conversation_data?.length > 0) {
-    item.conversation_data = await normalizeMessageData(
-      item.conversation_data,
-      channelId
-    );
+    if (channelId) {
+      item.conversation_data = await normalizeMessageData(
+        item.conversation_data,
+        channelId
+      );
+    } else {
+      item.conversation_data = await normalizePublicMessageData(
+        item.conversation_data
+      );
+    }
   }
   return {
     ...item,
     content,
     plain_text,
   };
+};
+
+export const normalizePublicMessageData = async (messages: Array<any>) => {
+  const configs: any = store.getState()?.configs;
+  const { privateKey } = configs;
+  const req =
+    messages?.map?.((el) => normalizeMessageItem(el, privateKey)) || [];
+  const res = await Promise.all(req);
+  return res.filter((el) => !!el.content);
 };
 
 export const normalizeMessageData = async (
@@ -182,13 +197,14 @@ export const normalizeMessageData = async (
   const { channelPrivateKey } = configs;
   const keys = channelPrivateKey?.[channelId] || [];
   if (keys.length === 0) return [];
-  const req = messages.map((el) =>
-    normalizeMessageItem(
-      el,
-      findKey(keys, new Date(el.createdAt).getTime()).key,
-      channelId
-    )
-  );
+  const req =
+    messages?.map?.((el) =>
+      normalizeMessageItem(
+        el,
+        findKey(keys, new Date(el.createdAt).getTime()).key,
+        channelId
+      )
+    ) || [];
   const res = await Promise.all(req);
   return res.filter((el) => !!el.content);
 };

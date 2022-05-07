@@ -1,5 +1,8 @@
 import { ActionCreator, Dispatch } from 'redux';
-import { normalizeMessageData } from 'renderer/helpers/ChannelHelper';
+import {
+  normalizeMessageData,
+  normalizePublicMessageData,
+} from 'renderer/helpers/ChannelHelper';
 import api from '../api';
 import actionTypes from './ActionTypes';
 
@@ -58,7 +61,7 @@ export const getMessages: ActionCreator<any> =
     const isPrivate = channelType === 'Private' || channelType === 'Direct';
     const messageData = isPrivate
       ? await normalizeMessageData(messageRes.data, channelId)
-      : messageRes.data;
+      : await normalizePublicMessageData(messageRes.data);
     if (messageRes.statusCode === 200) {
       dispatch({
         type: actionTypes.MESSAGE_SUCCESS,

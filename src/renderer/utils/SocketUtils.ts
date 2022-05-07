@@ -15,6 +15,7 @@ import {
   getRawPrivateChannel,
   normalizeMessageData,
   normalizeMessageItem,
+  normalizePublicMessageData,
   storePrivateChannel,
 } from 'renderer/helpers/ChannelHelper';
 import { io } from 'socket.io-client';
@@ -87,7 +88,7 @@ const getMessages = async (
   const isPrivate = channelType === 'Private' || channelType === 'Direct';
   const messageData = isPrivate
     ? await normalizeMessageData(messageRes.data, channelId)
-    : messageRes.data;
+    : await normalizePublicMessageData(messageRes.data);
   if (messageRes.statusCode === 200) {
     dispatch({
       type: actionTypes.MESSAGE_SUCCESS,
@@ -165,7 +166,7 @@ const loadMessageIfNeeded = async () => {
   const messageData =
     currentChannel.channel_type === 'Private'
       ? await normalizeMessageData(messageRes.data, currentChannel.channel_id)
-      : messageRes.data;
+      : await normalizePublicMessageData(messageRes.data);
   if (messageRes.statusCode === 200) {
     store.dispatch({
       type: actionTypes.MESSAGE_SUCCESS,

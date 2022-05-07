@@ -6,7 +6,16 @@ type EmojiPickerProps = {
 };
 
 const EmojiPicker = ({ onClick }: EmojiPickerProps) => {
-  return <Picker set="apple" theme="dark" onClick={onClick} />;
+  return (
+    <Picker
+      set="apple"
+      theme="dark"
+      onClick={onClick}
+      emojiTooltip={false}
+      showPreview={false}
+      showSkinTones={false}
+    />
+  );
 };
 
 export default EmojiPicker;
