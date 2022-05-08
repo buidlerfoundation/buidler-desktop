@@ -8,6 +8,7 @@ import actionTypes from 'renderer/actions/ActionTypes';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import { getCookie } from 'renderer/common/Cookie';
 import ImageHelper from 'renderer/common/ImageHelper';
+import images from 'renderer/common/images';
 import {
   getPrivateChannel,
   uniqChannelPrivateKey,
@@ -65,6 +66,10 @@ const UnlockPrivateKey = ({
             userData?.user_id
           )}
           alt=""
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = images.icImageDefault;
+          }}
         />
         <span className="user-name">{userData.user_name}</span>
         <input

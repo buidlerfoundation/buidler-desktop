@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Main from './pages/Main';
 import './App.scss';
 import './styles/spacing.scss';
@@ -11,6 +11,10 @@ import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core';
 import { testSC } from './common/EthereumFunction';
 import SocketUtils from './utils/SocketUtils';
+import { connect, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import actions from './actions';
 
 const usr = require('os').homedir();
 const storage = require('electron-json-storage');
@@ -23,9 +27,21 @@ if (process.platform === 'darwin') {
   storage.setDataPath(path.join(__dirname, '../storage'));
 }
 
-function App() {
+type AppProps = {
+  findUser: () => any;
+  getInitial: () => any;
+};
+
+function App({ findUser, getInitial }: AppProps) {
   // console.log('XXX');
   // testSC();
+  const history = useHistory();
+  const user = useSelector((state) => state.user.userData);
+  const initApp = useCallback(async () => {
+    await getInitial();
+    await findUser();
+    history.replace('/home');
+  }, [getInitial, findUser, history]);
   useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,
@@ -40,7 +56,11 @@ function App() {
       SocketUtils.socket?.disconnect?.();
     });
     window.addEventListener('online', () => {
-      SocketUtils.reconnectIfNeeded();
+      if (!user) {
+        initApp();
+      } else {
+        SocketUtils.reconnectIfNeeded();
+      }
     });
     window.addEventListener('paste', (e: any) => {
       e.preventDefault();
@@ -49,7 +69,7 @@ function App() {
         document.execCommand('insertText', false, text);
       }
     });
-  }, []);
+  }, [user, initApp]);
   const overrides: any = {
     MuiPickersDay: {
       day: {
@@ -80,4 +100,7 @@ function App() {
   );
 }
 
-export default App;
+const mapActionsToProps = (dispatch: any) =>
+  bindActionCreators(actions, dispatch);
+
+export default connect(undefined, mapActionsToProps)(App);

@@ -15,23 +15,15 @@ type SplashProps = {
 };
 
 const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
-  const eventConnection = useRef<any>(null);
   const history = useHistory();
   const initApp = useCallback(
     async (showLoading = true) => {
       await getInitial();
       await findUser();
-      // await findTeamAndChannel(showLoading);
       history.replace('/home');
     },
     [getInitial, findUser, history]
   );
-  useEffect(() => {
-    return () => {
-      if (eventConnection.current)
-        window.removeEventListener('online', eventConnection.current);
-    };
-  }, []);
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then(async (res: any) => {
@@ -40,10 +32,6 @@ const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
         } else {
           if (navigator.onLine) {
             initApp();
-          } else {
-            eventConnection.current = window.addEventListener('online', () => {
-              initApp(false);
-            });
           }
           return null;
         }
