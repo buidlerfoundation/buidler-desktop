@@ -33,13 +33,11 @@ const DirectDescription = ({
       <span className="description">
         • End-to-end encryption.
         <br />• Do not allow to forwarding.
-        <br />• What happen between us, stay with us.
+        <br />• What happens between us stays with us.
         <br />
         <br />
         <div>
-          <span className="link">
-            Read more about direct message on Buidler
-          </span>
+          <span className="link">Read more</span>
         </div>
       </span>
       <div style={{ height: 50 }} />

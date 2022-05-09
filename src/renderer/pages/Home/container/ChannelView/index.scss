@@ -249,7 +249,7 @@
     margin-top: 20px;
     line-height: 26px;
     .link {
-      text-decoration: underline;
+      color: var(--color-mention);
       &:hover {
         cursor: pointer;
       }
