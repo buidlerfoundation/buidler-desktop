@@ -13,12 +13,41 @@
     display: flex;
     align-items: center;
     padding: 10px 20px 10px 20px;
+    .space-icon__wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      background-color: var(--color-stroke);
+      margin-right: 15px;
+      position: relative;
+      .space-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+      .attachment-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.75);
+      }
+    }
     &:hover {
       cursor: pointer;
     }
     .title {
       font-weight: 700;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 24px;
     }
   }
@@ -56,6 +85,8 @@
     }
     &.channel-un-seen {
       color: var(--color-primary-text);
+      height: 40px;
+      opacity: 1;
       .img-private {
         filter: brightness(1);
       }

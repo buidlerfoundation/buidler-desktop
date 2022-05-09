@@ -16,6 +16,7 @@ import {
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
+import EmojiPicker from '../../components/EmojiPicker';
 // import EthCrypto from 'eth-crypto';
 
 type UnlockPrivateKeyProps = {
@@ -122,6 +123,7 @@ const UnlockPrivateKey = ({
           }}
         />
       </div>
+      {/* <EmojiPicker onClick={(emoji) => {}} /> */}
       <div className="add-other-button normal-button">
         <span>Add other account</span>
       </div>

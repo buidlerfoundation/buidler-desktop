@@ -86,6 +86,7 @@ const PopoverButton = forwardRef(
       <>
         {renderButton()}
         <Popover
+          onClick={(e) => e.stopPropagation()}
           elevation={0}
           id={idPopup}
           transitionDuration={200}

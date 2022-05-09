@@ -14,6 +14,7 @@ const EmojiPicker = ({ onClick }: EmojiPickerProps) => {
       emojiTooltip={false}
       showPreview={false}
       showSkinTones={false}
+      style={{ border: 'none' }}
     />
   );
 };

@@ -30,6 +30,7 @@ const MemberSpace = ({
       className={`member-space__container ${isCollapsed ? '' : 'space-open'}`}
     >
       <div className="title-wrapper" onClick={toggleCollapsed}>
+        <img className="space-icon" src={images.icLogoSquare} alt="" />
         <span className="title">Members</span>
       </div>
       {user && (

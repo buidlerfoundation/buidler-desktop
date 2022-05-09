@@ -68,6 +68,7 @@ import icChevronRight from '../assets/images/ic_chevron_right.svg';
 import icSettingSecure from '../assets/images/ic_setting_secure.svg';
 import icLink from '../assets/images/ic_link.svg';
 import icImageDefault from '../assets/images/ic_image_default.svg';
+import icLogoSquare from '../assets/images/ic_logo_square.svg';
 
 const images = {
   icTeamDefault,
@@ -140,6 +141,7 @@ const images = {
   icSettingSecure,
   icLink,
   icImageDefault,
+  icLogoSquare,
 };
 
 export default images;

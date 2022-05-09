@@ -292,6 +292,43 @@ export const deleteSpaceChannel =
     }
   };
 
+export const uploadSpaceAvatar =
+  (teamId: string, spaceId: string, file: any) =>
+  async (dispatch: Dispatch) => {
+    const attachment = {
+      file: URL.createObjectURL(file),
+      loading: true,
+      type: file.type,
+    };
+    dispatch({
+      type: ActionTypes.UPDATE_SPACE_AVATAR_REQUEST,
+      payload: { spaceId, attachment },
+    });
+    const fileRes = await api.uploadFile(teamId, spaceId, file);
+    if (fileRes.statusCode === 200) {
+      const res = await api.updateSpaceChannel(spaceId, {
+        space_emoji: '',
+        space_image_url: fileRes.file_url,
+      });
+      if (res.statusCode === 200) {
+        dispatch({
+          type: ActionTypes.UPDATE_SPACE_AVATAR_SUCCESS,
+          payload: res,
+        });
+      } else {
+        dispatch({
+          type: ActionTypes.UPDATE_SPACE_AVATAR_FAIL,
+          payload: { message: res.message },
+        });
+      }
+    } else {
+      dispatch({
+        type: ActionTypes.UPDATE_SPACE_AVATAR_FAIL,
+        payload: { message: fileRes.message },
+      });
+    }
+  };
+
 export const updateSpaceChannel =
   (spaceId: string, body: any) => async (dispatch: Dispatch) => {
     dispatch({

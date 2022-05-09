@@ -13,12 +13,18 @@
     display: flex;
     align-items: center;
     padding: 10px 20px 10px 20px;
+    .space-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
     &:hover {
       cursor: pointer;
     }
     .title {
       font-weight: 700;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 24px;
     }
   }

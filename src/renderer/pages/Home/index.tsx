@@ -100,6 +100,7 @@ type HomeProps = {
   updateChannel: (channelId: string, body: any) => any;
   createSpaceChannel: (teamId: string, body: any) => any;
   updateSpaceChannel: (spaceId: string, body: any) => any;
+  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   deleteSpaceChannel: (group: any) => any;
   removeTeamMember: (teamId: string, userId: string) => any;
   teamUserData: Array<any>;
@@ -168,6 +169,7 @@ const Home = ({
   findUser,
   findTeamAndChannel,
   setCurrentTeam,
+  uploadSpaceAvatar,
 }: HomeProps) => {
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const dispatch = useDispatch();
@@ -560,6 +562,8 @@ const Home = ({
             updateTeam={updateTeam}
             findTeamAndChannel={findTeamAndChannel}
             findUser={findUser}
+            updateSpaceChannel={updateSpaceChannel}
+            uploadSpaceAvatar={uploadSpaceAvatar}
           />
 
           <div className="home-body">

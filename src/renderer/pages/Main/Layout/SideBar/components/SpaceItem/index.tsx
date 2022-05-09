@@ -1,4 +1,12 @@
-import { useMemo, useState } from 'react';
+import { CircularProgress } from '@material-ui/core';
+import { Emoji } from 'emoji-mart';
+import { useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import ImageHelper from 'renderer/common/ImageHelper';
+import images from 'renderer/common/images';
+import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
+import EmojiPicker from 'renderer/components/EmojiPicker';
+import PopoverButton from 'renderer/components/PopoverButton';
 import ChannelItem from './ChannelItem';
 import './index.scss';
 
@@ -9,6 +17,8 @@ type SpaceItemProps = {
   onCreateChannel: (group: any) => void;
   onContextChannel: (e: any, channel: any) => void;
   onContextSpaceChannel: (e: any) => void;
+  updateSpaceChannel: (spaceId: string, body: any) => any;
+  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
 };
 
 const SpaceItem = ({
@@ -18,8 +28,12 @@ const SpaceItem = ({
   onCreateChannel,
   onContextChannel,
   onContextSpaceChannel,
+  updateSpaceChannel,
+  uploadSpaceAvatar,
 }: SpaceItemProps) => {
+  const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
+  const currentTeam = useSelector((state) => state.user.currentTeam);
   const toggleCollapsed = () => setCollapsed(!isCollapsed);
   const channelSpace = useMemo(() => {
     return channel
@@ -34,6 +48,49 @@ const SpaceItem = ({
         return -1;
       });
   }, [channel, space?.space_id]);
+  const renderSpaceIcon = () => {
+    if (space.attachment) {
+      return (
+        <>
+          <img className="space-icon" src={space.attachment.file} alt="" />
+          {space?.attachment?.loading && (
+            <div className="attachment-loading">
+              <CircularProgress size={30} />
+            </div>
+          )}
+        </>
+      );
+    }
+    if (space.space_image_url) {
+      return (
+        <img
+          className="space-icon"
+          src={ImageHelper.normalizeImage(
+            space.space_image_url,
+            currentTeam.team_id
+          )}
+          alt=""
+        />
+      );
+    }
+    if (space.space_emoji) {
+      return <Emoji emoji={space.space_emoji} set="apple" size={20} />;
+    }
+    return <img className="space-icon" src={images.icLogoSquare} alt="" />;
+  };
+  const onAddFiles = async (fs) => {
+    if (fs == null || fs.length === 0) return;
+    const file = [...fs][0];
+    uploadSpaceAvatar(currentTeam.team_id, space.space_id, file);
+    popupSpaceIconRef.current?.hide();
+  };
+  const onAddEmoji = async (emoji) => {
+    await updateSpaceChannel(space.space_id, {
+      space_emoji: emoji.id,
+      space_image_url: '',
+    });
+    popupSpaceIconRef.current?.hide();
+  };
   return (
     <div className={`space-item__container ${isCollapsed ? '' : 'space-open'}`}>
       <div
@@ -41,6 +98,23 @@ const SpaceItem = ({
         onClick={toggleCollapsed}
         onContextMenu={onContextSpaceChannel}
       >
+        <PopoverButton
+          ref={popupSpaceIconRef}
+          componentButton={
+            <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
+          }
+          componentPopup={
+            <div
+              className="emoji-picker__container"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <EmojiAndAvatarPicker
+                onAddFiles={onAddFiles}
+                onAddEmoji={onAddEmoji}
+              />
+            </div>
+          }
+        />
         <span className="title">{space.space_name}</span>
       </div>
       {channelSpace?.map?.((c: any) => (

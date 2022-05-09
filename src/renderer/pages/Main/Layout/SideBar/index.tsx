@@ -51,6 +51,8 @@ type SideBarProps = {
   findTeamAndChannel: () => any;
   onCreateChannel: (initSpace?: any) => void;
   onCreateGroupChannel: () => void;
+  updateSpaceChannel: (spaceId: string, body: any) => any;
+  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
 };
 
 const SideBar = forwardRef(
@@ -78,6 +80,8 @@ const SideBar = forwardRef(
       onRemoveTeamMember,
       updateTeam,
       deleteTeam,
+      updateSpaceChannel,
+      uploadSpaceAvatar,
     }: SideBarProps,
     ref
   ) => {
@@ -230,6 +234,8 @@ const SideBar = forwardRef(
                                     );
                                   }
                                 }}
+                                updateSpaceChannel={updateSpaceChannel}
+                                uploadSpaceAvatar={uploadSpaceAvatar}
                               />
                             </div>
                           )}

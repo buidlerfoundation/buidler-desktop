@@ -1,0 +1,15 @@
+.avatar-upload__container {
+  width: 353px;
+  height: 353px;
+  .button-upload {
+    width: 91px;
+    height: 91px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: var(--color-stroke);
+    margin: 20px;
+    margin-top: 20px;
+  }
+}
