@@ -23,6 +23,8 @@
   }
   &.un-seen {
     color: var(--color-primary-text);
+    height: 40px;
+    opacity: 1;
   }
   &.active {
     color: var(--color-primary-text);
