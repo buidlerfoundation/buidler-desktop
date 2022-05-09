@@ -3,9 +3,10 @@ import { Picker } from 'emoji-mart';
 
 type EmojiPickerProps = {
   onClick: (emoji: any, event: any) => void;
+  style?: CSSProperties | undefined;
 };
 
-const EmojiPicker = ({ onClick }: EmojiPickerProps) => {
+const EmojiPicker = ({ onClick, style }: EmojiPickerProps) => {
   return (
     <Picker
       set="apple"
@@ -14,7 +15,7 @@ const EmojiPicker = ({ onClick }: EmojiPickerProps) => {
       emojiTooltip={false}
       showPreview={false}
       showSkinTones={false}
-      style={{ border: 'none' }}
+      style={style}
     />
   );
 };

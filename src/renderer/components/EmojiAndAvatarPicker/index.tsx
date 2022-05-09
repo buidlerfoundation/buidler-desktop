@@ -34,6 +34,7 @@ const EmojiAndAvatarPicker = ({
           onClick={(emoji) => {
             onAddEmoji(emoji);
           }}
+          style={{ border: 'none' }}
         />
       )}
       {selectedIndex === 1 && <AvatarUpload onAddFiles={onAddFiles} />}
