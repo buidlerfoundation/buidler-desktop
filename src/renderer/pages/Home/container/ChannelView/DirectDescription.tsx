@@ -32,7 +32,7 @@ const DirectDescription = ({
       <span className="title">Direct Message</span>
       <span className="description">
         • End-to-end encryption.
-        <br />• Do not allow to forwarding.
+        <br />• Do not allow forwarding.
         <br />• What happens between us stays with us.
         <br />
         <br />

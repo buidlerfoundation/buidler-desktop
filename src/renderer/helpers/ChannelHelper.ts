@@ -186,7 +186,7 @@ export const normalizePublicMessageData = async (messages: Array<any>) => {
   const req =
     messages?.map?.((el) => normalizeMessageItem(el, privateKey)) || [];
   const res = await Promise.all(req);
-  return res.filter((el) => !!el.content);
+  return res.filter((el) => !!el.content || el?.message_attachment?.length > 0);
 };
 
 export const normalizeMessageData = async (
@@ -206,7 +206,7 @@ export const normalizeMessageData = async (
       )
     ) || [];
   const res = await Promise.all(req);
-  return res.filter((el) => !!el.content);
+  return res.filter((el) => !!el.content || el?.message_attachment?.lenght > 0);
 };
 
 const findKey = (keys: Array<any>, created: number) => {
