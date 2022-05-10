@@ -177,6 +177,7 @@ const actionTypes = {
   TOGGLE_OTP: 'TOGGLE_OTP',
   SET_DATA_FROM_URL: 'SET_DATA_FROM_URL',
   REMOVE_DATA_FROM_URL: 'REMOVE_DATA_FROM_URL',
+  EMIT_NEW_MESSAGE: 'EMIT_NEW_MESSAGE',
 };
 
 export default actionTypes;

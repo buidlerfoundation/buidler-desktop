@@ -68,7 +68,7 @@ const MessageItem = ({
       type: 'destructive',
     });
   }
-  const { isHead } = message;
+  const { isHead, isSending } = message;
   const renderSpaceLeft = () => {
     if (isHead) return null;
     if (isHover && !disableHover) {
@@ -137,7 +137,7 @@ const MessageItem = ({
             <div
               className={`message-item__message ${
                 isHead ? 'message-head__message' : ''
-              }`}
+              } ${isSending ? 'message-item-sending' : ''}`}
               dangerouslySetInnerHTML={{
                 __html: normalizeMessageText(message.content),
               }}

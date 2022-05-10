@@ -48,6 +48,9 @@
       line-height: 26px;
       white-space: pre-line;
     }
+    .message-item-sending {
+      color: var(--color-secondary-text);
+    }
     .message-item__user {
       display: flex;
       align-items: center;

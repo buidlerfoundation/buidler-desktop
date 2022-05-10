@@ -165,6 +165,41 @@ const messageReducers = (state = initialState, action) => {
         messageData: newMessageData,
       };
     }
+    case actionTypes.EMIT_NEW_MESSAGE: {
+      const newMessageData = state.messageData;
+      if (newMessageData[payload.channel_id]?.data) {
+        newMessageData[payload.channel_id] = {
+          ...newMessageData[payload.channel_id],
+          data: [
+            payload,
+            ...newMessageData[payload.channel_id].data.map((msg) => {
+              if (
+                msg.parent_id === payload.parent_id ||
+                msg.message_id === payload.parent_id
+              ) {
+                msg.conversation_data = payload.conversation_data;
+              }
+              if (msg.message_id === payload.parent_id) {
+                msg.parent_id = payload.parent_id;
+                if (msg.task) {
+                  msg.task.comment_count = msg.task.comment_count
+                    ? msg.task.comment_count + 1
+                    : msg.conversation_data.length - 1;
+                }
+              }
+              return msg;
+            }),
+          ],
+        };
+      } else {
+        newMessageData[payload.channel_id] = {
+          data: [payload],
+        };
+      }
+      return {
+        ...state,
+      };
+    }
     case actionTypes.RECEIVE_MESSAGE: {
       const { data } = payload;
       if (!data.conversation_data) {
@@ -176,29 +211,44 @@ const messageReducers = (state = initialState, action) => {
         newConversationData[data.parent_id] = data.conversation_data;
       }
       if (newMessageData[data.channel_id]?.data) {
-        newMessageData[data.channel_id] = {
-          ...newMessageData[data.channel_id],
-          data: [
-            data,
-            ...newMessageData[data.channel_id].data.map((msg) => {
-              if (
-                msg.parent_id === data.parent_id ||
-                msg.message_id === data.parent_id
-              ) {
-                msg.conversation_data = data.conversation_data;
-              }
-              if (msg.message_id === data.parent_id) {
-                msg.parent_id = data.parent_id;
-                if (msg.task) {
-                  msg.task.comment_count = msg.task.comment_count
-                    ? msg.task.comment_count + 1
-                    : msg.conversation_data.length - 1;
-                }
+        const isExited = !!newMessageData[data.channel_id]?.data?.find?.(
+          (el) => el.message_id === data.message_id
+        );
+        if (isExited) {
+          newMessageData[data.channel_id] = {
+            ...newMessageData[data.channel_id],
+            data: newMessageData[data.channel_id].data.map((msg) => {
+              if (msg.message_id === data.message_id) {
+                msg.isSending = null;
               }
               return msg;
             }),
-          ],
-        };
+          };
+        } else {
+          newMessageData[data.channel_id] = {
+            ...newMessageData[data.channel_id],
+            data: [
+              data,
+              ...newMessageData[data.channel_id].data.map((msg) => {
+                if (
+                  msg.parent_id === data.parent_id ||
+                  msg.message_id === data.parent_id
+                ) {
+                  msg.conversation_data = data.conversation_data;
+                }
+                if (msg.message_id === data.parent_id) {
+                  msg.parent_id = data.parent_id;
+                  if (msg.task) {
+                    msg.task.comment_count = msg.task.comment_count
+                      ? msg.task.comment_count + 1
+                      : msg.conversation_data.length - 1;
+                  }
+                }
+                return msg;
+              }),
+            ],
+          };
+        }
       } else {
         newMessageData[data.channel_id] = {
           data: [data],

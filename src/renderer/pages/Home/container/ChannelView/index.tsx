@@ -270,6 +270,8 @@ const ChannelView = forwardRef(
         }
         if (files.length > 0) {
           message.message_id = generateId.current;
+        } else {
+          message.message_id = getUniqueId();
         }
         SocketUtils.sendMessage(message);
         setText('');

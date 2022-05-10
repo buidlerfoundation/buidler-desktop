@@ -715,7 +715,32 @@ class SocketUtil {
     mentions?: Array<any>;
     message_id?: string;
     member_data?: Array<{ key: string; timestamp: number; user_id: string }>;
+    parent_id?: string;
   }) => {
+    const user: any = store.getState()?.user;
+    const messageData: any = store.getState()?.message?.messageData;
+    const { userData } = user;
+    const conversationData =
+      messageData?.[message.channel_id]?.data
+        ?.filter(
+          (el) =>
+            el.parent_id === message.parent_id ||
+            el.message_id === message.parent_id
+        )
+        .map((el) => ({ ...el, conversation_data: null })) || [];
+    if (conversationData.length > 0) {
+      conversationData.unshift({ ...message, sender_id: userData.user_id });
+    }
+    store.dispatch({
+      type: actionTypes.EMIT_NEW_MESSAGE,
+      payload: {
+        ...message,
+        createdAt: new Date(),
+        sender_id: userData.user_id,
+        isSending: true,
+        conversation_data: message.parent_id ? conversationData : [],
+      },
+    });
     this.socket.emit('NEW_MESSAGE', message);
   };
 

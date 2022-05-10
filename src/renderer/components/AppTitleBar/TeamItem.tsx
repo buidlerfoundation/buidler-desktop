@@ -32,7 +32,7 @@ const TeamItem = ({
                 h: 20,
                 radius: 5,
               })
-            : images.icTeamDefault
+            : images.icLogoSquare
         }
       />
       <div style={{ width: 8 }} />

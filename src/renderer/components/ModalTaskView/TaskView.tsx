@@ -255,6 +255,8 @@ const TaskView = ({
       };
       if (attachments.length > 0) {
         msg.message_id = generateId.current;
+      } else {
+        msg.message_id = getUniqueId();
       }
       SocketUtils.sendMessage(msg);
       setText('');

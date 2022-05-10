@@ -54,7 +54,7 @@ const MessageReplyItem = ({
   const history = useHistory();
   const messageMenu: Array<PopoverItem> = [];
   const popupMenuRef = useRef<any>();
-  const { isConversationHead, isHead, task } = message;
+  const { isConversationHead, isHead, task, isSending } = message;
   const head = isConversationHead || isHead;
   const popupEmojiRef = useRef<any>();
   const [isHover, setHover] = useState(false);
@@ -160,7 +160,7 @@ const MessageReplyItem = ({
           <div
             className={`message-reply-item__message ${
               head ? 'message-head__message' : ''
-            } enable-user-select`}
+            } ${isSending ? 'message-reply-sending' : ''} enable-user-select`}
             dangerouslySetInnerHTML={{
               __html: normalizeMessageText(message.content),
             }}
