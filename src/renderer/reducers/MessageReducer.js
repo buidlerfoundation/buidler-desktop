@@ -219,7 +219,7 @@ const messageReducers = (state = initialState, action) => {
             ...newMessageData[data.channel_id],
             data: newMessageData[data.channel_id].data.map((msg) => {
               if (msg.message_id === data.message_id) {
-                msg.isSending = null;
+                return data;
               }
               return msg;
             }),

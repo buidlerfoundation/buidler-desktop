@@ -716,6 +716,7 @@ class SocketUtil {
     message_id?: string;
     member_data?: Array<{ key: string; timestamp: number; user_id: string }>;
     parent_id?: string;
+    text?: string;
   }) => {
     const user: any = store.getState()?.user;
     const messageData: any = store.getState()?.message?.messageData;
@@ -739,6 +740,8 @@ class SocketUtil {
         sender_id: userData.user_id,
         isSending: true,
         conversation_data: message.parent_id ? conversationData : [],
+        content: message.text,
+        plain_text: message.text,
       },
     });
     this.socket.emit('NEW_MESSAGE', message);

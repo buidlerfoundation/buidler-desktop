@@ -229,6 +229,7 @@ const ChannelView = forwardRef(
           content: text.trim(),
           plain_text: extractContent(text),
           mentions: getMentionData(text.trim()),
+          text,
         };
         if (
           currentChannel.channel_type === 'Private' ||
