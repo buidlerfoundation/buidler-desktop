@@ -52,23 +52,31 @@ function App({ findUser, getInitial }: AppProps) {
         GlobalVariable.isInputFocus = false;
       },
     };
-    window.addEventListener('offline', () => {
+    const eventOffline = () => {
       SocketUtils.socket?.disconnect?.();
-    });
-    window.addEventListener('online', () => {
+    };
+    const eventOnline = () => {
       if (!user) {
         initApp();
       } else {
         SocketUtils.reconnectIfNeeded();
       }
-    });
-    window.addEventListener('paste', (e: any) => {
+    };
+    const eventPaste = (e: any) => {
       e.preventDefault();
       if (!e.clipboardData.types.includes('Files')) {
         const text = e.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, text);
       }
-    });
+    };
+    window.addEventListener('offline', eventOffline);
+    window.addEventListener('online', eventOnline);
+    window.addEventListener('paste', eventPaste);
+    return () => {
+      window.removeEventListener('offline', eventOffline);
+      window.removeEventListener('online', eventOnline);
+      window.removeEventListener('paste', eventPaste);
+    };
   }, [user, initApp]);
   const overrides: any = {
     MuiPickersDay: {

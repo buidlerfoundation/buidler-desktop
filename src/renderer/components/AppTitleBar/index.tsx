@@ -195,13 +195,13 @@ const AppTitleBar = ({
       </div>
       {userData && (
         <div className="action-right">
-          <div
+          {/* <div
             className="action-item normal-button"
             style={{ marginRight: 10 }}
             onClick={() => history.replace('/started')}
           >
             <img src={images.icSearch} alt="" />
-          </div>
+          </div> */}
           <div
             className="action-item normal-button"
             onClick={() => setOpenModalUser(true)}

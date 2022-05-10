@@ -747,7 +747,7 @@ class SocketUtil {
       payload: { team, resChannel, lastChannelId },
     });
     setCookie(AsyncKey.lastTeamId, team.team_id);
-    const resGroupChannel = await api.getGroupChannel(team.team_id);
+    const resGroupChannel = await api.getSpaceChannel(team.team_id);
     if (resGroupChannel.statusCode === 200) {
       dispatch({
         type: actionTypes.GROUP_CHANNEL,

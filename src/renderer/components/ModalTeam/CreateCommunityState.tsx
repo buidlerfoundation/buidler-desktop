@@ -38,7 +38,7 @@ const CreateCommunityState = ({
             </div>
           ) : (
             <span>
-              Team
+              Add
               <br />
               Icon
             </span>
@@ -48,7 +48,7 @@ const CreateCommunityState = ({
         <div className="input-team-item__container">
           <AppInput
             className="app-input-highlight"
-            placeholder="Team name"
+            placeholder="Community name"
             onChange={onChangeTeamName}
             value={teamName}
             autoFocus

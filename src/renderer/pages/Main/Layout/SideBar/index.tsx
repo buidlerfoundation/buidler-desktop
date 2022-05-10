@@ -205,6 +205,7 @@ const SideBar = forwardRef(
                                 currentChannel={currentChannel}
                                 onCreateChannel={onCreateChannel}
                                 onContextSpaceChannel={(e) => {
+                                  if (!isOwner) return;
                                   setSelectedMenuSpaceChannel(space);
                                   menuSpaceChannelRef.current?.show(
                                     e.currentTarget,
@@ -215,6 +216,7 @@ const SideBar = forwardRef(
                                   );
                                 }}
                                 onContextChannel={(e, c) => {
+                                  if (!isOwner) return;
                                   setSelectedMenuChannel(c);
                                   if (c.channel_type === 'Public') {
                                     menuChannelRef.current?.show(

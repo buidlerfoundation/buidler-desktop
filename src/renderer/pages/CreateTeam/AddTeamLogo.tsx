@@ -5,7 +5,7 @@ import './index.scss';
 const AddTeamLogo = () => {
   return (
     <div className="add-team-logo__container">
-      <span className="create-team-title">Add Team Logo</span>
+      <span className="create-team-title">Add Logo</span>
       <div className="upload-logo normal-button">
         <span className="upload-text">Upload Image</span>
         <img src={images.icCamera} alt="" className="camera-icon" />
