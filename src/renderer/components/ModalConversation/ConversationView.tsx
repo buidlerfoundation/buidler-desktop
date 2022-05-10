@@ -140,16 +140,23 @@ const ConversationView = ({
       setFiles((current) => [...current, attachment]);
       api.uploadFile(currentTeam.team_id, generateId.current, f).then((res) => {
         setFiles((current) => {
-          const newAttachments = [...current];
-          const index = newAttachments.findIndex(
-            (a: any) => a.randomId === attachment.randomId
-          );
-          newAttachments[index] = {
-            ...newAttachments[index],
-            loading: false,
-            url: res.file_url,
-            id: res.file.file_id,
-          };
+          let newAttachments = [...current];
+          if (res.statusCode === 200) {
+            const index = newAttachments.findIndex(
+              (a: any) => a.randomId === attachment.randomId
+            );
+            newAttachments[index] = {
+              ...newAttachments[index],
+              loading: false,
+              url: res.file_url,
+              id: res.file.file_id,
+            };
+          } else {
+            newAttachments = newAttachments.filter(
+              (el) => el.randomId !== attachment.randomId
+            );
+          }
+
           return newAttachments;
         });
         return null;

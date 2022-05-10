@@ -46,13 +46,18 @@ const ModalTeamSetting = ({
     };
     setFile(attachment);
     api.uploadFile(team.team_id, generateId.current, f).then((res) => {
-      setFile((current: any) => ({
-        ...current,
-        loading: false,
-        url: res.file_url,
-        id: res.file.file_id,
-      }));
-      updateTeam(team.team_id, { team_icon: res.file_url });
+      if (res.statusCode === 200) {
+        setFile((current: any) => ({
+          ...current,
+          loading: false,
+          url: res.file_url,
+          id: res.file.file_id,
+        }));
+        updateTeam(team.team_id, { team_icon: res.file_url });
+      } else {
+        setFile(null);
+      }
+
       return null;
     });
   };

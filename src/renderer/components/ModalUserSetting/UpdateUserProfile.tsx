@@ -54,8 +54,12 @@ const UpdateUserProfile = ({
     setUploading(true);
     setFile({ attachment, loading: true });
     api.uploadFile(undefined, user?.user_id, f).then((res) => {
-      onUpdateAvatar(res.file_url);
-      setFile({ attachment, loading: false, url: res.file_url });
+      if (res.statusCode === 200) {
+        onUpdateAvatar(res.file_url);
+        setFile({ attachment, loading: false, url: res.file_url });
+      } else {
+        setFile(null);
+      }
       setUploading(false);
       return null;
     });

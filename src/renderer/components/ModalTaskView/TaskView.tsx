@@ -146,15 +146,24 @@ const TaskView = ({
     const res = await Promise.all(
       data.map(async (el, idx) => {
         const r = await api.uploadFile(teamId, task.task_id, el);
+        if (r.statusCode === 200) {
+          return {
+            ...r.file,
+            file_url: r.file_url,
+            randomId: preAtt[idx].randomId,
+            id: r.file.file_id,
+          };
+        }
         return {
           ...r.file,
-          file_url: r.file_url,
-          randomId: preAtt[idx].randomId,
-          id: r.file.file_id,
+          file_url: null,
         };
       })
     );
-    const task_attachment = [...taskData.attachments, ...res];
+    const task_attachment = [
+      ...taskData.attachments,
+      ...res.filter((el) => !!el.file_url),
+    ];
     updateTask(task.task_id, channelId, {
       task_attachment,
       file_ids: task_attachment.map((el: any) => el.file_id),
@@ -192,16 +201,23 @@ const TaskView = ({
       setAttachments((current) => [...current, attachment]);
       api.uploadFile(teamId, generateId.current, f).then((res) => {
         setAttachments((current) => {
-          const newAttachments = [...current];
-          const index = newAttachments.findIndex(
-            (a: any) => a.randomId === attachment.randomId
-          );
-          newAttachments[index] = {
-            ...newAttachments[index],
-            loading: false,
-            url: res.file_url,
-            id: res.file.file_id,
-          };
+          let newAttachments = [...current];
+          if (res.statusCode === 200) {
+            const index = newAttachments.findIndex(
+              (a: any) => a.randomId === attachment.randomId
+            );
+            newAttachments[index] = {
+              ...newAttachments[index],
+              loading: false,
+              url: res.file_url,
+              id: res.file.file_id,
+            };
+          } else {
+            newAttachments = newAttachments.filter(
+              (el) => el.randomId !== attachment.randomId
+            );
+          }
+
           return newAttachments;
         });
         return null;
