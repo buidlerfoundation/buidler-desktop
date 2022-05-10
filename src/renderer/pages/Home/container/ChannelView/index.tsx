@@ -300,7 +300,7 @@ const ChannelView = forwardRef(
           file: URL.createObjectURL(f),
           randomId: Math.random(),
           loading: true,
-          type: f.type,
+          type: f.type || 'application',
           name: f.name,
         };
         setFiles((current) => [...current, attachment]);
