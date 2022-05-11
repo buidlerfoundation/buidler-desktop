@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Switch, Route, HashRouter, useHistory } from 'react-router-dom';
 import MainWrapper from './Layout';
 import Home from '../Home';
@@ -43,9 +43,13 @@ type MainProps = {
 };
 
 const Main = ({ getInitial }: MainProps) => {
+  const imgDomain = useSelector((state: any) => state.user.imgDomain);
   useEffect(() => {
     getInitial?.();
   }, [getInitial]);
+  if (!imgDomain) {
+    return <div className="main-load-page" />;
+  }
   return (
     <HashRouter>
       <div style={{ display: 'flex', flexDirection: 'column' }}>

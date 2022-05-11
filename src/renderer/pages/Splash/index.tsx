@@ -11,18 +11,16 @@ import HomeLoading from '../../components/HomeLoading';
 type SplashProps = {
   findUser: () => any;
   findTeamAndChannel: (showLoading?: boolean) => any;
-  getInitial: () => any;
 };
 
-const Splash = ({ getInitial, findUser, findTeamAndChannel }: SplashProps) => {
+const Splash = ({ findUser, findTeamAndChannel }: SplashProps) => {
   const history = useHistory();
   const initApp = useCallback(
     async (showLoading = true) => {
-      await getInitial();
       await findUser();
       history.replace('/home');
     },
-    [getInitial, findUser, history]
+    [findUser, history]
   );
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)

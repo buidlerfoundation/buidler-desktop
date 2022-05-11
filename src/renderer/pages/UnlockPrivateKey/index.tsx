@@ -25,7 +25,6 @@ type UnlockPrivateKeyProps = {
   team?: any;
   errorTeam?: any;
   userData?: any;
-  getInitial: () => any;
 };
 
 const UnlockPrivateKey = ({
@@ -34,16 +33,15 @@ const UnlockPrivateKey = ({
   team,
   errorTeam,
   userData,
-  getInitial,
 }: UnlockPrivateKeyProps) => {
   const history = useHistory();
   const [pass, setPass] = useState('');
   const dispatch = useDispatch();
   const initApp = useCallback(async () => {
     await uniqChannelPrivateKey();
-    await getInitial();
+
     await findUser();
-  }, [getInitial, findUser]);
+  }, [findUser]);
   useEffect(() => {
     if (!userData) {
       initApp();
