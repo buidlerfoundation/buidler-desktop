@@ -218,7 +218,7 @@ const userReducers = (state = initialState, action) => {
               (c) => c?.channel_id === directChannelUser.direct_channel
             )?.notification_type || 'Alert',
         };
-      } else if (resChannel.data.length > 0) {
+      } else if (resChannel?.data?.length > 0) {
         channel =
           resChannel.data.find(
             (c) =>
