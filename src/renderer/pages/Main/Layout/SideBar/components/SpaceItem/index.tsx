@@ -19,6 +19,7 @@ type SpaceItemProps = {
   onContextSpaceChannel: (e: any) => void;
   updateSpaceChannel: (spaceId: string, body: any) => any;
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
+  isOwner: boolean;
 };
 
 const SpaceItem = ({
@@ -30,6 +31,7 @@ const SpaceItem = ({
   onContextSpaceChannel,
   updateSpaceChannel,
   uploadSpaceAvatar,
+  isOwner,
 }: SpaceItemProps) => {
   const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
@@ -98,23 +100,28 @@ const SpaceItem = ({
         onClick={toggleCollapsed}
         onContextMenu={onContextSpaceChannel}
       >
-        <PopoverButton
-          ref={popupSpaceIconRef}
-          componentButton={
-            <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
-          }
-          componentPopup={
-            <div
-              className="emoji-picker__container"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <EmojiAndAvatarPicker
-                onAddFiles={onAddFiles}
-                onAddEmoji={onAddEmoji}
-              />
-            </div>
-          }
-        />
+        {isOwner ? (
+          <PopoverButton
+            ref={popupSpaceIconRef}
+            componentButton={
+              <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
+            }
+            componentPopup={
+              <div
+                className="emoji-picker__container"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <EmojiAndAvatarPicker
+                  onAddFiles={onAddFiles}
+                  onAddEmoji={onAddEmoji}
+                />
+              </div>
+            }
+          />
+        ) : (
+          <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
+        )}
+
         <span className="title">{space.space_name}</span>
       </div>
       {channelSpace?.map?.((c: any) => (

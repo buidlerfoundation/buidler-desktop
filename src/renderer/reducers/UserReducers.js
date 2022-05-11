@@ -305,7 +305,7 @@ const userReducers = (state = initialState, action) => {
       };
     }
     case actionTypes.DELETE_CHANNEL_SUCCESS: {
-      const { currentChannel, channel } = state;
+      const { currentChannel, channel, teamUserData } = state;
       const currentIdx = channel.findIndex(
         (el) => el.channel_id === currentChannel.channel_id
       );
@@ -315,6 +315,11 @@ const userReducers = (state = initialState, action) => {
       let newCurrentChannel = currentChannel;
       if (currentChannel.channel_id === payload.channelId) {
         newCurrentChannel = newChannel?.[currentIdx] || newChannel?.[0];
+        if (newCurrentChannel.channel_type === 'Direct') {
+          newCurrentChannel.user = teamUserData?.find(
+            (u) => u.direct_channel === newCurrentChannel.channel_id
+          );
+        }
         setCookie(AsyncKey.lastChannelId, newCurrentChannel?.channel_id);
       }
       return {

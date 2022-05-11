@@ -191,7 +191,7 @@ const MessageInput = ({
   }, [inputRef]);
   const findMentionIndexHtml = useCallback(() => {
     const idx = getCaretIndex(inputRef.current);
-    const str = extractContent(text);
+    const str = extractContent(text).replaceAll('\n', '');
     const regex = new RegExp(`@${mentionStr}`, 'g');
     let result1;
     let result2;
@@ -264,7 +264,7 @@ const MessageInput = ({
     };
   }, [anchorPopup, onKeyDown, enterMention, text, dataMention, inputRef]);
   useEffect(() => {
-    const str = extractContent(text);
+    const str = extractContent(text).replaceAll('\n', '');
     if (mentionPos.start >= 0 && mentionPos.start < str.length) {
       const res = str.substring(mentionPos.start + 1, mentionPos.end);
       setMentionStr(res);
@@ -289,7 +289,7 @@ const MessageInput = ({
   }, [mentionStr, inputRef, mentionPos.start, text, users]);
   const checkTriggerMention = (value: string) => {
     const idx = getCaretIndex(inputRef.current);
-    const str = extractContent(value || text);
+    const str = extractContent(value || text).replaceAll('\n', '');
     const start = str.substring(0, idx).lastIndexOf('@');
     setMentionPos({ start, end: idx });
     setSelectedMentionIndex(0);

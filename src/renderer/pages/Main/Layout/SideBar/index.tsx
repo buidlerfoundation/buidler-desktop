@@ -200,6 +200,7 @@ const SideBar = forwardRef(
                               {...dragProvided.dragHandleProps}
                             >
                               <SpaceItem
+                                isOwner={isOwner}
                                 space={space}
                                 channel={channel}
                                 currentChannel={currentChannel}

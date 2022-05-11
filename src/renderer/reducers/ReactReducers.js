@@ -54,7 +54,7 @@ const reactReducers = (state = initialState, action) => {
       };
     }
     case actionTypes.ADD_REACT: {
-      const { id, reactName, userId } = payload;
+      const { id, reactName, userId, isReacted } = payload;
       const currentReact = state.reactData[id] || [];
       const currentIndex = currentReact.findIndex(
         (react) => react.reactName === reactName
@@ -64,14 +64,14 @@ const reactReducers = (state = initialState, action) => {
           reactName,
           count: currentReact[currentIndex].count + 1,
           skin: 1,
-          isReacted: true,
+          isReacted,
         };
       } else {
         currentReact.push({
           reactName,
           count: 1,
           skin: 1,
-          isReacted: true,
+          isReacted,
         });
       }
       return {
