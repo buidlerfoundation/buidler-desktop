@@ -232,11 +232,11 @@ class SocketUtil {
       this.emitOnline(teamId || currentTeam?.team_id);
     });
   }
-  reloadData = () => {
+  reloadData = async () => {
     const user: any = store.getState()?.user;
     const { currentTeam, currentChannel } = user;
     if (currentTeam && currentChannel) {
-      actionSetCurrentTeam(
+      await actionSetCurrentTeam(
         currentTeam,
         store.dispatch,
         currentChannel.channel_id
