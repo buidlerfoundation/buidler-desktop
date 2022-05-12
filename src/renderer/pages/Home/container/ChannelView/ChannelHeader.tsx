@@ -122,11 +122,7 @@ const ChannelHeader = forwardRef(
           />
         );
       }
-      return (
-        <div className="channel-icon">
-          <img src={images.icPublicChannel} alt="" />
-        </div>
-      );
+      return <img src={images.icCirclePublicChannel} alt="" />;
     };
     const onAddFiles = async (fs) => {
       if (fs == null || fs.length === 0) return;
