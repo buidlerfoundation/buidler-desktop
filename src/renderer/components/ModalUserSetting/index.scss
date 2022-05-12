@@ -172,6 +172,7 @@
       align-items: flex-end;
       .user-avatar__wrapper {
         position: relative;
+        height: 90px;
         &:hover {
           cursor: pointer;
         }
