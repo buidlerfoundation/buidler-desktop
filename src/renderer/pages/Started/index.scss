@@ -20,7 +20,7 @@
     .started-logo {
       width: 80px;
       height: 80px;
-      border-radius: 5px;
+      border-radius: 15px;
     }
     .started-title {
       font-size: 34px;
@@ -43,7 +43,7 @@
       font-weight: 600;
     }
     .create-wallet-button {
-      height: 50px;
+      height: 60px;
       border-radius: 5px;
       background-color: var(--color-accent);
       display: flex;
@@ -53,10 +53,10 @@
       font-size: 16px;
       font-weight: 600;
       margin-top: 70px;
-      width: 400px;
+      width: 334px;
     }
     .import-wallet-button {
-      height: 50px;
+      height: 60px;
       border-radius: 5px;
       background-color: var(--color-stroke);
       display: flex;
@@ -66,7 +66,7 @@
       font-size: 16px;
       font-weight: 600;
       margin-top: 16px;
-      width: 400px;
+      width: 334px;
     }
   }
 }

@@ -77,16 +77,16 @@ const Started = () => {
     <div className="started-container">
       <div className="started-body">
         <div className="started-info-view">
-          <img className="started-logo" alt="" src={images.notableLogo} />
+          <img className="started-logo" alt="" src={images.icLogoSquare} />
           <span className="started-title">
-            Your chats
+            One-stop for your
             <br />
-            is your tasks
+            Web3 Commnunity
           </span>
           <span className="started-description">
-            Buidler is a daily tool for chat, tasks,
+            Buidler is a Web3 Application for your
             <br />
-            meeting for remote working.
+            community, fans, team, and supporters.
           </span>
         </div>
         <div

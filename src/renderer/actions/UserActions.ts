@@ -412,7 +412,7 @@ export const createTeam = (body: any) => async (dispatch: Dispatch) => {
     payload: { body },
   });
   const res = await api.createTeam(body);
-  actionSetCurrentTeam(res, dispatch);
+  await actionSetCurrentTeam(res, dispatch);
   if (res.statusCode === 200) {
     dispatch({
       type: ActionTypes.CREATE_TEAM_SUCCESS,

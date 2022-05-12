@@ -22,9 +22,9 @@ const UpdateDefaultChannel = ({
       <TagView
         isUserChannel
         channels={
-          user?.user_channels?.map?.((el: any) =>
-            channels?.find((c) => c.channel_id === el)
-          ) || []
+          user?.user_channels
+            ?.map?.((el: any) => channels?.find((c) => c.channel_id === el))
+            .filter((el) => !!el) || []
         }
         currentChannel={currentChannel}
         onChange={(c) => {

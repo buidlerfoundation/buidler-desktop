@@ -60,9 +60,11 @@
       display: flex;
       align-items: center;
       padding: 8px 20px;
+      color: var(--color-secondary-text);
       &:hover {
         cursor: pointer;
         background-color: var(--color-highlight);
+        color: var(--color-primary-text);
       }
       .log-out-text {
         font-size: 16px;
