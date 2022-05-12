@@ -129,6 +129,43 @@ const userReducers = (state = initialState, action) => {
         }),
       };
     }
+    case actionTypes.UPDATE_CHANNEL_AVATAR_SUCCESS: {
+      return {
+        ...state,
+        channel: state.channel.map((el) => {
+          if (el.channel_id === payload.channel_id) {
+            return {
+              ...el,
+              ...payload,
+              attachment: null,
+            };
+          }
+          return el;
+        }),
+        currentChannel:
+          state.currentChannel.channel_id === payload.channel_id
+            ? { ...state.currentChannel, ...payload, attachment: null }
+            : state.currentChannel,
+      };
+    }
+    case actionTypes.UPDATE_CHANNEL_AVATAR_REQUEST: {
+      return {
+        ...state,
+        channel: state.channel.map((el) => {
+          if (el.channel_id === payload.channelId) {
+            return {
+              ...el,
+              attachment: payload.attachment,
+            };
+          }
+          return el;
+        }),
+        currentChannel:
+          state.currentChannel.channel_id === payload.channelId
+            ? { ...state.currentChannel, attachment: payload.attachment }
+            : state.currentChannel,
+      };
+    }
     case actionTypes.USER_ONLINE: {
       const { user_id } = payload;
       return {

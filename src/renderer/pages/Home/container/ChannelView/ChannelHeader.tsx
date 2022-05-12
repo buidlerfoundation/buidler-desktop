@@ -1,3 +1,5 @@
+import { CircularProgress } from '@material-ui/core';
+import { Emoji } from 'emoji-mart';
 import React, {
   useRef,
   useMemo,
@@ -5,7 +7,9 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { useSelector } from 'react-redux';
 import ImageHelper from 'renderer/common/ImageHelper';
+import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
@@ -19,6 +23,8 @@ type ChannelHeaderProps = {
   setCurrentChannel?: (channel: any) => any;
   deleteChannel: (channelId: string) => any;
   updateChannel: (channelId: string, body: any) => any;
+  teamId: string;
+  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelHeader = forwardRef(
@@ -29,9 +35,13 @@ const ChannelHeader = forwardRef(
       setCurrentChannel,
       deleteChannel,
       updateChannel,
+      teamId,
+      uploadChannelAvatar,
     }: ChannelHeaderProps,
     ref
   ) => {
+    const userData = useSelector((state) => state.user.userData);
+    const popupChannelIconRef = useRef<any>();
     const [isActiveMember, setActiveMember] = useState(false);
     const [isActiveName, setActiveName] = useState(false);
     const settingButtonRef = useRef<any>();
@@ -48,7 +58,10 @@ const ChannelHeader = forwardRef(
         .map((id: any) => teamUserData.find((el) => el.user_id === id));
     }, [currentChannel, teamUserData]);
     const isChannelPrivate = currentChannel?.channel_type === 'Private';
-    const prefix = isChannelPrivate ? '' : '# ';
+    const role = teamUserData?.find?.(
+      (el) => el.user_id === userData?.user_id
+    )?.role;
+    const isOwner = role === 'Owner';
     useImperativeHandle(ref, () => {
       return {
         showSetting(action: 'edit-member' | 'edit-name') {
@@ -65,85 +78,171 @@ const ChannelHeader = forwardRef(
         },
       };
     });
-    return (
-      <div className="channel-view__header">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            paddingLeft: 5,
-          }}
-        >
-          {currentChannel?.user && (
-            <div style={{ marginLeft: 15 }}>
-              <AvatarView
-                user={teamUserData.find(
-                  (u) => u.user_id === currentChannel?.user?.user_id
-                )}
-                size={35}
-              />
-            </div>
-          )}
-          {isChannelPrivate && (
+    const renderChannelIcon = () => {
+      if (currentChannel?.user) {
+        return (
+          <AvatarView
+            user={teamUserData.find(
+              (u) => u.user_id === currentChannel?.user?.user_id
+            )}
+            size={25}
+          />
+        );
+      }
+      if (currentChannel.attachment) {
+        return (
+          <>
             <img
-              style={{
-                marginLeft: 15,
-              }}
+              className="channel-icon"
+              src={currentChannel.attachment.file}
               alt=""
-              src={images.icPrivateWhite}
             />
-          )}
+            {currentChannel?.attachment?.loading && (
+              <div className="attachment-loading">
+                <CircularProgress size={20} />
+              </div>
+            )}
+          </>
+        );
+      }
+      if (currentChannel?.channel_emoji) {
+        return (
+          <Emoji emoji={currentChannel?.channel_emoji} set="apple" size={20} />
+        );
+      }
+      if (currentChannel?.channel_image_url) {
+        return (
+          <img
+            className="channel-icon"
+            src={ImageHelper.normalizeImage(
+              currentChannel?.channel_image_url,
+              teamId
+            )}
+            alt=""
+          />
+        );
+      }
+      return (
+        <div className="channel-icon">
+          <img src={images.icPublicChannel} alt="" />
+        </div>
+      );
+    };
+    const onAddFiles = async (fs) => {
+      if (fs == null || fs.length === 0) return;
+      const file = [...fs][0];
+      uploadChannelAvatar(teamId, currentChannel.channel_id, file);
+      popupChannelIconRef.current?.hide();
+    };
+    const onSelectRecentFile = async (file) => {
+      await updateChannel(currentChannel.channel_id, {
+        channel_emoji: '',
+        channel_image_url: file.file_url,
+      });
+      popupChannelIconRef.current?.hide();
+    };
+    const onAddEmoji = async (emoji) => {
+      await updateChannel(currentChannel.channel_id, {
+        channel_emoji: emoji.id,
+        channel_image_url: '',
+      });
+      popupChannelIconRef.current?.hide();
+    };
+    return (
+      <>
+        <div className="channel-view__header">
           <div
-            ref={settingButtonRef}
-            onClick={(e) => {
-              settingRef.current?.show(e.currentTarget, {
-                x: 385,
-                y: 110,
-              });
+            style={{
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            <span
-              className="channel-view__title"
-              style={{ marginLeft: isChannelPrivate ? 5 : 15 }}
-            >
-              {currentChannel?.user?.user_name
-                ? normalizeUserName(currentChannel?.user?.user_name)
-                : `${prefix}${currentChannel?.channel_name}`}
-            </span>
-          </div>
-          {isChannelPrivate && (
+            {isOwner && !currentChannel?.user ? (
+              <PopoverButton
+                ref={popupChannelIconRef}
+                componentButton={
+                  <div className="channel-icon__wrapper">
+                    {renderChannelIcon()}
+                  </div>
+                }
+                componentPopup={
+                  <div
+                    className="emoji-picker__container"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <EmojiAndAvatarPicker
+                      onAddFiles={onAddFiles}
+                      onAddEmoji={onAddEmoji}
+                      onSelectRecentFile={onSelectRecentFile}
+                      channelId={currentChannel.channel_id}
+                    />
+                  </div>
+                }
+              />
+            ) : (
+              <div className="channel-icon__wrapper">{renderChannelIcon()}</div>
+            )}
             <div
-              className="channel-view__members"
+              ref={settingButtonRef}
               onClick={(e) => {
-                setActiveMember(true);
                 settingRef.current?.show(e.currentTarget, {
-                  x: e.pageX,
-                  y: e.pageY,
+                  x: 385,
+                  y: 110,
                 });
               }}
             >
-              {users.slice(0, 10).map((el: any, index: number) => (
-                <div
-                  key={el.user_id}
-                  className="avatar__wrapper"
-                  style={{ left: 15 * index }}
-                >
-                  <img
-                    className="avatar"
-                    src={ImageHelper.normalizeImage(el.avatar_url, el.user_id)}
-                    alt=""
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-              ))}
-              {users.length - 10 > 0 && (
-                <div
-                  className="avatar-more__wrapper"
-                  style={{ left: 15 * Math.min(10, users.length) }}
-                >
-                  <span>{users.length - 10}+</span>
-                </div>
-              )}
+              <span className="channel-view__title">
+                {currentChannel?.user?.user_name
+                  ? normalizeUserName(currentChannel?.user?.user_name)
+                  : currentChannel?.channel_name}
+              </span>
+            </div>
+            {isChannelPrivate && (
+              <img
+                className="icon-private"
+                src={images.icPrivateWhite}
+                alt=""
+              />
+            )}
+          </div>
+          {isChannelPrivate && (
+            <div className="channel-view__members-wrapper">
+              <div
+                className="channel-view__members"
+                onClick={(e) => {
+                  setActiveMember(true);
+                  settingRef.current?.show(e.currentTarget, {
+                    x: e.pageX,
+                    y: e.pageY,
+                  });
+                }}
+              >
+                {users.slice(0, 10).map((el: any, index: number) => (
+                  <div
+                    key={el.user_id}
+                    className="avatar__wrapper"
+                    style={{ right: 15 * (users.slice(0, 10).length - index) }}
+                  >
+                    <img
+                      className="avatar"
+                      src={ImageHelper.normalizeImage(
+                        el.avatar_url,
+                        el.user_id
+                      )}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ))}
+                {users.length - 10 > 0 && (
+                  <div
+                    className="avatar-more__wrapper"
+                    style={{ left: 15 * Math.min(10, users.length) }}
+                  >
+                    <span>{users.length - 10}+</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -171,7 +270,7 @@ const ChannelHeader = forwardRef(
             }
           />
         </div>
-      </div>
+      </>
     );
   }
 );

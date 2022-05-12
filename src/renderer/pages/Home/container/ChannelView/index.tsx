@@ -68,6 +68,7 @@ type ChannelViewProps = {
   channel?: any;
   deleteChannel: (channelId: string) => any;
   updateChannel: (channelId: string, body: any) => any;
+  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelView = forwardRef(
@@ -98,6 +99,7 @@ const ChannelView = forwardRef(
       deleteMessage,
       deleteChannel,
       updateChannel,
+      uploadChannelAvatar,
     }: ChannelViewProps,
     ref
   ) => {
@@ -120,7 +122,12 @@ const ChannelView = forwardRef(
       msgListRef.current?.scrollTo?.(0, 0);
     };
     const onRemoveReply = useCallback(() => {
-      if (messageReply || replyTask || messageEdit) {
+      if (
+        messageReply ||
+        replyTask ||
+        messageEdit ||
+        currentChannel.channel_id
+      ) {
         setText('');
         inputRef.current?.blur();
       }
@@ -137,6 +144,7 @@ const ChannelView = forwardRef(
       setMessageReply,
       setReplyTask,
       setMessageEdit,
+      currentChannel.channel_id,
     ]);
     useEffect(() => {
       const userId = location.search.split('user_id=')?.[1];
@@ -436,6 +444,8 @@ const ChannelView = forwardRef(
               setCurrentChannel={setCurrentChannel}
               deleteChannel={deleteChannel}
               updateChannel={updateChannel}
+              teamId={currentTeam.team_id}
+              uploadChannelAvatar={uploadChannelAvatar}
             />
             {!currentChannel.channel_id && (
               <DirectDescription

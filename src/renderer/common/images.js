@@ -69,6 +69,7 @@ import icSettingSecure from '../assets/images/ic_setting_secure.svg';
 import icLink from '../assets/images/ic_link.svg';
 import icImageDefault from '../assets/images/ic_image_default.svg';
 import icLogoSquare from '../assets/images/ic_logo_square.svg';
+import icPublicChannel from '../assets/images/ic_public_channel.svg';
 
 const images = {
   icTeamDefault,
@@ -142,6 +143,7 @@ const images = {
   icLink,
   icImageDefault,
   icLogoSquare,
+  icPublicChannel,
 };
 
 export default images;

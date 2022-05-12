@@ -20,6 +20,8 @@ type SpaceItemProps = {
   updateSpaceChannel: (spaceId: string, body: any) => any;
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   isOwner: boolean;
+  updateChannel: (channelId: string, body: any) => any;
+  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const SpaceItem = ({
@@ -32,6 +34,8 @@ const SpaceItem = ({
   updateSpaceChannel,
   uploadSpaceAvatar,
   isOwner,
+  updateChannel,
+  uploadChannelAvatar,
 }: SpaceItemProps) => {
   const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
@@ -93,6 +97,13 @@ const SpaceItem = ({
     });
     popupSpaceIconRef.current?.hide();
   };
+  const onSelectRecentFile = async (file) => {
+    await updateSpaceChannel(space.space_id, {
+      space_emoji: '',
+      space_image_url: file.file_url,
+    });
+    popupSpaceIconRef.current?.hide();
+  };
   return (
     <div className={`space-item__container ${isCollapsed ? '' : 'space-open'}`}>
       <div
@@ -114,6 +125,8 @@ const SpaceItem = ({
                 <EmojiAndAvatarPicker
                   onAddFiles={onAddFiles}
                   onAddEmoji={onAddEmoji}
+                  spaceId={space.space_id}
+                  onSelectRecentFile={onSelectRecentFile}
                 />
               </div>
             }
@@ -131,6 +144,9 @@ const SpaceItem = ({
           currentChannel={currentChannel}
           onContextChannel={onContextChannel}
           collapsed={isCollapsed}
+          isOwner={isOwner}
+          updateChannel={updateChannel}
+          uploadChannelAvatar={uploadChannelAvatar}
         />
       ))}
     </div>

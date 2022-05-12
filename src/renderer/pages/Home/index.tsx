@@ -101,6 +101,7 @@ type HomeProps = {
   createSpaceChannel: (teamId: string, body: any) => any;
   updateSpaceChannel: (spaceId: string, body: any) => any;
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
+  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
   deleteSpaceChannel: (group: any) => any;
   removeTeamMember: (teamId: string, userId: string) => any;
   teamUserData: Array<any>;
@@ -170,6 +171,7 @@ const Home = ({
   findTeamAndChannel,
   setCurrentTeam,
   uploadSpaceAvatar,
+  uploadChannelAvatar,
 }: HomeProps) => {
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const dispatch = useDispatch();
@@ -564,6 +566,8 @@ const Home = ({
             findUser={findUser}
             updateSpaceChannel={updateSpaceChannel}
             uploadSpaceAvatar={uploadSpaceAvatar}
+            updateChannel={updateChannel}
+            uploadChannelAvatar={uploadChannelAvatar}
           />
 
           <div className="home-body">
@@ -599,6 +603,7 @@ const Home = ({
                   updateChannel={updateChannel}
                   channel={channels}
                   teamUserData={teamUserData}
+                  uploadChannelAvatar={uploadChannelAvatar}
                 />
                 <TaskListView
                   channelId={currentChannel?.channel_id}

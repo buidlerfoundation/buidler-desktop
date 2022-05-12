@@ -17,11 +17,42 @@
       border-radius: 50%;
       margin-left: 15px;
     }
+    .channel-icon__wrapper {
+      margin: 0 10px 0 15px;
+      position: relative;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .channel-icon {
+      width: 25px;
+      height: 25px;
+      border-radius: 12.5px;
+      background-color: var(--color-highlight-action-high);
+      object-fit: cover;
+    }
+    .attachment-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.75);
+    }
     .channel-view__title {
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 24px;
       color: var(--color-primary-text);
-      margin-left: 15px;
+    }
+    .icon-private {
+      margin: 10px;
     }
     .channel-view__actions {
       display: flex;

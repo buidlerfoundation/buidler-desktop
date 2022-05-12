@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import api from 'renderer/api';
 import AvatarUpload from '../AvatarUpload';
 import EmojiPicker from '../EmojiPicker';
 import './index.scss';
@@ -6,14 +7,35 @@ import './index.scss';
 type EmojiAndAvatarPickerProps = {
   onAddFiles: (fs) => void;
   onAddEmoji: (emoji) => void;
+  onSelectRecentFile: (file) => void;
+  spaceId?: string;
+  channelId?: string;
 };
 
 const EmojiAndAvatarPicker = ({
   onAddFiles,
   onAddEmoji,
+  spaceId,
+  channelId,
+  onSelectRecentFile,
 }: EmojiAndAvatarPickerProps) => {
+  const [recentFiles, setRecentFiles] = useState([]);
   const labels = ['Emoji', 'Upload'];
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const fetchRecentFiles = useCallback(async () => {
+    let res = null;
+    if (spaceId) {
+      res = await api.getSpaceFile(spaceId);
+    } else if (channelId) {
+      res = await api.getChannelFile(channelId);
+    }
+    if (res?.statusCode === 200) {
+      setRecentFiles(res.data);
+    }
+  }, [spaceId, channelId]);
+  useEffect(() => {
+    fetchRecentFiles();
+  }, [fetchRecentFiles]);
   return (
     <div className="emoji-avatar-picker__container">
       <div className="picker-title__wrapper">
@@ -37,7 +59,13 @@ const EmojiAndAvatarPicker = ({
           style={{ border: 'none' }}
         />
       )}
-      {selectedIndex === 1 && <AvatarUpload onAddFiles={onAddFiles} />}
+      {selectedIndex === 1 && (
+        <AvatarUpload
+          recentFiles={recentFiles}
+          onAddFiles={onAddFiles}
+          onSelectRecentFile={onSelectRecentFile}
+        />
+      )}
     </div>
   );
 };

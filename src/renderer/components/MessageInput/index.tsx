@@ -300,7 +300,7 @@ const MessageInput = ({
       {renderReply()}
       <div className="message-input__input-container" ref={containerRef}>
         <div className="normal-icon normal-button ml5" onClick={onCircleClick}>
-          <img alt="" src={images.icPlus} />
+          <img alt="" src={images.icPlusCircle} />
         </div>
         {text.length === 0 && (
           <div className="placeholder-input">{placeholder}</div>

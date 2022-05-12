@@ -56,7 +56,7 @@
     display: flex;
     align-items: center;
     margin: 0 10px;
-    padding: 0 20px;
+    padding: 0 15px;
     border-radius: 5px;
     color: var(--color-secondary-text);
     transition: 200ms ease;
@@ -67,8 +67,6 @@
       opacity: 0;
     }
     .img-private {
-      margin-bottom: 3.5px;
-      margin-right: 15px;
       filter: brightness(0.5);
     }
     .img-bell {
@@ -115,6 +113,32 @@
       }
       .img-bell {
         filter: brightness(1);
+      }
+    }
+    .channel-icon__wrapper {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      .channel-icon {
+        object-fit: cover;
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+      }
+      .attachment-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.75);
       }
     }
     .channel-name {
