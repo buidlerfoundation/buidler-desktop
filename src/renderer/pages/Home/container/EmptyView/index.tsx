@@ -13,12 +13,12 @@ const EmptyView = ({ createTeam, findTeamAndChannel }: EmptyViewProps) => {
   return (
     <div className="empty-view__container">
       <span className="empty-text">
-        You don&apos;t have any team yet,
+        You don&apos;t have any community yet,
         <br />
-        create a new team to start using Buidler.
+        create a new community to start using Buidler.
       </span>
       <NormalButton
-        title="New Team"
+        title="New Community"
         onPress={() => setOpenModalTeam(true)}
         type="main"
       />

@@ -112,7 +112,7 @@ const ModalTeamSetting = ({
               </div>
             </div>
             <div className="body">
-              <span className="modal-label">Update team profile</span>
+              <span className="modal-label">Update Community profile</span>
               <div
                 className="team-avatar__wrapper normal-button"
                 onClick={() => inputFileRef.current?.click()}
@@ -141,7 +141,7 @@ const ModalTeamSetting = ({
               </div>
               <div className="delete__wrapper" onClick={onDeleteClick}>
                 <img alt="" src={images.icSettingChannelDelete} />
-                <span className="delete-text">Delete Team</span>
+                <span className="delete-text">Delete Community</span>
               </div>
             </div>
             <input

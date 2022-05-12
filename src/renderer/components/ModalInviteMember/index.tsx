@@ -42,7 +42,7 @@ const ModalInviteMember = ({ open, handleClose }: ModalInviteMemberProps) => {
     >
       <div style={{ display: 'table' }}>
         <div className="invite-member-view__container">
-          <span className="invite-member__title">Invite team members</span>
+          <span className="invite-member__title">Invite members</span>
           <div style={{ height: 86 }} />
           <div className="server-link__wrapper">
             <div className="tag-link">

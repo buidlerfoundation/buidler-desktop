@@ -25,7 +25,9 @@ const ModalConfirmDeleteTeam = ({
     >
       <div style={{ display: 'table' }}>
         <div className="confirm-delete-channel-view__container">
-          <span className="confirm-delete-channel__title">Delete Team</span>
+          <span className="confirm-delete-channel__title">
+            Delete Community
+          </span>
           <div style={{ height: 24 }} />
           <div className="confirm-delete-channel__content-wrapper">
             <span className="confirm-delete-channel__content">
