@@ -7,6 +7,7 @@ type JoinCommunityStateProps = {
   handleClose: () => void;
   link: string;
   onChange: (e: any) => void;
+  onPaste: () => void;
 };
 
 const JoinCommunityState = ({
@@ -14,6 +15,7 @@ const JoinCommunityState = ({
   handleClose,
   link,
   onChange,
+  onPaste,
 }: JoinCommunityStateProps) => {
   return (
     <div className="view-body__wrapper">
@@ -29,6 +31,9 @@ const JoinCommunityState = ({
             onChange={onChange}
             autoFocus
           />
+          <div className="normal-button button-paste" onClick={onPaste}>
+            <span>Paste</span>
+          </div>
         </div>
       </div>
       <div className="group-channel__bottom">

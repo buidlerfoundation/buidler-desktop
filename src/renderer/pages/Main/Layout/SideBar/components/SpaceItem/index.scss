@@ -71,6 +71,7 @@
     }
     .img-bell {
       filter: brightness(0.5);
+      margin-left: 10px;
     }
     &.channel-muted {
       color: var(--color-highlight-action-high);
@@ -150,6 +151,8 @@
       overflow: hidden;
       white-space: nowrap;
       display: inline-block;
+      margin-left: 10px;
+      flex: 1;
     }
   }
 }

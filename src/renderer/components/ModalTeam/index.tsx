@@ -74,6 +74,7 @@ const ModalTeam = ({
 
   useEffect(() => {
     generateId.current = null;
+    setLink('');
   }, [open]);
 
   return (
@@ -120,6 +121,10 @@ const ModalTeam = ({
             )}
             {tabIndex === 1 && (
               <JoinCommunityState
+                onPaste={async () => {
+                  const text = await navigator.clipboard.readText();
+                  setLink(text);
+                }}
                 handleClose={handleClose}
                 onJoinPress={async () => {
                   if (!link || !link.includes('invite.buidler')) {

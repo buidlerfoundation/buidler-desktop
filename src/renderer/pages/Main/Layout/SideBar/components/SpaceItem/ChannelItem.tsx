@@ -121,10 +121,7 @@ const ChannelItem = ({
       ) : (
         <div className="channel-icon__wrapper">{renderChannelIcon()}</div>
       )}
-
-      <div style={{ flex: 1, marginLeft: 10 }}>
-        <span className="channel-name">{c.channel_name}</span>
-      </div>
+      <span className="channel-name">{c.channel_name}</span>
       {isQuiet && <img className="img-bell" alt="" src={images.icBellQuite} />}
     </div>
   );
