@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CircularProgress, Modal } from '@material-ui/core';
 import './index.scss';
 import NormalButton from '../NormalButton';
@@ -10,6 +10,8 @@ import api from '../../api';
 import CreateCommunityState from './CreateCommunityState';
 import JoinCommunityState from './JoinCommunityState';
 import toast from 'react-hot-toast';
+import { setCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
 
 type ModalTeamProps = {
   open: boolean;
@@ -70,6 +72,10 @@ const ModalTeam = ({
     }
   };
 
+  useEffect(() => {
+    generateId.current = null;
+  }, [open]);
+
   return (
     <Dropzone onDrop={onAddFile} multiple={false}>
       {({ getRootProps, getInputProps }) => (
@@ -124,6 +130,7 @@ const ModalTeam = ({
                   const invitationId = link.substring(idx + 1);
                   const res = await api.acceptInvitation(invitationId);
                   if (res.statusCode === 200) {
+                    setCookie(AsyncKey.lastTeamId, res.team_id);
                     onAcceptTeam();
                   }
                 }}

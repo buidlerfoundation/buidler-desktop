@@ -81,11 +81,11 @@ const ModalUserSetting = ({
       id: '3',
       badge: !!seed,
     },
-    {
-      label: 'Default channel',
-      icon: images.icUserSettingDefaultChannelWhite,
-      id: '4',
-    },
+    // {
+    //   label: 'Default channel',
+    //   icon: images.icUserSettingDefaultChannelWhite,
+    //   id: '4',
+    // },
     {
       label: 'Security',
       icon: images.icSettingSecure,

@@ -27,6 +27,7 @@ const JoinCommunityState = ({
             placeholder="Invitation link"
             value={link}
             onChange={onChange}
+            autoFocus
           />
         </div>
       </div>

@@ -114,6 +114,7 @@ const AppTitleBar = ({
     } else {
       ipcRenderer.send('hide-badge', 'ping');
     }
+    console.log('unseen channel: ', unseenChannel);
     return () => {
       ipcRenderer.removeListener('open-url', openUrlListener);
       ipcRenderer.removeListener('enter-fullscreen', enterFullscreenListener);
@@ -223,6 +224,7 @@ const AppTitleBar = ({
         }}
         onAcceptTeam={() => {
           findTeamAndChannel();
+          setOpenModalTeam(false);
         }}
       />
       <ModalUserSetting

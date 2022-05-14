@@ -35,6 +35,7 @@ const EmptyView = ({ createTeam, findTeamAndChannel }: EmptyViewProps) => {
         }}
         onAcceptTeam={() => {
           findTeamAndChannel();
+          setOpenModalTeam(false);
         }}
       />
     </div>
