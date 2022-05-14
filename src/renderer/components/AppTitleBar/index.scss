@@ -26,12 +26,16 @@
   border-radius: 5px;
   align-items: center;
   margin-left: 10px;
+  max-width: 200px;
   &.team-selected {
     background-color: var(--color-highlight-action-high);
   }
   .team-name {
     font-weight: 600;
     font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   &:hover {
     background-color: var(--color-stroke);
