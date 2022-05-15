@@ -102,7 +102,7 @@ const createWindow = async () => {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset',
     trafficLightPosition: {
       x: 18,
       y: 20,

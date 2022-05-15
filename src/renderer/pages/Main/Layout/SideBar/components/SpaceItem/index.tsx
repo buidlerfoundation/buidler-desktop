@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
+import DefaultSpaceIcon from 'renderer/components/DefaultSpaceIcon';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import EmojiPicker from 'renderer/components/EmojiPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
@@ -82,7 +83,8 @@ const SpaceItem = ({
     if (space.space_emoji) {
       return <Emoji emoji={space.space_emoji} set="apple" size={20} />;
     }
-    return <img className="space-icon" src={images.icLogoSquare} alt="" />;
+    return <DefaultSpaceIcon name={space.space_name} />;
+    // return <img className="space-icon" src={images.icLogoSquare} alt="" />;
   };
   const onAddFiles = async (fs) => {
     if (fs == null || fs.length === 0) return;

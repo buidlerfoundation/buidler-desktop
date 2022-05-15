@@ -20,7 +20,7 @@ const AvatarUpload = ({
     inputFileRef.current?.click();
   };
   return (
-    <Dropzone onDrop={onAddFiles}>
+    <Dropzone onDrop={onAddFiles} multiple={false}>
       {({ getRootProps, getInputProps }) => (
         <div className="avatar-upload__container" {...getRootProps()}>
           <div className="button-upload normal-button" onClick={openFile}>

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import api from 'renderer/api';
+import { randomEmoji } from 'renderer/helpers/RandomHelper';
 import AvatarUpload from '../AvatarUpload';
 import EmojiPicker from '../EmojiPicker';
 import './index.scss';
@@ -36,6 +37,10 @@ const EmojiAndAvatarPicker = ({
   useEffect(() => {
     fetchRecentFiles();
   }, [fetchRecentFiles]);
+  const onRandomClick = () => {
+    const res = randomEmoji();
+    onAddEmoji({ id: res });
+  };
   return (
     <div className="emoji-avatar-picker__container">
       <div className="picker-title__wrapper">
@@ -50,6 +55,12 @@ const EmojiAndAvatarPicker = ({
             <span>{el}</span>
           </div>
         ))}
+        <div style={{ flex: 1 }} />
+        {selectedIndex === 0 && (
+          <div className="random-button normal-button" onClick={onRandomClick}>
+            <span>Random</span>
+          </div>
+        )}
       </div>
       {selectedIndex === 0 && (
         <EmojiPicker

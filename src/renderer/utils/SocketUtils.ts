@@ -218,6 +218,7 @@ class SocketUtil {
         this.socket.off('ON_REACTION_REMOVED');
         this.socket.off('ON_USER_JOIN_TEAM');
         this.socket.off('ON_CREATE_NEW_CHANNEL');
+        this.socket.off('ON_CREATE_NEW_SPACE');
         this.socket.off('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL');
         this.socket.off('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL');
         this.socket.off('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL');
@@ -371,6 +372,12 @@ class SocketUtil {
         }
       }
       this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
+    });
+    this.socket.on('ON_CREATE_NEW_SPACE', (data: any) => {
+      store.dispatch({
+        type: actionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
+        payload: data,
+      });
     });
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const { channel, key, timestamp } = data;

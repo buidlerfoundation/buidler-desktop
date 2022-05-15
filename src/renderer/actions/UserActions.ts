@@ -393,12 +393,7 @@ export const createSpaceChannel =
       payload: { teamId, body },
     });
     const res = await api.createSpaceChannel(teamId, body);
-    if (res.statusCode === 200) {
-      dispatch({
-        type: ActionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
-        payload: res,
-      });
-    } else {
+    if (res.statusCode !== 200) {
       dispatch({
         type: ActionTypes.CREATE_CHANNEL_FAIL,
         payload: res,

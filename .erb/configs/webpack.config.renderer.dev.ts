@@ -81,7 +81,7 @@ const configuration: webpack.Configuration = {
       },
       // Fonts
       {
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        test: /\.(woff|woff2|eot|ttf|otf|ttc)$/i,
         type: 'asset/resource',
       },
       // Images
