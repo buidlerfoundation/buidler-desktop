@@ -23,6 +23,23 @@
     font-size: 20px;
     color: var(--color-primary-text);
   }
+  .input-wrapper {
+    position: relative;
+    margin-top: 56px;
+    .button-paste {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--color-secondary-text);
+    }
+    .app-input-highlight {
+      padding-right: 80px;
+      width: calc(100% - 100px);
+    }
+  }
 }
 
 .import__bottom {

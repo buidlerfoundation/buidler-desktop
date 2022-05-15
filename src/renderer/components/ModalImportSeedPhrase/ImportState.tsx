@@ -9,17 +9,26 @@ type ImportStateProps = {
 };
 
 const ImportState = ({ seed, setSeed }: ImportStateProps) => {
+  const onPaste = async () => {
+    const text = await navigator.clipboard.readText();
+    setSeed(text);
+  };
   return (
     <div className="modal-state__container">
       <span className="title">Add seed phrase</span>
-      <AppTextArea
-        className="app-input-highlight"
-        placeholder="Your seed phrase"
-        value={seed}
-        style={{ height: 110, marginTop: 56 }}
-        onChange={(e) => setSeed(e.target.value)}
-        autoFocus
-      />
+      <div className="input-wrapper">
+        <AppTextArea
+          className="app-input-highlight"
+          placeholder="Your seed phrase"
+          value={seed}
+          style={{ height: 110 }}
+          onChange={(e) => setSeed(e.target.value)}
+          autoFocus
+        />
+        <div className="button-paste normal-button" onClick={onPaste}>
+          <span>Paste</span>
+        </div>
+      </div>
       <div style={{ height: 36 }} />
     </div>
   );

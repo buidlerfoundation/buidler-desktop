@@ -19,6 +19,7 @@ import {
   storePrivateChannel,
 } from 'renderer/helpers/ChannelHelper';
 import { io } from 'socket.io-client';
+import { uniqBy } from 'lodash';
 
 const getTasks = async (channelId: string, dispatch: Dispatch) => {
   dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
@@ -324,7 +325,7 @@ class SocketUtil {
       }
       Object.keys(data).forEach((k) => {
         const arr = data[k];
-        dataLocal[k] = [...(dataLocal?.[k] || []), ...arr];
+        dataLocal[k] = uniqBy([...(dataLocal?.[k] || []), ...arr], 'key');
         arr.forEach((el: any) => {
           const { timestamp } = el;
           this.emitReceivedKey(k, timestamp);
