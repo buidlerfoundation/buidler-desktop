@@ -357,7 +357,7 @@ const ChannelView = forwardRef(
     const onCreateTaskFromMessage = (msg: any) => () => {
       const body: any = {
         title: msg?.content,
-        status: 'todo',
+        status: 'pinned',
         channel_ids:
           currentChannel.channel_type === 'Direct'
             ? currentChannel?.user?.user_channels

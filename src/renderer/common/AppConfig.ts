@@ -22,6 +22,12 @@ export const AsyncKey = {
 };
 
 export const ProgressStatus = [
+  {
+    title: 'Pinned',
+    type: 'pinned',
+    icon: images.icStatusPinned,
+    id: 'pinned',
+  },
   { title: 'Todo', type: 'todo', icon: images.icCheckOutline, id: 'todo' },
   { title: 'Doing', type: 'doing', icon: images.icCheckDoing, id: 'doing' },
   { title: 'Done', type: 'done', icon: images.icCheckDone, id: 'done' },

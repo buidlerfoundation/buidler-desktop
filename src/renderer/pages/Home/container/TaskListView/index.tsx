@@ -17,7 +17,7 @@ type TaskListViewProps = {
   onAddTask: (title: string) => void;
   tasks: Array<any>;
   archivedTasks: Array<any>;
-  onUpdateStatus: (task: any) => void;
+  onUpdateStatus: (task: any, status: string) => void;
   filter: PopoverItem;
   filterData: Array<PopoverItem>;
   onUpdateFilter: (filter: PopoverItem) => void;
@@ -97,9 +97,7 @@ const TaskListView = ({
     setShowArchived(!showArchived);
   };
   const shouldArchived =
-    tasks.length > 0 ||
-    (archivedCount || 0) > 0 ||
-    (archivedTasks?.length || 0) > 0;
+    (archivedCount || 0) > 0 || (archivedTasks?.length || 0) > 0;
   return (
     <div className="task-list-container">
       <div className="task-list__header">
@@ -116,95 +114,96 @@ const TaskListView = ({
         </div>
       </div>
       <div className="task-list__body">
-        {Object.keys(taskGrouped).map((key) => {
-          const title = getGroupTask(filter.value, key);
-          return (
-            <div key={key}>
-              <TaskHeader
-                onCreate={
-                  filter.value === 'Status'
-                    ? () => {
-                        onAddTask(title);
-                      }
-                    : undefined
-                }
-                title={title}
-                count={toggleState[key] ? null : taskGrouped[key].length}
-                toggle={() => {
-                  setToggleState((state: any) => ({
-                    ...state,
-                    [key]: !state[key],
-                  }));
-                }}
-                filterValue={filter.value}
-              />
-              <Droppable droppableId={`${key}`} isCombineEnabled>
-                {(provided, snapshot) => {
-                  return (
-                    <div
-                      ref={provided.innerRef}
-                      style={getListStyle(snapshot.isDraggingOver)}
-                      {...provided.droppableProps}
-                    >
-                      <div style={{ height: 0.1, marginTop: 19.9 }} />
-                      {toggleState[key] &&
-                        taskGrouped[key].map((task: any, index: number) => (
-                          <Draggable
-                            key={task.task_id}
-                            draggableId={task.task_id}
-                            index={index}
-                            isDragDisabled={filter.value === 'Channel'}
-                          >
-                            {(dragProvided, dragSnapshot) => (
-                              <div
-                                ref={dragProvided.innerRef}
-                                {...dragProvided.draggableProps}
-                                {...dragProvided.dragHandleProps}
-                                style={getItemStyle(
-                                  dragSnapshot.isDragging,
-                                  dragProvided.draggableProps.style
-                                )}
-                              >
-                                <TaskItem
-                                  isSelected={
-                                    hoverTask?.task_id === task.task_id
-                                  }
-                                  updateTask={updateTask}
-                                  channelId={channelId}
-                                  onHover={() => {
-                                    onHoverChange(key, index);
-                                  }}
-                                  onLeave={onHoverLeave}
-                                  teamId={teamId}
-                                  onClick={() => {
-                                    onSelectTask(task);
-                                  }}
-                                  task={task}
-                                  onUpdateStatus={(e) => {
-                                    e.stopPropagation();
-                                    onUpdateStatus(task);
-                                  }}
-                                  onMenuSelected={(menu) => {
-                                    if (menu.value === 'Delete') {
-                                      onDeleteTask(task);
+        {Object.keys(taskGrouped)
+          .filter((key) => taskGrouped[key].length > 0 || key === 'pinned')
+          .map((key) => {
+            const title = getGroupTask(filter.value, key);
+            return (
+              <div key={key}>
+                <TaskHeader
+                  onCreate={
+                    filter.value === 'Status'
+                      ? () => {
+                          onAddTask(title);
+                        }
+                      : undefined
+                  }
+                  title={title}
+                  count={toggleState[key] ? null : taskGrouped[key].length}
+                  toggle={() => {
+                    setToggleState((state: any) => ({
+                      ...state,
+                      [key]: !state[key],
+                    }));
+                  }}
+                  filterValue={filter.value}
+                />
+                <Droppable droppableId={`${key}`} isCombineEnabled>
+                  {(provided, snapshot) => {
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                        {...provided.droppableProps}
+                      >
+                        <div style={{ height: 0.1, marginTop: 19.9 }} />
+                        {toggleState[key] &&
+                          taskGrouped[key].map((task: any, index: number) => (
+                            <Draggable
+                              key={task.task_id}
+                              draggableId={task.task_id}
+                              index={index}
+                              isDragDisabled={filter.value === 'Channel'}
+                            >
+                              {(dragProvided, dragSnapshot) => (
+                                <div
+                                  ref={dragProvided.innerRef}
+                                  {...dragProvided.draggableProps}
+                                  {...dragProvided.dragHandleProps}
+                                  style={getItemStyle(
+                                    dragSnapshot.isDragging,
+                                    dragProvided.draggableProps.style
+                                  )}
+                                >
+                                  <TaskItem
+                                    isSelected={
+                                      hoverTask?.task_id === task.task_id
                                     }
-                                  }}
-                                  onAddReact={onAddReact}
-                                  onRemoveReact={onRemoveReact}
-                                  onReplyTask={onReplyTask}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
-                    </div>
-                  );
-                }}
-              </Droppable>
-            </div>
-          );
-        })}
+                                    updateTask={updateTask}
+                                    channelId={channelId}
+                                    onHover={() => {
+                                      onHoverChange(key, index);
+                                    }}
+                                    onLeave={onHoverLeave}
+                                    teamId={teamId}
+                                    onClick={() => {
+                                      onSelectTask(task);
+                                    }}
+                                    task={task}
+                                    onUpdateStatus={(status) => {
+                                      onUpdateStatus(task, status);
+                                    }}
+                                    onMenuSelected={(menu) => {
+                                      if (menu.value === 'Delete') {
+                                        onDeleteTask(task);
+                                      }
+                                    }}
+                                    onAddReact={onAddReact}
+                                    onRemoveReact={onRemoveReact}
+                                    onReplyTask={onReplyTask}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+            );
+          })}
         {shouldArchived && (
           <div>
             <TaskHeader
@@ -249,9 +248,8 @@ const TaskListView = ({
                                   onSelectTask(task);
                                 }}
                                 task={task}
-                                onUpdateStatus={(e) => {
-                                  e.stopPropagation();
-                                  onUpdateStatus(task);
+                                onUpdateStatus={(status) => {
+                                  onUpdateStatus(task, status);
                                 }}
                                 onMenuSelected={(menu) => {
                                   if (menu.value === 'Delete') {

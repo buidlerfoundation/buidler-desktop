@@ -51,6 +51,7 @@
       position: absolute;
       left: 50px;
       top: 20px;
+      width: calc(100% - 60px);
     }
     .message-input__input {
       max-height: 200px;

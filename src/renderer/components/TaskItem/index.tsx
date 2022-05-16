@@ -20,7 +20,7 @@ import { normalizeMessageText } from '../../helpers/MessageHelper';
 type TaskItemProps = {
   reactReducer?: any;
   task: any;
-  onUpdateStatus: (e: any) => void;
+  onUpdateStatus: (status: string) => void;
   onMenuSelected: (menu: PopoverItem) => void;
   onClick: () => void;
   teamId: string;
@@ -41,6 +41,25 @@ const taskMenu: Array<PopoverItem> = [
     label: 'Delete',
     value: 'Delete',
     type: 'destructive',
+  },
+];
+
+const pinnedMenu: Array<PopoverItem> = [
+  {
+    label: 'Todo',
+    value: 'todo',
+  },
+  {
+    label: 'Doing',
+    value: 'doing',
+  },
+  {
+    label: 'Done',
+    value: 'done',
+  },
+  {
+    label: 'Archived',
+    value: 'archived',
   },
 ];
 
@@ -70,6 +89,7 @@ const TaskItem = ({
   const dueDateRef = useRef<any>();
   const assigneeRef = useRef<any>();
   const popupChannelRef = useRef<any>();
+  const popupPinnedMenuRef = useRef<any>();
   const statusRef = useRef<any>();
   const [isHighLight, setHighLight] = useState(task.isHighLight);
   const otherChannels = task?.channel?.filter?.(
@@ -157,7 +177,21 @@ const TaskItem = ({
       <div className="task-item-container">
         <div
           className="task-item__check-box"
-          onClick={onUpdateStatus}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (task.status === 'pinned') {
+              popupPinnedMenuRef.current?.show(e.currentTarget, {
+                x: e.pageX,
+                y: e.pageY,
+              });
+            } else {
+              onUpdateStatus(
+                task.status !== 'done' && task.status !== 'archived'
+                  ? 'done'
+                  : 'todo'
+              );
+            }
+          }}
           ref={statusRef}
         >
           <img alt="" src={getIconByStatus(task.status)} />
@@ -416,6 +450,15 @@ const TaskItem = ({
           )}
         </div>
       </div>
+      <PopoverButton
+        popupOnly
+        ref={popupPinnedMenuRef}
+        data={pinnedMenu}
+        onSelected={(menu) => {
+          onUpdateStatus(menu.value);
+        }}
+        onClose={() => {}}
+      />
     </div>
   );
 };

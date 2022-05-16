@@ -212,7 +212,7 @@ const MessageItem = ({
               <img alt="" src={images.icReply} />
             </div>
             <div className="message-item__menu-item" onClick={onCreateTask}>
-              <img alt="" src={images.icCheckedOutlineWhite} />
+              <img alt="" src={images.icPinned} />
             </div>
             {messageMenu.length > 0 && (
               <PopoverButton

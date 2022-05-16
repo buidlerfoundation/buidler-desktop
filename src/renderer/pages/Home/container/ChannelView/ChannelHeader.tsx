@@ -151,6 +151,7 @@ const ChannelHeader = forwardRef(
             style={{
               display: 'flex',
               alignItems: 'center',
+              flex: 1,
             }}
           >
             {isOwner && !currentChannel?.user ? (
@@ -186,8 +187,9 @@ const ChannelHeader = forwardRef(
                   y: 110,
                 });
               }}
+              style={{ display: 'flex', width: 0, flex: 1 }}
             >
-              <span className="channel-view__title">
+              <span className="channel-view__title text-ellipsis">
                 {currentChannel?.user?.user_name
                   ? normalizeUserName(currentChannel?.user?.user_name)
                   : currentChannel?.channel_name}

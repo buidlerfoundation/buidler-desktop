@@ -13,6 +13,12 @@
   pointer-events: none;
 }
 
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 textarea {
   font-weight: 600;
 }

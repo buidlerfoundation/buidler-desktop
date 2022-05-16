@@ -26,7 +26,7 @@ export const groupTaskByFiltered = (filterName: string, task: Array<any>) => {
         );
         return result;
       },
-      { todo: [], doing: [], done: [] }
+      { pinned: [], todo: [], doing: [], done: [] }
     );
   } else if (filterName === 'Due Date') {
     res = task
@@ -92,6 +92,8 @@ export const groupTaskByFiltered = (filterName: string, task: Array<any>) => {
 
 export const getIconByStatus = (status: string) => {
   switch (status) {
+    case 'pinned':
+      return images.icStatusPinned;
     case 'todo':
       return images.icCheckOutline;
     case 'doing':
@@ -106,12 +108,20 @@ export const getIconByStatus = (status: string) => {
 };
 
 export const isFilterStatus = (id: string) => {
-  return id === 'todo' || id === 'doing' || id === 'done' || id === 'archived';
+  return (
+    id === 'pinned' ||
+    id === 'todo' ||
+    id === 'doing' ||
+    id === 'done' ||
+    id === 'archived'
+  );
 };
 
 export const getGroupTask = (filterName: string, title: any) => {
   if (filterName === 'Status') {
     switch (title) {
+      case 'pinned':
+        return 'Pinned';
       case 'todo':
         return 'Todo';
       case 'doing':

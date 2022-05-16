@@ -42,7 +42,11 @@ const MessagePhotoItem = ({
         }
         if (photo.mimetype.includes('video')) {
           return (
-            <video className="photo-item" controls key={`${photo?.file_id}`}>
+            <video
+              className="photo-item video"
+              controls
+              key={`${photo?.file_id}`}
+            >
               <source
                 src={ImageHelper.normalizeImage(photo.file_url, teamId)}
                 type="video/mp4"

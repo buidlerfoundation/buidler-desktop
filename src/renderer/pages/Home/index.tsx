@@ -241,11 +241,10 @@ const Home = ({
     if (!currentChannel?.channel_id) return;
     deleteTask(task.task_id, currentChannel?.channel_id);
   };
-  const onUpdateStatus = (task: any) => {
+  const onUpdateStatus = (task: any, status: string) => {
     if (!currentChannel?.channel_id) return;
     updateTask(task.task_id, currentChannel?.channel_id, {
-      status:
-        task.status !== 'done' && task.status !== 'archived' ? 'done' : 'todo',
+      status,
       team_id: currentTeam.team_id,
     });
   };

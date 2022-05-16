@@ -14,6 +14,7 @@ import { clearData } from '../../common/Cookie';
 import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
 import actionTypes from 'renderer/actions/ActionTypes';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -59,6 +60,7 @@ const AppTitleBar = ({
     },
   ];
   const menuTeamRef = useRef<any>();
+  const [isOpenConfirmLeave, setOpenConfirmLeave] = useState(false);
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
@@ -124,23 +126,26 @@ const AppTitleBar = ({
       document.removeEventListener('keydown', listener);
     };
   }, [team, setTeam, currentTeam, channels, dispatch]);
+  const onLeaveTeam = async () => {
+    const nextTeam =
+      currentTeam.team_id === selectedMenuTeam.team_id
+        ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
+        : null;
+    const success = await leaveTeam?.(selectedMenuTeam.team_id);
+    if (nextTeam && success) {
+      setTeam(nextTeam);
+    }
+    setOpenConfirmLeave(false);
+  };
   const onSelectedMenu = async (menu: any) => {
     switch (menu.value) {
       case 'Leave team': {
-        const nextTeam =
-          currentTeam.team_id === selectedMenuTeam.team_id
-            ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
-            : null;
-        const success = await leaveTeam?.(selectedMenuTeam.team_id);
-        if (nextTeam && success) {
-          setTeam(nextTeam);
-        }
+        setOpenConfirmLeave(true);
         break;
       }
       default:
         break;
     }
-    setSelectedMenuTeam(null);
   };
 
   const onBackupPress = () => {
@@ -254,6 +259,18 @@ const AppTitleBar = ({
         data={teamMenu}
         onSelected={onSelectedMenu}
         onClose={() => {}}
+      />
+      <ModalConfirmDelete
+        open={isOpenConfirmLeave}
+        handleClose={() => {
+          setSelectedMenuTeam(null);
+          setOpenConfirmLeave(false);
+        }}
+        title="Leave community"
+        description="Are you sure you want to leave?"
+        contentName={selectedMenuTeam?.team_display_name}
+        contentDelete="Leave"
+        onDelete={onLeaveTeam}
       />
     </div>
   );

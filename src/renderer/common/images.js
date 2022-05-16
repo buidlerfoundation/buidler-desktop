@@ -71,6 +71,8 @@ import icImageDefault from '../assets/images/ic_image_default.svg';
 import icLogoSquare from '../assets/images/ic_logo_square.svg';
 import icPublicChannel from '../assets/images/ic_public_channel.svg';
 import icCirclePublicChannel from '../assets/images/ic_circle_public_channel.svg';
+import icPinned from '../assets/images/ic_pinned.svg';
+import icStatusPinned from '../assets/images/ic_status_pinned.svg';
 
 const images = {
   icTeamDefault,
@@ -146,6 +148,8 @@ const images = {
   icLogoSquare,
   icPublicChannel,
   icCirclePublicChannel,
+  icPinned,
+  icStatusPinned,
 };
 
 export default images;

@@ -57,8 +57,7 @@ const CreateChannelView = ({
         </span>
         <img className="group-title__icon" alt="" src={images.icCollapse} />
       </div>
-      <div style={{ height: 30 }} />
-      <div className="row__center">
+      <div className="row__center" style={{ marginTop: 30, display: 'none' }}>
         <span className="private-channel">Private Channel</span>
         <div style={{ width: 15 }} />
         <div

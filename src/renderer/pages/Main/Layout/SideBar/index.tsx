@@ -27,6 +27,7 @@ import ModalTeamSetting from '../../../../components/ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../../../../components/ModalConfirmDeleteTeam';
 import SpaceItem from './components/SpaceItem';
 import MemberSpace from './components/MemberSpace';
+import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
 
 type SideBarProps = {
   team?: any;
@@ -89,6 +90,8 @@ const SideBar = forwardRef(
     }: SideBarProps,
     ref
   ) => {
+    const [isOpenConfirmRemoveMember, setOpenConfirmRemoveMember] =
+      useState(false);
     const [openTeamSetting, setOpenTeamSetting] = useState(false);
     const [isCollapsed, setCollapsed] = useState(false);
     const [isOpenConfirmDeleteTeam, setOpenConfirmDeleteTeam] = useState(false);
@@ -129,6 +132,11 @@ const SideBar = forwardRef(
         },
       };
     });
+    const onRemoveMember = async () => {
+      await onRemoveTeamMember(selectedMenuMember);
+      setSelectedMenuMember(null);
+      setOpenConfirmRemoveMember(false);
+    };
     const onSelectedMenu = (menu: any) => {
       switch (menu.value) {
         case 'Create channel': {
@@ -160,7 +168,7 @@ const SideBar = forwardRef(
           break;
         }
         case 'Remove member': {
-          onRemoveTeamMember(selectedMenuMember);
+          setOpenConfirmRemoveMember(true);
           break;
         }
         default:
@@ -168,7 +176,6 @@ const SideBar = forwardRef(
       }
       setSelectedMenuSpaceChannel(null);
       setSelectedMenuChannel(null);
-      setSelectedMenuMember(null);
     };
     const user = teamUserData?.find?.((u) => u.user_id === userData?.user_id);
     const onDeleteClick = () => {
@@ -342,6 +349,15 @@ const SideBar = forwardRef(
             setOpenConfirmDeleteTeam(false);
             setOpenTeamSetting(false);
           }}
+        />
+        <ModalConfirmDelete
+          open={isOpenConfirmRemoveMember}
+          handleClose={() => setOpenConfirmRemoveMember(false)}
+          title="Remove member"
+          description="Are you sure you want to remove?"
+          contentName={selectedMenuMember?.user_name}
+          contentDelete="Remove"
+          onDelete={onRemoveMember}
         />
       </div>
     );

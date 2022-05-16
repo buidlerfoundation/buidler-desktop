@@ -14,7 +14,7 @@ const AssignItem = ({ isSelected, onClick, user }: AssignItemProps) => {
   return (
     <div className="assign__item normal-button" onClick={onClick}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {(user.avatar_url && <AvatarView user={user} />) || (
+        {(user.user_id && <AvatarView user={user} />) || (
           <img src={images.icUserCircle} alt="" />
         )}
         <span style={{ marginLeft: 15 }} className="username">

@@ -25,6 +25,7 @@
     font-weight: 600;
     font-size: 16px;
     line-height: 19px;
+    white-space: nowrap;
   }
   .channel-name {
     margin-left: 10px;
@@ -35,6 +36,9 @@
     font-weight: 600;
     font-size: 16px;
     line-height: 19px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .confirm-delete-channel__bottom {
     display: flex;

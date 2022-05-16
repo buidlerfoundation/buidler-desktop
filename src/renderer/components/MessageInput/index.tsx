@@ -303,7 +303,7 @@ const MessageInput = ({
           <img alt="" src={images.icPlusCircle} />
         </div>
         {text.length === 0 && (
-          <div className="placeholder-input">{placeholder}</div>
+          <div className="placeholder-input text-ellipsis">{placeholder}</div>
         )}
         <ContentEditable
           id="message-input"

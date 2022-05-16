@@ -11,6 +11,9 @@
     width: auto;
     height: auto;
     border-radius: 5px;
+    &.video {
+      object-fit: contain;
+    }
   }
   .file-item {
     padding: 15px 20px;
