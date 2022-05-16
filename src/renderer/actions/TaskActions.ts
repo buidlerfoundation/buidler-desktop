@@ -131,8 +131,10 @@ export const createTask =
     try {
       const data = body;
       delete data.attachments;
-      await api.createTask(data);
-      toast.success('Task created!');
+      const res = await api.createTask(data);
+      if (res.statusCode === 200) {
+        toast.success('Created!');
+      }
     } catch (e) {
       dispatch({
         type: actionTypes.CREATE_TASK_FAIL,

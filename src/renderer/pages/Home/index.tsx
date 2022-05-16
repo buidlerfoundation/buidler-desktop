@@ -230,12 +230,12 @@ const Home = ({
       const { res } = await createMemberChannelData(channelData.members);
       body.channel_member_data = res;
     }
-    await createNewChannel(
+    const success = await createNewChannel(
       currentTeam.team_id,
       body,
       channelData.space?.space_name
     );
-    setOpenCreateChannel(false);
+    if (success) setOpenCreateChannel(false);
   };
   const onDeleteTask = (task: any) => {
     if (!currentChannel?.channel_id) return;

@@ -142,7 +142,7 @@ const CreateTaskView = ({
             className="task-title"
             minRows={2}
             maxRows={12}
-            placeholder="Add task"
+            placeholder="Add title"
             onChange={(e) => {
               if (pasteFile.current) {
                 pasteFile.current = false;
@@ -239,7 +239,7 @@ const CreateTaskView = ({
           <div className="task__bottom">
             <NormalButton title="Cancel" onPress={onCancel} type="normal" />
             <div style={{ width: 10 }} />
-            <NormalButton title="Add Task" onPress={onCreate} type="main" />
+            <NormalButton title="Create" onPress={onCreate} type="main" />
           </div>
           <Popover
             elevation={0}

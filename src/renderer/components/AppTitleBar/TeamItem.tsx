@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
+import DefaultSpaceIcon from '../DefaultSpaceIcon';
 import './index.scss';
 
 type TeamItemProps = {
@@ -22,19 +23,25 @@ const TeamItem = ({
       onClick={onChangeTeam}
       onContextMenu={onContextMenu}
     >
-      <img
-        alt=""
-        className="team-icon-mini"
-        src={
-          t?.team_icon
-            ? ImageHelper.normalizeImage(t?.team_icon, t?.team_id, {
-                w: 20,
-                h: 20,
-                radius: 5,
-              })
-            : images.icLogoSquare
-        }
-      />
+      {t?.team_icon ? (
+        <img
+          alt=""
+          className="team-icon-mini"
+          src={ImageHelper.normalizeImage(t?.team_icon, t?.team_id, {
+            w: 20,
+            h: 20,
+            radius: 5,
+          })}
+        />
+      ) : (
+        <DefaultSpaceIcon
+          name={t.team_display_name}
+          size={20}
+          borderRadius={5}
+          fontSize={8}
+          fontMarginTop={2}
+        />
+      )}
       <div style={{ width: 8 }} />
       <span className="team-name">{t.team_display_name}</span>
     </div>

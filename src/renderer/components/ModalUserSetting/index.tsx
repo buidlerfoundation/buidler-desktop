@@ -10,6 +10,7 @@ import NormalButton from '../NormalButton';
 import SettingWallet from './SettingWallet';
 import { useSelector } from 'react-redux';
 import SettingSecurity from './SettingSecurity';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 
 type ModalUserSettingProps = {
   open: boolean;
@@ -35,6 +36,7 @@ const ModalUserSetting = ({
   onBackupPress,
 }: ModalUserSettingProps) => {
   const seed = useSelector((state: any) => state.configs.seed);
+  const [isOpenConfirmLogout, setOpenConfirmLogout] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState({
@@ -127,7 +129,10 @@ const ModalUserSetting = ({
               </div>
             );
           })}
-          <div className="log-out__wrapper" onClick={onLogout}>
+          <div
+            className="log-out__wrapper"
+            onClick={() => setOpenConfirmLogout(true)}
+          >
             <img alt="" src={images.icLeaveTeam} />
             <span className="log-out-text">Logout</span>
           </div>
@@ -177,6 +182,14 @@ const ModalUserSetting = ({
             />
           </div>
         </div>
+        <ModalConfirmDelete
+          open={isOpenConfirmLogout}
+          handleClose={() => setOpenConfirmLogout(false)}
+          title="Logout"
+          description="If you log out, you will lose your data. Are u sure u want to log out?"
+          onDelete={onLogout}
+          contentDelete="Logout"
+        />
       </div>
     </Modal>
   );

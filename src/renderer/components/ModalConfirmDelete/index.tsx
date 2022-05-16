@@ -37,9 +37,11 @@ const ModalConfirmDelete = ({
             <span className="confirm-delete-channel__content">
               {description}
             </span>
-            <div className="channel-name">
-              <span>{contentName}</span>
-            </div>
+            {contentName && (
+              <div className="channel-name">
+                <span>{contentName}</span>
+              </div>
+            )}
           </div>
           <div className="confirm-delete-channel__bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />

@@ -75,7 +75,9 @@ const ModalTeam = ({
   useEffect(() => {
     generateId.current = null;
     setLink('');
+    setFile(null);
     setTeamData({ name: '' });
+    setTabIndex(0);
   }, [open]);
 
   return (

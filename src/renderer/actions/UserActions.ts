@@ -199,6 +199,7 @@ export const createNewChannel =
         payload: res,
       });
     }
+    return res.statusCode === 200;
   };
 
 const actionSetCurrentTeam = async (

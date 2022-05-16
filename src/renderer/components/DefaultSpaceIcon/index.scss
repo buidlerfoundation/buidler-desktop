@@ -1,8 +1,5 @@
 .default-space-icon__container {
   font-family: 'Helvetica', -apple-system, sans-serif;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
   background-color: black;
   display: flex;
   align-items: center;
@@ -10,8 +7,7 @@
 
   .text {
     font-size: 13px;
-    line-height: 18px;
     color: white;
-    margin-top: 4px;
+    text-transform: uppercase;
   }
 }

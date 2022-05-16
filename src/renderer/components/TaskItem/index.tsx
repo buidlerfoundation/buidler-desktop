@@ -16,6 +16,8 @@ import DatePickerV2 from '../DatePickerV2';
 import GlobalVariable from '../../services/GlobalVariable';
 import AvatarView from '../AvatarView';
 import { normalizeMessageText } from '../../helpers/MessageHelper';
+import StatusSelectionPopup from '../StatusSelectionPopup';
+import { ProgressStatus } from 'renderer/common/AppConfig';
 
 type TaskItemProps = {
   reactReducer?: any;
@@ -453,11 +455,15 @@ const TaskItem = ({
       <PopoverButton
         popupOnly
         ref={popupPinnedMenuRef}
-        data={pinnedMenu}
-        onSelected={(menu) => {
-          onUpdateStatus(menu.value);
-        }}
         onClose={() => {}}
+        componentPopup={
+          <StatusSelectionPopup
+            onSelectedStatus={async (status) => {
+              onUpdateStatus(status.id);
+            }}
+            data={ProgressStatus.filter((el) => el.id !== 'pinned')}
+          />
+        }
       />
     </div>
   );
