@@ -54,8 +54,8 @@ const AppTitleBar = ({
   const location = useLocation();
   const teamMenu = [
     {
-      label: 'Leave team',
-      value: 'Leave team',
+      label: 'Leave community',
+      value: 'Leave community',
       icon: images.icLeaveTeam,
     },
   ];
@@ -139,7 +139,7 @@ const AppTitleBar = ({
   };
   const onSelectedMenu = async (menu: any) => {
     switch (menu.value) {
-      case 'Leave team': {
+      case 'Leave community': {
         setOpenConfirmLeave(true);
         break;
       }
