@@ -3,9 +3,10 @@ import { Modal } from '@material-ui/core';
 import './index.scss';
 import NormalButton from '../NormalButton';
 import AppInput from '../AppInput';
-import { getCookie } from 'renderer/common/Cookie';
+import { getCookie, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import toast from 'react-hot-toast';
+import { decryptString, encryptString, getIV } from 'renderer/utils/DataCrypto';
 
 type ModalChangePasswordProps = {
   open: boolean;
@@ -22,14 +23,25 @@ const ModalChangePassword = ({
   const togglePassword = () => setShowPassword(!showPassword);
   const onSave = async () => {
     try {
+      let seed = null;
       const iv = await getIV();
       const encryptedStr: any = await getCookie(AsyncKey.encryptedDataKey);
-
+      const encryptedSeed: any = await getCookie(AsyncKey.encryptedSeedKey);
+      if (Object.keys(encryptedSeed || {}).length > 0) {
+        seed = decryptString(encryptedSeed, password, iv);
+      }
       const decryptedStr = decryptString(encryptedStr, password, iv);
       if (!decryptedStr) {
         toast.error('Invalid Password');
       } else {
-        // change pass
+        const encryptedData = encryptString(decryptedStr, newPassword, iv);
+        setCookie(AsyncKey.encryptedDataKey, encryptedData);
+        if (seed) {
+          const encryptedSeedData = encryptString(seed, newPassword, iv);
+          setCookie(AsyncKey.encryptedSeedKey, encryptedSeedData);
+        }
+        toast.success('Password changed!');
+        handleClose();
       }
     } catch (error) {
       toast.error('Invalid Password');

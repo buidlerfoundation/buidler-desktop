@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import actions from 'renderer/actions';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { AsyncKey } from 'renderer/common/AppConfig';
-import { getCookie } from 'renderer/common/Cookie';
+import { clearData, getCookie } from 'renderer/common/Cookie';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
 import {
@@ -122,7 +122,12 @@ const UnlockPrivateKey = ({
         />
       </div>
       {/* <EmojiPicker onClick={(emoji) => {}} /> */}
-      <div className="add-other-button normal-button">
+      <div
+        className="add-other-button normal-button"
+        onClick={() => {
+          // clearData();
+        }}
+      >
         <span>Add other account</span>
       </div>
     </div>
