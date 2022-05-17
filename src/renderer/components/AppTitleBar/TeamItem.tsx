@@ -35,10 +35,10 @@ const TeamItem = ({
         />
       ) : (
         <DefaultSpaceIcon
-          name={t.team_display_name}
+          name={t.team_display_name ? t.team_display_name.charAt(0) : ''}
           size={20}
           borderRadius={5}
-          fontSize={8}
+          fontSize={12}
           fontMarginTop={2}
         />
       )}

@@ -8,6 +8,7 @@ import Dropzone from 'react-dropzone';
 import { getUniqueId } from '../../helpers/GenerateUUID';
 import api from '../../api';
 import GlobalVariable from '../../services/GlobalVariable';
+import DefaultSpaceIcon from '../DefaultSpaceIcon';
 
 type ModalTeamSettingProps = {
   open: boolean;
@@ -31,6 +32,10 @@ const ModalTeamSetting = ({
   useEffect(() => {
     setTeamName(team?.team_display_name);
   }, [team?.team_display_name]);
+  useEffect(() => {
+    setFile(null);
+    generateId.current = '';
+  }, [open]);
   const onAddFile = (fs: any) => {
     if (fs == null) return;
     generateId.current = getUniqueId();
@@ -67,7 +72,7 @@ const ModalTeamSetting = ({
       ? ImageHelper.normalizeImage(team?.team_icon, team?.team_id, {
           w: 90,
           h: 90,
-          radius: 45,
+          radius: 12,
         })
       : images.icTeamDefault;
   };
@@ -87,28 +92,35 @@ const ModalTeamSetting = ({
               </div>
               <div className="setting-body">
                 <div className="setting-item">
-                  <img
-                    className="team-avatar-small"
-                    src={
-                      team?.team_icon
-                        ? ImageHelper.normalizeImage(
-                            team?.team_icon,
-                            team?.team_id,
-                            {
-                              w: 25,
-                              h: 25,
-                              radius: 12.5,
-                            }
-                          )
-                        : images.icTeamDefault
-                    }
-                    alt=""
-                  />
-                  <span className="setting-label">Team profile</span>
+                  {team?.team_icon ? (
+                    <img
+                      className="team-avatar-small"
+                      src={ImageHelper.normalizeImage(
+                        team?.team_icon,
+                        team?.team_id,
+                        {
+                          w: 25,
+                          h: 25,
+                          radius: 5,
+                        }
+                      )}
+                      alt=""
+                    />
+                  ) : (
+                    <DefaultSpaceIcon
+                      name={
+                        team?.team_display_name
+                          ? team.team_display_name.charAt(0)
+                          : ''
+                      }
+                      size={25}
+                      borderRadius={5}
+                      fontSize={14}
+                      fontMarginTop={6}
+                    />
+                  )}
+                  <span className="setting-label">Community profile</span>
                 </div>
-              </div>
-              <div className="app-version">
-                <span>1.1.78</span>
               </div>
             </div>
             <div className="body">
@@ -117,7 +129,21 @@ const ModalTeamSetting = ({
                 className="team-avatar__wrapper normal-button"
                 onClick={() => inputFileRef.current?.click()}
               >
-                <img className="team-avatar" src={srcImage()} alt="" />
+                {file || team?.team_icon ? (
+                  <img className="team-avatar" src={srcImage()} alt="" />
+                ) : (
+                  <DefaultSpaceIcon
+                    name={
+                      team?.team_display_name
+                        ? team.team_display_name.charAt(0)
+                        : ''
+                    }
+                    size={90}
+                    borderRadius={12}
+                    fontSize={40}
+                    fontMarginTop={10}
+                  />
+                )}
                 <img className="icon-camera" alt="" src={images.icCameraDark} />
                 {file?.loading && (
                   <div className="attachment-loading">

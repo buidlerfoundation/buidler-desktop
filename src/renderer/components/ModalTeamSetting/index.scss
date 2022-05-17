@@ -53,7 +53,7 @@
     .team-avatar-small {
       width: 25px;
       height: 25px;
-      border-radius: 50%;
+      object-fit: cover;
     }
   }
   .body {
@@ -76,7 +76,8 @@
       .team-avatar {
         width: 90px;
         height: 90px;
-        border-radius: 50%;
+        border-radius: 12px;
+        object-fit: cover;
       }
       .icon-camera {
         position: absolute;
@@ -89,7 +90,7 @@
         left: 0;
         bottom: 0;
         right: 0;
-        border-radius: 50%;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;

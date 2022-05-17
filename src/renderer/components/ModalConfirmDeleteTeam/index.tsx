@@ -41,7 +41,7 @@ const ModalConfirmDeleteTeam = ({
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
             <div style={{ width: 10 }} />
             <NormalButton
-              title="Delete Team"
+              title="Delete Community"
               onPress={onDelete}
               type="danger"
             />

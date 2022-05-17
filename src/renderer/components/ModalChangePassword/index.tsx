@@ -3,6 +3,9 @@ import { Modal } from '@material-ui/core';
 import './index.scss';
 import NormalButton from '../NormalButton';
 import AppInput from '../AppInput';
+import { getCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
+import toast from 'react-hot-toast';
 
 type ModalChangePasswordProps = {
   open: boolean;
@@ -17,7 +20,21 @@ const ModalChangePassword = ({
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(true);
   const togglePassword = () => setShowPassword(!showPassword);
-  const onSave = () => {};
+  const onSave = async () => {
+    try {
+      const iv = await getIV();
+      const encryptedStr: any = await getCookie(AsyncKey.encryptedDataKey);
+
+      const decryptedStr = decryptString(encryptedStr, password, iv);
+      if (!decryptedStr) {
+        toast.error('Invalid Password');
+      } else {
+        // change pass
+      }
+    } catch (error) {
+      toast.error('Invalid Password');
+    }
+  };
   const onChangeText = (e: any) => {
     setPassword(e.target.value);
   };

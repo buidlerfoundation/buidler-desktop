@@ -15,6 +15,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
 import actionTypes from 'renderer/actions/ActionTypes';
 import ModalConfirmDelete from '../ModalConfirmDelete';
+import ModalTeamSetting from '../ModalTeamSetting';
+import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -31,6 +33,8 @@ type AppTitleBarProps = {
   updateUser?: (userData: any) => any;
   privateKey?: string;
   findTeamAndChannel: () => any;
+  updateTeam: (teamId: string, body: any) => any;
+  deleteTeam: (teamId: string) => any;
 };
 
 const AppTitleBar = ({
@@ -48,11 +52,19 @@ const AppTitleBar = ({
   updateUser,
   privateKey,
   findTeamAndChannel,
+  updateTeam,
+  deleteTeam,
 }: AppTitleBarProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
+  const [openTeamSetting, setOpenTeamSetting] = useState(false);
   const teamMenu = [
+    {
+      label: 'Community setting',
+      value: 'Community setting',
+      icon: images.icCommunitySetting,
+    },
     {
       label: 'Leave community',
       value: 'Leave community',
@@ -61,6 +73,7 @@ const AppTitleBar = ({
   ];
   const menuTeamRef = useRef<any>();
   const [isOpenConfirmLeave, setOpenConfirmLeave] = useState(false);
+  const [isOpenConfirmDeleteTeam, setOpenConfirmDeleteTeam] = useState(false);
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
@@ -74,6 +87,9 @@ const AppTitleBar = ({
     },
     [setCurrentTeam, history]
   );
+  const onDeleteClick = () => {
+    setOpenConfirmDeleteTeam(true);
+  };
   useEffect(() => {
     const listener = (event: any) => {
       if (event.metaKey) {
@@ -126,6 +142,18 @@ const AppTitleBar = ({
       document.removeEventListener('keydown', listener);
     };
   }, [team, setTeam, currentTeam, channels, dispatch]);
+  const onDeleteTeam = async () => {
+    const nextTeam =
+      currentTeam.team_id === selectedMenuTeam.team_id
+        ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
+        : null;
+    const success = await deleteTeam(selectedMenuTeam?.team_id);
+    if (nextTeam && success) {
+      setTeam(nextTeam);
+    }
+    setOpenConfirmDeleteTeam(false);
+    setOpenTeamSetting(false);
+  };
   const onLeaveTeam = async () => {
     const nextTeam =
       currentTeam.team_id === selectedMenuTeam.team_id
@@ -141,6 +169,10 @@ const AppTitleBar = ({
     switch (menu.value) {
       case 'Leave community': {
         setOpenConfirmLeave(true);
+        break;
+      }
+      case 'Community setting': {
+        setOpenTeamSetting(true);
         break;
       }
       default:
@@ -271,6 +303,22 @@ const AppTitleBar = ({
         contentName={selectedMenuTeam?.team_display_name}
         contentDelete="Leave"
         onDelete={onLeaveTeam}
+      />
+      <ModalConfirmDeleteTeam
+        open={isOpenConfirmDeleteTeam}
+        handleClose={() => setOpenConfirmDeleteTeam(false)}
+        teamName={selectedMenuTeam?.team_display_name}
+        onDelete={onDeleteTeam}
+      />
+      <ModalTeamSetting
+        open={openTeamSetting}
+        handleClose={() => {
+          setSelectedMenuTeam(null);
+          setOpenTeamSetting(false);
+        }}
+        team={selectedMenuTeam}
+        updateTeam={updateTeam}
+        onDeleteClick={onDeleteClick}
       />
     </div>
   );
