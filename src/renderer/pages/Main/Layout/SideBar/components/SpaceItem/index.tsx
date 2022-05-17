@@ -137,7 +137,7 @@ const SpaceItem = ({
           <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
         )}
 
-        <span className="title">{space.space_name}</span>
+        <span className="title text-ellipsis">{space.space_name}</span>
       </div>
       {channelSpace?.map?.((c: any) => (
         <ChannelItem

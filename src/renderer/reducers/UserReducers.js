@@ -101,20 +101,6 @@ const userReducers = (state = initialState, action) => {
             return {
               ...el,
               ...payload,
-            };
-          }
-          return el;
-        }),
-      };
-    }
-    case actionTypes.UPDATE_SPACE_AVATAR_SUCCESS: {
-      return {
-        ...state,
-        spaceChannel: state.spaceChannel.map((el) => {
-          if (el.space_id === payload.space_id) {
-            return {
-              ...el,
-              ...payload,
               attachment: null,
             };
           }
@@ -122,6 +108,35 @@ const userReducers = (state = initialState, action) => {
         }),
       };
     }
+    case actionTypes.UPDATE_SPACE_AVATAR_FAIL: {
+      return {
+        ...state,
+        spaceChannel: state.spaceChannel.map((el) => {
+          if (el.space_id === payload.spaceId) {
+            return {
+              ...el,
+              attachment: null,
+            };
+          }
+          return el;
+        }),
+      };
+    }
+    // case actionTypes.UPDATE_SPACE_AVATAR_SUCCESS: {
+    //   return {
+    //     ...state,
+    //     spaceChannel: state.spaceChannel.map((el) => {
+    //       if (el.space_id === payload.space_id) {
+    //         return {
+    //           ...el,
+    //           ...payload,
+    //           attachment: null,
+    //         };
+    //       }
+    //       return el;
+    //     }),
+    //   };
+    // }
     case actionTypes.UPDATE_SPACE_AVATAR_REQUEST: {
       return {
         ...state,
@@ -136,14 +151,13 @@ const userReducers = (state = initialState, action) => {
         }),
       };
     }
-    case actionTypes.UPDATE_CHANNEL_AVATAR_SUCCESS: {
+    case actionTypes.UPDATE_CHANNEL_AVATAR_FAIL: {
       return {
         ...state,
         channel: state.channel.map((el) => {
-          if (el.channel_id === payload.channel_id) {
+          if (el.channel_id === payload.channelId) {
             return {
               ...el,
-              ...payload,
               attachment: null,
             };
           }

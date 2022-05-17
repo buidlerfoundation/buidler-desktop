@@ -228,6 +228,8 @@ class SocketUtil {
         this.socket.off('ON_SYNC_DATA_SEND');
         this.socket.off('ON_UPDATE_CHANNEL');
         this.socket.off('ON_DELETE_CHANNEL');
+        this.socket.off('ON_UPDATE_SPACE');
+        this.socket.off('ON_DELETE_SPACE');
         this.socket.off('disconnect');
       });
       // loadMessageIfNeeded();
@@ -286,6 +288,18 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_DELETE_SPACE', (data: any) => {
+      store.dispatch({
+        type: actionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
+        payload: { spaceId: data.space_id },
+      });
+    });
+    this.socket.on('ON_UPDATE_SPACE', (data: any) => {
+      store.dispatch({
+        type: actionTypes.UPDATE_GROUP_CHANNEL_SUCCESS,
+        payload: data,
+      });
+    });
     this.socket.on('ON_DELETE_CHANNEL', (data: any) => {
       store.dispatch({
         type: actionTypes.DELETE_CHANNEL_SUCCESS,
@@ -295,7 +309,7 @@ class SocketUtil {
     this.socket.on('ON_UPDATE_CHANNEL', (data: any) => {
       store.dispatch({
         type: actionTypes.UPDATE_CHANNEL_SUCCESS,
-        payload: data,
+        payload: { ...data, attachment: null },
       });
     });
     this.socket.on('ON_SYNC_DATA_SEND', async (data: any) => {
@@ -535,6 +549,9 @@ class SocketUtil {
         (c: any) => c.channel_id === message_data.channel_id
       );
       if (!currentChannel.channel_id) {
+        if (currentChannel.channel_type === 'Direct') {
+          return;
+        }
         store.dispatch({
           type: actionTypes.SET_CURRENT_CHANNEL,
           payload: {

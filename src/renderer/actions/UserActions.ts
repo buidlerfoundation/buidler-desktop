@@ -267,17 +267,6 @@ export const deleteSpaceChannel =
       payload: { spaceId },
     });
     const res = await api.deleteSpaceChannel(spaceId);
-    if (res.statusCode === 200) {
-      dispatch({
-        type: ActionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
-        payload: { ...res, spaceId },
-      });
-    } else {
-      dispatch({
-        type: ActionTypes.DELETE_GROUP_CHANNEL_FAIL,
-        payload: res,
-      });
-    }
   };
 
 export const uploadChannelAvatar =
@@ -298,21 +287,10 @@ export const uploadChannelAvatar =
         channel_emoji: '',
         channel_image_url: fileRes.file_url,
       });
-      if (res.statusCode === 200) {
-        dispatch({
-          type: ActionTypes.UPDATE_CHANNEL_AVATAR_SUCCESS,
-          payload: res,
-        });
-      } else {
-        dispatch({
-          type: ActionTypes.UPDATE_CHANNEL_AVATAR_FAIL,
-          payload: { message: res.message },
-        });
-      }
     } else {
       dispatch({
         type: ActionTypes.UPDATE_CHANNEL_AVATAR_FAIL,
-        payload: { message: fileRes.message },
+        payload: { message: fileRes.message, channelId },
       });
     }
   };
@@ -335,21 +313,10 @@ export const uploadSpaceAvatar =
         space_emoji: '',
         space_image_url: fileRes.file_url,
       });
-      if (res.statusCode === 200) {
-        dispatch({
-          type: ActionTypes.UPDATE_SPACE_AVATAR_SUCCESS,
-          payload: res,
-        });
-      } else {
-        dispatch({
-          type: ActionTypes.UPDATE_SPACE_AVATAR_FAIL,
-          payload: { message: res.message },
-        });
-      }
     } else {
       dispatch({
         type: ActionTypes.UPDATE_SPACE_AVATAR_FAIL,
-        payload: { message: fileRes.message },
+        payload: { message: fileRes.message, spaceId },
       });
     }
   };
@@ -361,17 +328,6 @@ export const updateSpaceChannel =
       payload: { spaceId, body },
     });
     const res = await api.updateSpaceChannel(spaceId, body);
-    if (res.statusCode === 200) {
-      dispatch({
-        type: ActionTypes.UPDATE_GROUP_CHANNEL_SUCCESS,
-        payload: res,
-      });
-    } else {
-      dispatch({
-        type: ActionTypes.UPDATE_GROUP_CHANNEL_FAIL,
-        payload: res,
-      });
-    }
   };
 
 export const createSpaceChannel =

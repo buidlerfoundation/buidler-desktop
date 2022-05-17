@@ -182,10 +182,12 @@ const ChannelHeader = forwardRef(
             <div
               ref={settingButtonRef}
               onClick={(e) => {
-                settingRef.current?.show(e.currentTarget, {
-                  x: 385,
-                  y: 110,
-                });
+                if (!currentChannel?.user) {
+                  settingRef.current?.show(e.currentTarget, {
+                    x: 385,
+                    y: 110,
+                  });
+                }
               }}
               style={{ display: 'flex', width: 0, flex: 1 }}
             >

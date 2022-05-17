@@ -196,7 +196,7 @@ export const normalizeMessageData = async (
   const configs: any = store.getState()?.configs;
   const { channelPrivateKey } = configs;
   const keys = channelPrivateKey?.[channelId] || [];
-  if (keys.length === 0) return [];
+  if (keys?.length === 0) return [];
   const req =
     messages?.map?.((el) =>
       normalizeMessageItem(
