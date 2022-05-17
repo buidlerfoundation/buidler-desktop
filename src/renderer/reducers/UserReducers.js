@@ -14,11 +14,18 @@ const initialState = {
   loginGoogleUrl: null,
   teamUserData: [],
   lastChannel: {},
+  spaceMembers: [],
 };
 
 const userReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.SPACE_MEMBER_SUCCESS: {
+      return {
+        ...state,
+        spaceMembers: payload.data,
+      };
+    }
     case actionTypes.UPDATE_USER_SUCCESS: {
       return {
         ...state,

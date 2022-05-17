@@ -38,5 +38,5 @@ export const updateSpaceChannel = (spaceId: string, body: any) =>
 export const deleteSpaceChannel = (spaceId: string) =>
   ApiCaller.delete(`space/${spaceId}`);
 
-export const spaceMembers = (id: string) =>
+export const getSpaceMembers = (id: string) =>
   ApiCaller.get(`space/${id}/members`);

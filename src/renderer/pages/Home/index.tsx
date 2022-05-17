@@ -111,6 +111,7 @@ type HomeProps = {
   findUser: () => any;
   findTeamAndChannel: () => any;
   setCurrentTeam: (team: any) => any;
+  getSpaceMembers: (spaceId: string) => any;
 };
 
 const filterTask: Array<PopoverItem> = [
@@ -172,6 +173,7 @@ const Home = ({
   setCurrentTeam,
   uploadSpaceAvatar,
   uploadChannelAvatar,
+  getSpaceMembers,
 }: HomeProps) => {
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const dispatch = useDispatch();
@@ -339,6 +341,12 @@ const Home = ({
     currentTeam?.team_id,
     privateKey,
   ]);
+
+  useEffect(() => {
+    if (currentChannel?.space_id) {
+      getSpaceMembers?.(currentChannel?.space_id);
+    }
+  }, [currentChannel?.space_id, getSpaceMembers]);
 
   useEffect(() => {
     if (currentMessage) {

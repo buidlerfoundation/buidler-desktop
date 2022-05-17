@@ -550,3 +550,14 @@ export const updateUser = (userData: any) => async (dispatch: Dispatch) => {
     dispatch({ type: ActionTypes.UPDATE_USER_FAIL, message: error });
   }
 };
+
+export const getSpaceMembers =
+  (spaceId: string) => async (dispatch: Dispatch) => {
+    dispatch({ type: ActionTypes.SPACE_MEMBER_REQUEST, payload: spaceId });
+    const res = await api.getSpaceMembers(spaceId);
+    if (res.statusCode === 200) {
+      dispatch({ type: ActionTypes.SPACE_MEMBER_SUCCESS, payload: res });
+    } else {
+      dispatch({ type: ActionTypes.SPACE_MEMBER_FAIL, payload: res });
+    }
+  };

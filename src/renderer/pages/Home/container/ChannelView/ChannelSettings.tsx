@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import SettingChannel from './SettingChannel';
 import SettingMember from './SettingMember';
 
@@ -24,6 +25,7 @@ const ChannelSettings = ({
   isActiveName,
 }: ChannelSettingsProps) => {
   const [page, setPage] = useState(1);
+  const spaceMembers = useSelector((state) => state.user.spaceMembers);
   const isChannelPrivate = currentChannel?.channel_type === 'Private';
   useEffect(() => {
     if (isActiveMember) {
@@ -65,7 +67,7 @@ const ChannelSettings = ({
         <SettingMember
           currentChannel={currentChannel}
           setCurrentChannel={setCurrentChannel}
-          teamUserData={teamUserData}
+          teamUserData={isChannelPrivate ? spaceMembers : teamUserData}
         />
       )}
     </div>
