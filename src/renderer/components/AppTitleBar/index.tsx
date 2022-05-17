@@ -61,9 +61,9 @@ const AppTitleBar = ({
   const [openTeamSetting, setOpenTeamSetting] = useState(false);
   const teamMenu = [
     {
-      label: 'Community setting',
-      value: 'Community setting',
-      icon: images.icCommunitySetting,
+      label: 'Edit community profile',
+      value: 'Edit community profile',
+      icon: images.icSettingChannelEdit,
     },
     {
       label: 'Leave community',
@@ -171,7 +171,7 @@ const AppTitleBar = ({
         setOpenConfirmLeave(true);
         break;
       }
-      case 'Community setting': {
+      case 'Edit community profile': {
         setOpenTeamSetting(true);
         break;
       }
