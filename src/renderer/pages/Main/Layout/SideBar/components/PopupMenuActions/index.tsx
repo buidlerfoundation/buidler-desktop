@@ -25,9 +25,6 @@ const PopupMenuActions = ({
           history.replace('/started');
         }}
       />
-      <div className="app-version">
-        <span>1.1.78</span>
-      </div>
     </div>
   );
 };

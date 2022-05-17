@@ -282,13 +282,6 @@ const SideBar = forwardRef(
         ) : (
           <div className="sidebar-body" />
         )}
-        <ModalTeamSetting
-          open={openTeamSetting}
-          handleClose={() => setOpenTeamSetting(false)}
-          team={currentTeam}
-          updateTeam={updateTeam}
-          onDeleteClick={onDeleteClick}
-        />
         <PopoverButton
           popupOnly
           ref={menuSpaceChannelRef}
@@ -340,16 +333,6 @@ const SideBar = forwardRef(
             onLogout={() => logout?.()}
           />
         </Popover>
-        <ModalConfirmDeleteTeam
-          open={isOpenConfirmDeleteTeam}
-          handleClose={() => setOpenConfirmDeleteTeam(false)}
-          teamName={currentTeam?.team_display_name}
-          onDelete={() => {
-            deleteTeam(currentTeam?.team_id);
-            setOpenConfirmDeleteTeam(false);
-            setOpenTeamSetting(false);
-          }}
-        />
         <ModalConfirmDelete
           open={isOpenConfirmRemoveMember}
           handleClose={() => setOpenConfirmRemoveMember(false)}
