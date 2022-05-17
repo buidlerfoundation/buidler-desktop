@@ -151,11 +151,6 @@ export const updateChannel =
       payload: { channelId, body },
     });
     const res = await api.updateChannel(channelId, body);
-    if (res.statusCode === 200) {
-      dispatch({ type: ActionTypes.UPDATE_CHANNEL_SUCCESS, payload: res });
-    } else {
-      dispatch({ type: ActionTypes.UPDATE_CHANNEL_FAIL, payload: res });
-    }
   };
 
 export const deleteChannel =
@@ -165,14 +160,6 @@ export const deleteChannel =
       payload: { channelId },
     });
     const res = await api.deleteChannel(channelId);
-    if (res.statusCode === 200) {
-      dispatch({
-        type: ActionTypes.DELETE_CHANNEL_SUCCESS,
-        payload: { ...res, channelId },
-      });
-    } else {
-      dispatch({ type: ActionTypes.DELETE_CHANNEL_FAIL, payload: res });
-    }
   };
 
 export const createNewChannel =

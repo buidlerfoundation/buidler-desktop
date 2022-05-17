@@ -226,6 +226,8 @@ class SocketUtil {
         this.socket.off('ON_CHANNEL_KEY_SEND');
         this.socket.off('ON_VERIFY_DEVICE_OTP_SEND');
         this.socket.off('ON_SYNC_DATA_SEND');
+        this.socket.off('ON_UPDATE_CHANNEL');
+        this.socket.off('ON_DELETE_CHANNEL');
         this.socket.off('disconnect');
       });
       // loadMessageIfNeeded();
@@ -284,6 +286,18 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_DELETE_CHANNEL', (data: any) => {
+      store.dispatch({
+        type: actionTypes.DELETE_CHANNEL_SUCCESS,
+        payload: { channelId: data.channel_id },
+      });
+    });
+    this.socket.on('ON_UPDATE_CHANNEL', (data: any) => {
+      store.dispatch({
+        type: actionTypes.UPDATE_CHANNEL_SUCCESS,
+        payload: data,
+      });
+    });
     this.socket.on('ON_SYNC_DATA_SEND', async (data: any) => {
       const dataKey = await getRawPrivateChannel();
       const deviceCode = await getDeviceCode();

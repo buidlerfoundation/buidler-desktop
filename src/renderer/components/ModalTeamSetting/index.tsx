@@ -95,15 +95,19 @@ const ModalTeamSetting = ({
                   {team?.team_icon ? (
                     <img
                       className="team-avatar-small"
-                      src={ImageHelper.normalizeImage(
-                        team?.team_icon,
-                        team?.team_id,
-                        {
-                          w: 25,
-                          h: 25,
-                          radius: 5,
-                        }
-                      )}
+                      src={
+                        file
+                          ? file.file
+                          : ImageHelper.normalizeImage(
+                              team?.team_icon,
+                              team?.team_id,
+                              {
+                                w: 25,
+                                h: 25,
+                                radius: 5,
+                              }
+                            )
+                      }
                       alt=""
                     />
                   ) : (
