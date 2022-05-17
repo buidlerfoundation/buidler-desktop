@@ -68,7 +68,7 @@ const UpdateUserProfile = ({
     <Dropzone onDrop={onAddFiles} multiple={false}>
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
-          <span className="modal-label">User profile</span>
+          <span className="modal-label">User Profile</span>
           <div className="avatar-view">
             <div
               className="user-avatar__wrapper"

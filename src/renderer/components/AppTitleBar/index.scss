@@ -36,6 +36,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex: 1;
   }
   &:hover {
     background-color: var(--color-stroke);

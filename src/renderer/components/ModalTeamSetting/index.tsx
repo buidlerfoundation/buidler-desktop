@@ -128,7 +128,7 @@ const ModalTeamSetting = ({
               </div>
             </div>
             <div className="body">
-              <span className="modal-label">Update Community profile</span>
+              <span className="modal-label">Community Profile</span>
               <div
                 className="team-avatar__wrapper normal-button"
                 onClick={() => inputFileRef.current?.click()}

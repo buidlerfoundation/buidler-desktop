@@ -40,7 +40,7 @@ const CreateCommunityState = ({
             <span>
               Add
               <br />
-              Icon
+              icon
             </span>
           )}
           <img className="icon-camera" alt="" src={images.icCameraDark} />

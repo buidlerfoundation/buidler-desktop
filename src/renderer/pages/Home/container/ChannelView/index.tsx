@@ -535,7 +535,7 @@ const ChannelView = forwardRef(
                     )}
                 </div>
                 <MessageInput
-                  placeholder={`message to ${
+                  placeholder={`Message to ${
                     currentChannel?.user?.user_name
                       ? normalizeUserName(currentChannel?.user?.user_name)
                       : `# ${currentChannel?.channel_name}`
