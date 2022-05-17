@@ -260,6 +260,12 @@ const messageReducers = (state = initialState, action) => {
         conversationData: newConversationData,
       };
     }
+    case actionTypes.LOGOUT: {
+      return {
+        messageData: {},
+        conversationData: {},
+      };
+    }
     default:
       return state;
   }

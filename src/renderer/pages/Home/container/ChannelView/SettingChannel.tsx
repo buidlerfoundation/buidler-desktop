@@ -126,19 +126,7 @@ const SettingChannel = ({
         className="setting-item normal-button"
         onClick={() => setOpenConfirm(true)}
       >
-        <div
-          style={{
-            borderRadius: '50%',
-            width: 25,
-            height: 25,
-            backgroundColor: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <img src={images.icSettingChannelDelete} alt="" />
-        </div>
+        <img src={images.icSettingChannelDelete} alt="" />
         <span className="setting-label">Delete channel</span>
       </div>
       <ModalConfirmDeleteChannel

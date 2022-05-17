@@ -9,6 +9,11 @@ const initialState = {
 const taskReducers = (state = initialState, action) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.LOGOUT: {
+      return {
+        taskData: {},
+      };
+    }
     case actionTypes.ARCHIVED_TASK_SUCCESS: {
       const { channelId, res } = payload;
       return {
@@ -79,13 +84,8 @@ const taskReducers = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATE_TASK_REQUEST: {
-      const {
-        taskId,
-        data,
-        channelId,
-        direct_channel,
-        channelUserId,
-      } = payload;
+      const { taskId, data, channelId, direct_channel, channelUserId } =
+        payload;
       if (!state.taskData[channelId]) return state;
       const { tasks, archivedTasks, archivedCount } = state.taskData[channelId];
       let newTasks = [...(tasks || [])];

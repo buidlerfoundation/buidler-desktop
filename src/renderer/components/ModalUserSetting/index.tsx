@@ -186,7 +186,7 @@ const ModalUserSetting = ({
           open={isOpenConfirmLogout}
           handleClose={() => setOpenConfirmLogout(false)}
           title="Logout"
-          description="If you log out, you will lose your data. Are u sure u want to log out?"
+          description="If you log out, you will lose your data. Are you sure you want to log out?"
           onDelete={onLogout}
           contentDelete="Logout"
         />
