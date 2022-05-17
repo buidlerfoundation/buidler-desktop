@@ -33,6 +33,7 @@ import {
   encryptMessage,
 } from 'renderer/helpers/ChannelHelper';
 import DirectDescription from './DirectDescription';
+import toast from 'react-hot-toast';
 
 type ChannelViewProps = {
   currentChannel: any;
@@ -245,9 +246,16 @@ const ChannelView = forwardRef(
             currentChannel.channel_id)
         ) {
           const { key } =
-            channelPrivateKey[currentChannel.channel_id][
-              channelPrivateKey[currentChannel.channel_id].length - 1
-            ];
+            channelPrivateKey?.[currentChannel.channel_id]?.[
+              channelPrivateKey?.[currentChannel.channel_id]?.length - 1
+            ] || {};
+          if (!key) {
+            setText('');
+            setFiles([]);
+            generateId.current = '';
+            toast.error('Missing channel private key');
+            return;
+          }
           const content = await encryptMessage(message.content, key);
           const plain_text = await encryptMessage(message.plain_text, key);
           message.content = content;
