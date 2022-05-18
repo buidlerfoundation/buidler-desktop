@@ -10,13 +10,14 @@ import images from '../../common/images';
 import ModalTeam from '../ModalTeam';
 import ModalUserSetting from '../ModalUserSetting';
 import PopoverButton from '../PopoverButton';
-import { clearData } from '../../common/Cookie';
+import { clearData, getCookie, setCookie } from '../../common/Cookie';
 import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
 import actionTypes from 'renderer/actions/ActionTypes';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
+import { AsyncKey } from 'renderer/common/AppConfig';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -114,10 +115,17 @@ const AppTitleBar = ({
     const leaveFullscreenListener = () => {
       setFullscreen(false);
     };
-    const windowFocusListener = () => {
+    const windowFocusListener = async () => {
       GlobalVariable.isWindowFocus = true;
+      const lastTime = await getCookie(AsyncKey.lastTimeFocus);
+      const currentTime = new Date().getTime();
+      if (lastTime && currentTime - lastTime > 60000 * 30) {
+        dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
+        history.replace('/unlock');
+      }
     };
     const windowBlurListener = () => {
+      setCookie(AsyncKey.lastTimeFocus, new Date().getTime());
       GlobalVariable.isWindowFocus = false;
     };
     document.addEventListener('keydown', listener);
@@ -141,7 +149,7 @@ const AppTitleBar = ({
       ipcRenderer.removeListener('window-blur', windowBlurListener);
       document.removeEventListener('keydown', listener);
     };
-  }, [team, setTeam, currentTeam, channels, dispatch]);
+  }, [team, setTeam, currentTeam, channels, dispatch, history]);
   const onDeleteTeam = async () => {
     const nextTeam =
       currentTeam.team_id === selectedMenuTeam.team_id

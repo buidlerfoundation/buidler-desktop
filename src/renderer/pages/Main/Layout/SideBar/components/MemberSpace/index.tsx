@@ -1,3 +1,4 @@
+import { Emoji } from 'emoji-mart';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import images from 'renderer/common/images';
@@ -30,7 +31,9 @@ const MemberSpace = ({
       className={`member-space__container ${isCollapsed ? '' : 'space-open'}`}
     >
       <div className="title-wrapper" onClick={toggleCollapsed}>
-        <img className="space-icon" src={images.icLogoSquare} alt="" />
+        <div className="icon-wrapper">
+          <Emoji emoji="smile" set="apple" size={20} />
+        </div>
         <span className="title">Members</span>
       </div>
       {user && (

@@ -31,7 +31,7 @@ const ChannelItem = ({
   const popupChannelIconRef = useRef<any>();
   const history = useHistory();
   const currentTeam = useSelector((state) => state.user.currentTeam);
-  const isSelected = c.channel_id === currentChannel.channel_id;
+  const isSelected = c?.channel_id === currentChannel?.channel_id;
   const isPrivate = c.channel_type === 'Private';
   const isUnSeen = !c.seen;
   const isMuted = c.notification_type === 'Muted';
@@ -73,18 +73,18 @@ const ChannelItem = ({
   const onAddFiles = async (fs) => {
     if (fs == null || fs.length === 0) return;
     const file = [...fs][0];
-    uploadChannelAvatar(currentTeam.team_id, c.channel_id, file);
+    uploadChannelAvatar(currentTeam.team_id, c?.channel_id, file);
     popupChannelIconRef.current?.hide();
   };
   const onAddEmoji = async (emoji) => {
-    await updateChannel(c.channel_id, {
+    await updateChannel(c?.channel_id, {
       channel_emoji: emoji.id,
       channel_image_url: '',
     });
     popupChannelIconRef.current?.hide();
   };
   const onSelectRecentFile = async (file) => {
-    await updateChannel(currentChannel.channel_id, {
+    await updateChannel(currentChannel?.channel_id, {
       channel_emoji: '',
       channel_image_url: file.file_url,
     });
@@ -95,7 +95,7 @@ const ChannelItem = ({
       className={`channel-wrapper ${collapsed ? 'collapsed' : ''} ${
         isSelected ? 'channel-selected' : ''
       } ${isMuted ? 'channel-muted' : ''} ${isUnSeen ? 'channel-un-seen' : ''}`}
-      onClick={() => history.replace(`/home?channel_id=${c.channel_id}`)}
+      onClick={() => history.replace(`/home?channel_id=${c?.channel_id}`)}
       onContextMenu={(e) => onContextChannel(e, c)}
     >
       {isOwner ? (
@@ -112,7 +112,7 @@ const ChannelItem = ({
               <EmojiAndAvatarPicker
                 onAddFiles={onAddFiles}
                 onAddEmoji={onAddEmoji}
-                channelId={c.channel_id}
+                channelId={c?.channel_id}
                 onSelectRecentFile={onSelectRecentFile}
               />
             </div>

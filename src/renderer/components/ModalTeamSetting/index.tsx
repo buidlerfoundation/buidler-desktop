@@ -72,7 +72,6 @@ const ModalTeamSetting = ({
       ? ImageHelper.normalizeImage(team?.team_icon, team?.team_id, {
           w: 90,
           h: 90,
-          radius: 45,
         })
       : images.icTeamDefault;
   };
@@ -104,7 +103,6 @@ const ModalTeamSetting = ({
                               {
                                 w: 25,
                                 h: 25,
-                                radius: 12.5,
                               }
                             )
                       }

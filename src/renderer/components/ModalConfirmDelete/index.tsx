@@ -34,7 +34,10 @@ const ModalConfirmDelete = ({
           <span className="confirm-delete-channel__title">{title}</span>
           <div style={{ height: 24 }} />
           <div className="confirm-delete-channel__content-wrapper">
-            <span className="confirm-delete-channel__content">
+            <span
+              className="confirm-delete-channel__content"
+              style={{ whiteSpace: 'break-spaces' }}
+            >
               {description}
             </span>
             {contentName && (

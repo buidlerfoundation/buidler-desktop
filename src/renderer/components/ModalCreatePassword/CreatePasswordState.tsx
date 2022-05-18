@@ -62,14 +62,14 @@ const CreatePasswordState = ({
           </span>
         );
       })}
-      <a
+      {/* <a
         className="password-des"
         href="https://google.com"
         target="_blank"
         rel="noreferrer"
       >
         How does Buidler store your password?
-      </a>
+      </a> */}
     </div>
   );
 };

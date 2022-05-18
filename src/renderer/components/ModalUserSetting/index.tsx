@@ -186,7 +186,7 @@ const ModalUserSetting = ({
           open={isOpenConfirmLogout}
           handleClose={() => setOpenConfirmLogout(false)}
           title="Logout"
-          description="If you log out, you will lose your data. Are you sure you want to log out?"
+          description="Buidler will automatically remove all your data from this account if you log out. Are you sure you want to log out?"
           onDelete={onLogout}
           contentDelete="Logout"
         />

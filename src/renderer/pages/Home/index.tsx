@@ -612,34 +612,36 @@ const Home = ({
                   teamUserData={teamUserData}
                   uploadChannelAvatar={uploadChannelAvatar}
                 />
-                <TaskListView
-                  channelId={currentChannel?.channel_id}
-                  getArchivedTasks={getArchivedTasks}
-                  archivedCount={archivedCount}
-                  teamId={currentTeam?.team_id}
-                  tasks={tasks || []}
-                  archivedTasks={archivedTasks || []}
-                  onAddTask={(title) => {
-                    setCurrentTitle(title);
-                    setOpenCreateTask(true);
-                  }}
-                  onUpdateStatus={onUpdateStatus}
-                  onHoverChange={(key, index) => setHoverInfo({ key, index })}
-                  onHoverLeave={() => {
-                    setHoverInfo({ key: null, index: null });
-                  }}
-                  filter={filter}
-                  filterData={filterTask}
-                  onUpdateFilter={(st) => setFilter(st)}
-                  onDeleteTask={onDeleteTask}
-                  onSelectTask={openTaskDetail}
-                  updateTask={updateTask}
-                  onAddReact={addReact}
-                  onRemoveReact={removeReact}
-                  onReplyTask={onReplyTask}
-                  hoverTask={hoverTask}
-                  directUserId={currentChannel?.user?.user_id}
-                />
+                {currentChannel.channel_type !== 'Direct' && (
+                  <TaskListView
+                    channelId={currentChannel?.channel_id}
+                    getArchivedTasks={getArchivedTasks}
+                    archivedCount={archivedCount}
+                    teamId={currentTeam?.team_id}
+                    tasks={tasks || []}
+                    archivedTasks={archivedTasks || []}
+                    onAddTask={(title) => {
+                      setCurrentTitle(title);
+                      setOpenCreateTask(true);
+                    }}
+                    onUpdateStatus={onUpdateStatus}
+                    onHoverChange={(key, index) => setHoverInfo({ key, index })}
+                    onHoverLeave={() => {
+                      setHoverInfo({ key: null, index: null });
+                    }}
+                    filter={filter}
+                    filterData={filterTask}
+                    onUpdateFilter={(st) => setFilter(st)}
+                    onDeleteTask={onDeleteTask}
+                    onSelectTask={openTaskDetail}
+                    updateTask={updateTask}
+                    onAddReact={addReact}
+                    onRemoveReact={removeReact}
+                    onReplyTask={onReplyTask}
+                    hoverTask={hoverTask}
+                    directUserId={currentChannel?.user?.user_id}
+                  />
+                )}
               </>
             ) : (
               <EmptyView
