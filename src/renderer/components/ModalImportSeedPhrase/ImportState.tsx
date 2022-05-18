@@ -19,7 +19,7 @@ const ImportState = ({ seed, setSeed }: ImportStateProps) => {
       <div className="input-wrapper">
         <AppTextArea
           className="app-input-highlight"
-          placeholder="Your seed phrase (12 works)"
+          placeholder="Your seed phrase (12 words)"
           value={seed}
           style={{ height: 110 }}
           onChange={(e) => setSeed(e.target.value)}
