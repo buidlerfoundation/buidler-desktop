@@ -137,7 +137,7 @@ const ModalUserSetting = ({
             <span className="log-out-text">Logout</span>
           </div>
           <div className="app-version">
-            <span>1.5.0</span>
+            <span>1.5.1</span>
           </div>
         </div>
         <div className="body">
