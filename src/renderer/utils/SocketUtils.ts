@@ -158,14 +158,16 @@ const loadMessageIfNeeded = async () => {
   const user: any = store.getState()?.user;
   const { currentChannel } = user;
   const refresh = refreshSelector(store.getState());
-  if (!currentChannel || refresh) return;
+  if (!currentChannel || refresh || currentChannel.channel_type === 'Public')
+    return;
   store.dispatch({
     type: actionTypes.MESSAGE_FRESH,
     payload: { channelId: currentChannel.channel_id },
   });
   const messageRes = await api.getMessages(currentChannel.channel_id);
   const messageData =
-    currentChannel.channel_type === 'Private'
+    currentChannel.channel_type === 'Private' ||
+    currentChannel.channel_type === 'Direct'
       ? await normalizeMessageData(messageRes.data, currentChannel.channel_id)
       : await normalizePublicMessageData(messageRes.data);
   if (messageRes.statusCode === 200) {
@@ -232,7 +234,6 @@ class SocketUtil {
         this.socket.off('ON_DELETE_SPACE');
         this.socket.off('disconnect');
       });
-      // loadMessageIfNeeded();
       const user: any = store.getState()?.user;
       const { currentTeam } = user || {};
       this.emitOnline(teamId || currentTeam?.team_id);
@@ -359,12 +360,13 @@ class SocketUtil {
           this.emitReceivedKey(k, timestamp);
         });
       });
-      setCookie(AsyncKey.channelPrivateKey, JSON.stringify(dataLocal));
+      await setCookie(AsyncKey.channelPrivateKey, JSON.stringify(dataLocal));
       const res = await getPrivateChannel(privateKey);
       store.dispatch({
         type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
         payload: res,
       });
+      loadMessageIfNeeded();
       return null;
     });
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {

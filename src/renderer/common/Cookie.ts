@@ -5,7 +5,11 @@ import { AsyncKey } from './AppConfig';
 export const clearData = (callback = () => {}) => storage.clear(callback);
 
 export const setCookie = (key: string, val: any) => {
-  storage.set(key, val, (err) => {});
+  return new Promise((resolve, reject) => {
+    storage.set(key, val, (err) => {
+      return resolve(err);
+    });
+  });
 };
 
 export const getCookie = async (key: string) => {

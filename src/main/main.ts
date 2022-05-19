@@ -213,6 +213,35 @@ ipcMain.on('doing-notification', (event, arg) => {
   notification.show();
 });
 
+ipcMain.on('force-update', (event, arg) => {
+  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.removeAllListeners();
+  autoUpdater.on('update-downloaded', () => {
+    console.log('update-downloaded lats quitAndInstall');
+    dialog
+      .showMessageBox({
+        type: 'info',
+        title: 'Update Available',
+        message: 'A new version of Buidler is ready to be installed.',
+        buttons: ['Install now'],
+      })
+      .then(({ response }) => {
+        if (response === 0) {
+          const isSilent = true;
+          const isForceRunAfter = true;
+          autoUpdater.quitAndInstall(isSilent, isForceRunAfter);
+        } else {
+          // updater.enabled = true
+          // updater = null
+        }
+        return null;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  });
+});
+
 app.setAsDefaultProtocolClient('notableapp');
 
 autoUpdater.on('update-downloaded', () => {

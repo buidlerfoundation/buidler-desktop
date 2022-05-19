@@ -11,6 +11,7 @@ import SettingWallet from './SettingWallet';
 import { useSelector } from 'react-redux';
 import SettingSecurity from './SettingSecurity';
 import ModalConfirmDelete from '../ModalConfirmDelete';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 
 type ModalUserSettingProps = {
   open: boolean;
@@ -137,7 +138,7 @@ const ModalUserSetting = ({
             <span className="log-out-text">Logout</span>
           </div>
           <div className="app-version">
-            <span>1.5.1</span>
+            <span>{GlobalVariable.version}</span>
           </div>
         </div>
         <div className="body">

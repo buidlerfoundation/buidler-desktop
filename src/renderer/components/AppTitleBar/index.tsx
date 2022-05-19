@@ -10,7 +10,12 @@ import images from '../../common/images';
 import ModalTeam from '../ModalTeam';
 import ModalUserSetting from '../ModalUserSetting';
 import PopoverButton from '../PopoverButton';
-import { clearData, getCookie, setCookie } from '../../common/Cookie';
+import {
+  clearData,
+  getCookie,
+  getDeviceCode,
+  setCookie,
+} from '../../common/Cookie';
 import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
 import actionTypes from 'renderer/actions/ActionTypes';
@@ -18,6 +23,7 @@ import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 import { AsyncKey } from 'renderer/common/AppConfig';
+import api from 'renderer/api';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -280,7 +286,11 @@ const AppTitleBar = ({
         updateUserChannel={updateUserChannel}
         channels={channels}
         updateUser={updateUser}
-        onLogout={() => {
+        onLogout={async () => {
+          const deviceCode = await getDeviceCode();
+          await api.removeDevice({
+            device_code: '27759169-edfc-447e-bb71-9ad5ea0fa132',
+          });
           clearData(() => {
             setOpenModalUser(false);
             history.replace('/started');

@@ -52,3 +52,6 @@ export const syncChannelKey = (data: any) =>
 
 export const acceptInvitation = (invitationId: string) =>
   ApiCaller.post(`team/invitation/${invitationId}/accept`);
+
+export const removeDevice = (body: any) =>
+  ApiCaller.delete('user/device', body);
