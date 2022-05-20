@@ -29,17 +29,22 @@ if (process.platform === 'darwin') {
 
 type AppProps = {
   findUser: () => any;
+  getInitial?: () => () => void;
 };
 
-function App({ findUser }: AppProps) {
+function App({ findUser, getInitial }: AppProps) {
   // console.log('XXX');
   // testSC();
   const history = useHistory();
   const user = useSelector((state) => state.user.userData);
+  const imgDomain = useSelector((state: any) => state.user.imgDomain);
   const initApp = useCallback(async () => {
     await findUser();
+    if (!imgDomain) {
+      await getInitial?.();
+    }
     history.replace('/home');
-  }, [findUser, history]);
+  }, [findUser, getInitial, imgDomain, history]);
   useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,
