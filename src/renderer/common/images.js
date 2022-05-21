@@ -74,6 +74,14 @@ import icCirclePublicChannel from '../assets/images/ic_circle_public_channel.svg
 import icPinned from '../assets/images/ic_pinned.svg';
 import icStatusPinned from '../assets/images/ic_status_pinned.svg';
 import icCommunitySetting from '../assets/images/ic_community_setting.svg';
+import icWallet from '../assets/images/ic_wallet.svg';
+import icSettingWalletBalance from '../assets/images/ic_setting_wallet_balance.svg';
+import icSettingWalletTransaction from '../assets/images/ic_setting_wallet_transaction.svg';
+import icSettingWalletNFT from '../assets/images/ic_setting_wallet_nft.svg';
+import icCopyWhite from '../assets/images/ic_copy_white.svg';
+import icArrowUp from '../assets/images/ic_arrow_up.svg';
+import icArrowDown from '../assets/images/ic_arrow_down.svg';
+import icSwap from '../assets/images/ic_swap.svg';
 
 const images = {
   icTeamDefault,
@@ -152,6 +160,14 @@ const images = {
   icPinned,
   icStatusPinned,
   icCommunitySetting,
+  icWallet,
+  icSettingWalletBalance,
+  icSettingWalletTransaction,
+  icSettingWalletNFT,
+  icCopyWhite,
+  icArrowUp,
+  icArrowDown,
+  icSwap,
 };
 
 export default images;

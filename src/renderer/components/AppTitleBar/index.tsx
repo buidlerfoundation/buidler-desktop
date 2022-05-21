@@ -24,6 +24,7 @@ import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
+import ModalWalletSetting from '../ModalWalletSetting';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -84,6 +85,7 @@ const AppTitleBar = ({
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
+  const [isOpenModalWallet, setOpenModalWallet] = useState(false);
   const [isOpenModalBackup, setOpenModalBackup] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
   const [hoverTeam, setHoverTeam] = useState(false);
@@ -256,6 +258,12 @@ const AppTitleBar = ({
           </div> */}
           <div
             className="action-item normal-button"
+            onClick={() => setOpenModalWallet(true)}
+          >
+            <img src={images.icWallet} alt="" />
+          </div>
+          <div
+            className="action-item normal-button"
             onClick={() => setOpenModalUser(true)}
           >
             <img src={images.icUser} alt="" />
@@ -337,6 +345,10 @@ const AppTitleBar = ({
         team={selectedMenuTeam}
         updateTeam={updateTeam}
         onDeleteClick={onDeleteClick}
+      />
+      <ModalWalletSetting
+        open={isOpenModalWallet}
+        handleClose={() => setOpenModalWallet(false)}
       />
     </div>
   );
