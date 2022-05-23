@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './index.scss';
 import { CircularProgress } from '@material-ui/core';
 
@@ -9,9 +9,28 @@ type NormalButtonProps = {
   type: ButtonType;
   onPress: () => void;
   loading?: boolean;
+  enterAsPress?: boolean;
 };
 
-const NormalButton = ({ title, type, onPress, loading }: NormalButtonProps) => {
+const NormalButton = ({
+  title,
+  type,
+  onPress,
+  loading,
+  enterAsPress,
+}: NormalButtonProps) => {
+  useEffect(() => {
+    const listener = (event: any) => {
+      if (event.key === 'Enter' && type === 'main') {
+        event.preventDefault();
+        onPress?.();
+      }
+    };
+    document.addEventListener('keydown', listener);
+    return () => {
+      document.removeEventListener('keydown', listener);
+    };
+  }, [onPress, type]);
   return (
     <div
       className={`normal-button__container button-${type}`}

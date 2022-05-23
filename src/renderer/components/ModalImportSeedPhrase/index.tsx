@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal } from '@material-ui/core';
 import './index.scss';
 import NormalButton from '../NormalButton';
@@ -60,6 +60,11 @@ const ModalImportSeedPhrase = ({
         break;
     }
   }, [modalState, seed, password, loggedOn]);
+  useEffect(() => {
+    setModalState('import');
+    setSeed('');
+    setPassword('');
+  }, [open]);
   return (
     <Modal
       open={open}

@@ -1,5 +1,5 @@
 import { Modal } from '@material-ui/core';
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import NormalButton from '../NormalButton';
 import CreatePasswordState from './CreatePasswordState';
 import './index.scss';
@@ -111,6 +111,9 @@ const ModalCreatePassword = ({
         break;
     }
   }, [modalState, confirmSeed, seed, password, loggedOn]);
+  useEffect(() => {
+    setPassword('');
+  }, [open]);
   return (
     <Modal
       open={open}

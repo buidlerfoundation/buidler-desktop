@@ -39,6 +39,7 @@ const CreatePasswordState = ({
           style={{ paddingRight: 80, width: 'calc(100% - 100px)' }}
           value={password}
           onChange={onChangeText}
+          autoFocus
         />
         <div className="toggle-password normal-button" onClick={togglePassword}>
           {showPassword ? 'Hide' : 'Show'}
