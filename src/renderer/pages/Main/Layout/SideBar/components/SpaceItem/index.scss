@@ -21,7 +21,6 @@
       width: 30px;
       height: 30px;
       background-color: var(--color-stroke);
-      margin-right: 15px;
       position: relative;
       .space-icon {
         width: 30px;
@@ -49,6 +48,7 @@
       font-weight: 700;
       font-size: 16px;
       line-height: 24px;
+      margin-left: 15px;
     }
   }
   .channel-wrapper {
