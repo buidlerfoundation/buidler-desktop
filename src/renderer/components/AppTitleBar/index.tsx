@@ -297,7 +297,7 @@ const AppTitleBar = ({
         onLogout={async () => {
           const deviceCode = await getDeviceCode();
           await api.removeDevice({
-            device_code: '27759169-edfc-447e-bb71-9ad5ea0fa132',
+            device_code: deviceCode,
           });
           clearData(() => {
             setOpenModalUser(false);

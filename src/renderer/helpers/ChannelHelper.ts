@@ -206,7 +206,7 @@ export const normalizeMessageData = async (
       )
     ) || [];
   const res = await Promise.all(req);
-  return res.filter((el) => !!el.content || el?.message_attachment?.lenght > 0);
+  return res.filter((el) => !!el.content || el?.message_attachment?.length > 0);
 };
 
 const findKey = (keys: Array<any>, created: number) => {
