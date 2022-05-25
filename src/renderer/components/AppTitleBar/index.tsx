@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { ipcRenderer } from 'electron';
 import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import actions from '../../actions';
@@ -137,24 +136,36 @@ const AppTitleBar = ({
       GlobalVariable.isWindowFocus = false;
     };
     document.addEventListener('keydown', listener);
-    ipcRenderer.on('open-url', openUrlListener);
-    ipcRenderer.on('enter-fullscreen', enterFullscreenListener);
-    ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
-    ipcRenderer.on('window-focus', windowFocusListener);
-    ipcRenderer.on('window-blur', windowBlurListener);
+    window.electron.ipcRenderer.on('open-url', openUrlListener);
+    window.electron.ipcRenderer.on('enter-fullscreen', enterFullscreenListener);
+    window.electron.ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
+    window.electron.ipcRenderer.on('window-focus', windowFocusListener);
+    window.electron.ipcRenderer.on('window-blur', windowBlurListener);
     const unseenChannel = channels?.find?.((el) => !el.seen);
     if (unseenChannel) {
-      ipcRenderer.send('show-badge', 'ping');
+      window.electron.ipcRenderer.sendMessage('show-badge', 'ping');
     } else {
-      ipcRenderer.send('hide-badge', 'ping');
+      window.electron.ipcRenderer.sendMessage('hide-badge', 'ping');
     }
     // console.log('unseen channel: ', unseenChannel);
     return () => {
-      ipcRenderer.removeListener('open-url', openUrlListener);
-      ipcRenderer.removeListener('enter-fullscreen', enterFullscreenListener);
-      ipcRenderer.removeListener('leave-fullscreen', leaveFullscreenListener);
-      ipcRenderer.removeListener('window-focus', windowFocusListener);
-      ipcRenderer.removeListener('window-blur', windowBlurListener);
+      window.electron.ipcRenderer.removeListener('open-url', openUrlListener);
+      window.electron.ipcRenderer.removeListener(
+        'enter-fullscreen',
+        enterFullscreenListener
+      );
+      window.electron.ipcRenderer.removeListener(
+        'leave-fullscreen',
+        leaveFullscreenListener
+      );
+      window.electron.ipcRenderer.removeListener(
+        'window-focus',
+        windowFocusListener
+      );
+      window.electron.ipcRenderer.removeListener(
+        'window-blur',
+        windowBlurListener
+      );
       document.removeEventListener('keydown', listener);
     };
   }, [team, setTeam, currentTeam, channels, dispatch, history]);

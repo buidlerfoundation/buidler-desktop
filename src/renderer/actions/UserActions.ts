@@ -5,7 +5,6 @@ import { AsyncKey } from '../common/AppConfig';
 import { getCookie, setCookie } from '../common/Cookie';
 import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
-import { ipcRenderer } from 'electron';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 
 export const getInitial: ActionCreator<any> =
@@ -13,7 +12,7 @@ export const getInitial: ActionCreator<any> =
     const res = await api.getInitial();
     ImageHelper.initial(res.img_domain, res.img_config);
     if (res.force_update && res.version > GlobalVariable.version) {
-      ipcRenderer.send('force-update');
+      window.electron.ipcRenderer.sendMessage('force-update');
     }
     dispatch({ type: ActionTypes.GET_INITIAL, payload: { data: res } });
   };

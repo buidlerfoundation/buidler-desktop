@@ -1,12 +1,12 @@
-import storage from 'electron-json-storage';
 import { getUniqueId } from 'renderer/helpers/GenerateUUID';
 import { AsyncKey } from './AppConfig';
 
-export const clearData = (callback = () => {}) => storage.clear(callback);
+export const clearData = (callback = () => {}) =>
+  window.electron.cookies.clear(callback);
 
 export const setCookie = (key: string, val: any) => {
   return new Promise((resolve, reject) => {
-    storage.set(key, val, (err) => {
+    window.electron.cookies.set(key, val, (err) => {
       return resolve(err);
     });
   });
@@ -14,7 +14,7 @@ export const setCookie = (key: string, val: any) => {
 
 export const getCookie = async (key: string) => {
   return new Promise((resolve, reject) => {
-    storage.get(key, (err, data) => {
+    window.electron.cookies.get(key, (err, data) => {
       if (err) return reject(err);
       return resolve(data);
     });

@@ -85,6 +85,7 @@
     .setting-balance__container {
       display: flex;
       flex-direction: column;
+      flex: 1;
       .header {
         display: flex;
         align-items: center;
@@ -160,6 +161,7 @@
         margin-top: 35px;
         display: flex;
         flex-direction: column;
+        flex: 1;
         .token-item {
           display: flex;
           align-items: center;
@@ -211,6 +213,24 @@
           & + .token-item {
             margin-top: 10px;
           }
+        }
+      }
+      .bottom-actions {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        .button-add {
+          &:hover {
+            cursor: pointer;
+          }
+        }
+        .import-text {
+          margin-left: 20px;
+          font-size: 16px;
+          line-height: 26px;
+          font-weight: 600;
+          color: var(--color-primary-text);
         }
       }
     }

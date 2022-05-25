@@ -2,7 +2,6 @@ import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey } from '../common/AppConfig';
 import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
 import store from '../store';
-import { ipcRenderer } from 'electron';
 import toast from 'react-hot-toast';
 import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
@@ -585,13 +584,13 @@ class SocketUtil {
             });
           }
         }
-        ipcRenderer.removeAllListeners('notification-click');
+        window.electron.ipcRenderer.removeAllListeners('notification-click');
         if (
           notification_type === 'Alert' &&
           (currentChannel.channel_id !== message_data.channel_id ||
             !GlobalVariable.isWindowFocus)
         ) {
-          ipcRenderer.send('doing-notification', {
+          window.electron.ipcRenderer.sendMessage('doing-notification', {
             title: `${notification_data?.channel_name} (${notification_data?.team_name})`,
             body: notification_data.body,
             icon: notification_data?.sender_data?.avatar_url,
@@ -631,7 +630,7 @@ class SocketUtil {
           teamNotification &&
           currentChannel.channel_id !== message_data.channel_id
         ) {
-          ipcRenderer.on('notification-click', (_) => {
+          window.electron.ipcRenderer.on('notification-click', (_) => {
             if (currentTeam.team_id === notification_data.team_id) {
               store.dispatch({
                 type: actionTypes.SET_CURRENT_CHANNEL,

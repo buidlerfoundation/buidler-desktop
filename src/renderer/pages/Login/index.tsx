@@ -1,5 +1,4 @@
 import React from 'react';
-import { ipcRenderer } from 'electron';
 import './index.scss';
 import images from '../../common/images';
 import { bindActionCreators } from 'redux';
@@ -24,9 +23,9 @@ const LoginScreen = ({ login, loginGoogleUrl }: LoginScreenProps) => {
     //   `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&scope=profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&prompt=select_account&response_type=code&client_id=172062646996-7iehu6ue6lsdd2iasibhf0us4kpsh236.apps.googleusercontent.com&redirect_uri=${redirectUrl}&flowName=GeneralOAuthFlow`
     // );
     window.open(loginGoogleUrl);
-    ipcRenderer.removeAllListeners('login-response');
-    ipcRenderer.send('doing-login', 'ping');
-    ipcRenderer.on('login-response', async (event, arg) => {
+    window.electron.ipcRenderer.removeAllListeners('login-response');
+    window.electron.ipcRenderer.sendMessage('doing-login', 'ping');
+    window.electron.ipcRenderer.on('login-response', async (event, arg) => {
       const code = extractResponseFromGoogle(arg);
       if (code) {
         await login(code, (res: boolean) => {

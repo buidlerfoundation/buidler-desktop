@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import AvatarView from '../AvatarView';
@@ -6,6 +6,7 @@ import { utils } from 'ethers';
 import './index.scss';
 import images from 'renderer/common/images';
 import toast from 'react-hot-toast';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 type TokenItemProps = {
   symbol: string;
@@ -60,6 +61,9 @@ const SettingBalance = () => {
   const onSendClick = () => {};
   const onReceiveClick = () => {};
   const onSwapClick = () => {};
+  const onAddClick = () => {
+    WalletConnectUtils.init();
+  };
   return (
     <div className="setting-balance__container">
       <div className="header">
@@ -93,6 +97,12 @@ const SettingBalance = () => {
         <TokenItem symbol="eth" name="ethereum" balance="0.123" />
         <TokenItem symbol="usdt" name="tether" balance="0.123" />
         <TokenItem symbol="dai" name="dai" balance="0.123" />
+      </div>
+      <div className="bottom-actions">
+        <div className="button-add" onClick={onAddClick}>
+          <img src={images.icPlusCircle} alt="" />
+        </div>
+        <span className="import-text">Import token</span>
       </div>
     </div>
   );

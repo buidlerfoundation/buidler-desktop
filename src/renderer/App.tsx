@@ -3,7 +3,6 @@ import Main from './pages/Main';
 import './App.scss';
 import './styles/spacing.scss';
 import './emoji.scss';
-import path from 'path';
 import AppToastNotification from './components/AppToastNotification';
 import TextareaAutosize from 'react-textarea-autosize';
 import GlobalVariable from './services/GlobalVariable';
@@ -16,17 +15,6 @@ import { useHistory } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import actions from './actions';
 
-const usr = require('os').homedir();
-const storage = require('electron-json-storage');
-
-if (process.platform === 'darwin') {
-  storage.setDataPath(
-    `${usr}/Library/Application Support/today-remote/storage`
-  );
-} else {
-  storage.setDataPath(path.join(__dirname, '../storage'));
-}
-
 type AppProps = {
   findUser: () => any;
   getInitial?: () => () => void;
@@ -35,6 +23,7 @@ type AppProps = {
 function App({ findUser, getInitial }: AppProps) {
   // console.log('XXX');
   // testSC();
+  window.electron.cookies.setPath();
   const history = useHistory();
   const user = useSelector((state) => state.user.userData);
   const imgDomain = useSelector((state: any) => state.user.imgDomain);
