@@ -1,11 +1,11 @@
 import { ActionCreator, Dispatch } from 'redux';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 import api from '../api';
 import ActionTypes from './ActionTypes';
 import { AsyncKey } from '../common/AppConfig';
 import { getCookie, setCookie } from '../common/Cookie';
 import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
-import GlobalVariable from 'renderer/services/GlobalVariable';
 
 export const getInitial: ActionCreator<any> =
   () => async (dispatch: Dispatch) => {

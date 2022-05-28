@@ -35,6 +35,7 @@ import { useHistory } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
+import ModalOTP from 'renderer/components/ModalOTP';
 
 type HomeProps = {
   team?: any;
@@ -743,6 +744,7 @@ const Home = ({
           />
         </div>
       </DragDropContext>
+      <ModalOTP />
     </PageWrapper>
   );
 };

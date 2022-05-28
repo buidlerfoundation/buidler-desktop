@@ -1,23 +1,27 @@
 import React, { useCallback, useEffect } from 'react';
-import Main from './pages/Main';
 import './App.scss';
 import './styles/spacing.scss';
 import './emoji.scss';
-import AppToastNotification from './components/AppToastNotification';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
 import TextareaAutosize from 'react-textarea-autosize';
-import GlobalVariable from './services/GlobalVariable';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core';
 import { testSC } from './common/EthereumFunction';
+import Main from './pages/Main';
+import AppToastNotification from './components/AppToastNotification';
+import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
-import { connect, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
 import actions from './actions';
+import WalletConnectUtils from './services/connectors/WalletConnectUtils';
+import { getCookie } from './common/Cookie';
+import { AsyncKey } from './common/AppConfig';
+import actionTypes from './actions/ActionTypes';
 
 type AppProps = {
   findUser: () => any;
-  getInitial?: () => () => void;
+  getInitial: () => () => void;
 };
 
 function App({ findUser, getInitial }: AppProps) {
@@ -25,6 +29,7 @@ function App({ findUser, getInitial }: AppProps) {
   // testSC();
   window.electron.cookies.setPath();
   const history = useHistory();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.userData);
   const imgDomain = useSelector((state: any) => state.user.imgDomain);
   const initApp = useCallback(async () => {
@@ -70,6 +75,21 @@ function App({ findUser, getInitial }: AppProps) {
       window.removeEventListener('paste', eventPaste);
     };
   }, [user, initApp]);
+  const initGeneratedPrivateKey = useCallback(async () => {
+    const generatedPrivateKey = await getCookie(AsyncKey.generatedPrivateKey);
+    if (typeof generatedPrivateKey === 'string') {
+      dispatch({
+        type: actionTypes.SET_PRIVATE_KEY,
+        payload: generatedPrivateKey,
+      });
+    }
+  }, [dispatch]);
+  useEffect(() => {
+    initGeneratedPrivateKey();
+  }, [initGeneratedPrivateKey]);
+  useEffect(() => {
+    WalletConnectUtils.init();
+  }, []);
   const overrides: any = {
     MuiPickersDay: {
       day: {

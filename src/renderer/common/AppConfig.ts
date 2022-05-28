@@ -20,6 +20,7 @@ export const AsyncKey = {
   channelPrivateKey: `${Prefix}_channel_private_key`,
   deviceCode: `${Prefix}_device_code`,
   lastTimeFocus: `${Prefix}_last_time_focus`,
+  generatedPrivateKey: `${Prefix}_generated_private_key`,
 };
 
 export const ProgressStatus = [

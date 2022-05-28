@@ -42,6 +42,30 @@
       margin-top: 40px;
       font-weight: 600;
     }
+    .wallet-button {
+      height: 60px;
+      border-radius: 5px;
+      background-color: var(--color-stroke);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--color-primary-text);
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 70px;
+      padding: 0 20px;
+      width: 334px;
+      & + .wallet-button {
+        margin-top: 16px;
+      }
+      .wallet-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
     .create-wallet-button {
       height: 60px;
       border-radius: 5px;

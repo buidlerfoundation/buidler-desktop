@@ -7,10 +7,14 @@ import NormalButton from '../NormalButton';
 import api from 'renderer/api';
 import { getDeviceCode } from 'renderer/common/Cookie';
 import toast from 'react-hot-toast';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 const ModalOTP = () => {
   const dispatch = useDispatch();
-  const openOTP = useSelector((state: any) => state.configs.openOTP);
+  const openOTP = useSelector(
+    (state: any) =>
+      state.configs.openOTP && !WalletConnectUtils.connector?.connected
+  );
   const requestOtpCode = useSelector(
     (state: any) => state.configs.requestOtpCode
   );

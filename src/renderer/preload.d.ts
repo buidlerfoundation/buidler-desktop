@@ -7,6 +7,7 @@ declare global {
         setPath(): void;
         set(key: string, value: string, callback: (error: any) => void): void;
         get(key: string, callback: (error: any, data: any) => void): void;
+        clear(callback: (error: any) => void): void;
       };
       ipcRenderer: {
         removeListener(

@@ -35,8 +35,11 @@ export const updateUserChannel = (channelIds: Array<string>) =>
 export const requestNonce = (pubKey: string) =>
   ApiCaller.post('user/nonce', { public_key: pubKey });
 
+export const requestNonceWithAddress = (address: string) =>
+  ApiCaller.post('user/address', { address });
+
 export const verifyNonce = (nonce: string, signature: string) =>
-  ApiCaller.post('user/verify', { nonce, signature });
+  ApiCaller.post('user', { nonce, signature });
 
 export const getCollectibles = (page = 1, limit = 10) => {
   return ApiCaller.get(`user/nft?page=${page}&limit=${limit}`);
@@ -55,3 +58,6 @@ export const acceptInvitation = (invitationId: string) =>
 
 export const removeDevice = (body: any) =>
   ApiCaller.delete('user/device', body);
+
+export const updateEncryptMessageKey = (key: string) =>
+  ApiCaller.put(`user/encrypt`, { encrypt_message_key: key });

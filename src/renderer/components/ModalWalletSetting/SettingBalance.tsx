@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
-import AvatarView from '../AvatarView';
 import { utils } from 'ethers';
 import './index.scss';
 import images from 'renderer/common/images';
 import toast from 'react-hot-toast';
-import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import AvatarView from '../AvatarView';
 
 type TokenItemProps = {
   symbol: string;
@@ -61,9 +60,7 @@ const SettingBalance = () => {
   const onSendClick = () => {};
   const onReceiveClick = () => {};
   const onSwapClick = () => {};
-  const onAddClick = () => {
-    WalletConnectUtils.init();
-  };
+  const onAddClick = () => {};
   return (
     <div className="setting-balance__container">
       <div className="header">

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 type PageWrapperProps = {
   children: any;
@@ -11,7 +12,7 @@ const PageWrapper = ({ children }: PageWrapperProps) => {
   const currentChannel = useSelector((state: any) => state.user.currentChannel);
   const history = useHistory();
   useEffect(() => {
-    if (!privateKey) {
+    if (!privateKey && !WalletConnectUtils.connector.connected) {
       history.replace('/unlock');
     }
   }, [privateKey, history]);
@@ -20,8 +21,9 @@ const PageWrapper = ({ children }: PageWrapperProps) => {
   //     history.replace('/');
   //   }
   // }, [currentChannel, history]);
-  if (!privateKey) return <div className="page-wrapper-container" />;
-  return <div>{children}</div>;
+  if (WalletConnectUtils.connector.connected || privateKey)
+    return <div>{children}</div>;
+  return <div className="page-wrapper-container" />;
 };
 
 export default PageWrapper;

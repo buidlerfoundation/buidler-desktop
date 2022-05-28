@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './index.scss';
-import images from '../../common/images';
-import ModalCreatePassword from '../../components/ModalCreatePassword';
-import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
 import { useHistory } from 'react-router-dom';
 import { ethers, utils } from 'ethers';
 import { encryptString, getIV } from 'renderer/utils/DataCrypto';
@@ -13,6 +10,10 @@ import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
 import { useDispatch, useSelector } from 'react-redux';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import images from '../../common/images';
+import ModalCreatePassword from '../../components/ModalCreatePassword';
+import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
 
 const Started = () => {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ const Started = () => {
       signingKey = wallet._signingKey();
     }
     const publicKey = utils.computePublicKey(privateKey, true);
+    const address = utils.computeAddress(privateKey);
     dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
     const data = { [publicKey]: privateKey };
     const encryptedData = encryptString(JSON.stringify(data), password, iv);
@@ -49,7 +51,7 @@ const Started = () => {
       dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
     }
     setCookie(AsyncKey.encryptedDataKey, encryptedData);
-    const { nonce } = await api.requestNonce(publicKey);
+    const { nonce } = await api.requestNonceWithAddress(address);
     if (nonce) {
       const msgHash = utils.hashMessage(nonce);
       const msgHashBytes = utils.arrayify(msgHash);
@@ -73,6 +75,45 @@ const Started = () => {
       }
     }
   };
+  const doingLogin = useCallback(async () => {
+    if (
+      !WalletConnectUtils.connector ||
+      !WalletConnectUtils.connector.connected
+    )
+      return;
+    try {
+      const { accounts } = WalletConnectUtils.connector;
+      const address = accounts?.[0];
+      const { nonce } = await api.requestNonceWithAddress(address);
+      const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', nonce];
+      const signature = await WalletConnectUtils.connector.signMessage(params);
+      const res = await api.verifyNonce(nonce, signature);
+      const { privateKey } = ethers.Wallet.createRandom();
+      const publicKey = utils.computePublicKey(privateKey, true);
+      setCookie(AsyncKey.accessTokenKey, res.token);
+      setCookie(AsyncKey.generatedPrivateKey, privateKey);
+      dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
+      await api.updateEncryptMessageKey(publicKey);
+      history.replace('/home');
+    } catch (err) {
+      console.log(err);
+      WalletConnectUtils.connector.killSession();
+    }
+  }, [history, dispatch]);
+  useEffect(() => {
+    if (WalletConnectUtils.connector.connected) {
+      setTimeout(doingLogin, 300);
+    }
+    WalletConnectUtils.connector.on('connect', async (error, payload) => {
+      if (error) {
+        throw error;
+      }
+      setTimeout(doingLogin, 300);
+    });
+    return () => {
+      WalletConnectUtils.connector.off('connect');
+    };
+  }, [doingLogin]);
   return (
     <div className="started-container">
       <div className="started-body">
@@ -90,16 +131,33 @@ const Started = () => {
           </span>
         </div>
         <div
-          className="create-wallet-button normal-button"
+          className="wallet-button normal-button"
           onClick={() => setOpenPasswordModal(true)}
         >
-          Create a new wallet
+          <span>New wallet</span>
+          <div className="wallet-icon">
+            <img src={images.icPlusWhite} alt="" />
+          </div>
         </div>
         <div
-          className="import-wallet-button normal-button"
+          className="wallet-button normal-button"
           onClick={() => setOpenImportModal(true)}
         >
-          Import existing wallet
+          <span>Import wallet</span>
+          <div className="wallet-icon">
+            <img src={images.icArrowForward} alt="" />
+          </div>
+        </div>
+        <div
+          className="wallet-button normal-button"
+          onClick={() => {
+            WalletConnectUtils.connect();
+          }}
+        >
+          <span>WalletConnect</span>
+          <div className="wallet-icon">
+            <img src={images.icWalletConnect} alt="" />
+          </div>
         </div>
       </div>
       <ModalCreatePassword

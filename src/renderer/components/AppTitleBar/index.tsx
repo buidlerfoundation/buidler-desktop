@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { useHistory, useLocation } from 'react-router-dom';
+import { AsyncKey } from 'renderer/common/AppConfig';
+import api from 'renderer/api';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import actionTypes from 'renderer/actions/ActionTypes';
 import actions from '../../actions';
 import './index.scss';
 import TeamItem from './TeamItem';
@@ -15,14 +20,10 @@ import {
   getDeviceCode,
   setCookie,
 } from '../../common/Cookie';
-import { useHistory, useLocation } from 'react-router-dom';
 import ModalBackup from '../ModalBackup';
-import actionTypes from 'renderer/actions/ActionTypes';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
-import { AsyncKey } from 'renderer/common/AppConfig';
-import api from 'renderer/api';
 import ModalWalletSetting from '../ModalWalletSetting';
 
 type AppTitleBarProps = {
@@ -212,156 +213,158 @@ const AppTitleBar = ({
     setOpenModalBackup(true);
   };
 
-  if (!privateKey) {
+  if (privateKey || WalletConnectUtils?.connector?.connected) {
     return (
-      <div
-        id="title-bar"
-        className={location.pathname === '/unlock' ? 'hide' : ''}
-      />
-    );
-  }
-  return (
-    <div id="title-bar">
-      <div style={{ width: !isFullscreen ? 100 : 0 }} />
-      <div
-        className="list-team hide-scroll-bar"
-        onMouseEnter={() => setHoverTeam(true)}
-        onMouseLeave={() => setHoverTeam(false)}
-      >
-        {imgDomain &&
-          team?.map?.((t) => {
-            const isSelected = t.team_id === currentTeam.team_id;
-            return (
-              <TeamItem
-                key={t.team_id}
-                isSelected={isSelected}
-                t={t}
-                onChangeTeam={() => {
-                  if (currentTeam.team_id !== t.team_id) setTeam(t);
-                }}
-                onContextMenu={(e) => {
-                  setSelectedMenuTeam(t);
-                  menuTeamRef.current?.show(e.currentTarget, {
-                    x: e.pageX,
-                    y: e.pageY,
-                  });
-                }}
-              />
-            );
-          })}
-        {hoverTeam && (
-          <div
-            className="normal-button create-team-button"
-            onClick={() => setOpenModalTeam(true)}
-          >
-            <img alt="" src={images.icPlus} />
+      <div id="title-bar">
+        <div style={{ width: !isFullscreen ? 100 : 0 }} />
+        <div
+          className="list-team hide-scroll-bar"
+          onMouseEnter={() => setHoverTeam(true)}
+          onMouseLeave={() => setHoverTeam(false)}
+        >
+          {imgDomain &&
+            team?.map?.((t) => {
+              const isSelected = t.team_id === currentTeam.team_id;
+              return (
+                <TeamItem
+                  key={t.team_id}
+                  isSelected={isSelected}
+                  t={t}
+                  onChangeTeam={() => {
+                    if (currentTeam.team_id !== t.team_id) setTeam(t);
+                  }}
+                  onContextMenu={(e) => {
+                    setSelectedMenuTeam(t);
+                    menuTeamRef.current?.show(e.currentTarget, {
+                      x: e.pageX,
+                      y: e.pageY,
+                    });
+                  }}
+                />
+              );
+            })}
+          {hoverTeam && (
+            <div
+              className="normal-button create-team-button"
+              onClick={() => setOpenModalTeam(true)}
+            >
+              <img alt="" src={images.icPlus} />
+            </div>
+          )}
+        </div>
+        {userData && (
+          <div className="action-right">
+            {/* <div
+              className="action-item normal-button"
+              style={{ marginRight: 10 }}
+              onClick={() => history.replace('/started')}
+            >
+              <img src={images.icSearch} alt="" />
+            </div> */}
+            <div
+              className="action-item normal-button"
+              onClick={() => setOpenModalWallet(true)}
+            >
+              <img src={images.icWallet} alt="" />
+            </div>
+            <div
+              className="action-item normal-button"
+              onClick={() => setOpenModalUser(true)}
+            >
+              <img src={images.icUser} alt="" />
+            </div>
           </div>
         )}
+        <ModalTeam
+          open={isOpenModalTeam}
+          handleClose={() => setOpenModalTeam(false)}
+          onCreateTeam={async (body) => {
+            await createTeam?.({
+              team_id: body.teamId,
+              team_display_name: body.name,
+              team_icon: body.teamIcon?.url,
+            });
+            setOpenModalTeam(false);
+          }}
+          onAcceptTeam={() => {
+            findTeamAndChannel();
+            setOpenModalTeam(false);
+          }}
+        />
+        <ModalUserSetting
+          open={isOpenModalUser}
+          handleClose={() => setOpenModalUser(false)}
+          user={userData}
+          currentChannel={currentChannel}
+          updateUserChannel={updateUserChannel}
+          channels={channels}
+          updateUser={updateUser}
+          onLogout={async () => {
+            const deviceCode = await getDeviceCode();
+            await api.removeDevice({
+              device_code: deviceCode,
+            });
+            WalletConnectUtils.disconnect();
+            clearData(() => {
+              setOpenModalUser(false);
+              history.replace('/started');
+              logout?.();
+            });
+          }}
+          onBackupPress={onBackupPress}
+        />
+        <ModalBackup
+          open={isOpenModalBackup}
+          handleClose={() => setOpenModalBackup(false)}
+        />
+        <PopoverButton
+          popupOnly
+          ref={menuTeamRef}
+          data={teamMenu}
+          onSelected={onSelectedMenu}
+          onClose={() => {}}
+        />
+        <ModalConfirmDelete
+          open={isOpenConfirmLeave}
+          handleClose={() => {
+            setSelectedMenuTeam(null);
+            setOpenConfirmLeave(false);
+          }}
+          title="Leave community"
+          description="Are you sure you want to leave?"
+          contentName={selectedMenuTeam?.team_display_name}
+          contentDelete="Leave"
+          onDelete={onLeaveTeam}
+        />
+        <ModalConfirmDeleteTeam
+          open={isOpenConfirmDeleteTeam}
+          handleClose={() => setOpenConfirmDeleteTeam(false)}
+          teamName={selectedMenuTeam?.team_display_name}
+          onDelete={onDeleteTeam}
+        />
+        <ModalTeamSetting
+          open={openTeamSetting}
+          handleClose={() => {
+            setSelectedMenuTeam(null);
+            setOpenTeamSetting(false);
+          }}
+          team={selectedMenuTeam}
+          updateTeam={updateTeam}
+          onDeleteClick={onDeleteClick}
+        />
+        <ModalWalletSetting
+          open={isOpenModalWallet}
+          handleClose={() => setOpenModalWallet(false)}
+        />
       </div>
-      {userData && (
-        <div className="action-right">
-          {/* <div
-            className="action-item normal-button"
-            style={{ marginRight: 10 }}
-            onClick={() => history.replace('/started')}
-          >
-            <img src={images.icSearch} alt="" />
-          </div> */}
-          <div
-            className="action-item normal-button"
-            onClick={() => setOpenModalWallet(true)}
-          >
-            <img src={images.icWallet} alt="" />
-          </div>
-          <div
-            className="action-item normal-button"
-            onClick={() => setOpenModalUser(true)}
-          >
-            <img src={images.icUser} alt="" />
-          </div>
-        </div>
-      )}
-      <ModalTeam
-        open={isOpenModalTeam}
-        handleClose={() => setOpenModalTeam(false)}
-        onCreateTeam={async (body) => {
-          await createTeam?.({
-            team_id: body.teamId,
-            team_display_name: body.name,
-            team_icon: body.teamIcon?.url,
-          });
-          setOpenModalTeam(false);
-        }}
-        onAcceptTeam={() => {
-          findTeamAndChannel();
-          setOpenModalTeam(false);
-        }}
-      />
-      <ModalUserSetting
-        open={isOpenModalUser}
-        handleClose={() => setOpenModalUser(false)}
-        user={userData}
-        currentChannel={currentChannel}
-        updateUserChannel={updateUserChannel}
-        channels={channels}
-        updateUser={updateUser}
-        onLogout={async () => {
-          const deviceCode = await getDeviceCode();
-          await api.removeDevice({
-            device_code: deviceCode,
-          });
-          clearData(() => {
-            setOpenModalUser(false);
-            history.replace('/started');
-            logout?.();
-          });
-        }}
-        onBackupPress={onBackupPress}
-      />
-      <ModalBackup
-        open={isOpenModalBackup}
-        handleClose={() => setOpenModalBackup(false)}
-      />
-      <PopoverButton
-        popupOnly
-        ref={menuTeamRef}
-        data={teamMenu}
-        onSelected={onSelectedMenu}
-        onClose={() => {}}
-      />
-      <ModalConfirmDelete
-        open={isOpenConfirmLeave}
-        handleClose={() => {
-          setSelectedMenuTeam(null);
-          setOpenConfirmLeave(false);
-        }}
-        title="Leave community"
-        description="Are you sure you want to leave?"
-        contentName={selectedMenuTeam?.team_display_name}
-        contentDelete="Leave"
-        onDelete={onLeaveTeam}
-      />
-      <ModalConfirmDeleteTeam
-        open={isOpenConfirmDeleteTeam}
-        handleClose={() => setOpenConfirmDeleteTeam(false)}
-        teamName={selectedMenuTeam?.team_display_name}
-        onDelete={onDeleteTeam}
-      />
-      <ModalTeamSetting
-        open={openTeamSetting}
-        handleClose={() => {
-          setSelectedMenuTeam(null);
-          setOpenTeamSetting(false);
-        }}
-        team={selectedMenuTeam}
-        updateTeam={updateTeam}
-        onDeleteClick={onDeleteClick}
-      />
-      <ModalWalletSetting
-        open={isOpenModalWallet}
-        handleClose={() => setOpenModalWallet(false)}
-      />
-    </div>
+    );
+  }
+
+  return (
+    <div
+      id="title-bar"
+      className={location.pathname === '/unlock' ? 'hide' : ''}
+    />
   );
 };
 
