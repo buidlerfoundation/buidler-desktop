@@ -36,6 +36,7 @@ import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/components/ModalOTP';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 type HomeProps = {
   team?: any;
@@ -427,7 +428,11 @@ const Home = ({
             index: current.index ? current.index - 1 : null,
           }));
         }
-      } else if (e.metaKey && e.key === 'l') {
+      } else if (
+        e.metaKey &&
+        e.key === 'l' &&
+        !WalletConnectUtils?.connector?.connected
+      ) {
         dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
         history.replace('/unlock');
       }

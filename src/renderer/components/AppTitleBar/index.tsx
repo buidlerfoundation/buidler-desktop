@@ -127,7 +127,11 @@ const AppTitleBar = ({
       GlobalVariable.isWindowFocus = true;
       const lastTime = await getCookie(AsyncKey.lastTimeFocus);
       const currentTime = new Date().getTime();
-      if (lastTime && currentTime - lastTime > 60000 * 30) {
+      if (
+        lastTime &&
+        currentTime - lastTime > 60000 * 30 &&
+        !WalletConnectUtils?.connector?.connected
+      ) {
         dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
         history.replace('/unlock');
       }
@@ -305,6 +309,7 @@ const AppTitleBar = ({
               device_code: deviceCode,
             });
             WalletConnectUtils.disconnect();
+            api.updateEncryptMessageKey(null);
             clearData(() => {
               setOpenModalUser(false);
               history.replace('/started');

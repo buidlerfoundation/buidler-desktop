@@ -90,8 +90,8 @@ const Started = () => {
       const res = await api.verifyNonce(nonce, signature);
       const { privateKey } = ethers.Wallet.createRandom();
       const publicKey = utils.computePublicKey(privateKey, true);
-      setCookie(AsyncKey.accessTokenKey, res.token);
-      setCookie(AsyncKey.generatedPrivateKey, privateKey);
+      await setCookie(AsyncKey.accessTokenKey, res.token);
+      await setCookie(AsyncKey.generatedPrivateKey, privateKey);
       dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
       await api.updateEncryptMessageKey(publicKey);
       history.replace('/home');
