@@ -15,16 +15,18 @@ import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
 import actions from './actions';
 import WalletConnectUtils from './services/connectors/WalletConnectUtils';
-import { getCookie } from './common/Cookie';
-import { AsyncKey } from './common/AppConfig';
+import { clearData, getCookie, getDeviceCode } from './common/Cookie';
+import { AsyncKey, LoginType } from './common/AppConfig';
 import actionTypes from './actions/ActionTypes';
+import api from './api';
 
 type AppProps = {
   findUser: () => any;
   getInitial: () => () => void;
+  logout: () => any;
 };
 
-function App({ findUser, getInitial }: AppProps) {
+function App({ findUser, getInitial, logout }: AppProps) {
   // console.log('XXX');
   // testSC();
   window.electron.cookies.setPath();
@@ -33,11 +35,14 @@ function App({ findUser, getInitial }: AppProps) {
   const user = useSelector((state) => state.user.userData);
   const imgDomain = useSelector((state: any) => state.user.imgDomain);
   const initApp = useCallback(async () => {
-    await findUser();
+    const accessToken = await getCookie(AsyncKey.accessTokenKey);
+    if (accessToken && typeof accessToken === 'string') {
+      await findUser();
+      history.replace('/home');
+    }
     if (!imgDomain) {
       await getInitial?.();
     }
-    history.replace('/home');
   }, [findUser, getInitial, imgDomain, history]);
   useEffect(() => {
     TextareaAutosize.defaultProps = {
@@ -87,9 +92,31 @@ function App({ findUser, getInitial }: AppProps) {
   useEffect(() => {
     initGeneratedPrivateKey();
   }, [initGeneratedPrivateKey]);
+  const walletConnectLogout = useCallback(async () => {
+    const deviceCode = await getDeviceCode();
+    await api.removeDevice({
+      device_code: deviceCode,
+    });
+    api.updateEncryptMessageKey(null);
+    clearData(() => {
+      window.location.reload();
+      logout?.();
+    });
+  }, [logout]);
   useEffect(() => {
-    WalletConnectUtils.init();
-  }, []);
+    WalletConnectUtils.init(walletConnectLogout);
+    if (!WalletConnectUtils.connector?.connected) {
+      getCookie(AsyncKey.loginType)
+        .then((res) => {
+          if (res === LoginType.WalletConnect) {
+            walletConnectLogout();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [walletConnectLogout]);
   const overrides: any = {
     MuiPickersDay: {
       day: {

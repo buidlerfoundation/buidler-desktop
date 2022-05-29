@@ -6,30 +6,23 @@ import api from 'renderer/api';
 class WalletConnectUtils {
   connector: any = null;
 
-  init() {
+  init(onDisconnect: () => void) {
     this.connector = new WalletConnect({
       bridge: 'https://bridge.walletconnect.org', // Required
       qrcodeModal: QRCodeModal,
     });
-    this.connector.on('session_update', (error, payload) => {
-      if (error) {
-        throw error;
-      }
-      console.log('session_update', payload);
-      // Get updated accounts and chainId
-      const { accounts, chainId } = payload.params[0];
-    });
-
-    this.connector.on('disconnect', (error, payload) => {
-      if (error) {
-        throw error;
-      }
-      console.log('disconnect', payload);
-      // Delete connector
-    });
+    if (this.connector.connected) {
+      this.connector.on('disconnect', onDisconnect);
+    }
   }
 
-  connect() {
+  connect(onConnect: () => void, onDisconnect: () => void) {
+    this.connector = new WalletConnect({
+      bridge: 'https://bridge.walletconnect.org', // Required
+      qrcodeModal: QRCodeModal,
+    });
+    this.connector.on('disconnect', onDisconnect);
+    this.connector.on('connect', onConnect);
     if (!this.connector.connected) {
       // create new session
       this.connector.createSession();

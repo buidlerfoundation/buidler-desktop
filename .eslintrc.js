@@ -12,6 +12,9 @@ module.exports = {
     '@typescript-eslint/naming-convention': 'off',
     radix: 'off',
     'no-restricted-globals': 'off',
+    'promise/always-return': 'off',
+    'react/require-default-props': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

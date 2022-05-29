@@ -21,6 +21,7 @@ export const AsyncKey = {
   deviceCode: `${Prefix}_device_code`,
   lastTimeFocus: `${Prefix}_last_time_focus`,
   generatedPrivateKey: `${Prefix}_generated_private_key`,
+  loginType: `${Prefix}_login_key`,
 };
 
 export const ProgressStatus = [
@@ -43,3 +44,8 @@ export const ProgressStatus = [
 
 export const seedExample =
   'sadness neither jungle loyal swarm cigar horror choice joy brick ill pen';
+
+export const LoginType = {
+  WalletConnect: 'WalletConnect',
+  WalletImport: 'WalletImport',
+};

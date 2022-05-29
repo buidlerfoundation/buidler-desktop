@@ -39,8 +39,10 @@ const UnlockPrivateKey = ({
   const dispatch = useDispatch();
   const initApp = useCallback(async () => {
     await uniqChannelPrivateKey();
-
-    await findUser();
+    const accessToken = await getCookie(AsyncKey.accessTokenKey);
+    if (accessToken && typeof accessToken === 'string') {
+      await findUser();
+    }
   }, [findUser]);
   useEffect(() => {
     if (!userData) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { AsyncKey } from 'renderer/common/AppConfig';
+import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import actionTypes from 'renderer/actions/ActionTypes';
@@ -304,17 +304,21 @@ const AppTitleBar = ({
           channels={channels}
           updateUser={updateUser}
           onLogout={async () => {
-            const deviceCode = await getDeviceCode();
-            await api.removeDevice({
-              device_code: deviceCode,
-            });
-            WalletConnectUtils.disconnect();
-            api.updateEncryptMessageKey(null);
-            clearData(() => {
-              setOpenModalUser(false);
-              history.replace('/started');
-              logout?.();
-            });
+            const loginType = await getCookie(AsyncKey.loginType);
+            if (loginType === LoginType.WalletConnect) {
+              api.updateEncryptMessageKey(null);
+              WalletConnectUtils.disconnect();
+            } else {
+              const deviceCode = await getDeviceCode();
+              await api.removeDevice({
+                device_code: deviceCode,
+              });
+              clearData(() => {
+                setOpenModalUser(false);
+                history.replace('/started');
+                logout?.();
+              });
+            }
           }}
           onBackupPress={onBackupPress}
         />

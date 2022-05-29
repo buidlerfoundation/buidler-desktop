@@ -3,11 +3,13 @@ import './index.scss';
 import { useHistory } from 'react-router-dom';
 import { ethers, utils } from 'ethers';
 import { encryptString, getIV } from 'renderer/utils/DataCrypto';
-import { setCookie } from 'renderer/common/Cookie';
-import { AsyncKey } from 'renderer/common/AppConfig';
+import { clearData, getDeviceCode, setCookie } from 'renderer/common/Cookie';
+import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
-import { useDispatch, useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import actions from 'renderer/actions';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
@@ -15,7 +17,11 @@ import images from '../../common/images';
 import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
 
-const Started = () => {
+type StartedProps = {
+  logout: () => any;
+};
+
+const Started = ({ logout }: StartedProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
@@ -71,6 +77,7 @@ const Started = () => {
             dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
           }
         }
+        await setCookie(AsyncKey.loginType, LoginType.WalletImport);
         history.replace('/home');
       }
     }
@@ -92,6 +99,7 @@ const Started = () => {
       const publicKey = utils.computePublicKey(privateKey, true);
       await setCookie(AsyncKey.accessTokenKey, res.token);
       await setCookie(AsyncKey.generatedPrivateKey, privateKey);
+      await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
       dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
       await api.updateEncryptMessageKey(publicKey);
       history.replace('/home');
@@ -100,20 +108,6 @@ const Started = () => {
       WalletConnectUtils.connector.killSession();
     }
   }, [history, dispatch]);
-  useEffect(() => {
-    if (WalletConnectUtils.connector.connected) {
-      setTimeout(doingLogin, 300);
-    }
-    WalletConnectUtils.connector.on('connect', async (error, payload) => {
-      if (error) {
-        throw error;
-      }
-      setTimeout(doingLogin, 300);
-    });
-    return () => {
-      WalletConnectUtils.connector.off('connect');
-    };
-  }, [doingLogin]);
   return (
     <div className="started-container">
       <div className="started-body">
@@ -151,7 +145,22 @@ const Started = () => {
         <div
           className="wallet-button normal-button"
           onClick={() => {
-            WalletConnectUtils.connect();
+            WalletConnectUtils.connect(
+              async () => {
+                setTimeout(doingLogin, 300);
+              },
+              async () => {
+                const deviceCode = await getDeviceCode();
+                await api.removeDevice({
+                  device_code: deviceCode,
+                });
+                api.updateEncryptMessageKey(null);
+                clearData(() => {
+                  window.location.reload();
+                  logout?.();
+                });
+              }
+            );
           }}
         >
           <span>WalletConnect</span>
@@ -174,4 +183,7 @@ const Started = () => {
   );
 };
 
-export default Started;
+const mapActionsToProps = (dispatch: any) =>
+  bindActionCreators(actions, dispatch);
+
+export default connect(undefined, mapActionsToProps)(Started);
