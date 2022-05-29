@@ -109,9 +109,11 @@ const Started = ({ logout }: StartedProps) => {
         <div className="started-info-view">
           <img className="started-logo" alt="" src={images.icLogoSquare} />
           <span className="started-title">
-            One-stop for your
+            One-stop
             <br />
-            Web3 Commnunity
+            Web3 Application
+            <br />
+            for your community
           </span>
           <span className="started-description">
             Buidler is a Web3 Application for your
