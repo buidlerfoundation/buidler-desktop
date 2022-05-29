@@ -14,7 +14,7 @@ import { io } from 'socket.io-client';
 import { uniqBy } from 'lodash';
 import { ethers, utils } from 'ethers';
 import actionTypes from '../actions/ActionTypes';
-import AppConfig, { AsyncKey } from '../common/AppConfig';
+import AppConfig, { AsyncKey, LoginType } from '../common/AppConfig';
 import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
 import store from '../store';
 import api from '../api';
@@ -746,7 +746,11 @@ class SocketUtil {
   async emitOnline(teamId: string) {
     const deviceCode = await getDeviceCode();
     const generatedPrivateKey = await getCookie(AsyncKey.generatedPrivateKey);
-    if (Object.keys(generatedPrivateKey || {}).length === 0) {
+    const loginType = await getCookie(AsyncKey.loginType);
+    if (
+      Object.keys(generatedPrivateKey || {}).length === 0 &&
+      loginType === LoginType.WalletConnect
+    ) {
       const { privateKey } = ethers.Wallet.createRandom();
       const publicKey = utils.computePublicKey(privateKey, true);
       await setCookie(AsyncKey.generatedPrivateKey, privateKey);
