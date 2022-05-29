@@ -15,6 +15,8 @@ module.exports = {
     'promise/always-return': 'off',
     'react/require-default-props': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/lines-between-class-members': 'off',
+    'no-extra-boolean-cast': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

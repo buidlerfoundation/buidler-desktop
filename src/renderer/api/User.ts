@@ -1,3 +1,4 @@
+import { getDeviceCode } from 'renderer/common/Cookie';
 import ApiCaller from './ApiCaller';
 
 export const loginWithGoogle = (code: string) =>
@@ -58,6 +59,3 @@ export const acceptInvitation = (invitationId: string) =>
 
 export const removeDevice = (body: any) =>
   ApiCaller.delete('user/device', body);
-
-export const updateEncryptMessageKey = (key: string) =>
-  ApiCaller.put(`user/encrypt`, { encrypt_message_key: key });

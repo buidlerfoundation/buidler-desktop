@@ -97,7 +97,6 @@ function App({ findUser, getInitial, logout }: AppProps) {
     await api.removeDevice({
       device_code: deviceCode,
     });
-    api.updateEncryptMessageKey(null);
     clearData(() => {
       window.location.reload();
       logout?.();

@@ -95,19 +95,14 @@ const Started = ({ logout }: StartedProps) => {
       const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', nonce];
       const signature = await WalletConnectUtils.connector.signMessage(params);
       const res = await api.verifyNonce(nonce, signature);
-      const { privateKey } = ethers.Wallet.createRandom();
-      const publicKey = utils.computePublicKey(privateKey, true);
       await setCookie(AsyncKey.accessTokenKey, res.token);
-      await setCookie(AsyncKey.generatedPrivateKey, privateKey);
       await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
-      dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
-      await api.updateEncryptMessageKey(publicKey);
       history.replace('/home');
     } catch (err) {
       console.log(err);
       WalletConnectUtils.connector.killSession();
     }
-  }, [history, dispatch]);
+  }, [history]);
   return (
     <div className="started-container">
       <div className="started-body">
@@ -154,7 +149,6 @@ const Started = ({ logout }: StartedProps) => {
                 await api.removeDevice({
                   device_code: deviceCode,
                 });
-                api.updateEncryptMessageKey(null);
                 clearData(() => {
                   window.location.reload();
                   logout?.();

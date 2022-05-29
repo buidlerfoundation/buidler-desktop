@@ -306,7 +306,6 @@ const AppTitleBar = ({
           onLogout={async () => {
             const loginType = await getCookie(AsyncKey.loginType);
             if (loginType === LoginType.WalletConnect) {
-              api.updateEncryptMessageKey(null);
               WalletConnectUtils.disconnect();
             } else {
               const deviceCode = await getDeviceCode();

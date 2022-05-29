@@ -1,11 +1,4 @@
-import actionTypes from '../actions/ActionTypes';
-import AppConfig, { AsyncKey } from '../common/AppConfig';
-import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
-import store from '../store';
 import toast from 'react-hot-toast';
-import api from '../api';
-import { createRefreshSelector } from '../reducers/selectors';
-import GlobalVariable from '../services/GlobalVariable';
 import { Dispatch } from 'redux';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import {
@@ -19,6 +12,14 @@ import {
 } from 'renderer/helpers/ChannelHelper';
 import { io } from 'socket.io-client';
 import { uniqBy } from 'lodash';
+import { ethers, utils } from 'ethers';
+import actionTypes from '../actions/ActionTypes';
+import AppConfig, { AsyncKey } from '../common/AppConfig';
+import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
+import store from '../store';
+import api from '../api';
+import { createRefreshSelector } from '../reducers/selectors';
+import GlobalVariable from '../services/GlobalVariable';
 
 const getTasks = async (channelId: string, dispatch: Dispatch) => {
   dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
@@ -744,7 +745,23 @@ class SocketUtil {
   }
   async emitOnline(teamId: string) {
     const deviceCode = await getDeviceCode();
-    this.socket.emit('ONLINE', { team_id: teamId, device_code: deviceCode });
+    const generatedPrivateKey = await getCookie(AsyncKey.generatedPrivateKey);
+    if (Object.keys(generatedPrivateKey || {}).length === 0) {
+      const { privateKey } = ethers.Wallet.createRandom();
+      const publicKey = utils.computePublicKey(privateKey, true);
+      await setCookie(AsyncKey.generatedPrivateKey, privateKey);
+      store.dispatch({
+        type: actionTypes.SET_PRIVATE_KEY,
+        payload: privateKey,
+      });
+      this.socket.emit('ONLINE', {
+        team_id: teamId,
+        device_code: deviceCode,
+        encrypt_message_key: publicKey,
+      });
+    } else {
+      this.socket.emit('ONLINE', { team_id: teamId, device_code: deviceCode });
+    }
   }
   async emitReceivedKey(channelId: string, timestamp: number) {
     const deviceCode = await getDeviceCode();

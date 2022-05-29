@@ -1,16 +1,18 @@
+import { getDeviceCode } from 'renderer/common/Cookie';
 import { getMentionData } from '../helpers/MessageHelper';
 import ApiCaller from './ApiCaller';
 
 export const deleteMessage = (messageId: string) =>
   ApiCaller.delete(`message/${messageId}`);
 
-export const getMessages = (
+export const getMessages = async (
   channelId: string,
   limit = 50,
   before = new Date().toISOString(),
   after?: string
 ) => {
-  let uri = `messages/${channelId}?page[size]=${limit}&page[before]=${before}`;
+  const deviceCode = await getDeviceCode();
+  let uri = `messages/${channelId}?page[size]=${limit}&page[before]=${before}&device_code=${deviceCode}`;
   if (after) {
     uri += `&page[after]=${after}`;
   }
