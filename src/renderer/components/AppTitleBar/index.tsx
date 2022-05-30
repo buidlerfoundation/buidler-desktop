@@ -305,9 +305,13 @@ const AppTitleBar = ({
           updateUser={updateUser}
           onLogout={async () => {
             const loginType = await getCookie(AsyncKey.loginType);
-            if (loginType === LoginType.WalletConnect) {
+            if (
+              loginType === LoginType.WalletConnect ||
+              WalletConnectUtils.connector?.connected
+            ) {
               WalletConnectUtils.disconnect();
-            } else {
+            }
+            if (loginType === LoginType.WalletImport) {
               const deviceCode = await getDeviceCode();
               await api.removeDevice({
                 device_code: deviceCode,
