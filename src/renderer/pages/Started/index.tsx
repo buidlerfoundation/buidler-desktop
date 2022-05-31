@@ -13,6 +13,7 @@ import actions from 'renderer/actions';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import toast from 'react-hot-toast';
 import images from '../../common/images';
 import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
@@ -89,9 +90,14 @@ const Started = ({ logout }: StartedProps) => {
     )
       return;
     try {
-      const { accounts } = WalletConnectUtils.connector;
+      const { accounts, peerMeta } = WalletConnectUtils.connector;
       const address = accounts?.[0];
       const { nonce } = await api.requestNonceWithAddress(address);
+      if (peerMeta.name === 'MetaMask') {
+        toast.error('Something wrongs, you can try another wallet');
+        WalletConnectUtils.connector.killSession();
+        return;
+      }
       const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', nonce];
       const signature = await WalletConnectUtils.connector.signMessage(params);
       const res = await api.verifyNonce(nonce, signature);
@@ -147,12 +153,16 @@ const Started = ({ logout }: StartedProps) => {
                 setTimeout(doingLogin, 300);
               },
               async () => {
-                const deviceCode = await getDeviceCode();
-                await api.removeDevice({
-                  device_code: deviceCode,
-                });
+                if (!window.location.href.includes('started')) {
+                  const deviceCode = await getDeviceCode();
+                  await api.removeDevice({
+                    device_code: deviceCode,
+                  });
+                }
                 clearData(() => {
-                  window.location.reload();
+                  if (!window.location.href.includes('started')) {
+                    window.location.reload();
+                  }
                   logout?.();
                 });
               }
