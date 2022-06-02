@@ -6,6 +6,7 @@ const AppConfig = {
   baseUrl: 'https://api.remotetoday.app/',
   stagingBaseUrl: 'https://testnet.buidler.app/',
   // baseUrl: 'http://127.0.0.1:8888/',
+  maxLengthSpaceDescription: 450,
 };
 
 export default AppConfig;
@@ -49,3 +50,14 @@ export const LoginType = {
   WalletConnect: 'WalletConnect',
   WalletImport: 'WalletImport',
 };
+
+export const SpaceBadge = [
+  { id: 1, color: '#56C195', backgroundColor: '#56C1951A' },
+  { id: 2, color: '#6DC8EF', backgroundColor: '#6DC8EF1A' },
+  { id: 3, color: '#8A8FFF', backgroundColor: '#8A8FFF1A' },
+  { id: 4, color: '#B950F2', backgroundColor: '#A245D41A' },
+  { id: 5, color: '#ED474D', backgroundColor: '#E3454B1A' },
+  { id: 6, color: '#ED6217', backgroundColor: '#ED62171A' },
+  { id: 7, color: '#F19B91', backgroundColor: '#F19B911A' },
+  { id: 8, color: '#FCB828', backgroundColor: '#FCB8281A' },
+];

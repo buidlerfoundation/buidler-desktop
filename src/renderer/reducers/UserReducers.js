@@ -259,7 +259,7 @@ const userReducers = (state = initialState, action) => {
         team,
         teamUsersRes,
       } = payload;
-      let channel;
+      let channel = state.currentChannel;
       if (directChannelUser && lastChannelId) {
         const directChannel = resChannel.data.find(
           (c) => c?.channel_id === directChannelUser.direct_channel

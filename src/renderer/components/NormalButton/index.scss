@@ -16,6 +16,9 @@
   transition: background 0.8s;
   -webkit-tap-highlight-color: transparent;
   position: relative;
+  & + .normal-button__container {
+    margin-left: 10px;
+  }
 }
 
 .loading-container {

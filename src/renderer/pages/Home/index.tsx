@@ -2,12 +2,22 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { DragDropContext } from 'react-beautiful-dnd';
+import moment from 'moment';
+import PageWrapper from 'renderer/components/PageWrapper';
+import { useHistory } from 'react-router-dom';
+import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
+import { setCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
+import ModalOTP from 'renderer/components/ModalOTP';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
+import toast from 'react-hot-toast';
+import { uniqBy } from 'lodash';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
 import ChannelView from './container/ChannelView';
 import TaskListView from './container/TaskListView';
-import moment from 'moment';
 import './index.scss';
 import ModalCreateChannel from '../../components/ModalCreateChannel';
 import {
@@ -21,22 +31,12 @@ import ModalTaskView from '../../components/ModalTaskView';
 import { groupTaskByFiltered } from '../../helpers/TaskHelper';
 import ModalConversation from '../../components/ModalConversation';
 import GlobalVariable from '../../services/GlobalVariable';
-import toast from 'react-hot-toast';
-import ModalCreateGroupChannel from '../../components/ModalCreateGroupChannel';
 import ModalConfirmDeleteGroupChannel from '../../components/ModalConfirmDeleteGroupChannel';
 import ModalConfirmDeleteChannel from '../../components/ModalConfirmDeleteChannel';
-import { uniqBy } from 'lodash';
 import ModalInviteMember from '../../components/ModalInviteMember';
 import api from '../../api';
 import EmptyView from './container/EmptyView';
 import ModalEditGroupChannel from '../../components/ModalEditGroupChannel';
-import PageWrapper from 'renderer/components/PageWrapper';
-import { useHistory } from 'react-router-dom';
-import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
-import { setCookie } from 'renderer/common/Cookie';
-import { AsyncKey } from 'renderer/common/AppConfig';
-import ModalOTP from 'renderer/components/ModalOTP';
-import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 type HomeProps = {
   team?: any;
@@ -204,7 +204,7 @@ const Home = ({
   const [openCreateTask, setOpenCreateTask] = useState(false);
   const [currentTitle, setCurrentTitle] = useState<string | null>(null);
   const [openCreateChannel, setOpenCreateChannel] = useState(false);
-  const [openCreateGroupChannel, setOpenCreateGroupChannel] = useState(false);
+  const [openCreateSpace, setOpenCreateSpace] = useState(false);
   const [openEditSpaceChannel, setOpenEditSpaceChannel] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [openTaskView, setOpenTask] = useState(false);
@@ -216,13 +216,13 @@ const Home = ({
     });
     setOpenEditSpaceChannel(false);
   };
-  const onCreateSpaceChannel = async (spaceData: any) => {
-    await createSpaceChannel(currentTeam.team_id, {
-      space_name: spaceData.name,
-      order: space?.[space.length - 1].order + 1,
-    });
-    setOpenCreateGroupChannel(false);
-    sideBarRef.current?.scrollToBottom?.();
+  const onCreateSpace = async (spaceData: any) => {
+    // await createSpaceChannel(currentTeam.team_id, {
+    //   space_name: spaceData.name,
+    //   order: space?.[space.length - 1].order + 1,
+    // });
+    // setOpenCreateGroupChannel(false);
+    // sideBarRef.current?.scrollToBottom?.();
   };
   const onCreateChannel = async (channelData: any) => {
     const body: any = {
@@ -547,7 +547,7 @@ const Home = ({
               setOpenCreateChannel(true);
             }}
             onCreateGroupChannel={() => {
-              setOpenCreateGroupChannel(true);
+              setOpenCreateSpace(true);
             }}
             onEditGroupChannel={(g) => {
               setSelectedSpace(g);
@@ -695,11 +695,11 @@ const Home = ({
             currentChannel={currentChannel}
             channels={channels}
           />
-          {openCreateGroupChannel && (
-            <ModalCreateGroupChannel
-              open={openCreateGroupChannel}
-              handleClose={() => setOpenCreateGroupChannel(false)}
-              onCreateSpaceChannel={onCreateSpaceChannel}
+          {openCreateSpace && (
+            <ModalCreateSpace
+              open={openCreateSpace}
+              handleClose={() => setOpenCreateSpace(false)}
+              onCreateSpace={onCreateSpace}
             />
           )}
           {openEditSpaceChannel && (

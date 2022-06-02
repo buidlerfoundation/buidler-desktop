@@ -83,6 +83,7 @@ import icArrowUp from '../assets/images/ic_arrow_up.svg';
 import icArrowDown from '../assets/images/ic_arrow_down.svg';
 import icSwap from '../assets/images/ic_swap.svg';
 import icWalletConnect from '../assets/images/ic_wallet_connect.svg';
+import icCameraSolid from '../assets/images/ic_camera_solid.svg';
 
 const images = {
   icTeamDefault,
@@ -170,6 +171,7 @@ const images = {
   icArrowDown,
   icSwap,
   icWalletConnect,
+  icCameraSolid,
 };
 
 export default images;

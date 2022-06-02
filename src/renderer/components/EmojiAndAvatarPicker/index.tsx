@@ -8,7 +8,7 @@ import './index.scss';
 type EmojiAndAvatarPickerProps = {
   onAddFiles: (fs) => void;
   onAddEmoji: (emoji) => void;
-  onSelectRecentFile: (file) => void;
+  onSelectRecentFile?: (file) => void;
   spaceId?: string;
   channelId?: string;
 };

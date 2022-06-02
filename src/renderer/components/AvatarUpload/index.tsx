@@ -7,7 +7,7 @@ import './index.scss';
 type AvatarUploadProps = {
   onAddFiles: (fs) => void;
   recentFiles: Array<any>;
-  onSelectRecentFile: (file) => void;
+  onSelectRecentFile?: (file) => void;
 };
 
 const AvatarUpload = ({
@@ -39,7 +39,7 @@ const AvatarUpload = ({
                     key={el.file_id}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectRecentFile(el);
+                      onSelectRecentFile?.(el);
                     }}
                   >
                     <img

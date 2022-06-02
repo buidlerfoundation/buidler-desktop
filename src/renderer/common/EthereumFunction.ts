@@ -1,4 +1,4 @@
-import { Contract, providers, Wallet, ethers } from 'ethers';
+import { Contract, providers, Wallet, ethers, utils } from 'ethers';
 
 const INFURA_API_KEY = '74de9271d1194b40af956650c6084bb4';
 
@@ -56,4 +56,19 @@ export const testSC = async () => {
       return null;
     })
     .catch((err: any) => console.log(err));
+};
+
+export const stringToBytes32 = (text) => {
+  let result = utils.toUtf8Bytes(text);
+  if (result.length > 32) {
+    throw new Error('String too long');
+  }
+  result = utils.hexlify(result);
+  while (result.length < 66) {
+    result += '0';
+  }
+  if (result.length !== 66) {
+    throw new Error('invalid web3 implicit bytes32');
+  }
+  return result;
 };

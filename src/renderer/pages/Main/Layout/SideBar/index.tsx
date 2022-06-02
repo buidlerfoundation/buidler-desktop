@@ -6,16 +6,17 @@ import React, {
   useImperativeHandle,
 } from 'react';
 import './index.scss';
+import { connect } from 'react-redux';
+import Popover from '@material-ui/core/Popover';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { useHistory } from 'react-router-dom';
+import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
 import images from '../../../../common/images';
 import GroupTitle from './components/GroupTitle';
 import MemberChild from './components/MemberChild';
-import { connect } from 'react-redux';
 import PopupMenuActions from './components/PopupMenuActions';
-import Popover from '@material-ui/core/Popover';
 import { createErrorMessageSelector } from '../../../../reducers/selectors';
 import actionTypes from '../../../../actions/ActionTypes';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { useHistory } from 'react-router-dom';
 import PopoverButton from '../../../../components/PopoverButton';
 import {
   channelMenu,
@@ -27,7 +28,6 @@ import ModalTeamSetting from '../../../../components/ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../../../../components/ModalConfirmDeleteTeam';
 import SpaceItem from './components/SpaceItem';
 import MemberSpace from './components/MemberSpace';
-import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
 
 type SideBarProps = {
   team?: any;
