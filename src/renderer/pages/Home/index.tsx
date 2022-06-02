@@ -210,92 +210,321 @@ const Home = ({
   const [openTaskView, setOpenTask] = useState(false);
   const [currentMessage, setCurrentMessage] = useState<any>(null);
   const [openConversation, setOpenConversation] = useState(false);
-  const onEditSpaceChannel = async (spaceData: any) => {
-    await updateSpaceChannel(selectedSpace.space_id, {
-      space_name: spaceData.name,
-    });
-    setOpenEditSpaceChannel(false);
-  };
-  const onCreateSpace = async (spaceData: any) => {
+  const handleDragChannel = useCallback(
+    (result: any) => {
+      const { draggableId, source, destination } = result;
+      const groupId = destination.droppableId.split('group-channel-')[1];
+      const sourceGroupId = source.droppableId.split('group-channel-')[1];
+      if (groupId === sourceGroupId) return;
+      dragChannel(draggableId, groupId);
+    },
+    [dragChannel]
+  );
+  const handleDragTaskToChannel = useCallback(
+    (result: any, task: any) => {
+      const { draggableId, destination } = result;
+      const groupId = destination.droppableId.split('group-channel-')[1];
+      const channel = channels.filter((c) => c.group_channel_id === groupId)?.[
+        destination.index - 1
+      ];
+      if (
+        !channel ||
+        !!task.channel.find((c: any) => c.channel_id === channel.channel_id)
+      ) {
+        return;
+      }
+      updateTask(draggableId, currentChannel?.channel_id, {
+        channel: [...task.channel, channel],
+        team_id: currentTeam.team_id,
+      });
+    },
+    [channels, currentChannel?.channel_id, currentTeam?.team_id, updateTask]
+  );
+  const onDragEnd = useCallback(
+    (result: any) => {
+      if (!currentChannel?.channel_id || !result) return;
+      const { draggableId, source, destination } = result;
+      if (!destination) return;
+      const task = tasks.find((t) => t.task_id === draggableId);
+      if (destination.droppableId.includes('group-channel')) {
+        if (source.droppableId.includes('group-channel')) {
+          handleDragChannel(result);
+        } else {
+          handleDragTaskToChannel(result, task);
+        }
+        return;
+      }
+      let currentVote = task?.up_votes || 0;
+      if (destination.droppableId !== 'archived') {
+        const taskGrouped = groupTaskByFiltered(filter.value, tasks);
+        if (source.droppableId === destination.droppableId) {
+          if (source.index !== destination.index) {
+            const sourceList = taskGrouped[source.droppableId];
+            if (source.index < destination.index) {
+              currentVote = sourceList[destination.index].up_votes - 1;
+            } else {
+              currentVote = sourceList[destination.index].up_votes + 1;
+            }
+          }
+        } else {
+          const destinationList = taskGrouped[destination.droppableId];
+          if (destinationList.length === destination.index) {
+            if (destinationList.length > 0) {
+              currentVote =
+                destinationList[destinationList.length - 1].up_votes - 1;
+            }
+          } else {
+            currentVote = destinationList[destination.index].up_votes + 1;
+          }
+        }
+      }
+      dropTask(
+        result,
+        currentChannel.channel_id,
+        currentVote,
+        currentTeam.team_id
+      );
+    },
+    [
+      currentChannel?.channel_id,
+      currentTeam?.team_id,
+      dropTask,
+      filter.value,
+      handleDragChannel,
+      handleDragTaskToChannel,
+      tasks,
+    ]
+  );
+  const handleOpenCreateChannel = useCallback((initSpace) => {
+    setInitialSpace(initSpace);
+    setOpenCreateChannel(true);
+  }, []);
+  const handleOpenCreateSpace = useCallback(() => {
+    setOpenCreateSpace(true);
+  }, []);
+  const handleOpenEditSpace = useCallback((g) => {
+    setSelectedSpace(g);
+    setOpenEditSpaceChannel(true);
+  }, []);
+  const handleOpenDeleteSpace = useCallback((g) => {
+    setSelectedSpace(g);
+    setOpenConfirmDeleteSpace(true);
+  }, []);
+  const handleOpenDeleteChannel = useCallback((channel) => {
+    setChannelDelete(channel);
+    setOpenConfirmDeleteChannel(true);
+  }, []);
+  const handleRemoveTeamMember = useCallback(
+    (u) => {
+      removeTeamMember(currentTeam.team_id, u.user_id);
+    },
+    [removeTeamMember, currentTeam?.team_id]
+  );
+  const handleOpenEditChannelMember = useCallback(
+    (channel) => {
+      setCurrentChannel?.(channel);
+      channelViewRef.current.showSetting('edit-member');
+    },
+    [setCurrentChannel]
+  );
+  const handleOpenEditChannelName = useCallback(
+    (channel) => {
+      setCurrentChannel?.(channel);
+      channelViewRef.current.showSetting('edit-name');
+    },
+    [setCurrentChannel]
+  );
+  const handleOpenInviteMember = useCallback(() => setOpenInvite(true), []);
+  const handleOpenConversation = useCallback((message) => {
+    setCurrentMessage(message);
+    setOpenConversation(true);
+  }, []);
+  const onMoreMessage = useCallback(() => {
+    if (messages.length === 0) return;
+    const lastMsg = messages[messages.length - 1];
+    getMessages(
+      currentChannel.channel_id,
+      currentChannel.channel_type,
+      lastMsg.createdAt
+    );
+  }, [
+    currentChannel?.channel_id,
+    currentChannel?.channel_type,
+    getMessages,
+    messages,
+  ]);
+  const onDeleteTask = useCallback(
+    (task: any) => {
+      if (!currentChannel?.channel_id) return;
+      deleteTask(task.task_id, currentChannel?.channel_id);
+    },
+    [deleteTask, currentChannel?.channel_id]
+  );
+  const onUpdateStatus = useCallback(
+    (task: any, status: string) => {
+      if (!currentChannel?.channel_id) return;
+      updateTask(task.task_id, currentChannel?.channel_id, {
+        status,
+        team_id: currentTeam.team_id,
+      });
+    },
+    [currentChannel?.channel_id, updateTask, currentTeam?.team_id]
+  );
+  const handleTaskHoverChange = useCallback(
+    (key, index) => setHoverInfo({ key, index }),
+    []
+  );
+  const handleTaskHoverLeave = useCallback(() => {
+    setHoverInfo({ key: null, index: null });
+  }, []);
+  const handleTaskUpdateFilter = useCallback((st) => setFilter(st), []);
+  const openTaskDetail = useCallback((task: any) => {
+    setOpenTask(true);
+    setCurrentTask(task);
+  }, []);
+  const onReplyTask = useCallback((task: any) => {
+    setReplyTask(task);
+  }, []);
+  const handleAddTask = useCallback((title) => {
+    setCurrentTitle(title);
+    setOpenCreateTask(true);
+  }, []);
+  const handleCloseModalConversation = useCallback(() => {
+    setOpenConversation(false);
+    setCurrentMessage(null);
+  }, []);
+  const handleCloseModalTaskView = useCallback(() => {
+    setOpenTask(false);
+    setCurrentTask(null);
+  }, []);
+  const onCreateTask = useCallback(
+    (taskData: any, id: string) => {
+      const loadingAttachment = taskData.attachments.find(
+        (att: any) => att.loading
+      );
+      if (loadingAttachment != null) {
+        return;
+      }
+      const channel_ids = taskData.channels
+        .filter((c: any) => c.channel_id !== currentChannel.channel_id)
+        .map((c: any) => c.channel_id);
+      if (
+        currentChannel.channel_type !== 'Direct' &&
+        currentChannel?.channel_id
+      ) {
+        channel_ids.unshift(currentChannel?.channel_id);
+      }
+      if (channel_ids.length === 0) {
+        toast.error('Channels can not be empty');
+        return;
+      }
+      if (!taskData?.title) {
+        toast.error('Title can not be empty');
+        return;
+      }
+      const body: any = {
+        title: taskData?.title,
+        notes: taskData?.notes,
+        status: taskData?.currentStatus?.id,
+        due_date: taskData?.dueDate
+          ? moment(taskData?.dueDate || new Date()).format(
+              'YYYY-MM-DD HH:mm:ss.SSSZ'
+            )
+          : null,
+        channel_ids,
+        assignee_id: taskData?.assignee?.user_id,
+        attachments: taskData.attachments.map((att: any) => att.url),
+        team_id: currentTeam.team_id,
+      };
+      if (id !== '') {
+        body.task_id = id;
+      }
+      createTask(currentChannel?.channel_id, body);
+      setOpenCreateTask(false);
+    },
+    [
+      createTask,
+      currentChannel?.channel_id,
+      currentChannel?.channel_type,
+      currentTeam?.team_id,
+    ]
+  );
+  const handleCloseModalCreateTask = useCallback(() => {
+    setCurrentTitle(null);
+    setOpenCreateTask(false);
+  }, []);
+  const handleCloseModalCreateSpace = useCallback(
+    () => setOpenCreateSpace(false),
+    []
+  );
+  const onCreateSpace = useCallback(async (spaceData: any) => {
     // await createSpaceChannel(currentTeam.team_id, {
     //   space_name: spaceData.name,
     //   order: space?.[space.length - 1].order + 1,
     // });
     // setOpenCreateGroupChannel(false);
     // sideBarRef.current?.scrollToBottom?.();
-  };
-  const onCreateChannel = async (channelData: any) => {
-    const body: any = {
-      channel_name: channelData.name,
-      space_id: channelData.space?.space_id,
-      channel_type: channelData.isPrivate ? 'Private' : 'Public',
-    };
-    if (channelData.isPrivate) {
-      const { res } = await createMemberChannelData(channelData.members);
-      body.channel_member_data = res;
-    }
-    const success = await createNewChannel(
-      currentTeam.team_id,
-      body,
-      channelData.space?.space_name
-    );
-    if (success) setOpenCreateChannel(false);
-  };
-  const onDeleteTask = (task: any) => {
-    if (!currentChannel?.channel_id) return;
-    deleteTask(task.task_id, currentChannel?.channel_id);
-  };
-  const onUpdateStatus = (task: any, status: string) => {
-    if (!currentChannel?.channel_id) return;
-    updateTask(task.task_id, currentChannel?.channel_id, {
-      status,
-      team_id: currentTeam.team_id,
-    });
-  };
-  const onCreateTask = (taskData: any, id: string) => {
-    const loadingAttachment = taskData.attachments.find(
-      (att: any) => att.loading
-    );
-    if (loadingAttachment != null) {
-      return;
-    }
-    const channel_ids = taskData.channels
-      .filter((c: any) => c.channel_id !== currentChannel.channel_id)
-      .map((c: any) => c.channel_id);
-    if (
-      currentChannel.channel_type !== 'Direct' &&
-      currentChannel?.channel_id
-    ) {
-      channel_ids.unshift(currentChannel?.channel_id);
-    }
-    if (channel_ids.length === 0) {
-      toast.error('Channels can not be empty');
-      return;
-    }
-    if (!taskData?.title) {
-      toast.error('Title can not be empty');
-      return;
-    }
-    const body: any = {
-      title: taskData?.title,
-      notes: taskData?.notes,
-      status: taskData?.currentStatus?.id,
-      due_date: taskData?.dueDate
-        ? moment(taskData?.dueDate || new Date()).format(
-            'YYYY-MM-DD HH:mm:ss.SSSZ'
-          )
-        : null,
-      channel_ids,
-      assignee_id: taskData?.assignee?.user_id,
-      attachments: taskData.attachments.map((att: any) => att.url),
-      team_id: currentTeam.team_id,
-    };
-    if (id !== '') {
-      body.task_id = id;
-    }
-    createTask(currentChannel?.channel_id, body);
-    setOpenCreateTask(false);
-  };
+  }, []);
+  const handleCloseModalEditSpace = useCallback(
+    () => setOpenEditSpaceChannel(false),
+    []
+  );
+  const onEditSpaceChannel = useCallback(
+    async (spaceData: any) => {
+      await updateSpaceChannel(selectedSpace.space_id, {
+        space_name: spaceData.name,
+      });
+      setOpenEditSpaceChannel(false);
+    },
+    [selectedSpace?.space_id, updateSpaceChannel]
+  );
+  const onCreateChannel = useCallback(
+    async (channelData: any) => {
+      const body: any = {
+        channel_name: channelData.name,
+        space_id: channelData.space?.space_id,
+        channel_type: channelData.isPrivate ? 'Private' : 'Public',
+      };
+      if (channelData.isPrivate) {
+        const { res } = await createMemberChannelData(channelData.members);
+        body.channel_member_data = res;
+      }
+      const success = await createNewChannel(
+        currentTeam.team_id,
+        body,
+        channelData.space?.space_name
+      );
+      if (success) setOpenCreateChannel(false);
+    },
+    [createNewChannel, currentTeam?.team_id]
+  );
+  const handleCloseModalCreateChannel = useCallback(
+    () => setOpenCreateChannel(false),
+    []
+  );
+  const handleCloseModalInviteMember = useCallback(
+    () => setOpenInvite(false),
+    []
+  );
+  const handleCloseModalDeleteChannel = useCallback(
+    () => setOpenConfirmDeleteChannel(false),
+    []
+  );
+  const handleDeleteChannel = useCallback(async () => {
+    if (!channelDelete?.channel_id) return;
+    await deleteChannel(channelDelete?.channel_id);
+    setChannelDelete(null);
+    setOpenConfirmDeleteChannel(false);
+  }, [channelDelete?.channel_id, deleteChannel]);
+  const handleCloseModalConfirmDeleteSpace = useCallback(() => {
+    setOpenConfirmDeleteSpace(false);
+  }, []);
+  const handleDeleteSpace = useCallback(async () => {
+    if (!selectedSpace?.space_id) return;
+    await deleteSpaceChannel(selectedSpace?.space_id);
+    setSelectedSpace(null);
+    setOpenConfirmDeleteSpace(false);
+  }, [deleteSpaceChannel, selectedSpace?.space_id]);
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.includes('invitation=')) {
       const invitationId = dataFromUrl.split('=')[1];
@@ -452,127 +681,22 @@ const Home = ({
   if (loading) {
     return <HomeLoading />;
   }
-  const handleDragChannel = (result: any) => {
-    const { draggableId, source, destination } = result;
-    const groupId = destination.droppableId.split('group-channel-')[1];
-    const sourceGroupId = source.droppableId.split('group-channel-')[1];
-    if (groupId === sourceGroupId) return;
-    dragChannel(draggableId, groupId);
-  };
-  const handleDragTaskToChannel = (result: any, task: any) => {
-    const { draggableId, destination } = result;
-    const groupId = destination.droppableId.split('group-channel-')[1];
-    const channel = channels.filter((c) => c.group_channel_id === groupId)?.[
-      destination.index - 1
-    ];
-    if (
-      !channel ||
-      !!task.channel.find((c: any) => c.channel_id === channel.channel_id)
-    ) {
-      return;
-    }
-    updateTask(draggableId, currentChannel?.channel_id, {
-      channel: [...task.channel, channel],
-      team_id: currentTeam.team_id,
-    });
-  };
-  const onDragEnd = (result: any) => {
-    if (!currentChannel?.channel_id || !result) return;
-    const { draggableId, source, destination } = result;
-    if (!destination) return;
-    const task = tasks.find((t) => t.task_id === draggableId);
-    if (destination.droppableId.includes('group-channel')) {
-      if (source.droppableId.includes('group-channel')) {
-        handleDragChannel(result);
-      } else {
-        handleDragTaskToChannel(result, task);
-      }
-      return;
-    }
-    let currentVote = task?.up_votes || 0;
-    if (destination.droppableId !== 'archived') {
-      const taskGrouped = groupTaskByFiltered(filter.value, tasks);
-      if (source.droppableId === destination.droppableId) {
-        if (source.index !== destination.index) {
-          const sourceList = taskGrouped[source.droppableId];
-          if (source.index < destination.index) {
-            currentVote = sourceList[destination.index].up_votes - 1;
-          } else {
-            currentVote = sourceList[destination.index].up_votes + 1;
-          }
-        }
-      } else {
-        const destinationList = taskGrouped[destination.droppableId];
-        if (destinationList.length === destination.index) {
-          if (destinationList.length > 0) {
-            currentVote =
-              destinationList[destinationList.length - 1].up_votes - 1;
-          }
-        } else {
-          currentVote = destinationList[destination.index].up_votes + 1;
-        }
-      }
-    }
-    dropTask(
-      result,
-      currentChannel.channel_id,
-      currentVote,
-      currentTeam.team_id
-    );
-  };
-  const onMoreMessage = () => {
-    if (messages.length === 0) return;
-    const lastMsg = messages[messages.length - 1];
-    getMessages(
-      currentChannel.channel_id,
-      currentChannel.channel_type,
-      lastMsg.createdAt
-    );
-  };
-  const onReplyTask = (task: any) => {
-    setReplyTask(task);
-  };
-  const openTaskDetail = (task: any) => {
-    setOpenTask(true);
-    setCurrentTask(task);
-  };
+
   return (
     <PageWrapper>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="home-container">
           <SideBar
             ref={sideBarRef}
-            onCreateChannel={(initSpace) => {
-              setInitialSpace(initSpace);
-              setOpenCreateChannel(true);
-            }}
-            onCreateGroupChannel={() => {
-              setOpenCreateSpace(true);
-            }}
-            onEditGroupChannel={(g) => {
-              setSelectedSpace(g);
-              setOpenEditSpaceChannel(true);
-            }}
-            onDeleteGroupChannel={(g) => {
-              setSelectedSpace(g);
-              setOpenConfirmDeleteSpace(true);
-            }}
-            onDeleteChannel={(channel) => {
-              setChannelDelete(channel);
-              setOpenConfirmDeleteChannel(true);
-            }}
-            onRemoveTeamMember={(u) => {
-              removeTeamMember(currentTeam.team_id, u.user_id);
-            }}
-            onEditChannelMember={(channel) => {
-              setCurrentChannel?.(channel);
-              channelViewRef.current.showSetting('edit-member');
-            }}
-            onEditChannelName={(channel) => {
-              setCurrentChannel?.(channel);
-              channelViewRef.current.showSetting('edit-name');
-            }}
-            onInviteMember={() => setOpenInvite(true)}
+            onCreateChannel={handleOpenCreateChannel}
+            onCreateGroupChannel={handleOpenCreateSpace}
+            onEditGroupChannel={handleOpenEditSpace}
+            onDeleteGroupChannel={handleOpenDeleteSpace}
+            onDeleteChannel={handleOpenDeleteChannel}
+            onRemoveTeamMember={handleRemoveTeamMember}
+            onEditChannelMember={handleOpenEditChannelMember}
+            onEditChannelName={handleOpenEditChannelName}
+            onInviteMember={handleOpenInviteMember}
             deleteTeam={deleteTeam}
             updateTeam={updateTeam}
             findTeamAndChannel={findTeamAndChannel}
@@ -593,10 +717,7 @@ const Home = ({
                   messages={uniqBy(messages, 'message_id')}
                   currentTeam={currentTeam}
                   createTask={createTask}
-                  openConversation={(message) => {
-                    setCurrentMessage(message);
-                    setOpenConversation(true);
-                  }}
+                  openConversation={handleOpenConversation}
                   onMoreMessage={onMoreMessage}
                   loadMoreMessage={loadMoreMessage}
                   messageCanMore={messageCanMore}
@@ -626,18 +747,13 @@ const Home = ({
                     teamId={currentTeam?.team_id}
                     tasks={tasks || []}
                     archivedTasks={archivedTasks || []}
-                    onAddTask={(title) => {
-                      setCurrentTitle(title);
-                      setOpenCreateTask(true);
-                    }}
+                    onAddTask={handleAddTask}
                     onUpdateStatus={onUpdateStatus}
-                    onHoverChange={(key, index) => setHoverInfo({ key, index })}
-                    onHoverLeave={() => {
-                      setHoverInfo({ key: null, index: null });
-                    }}
+                    onHoverChange={handleTaskHoverChange}
+                    onHoverLeave={handleTaskHoverLeave}
                     filter={filter}
                     filterData={filterTask}
-                    onUpdateFilter={(st) => setFilter(st)}
+                    onUpdateFilter={handleTaskUpdateFilter}
                     onDeleteTask={onDeleteTask}
                     onSelectTask={openTaskDetail}
                     updateTask={updateTask}
@@ -660,10 +776,7 @@ const Home = ({
           <ModalConversation
             message={currentMessage}
             open={openConversation}
-            handleClose={() => {
-              setOpenConversation(false);
-              setCurrentMessage(null);
-            }}
+            handleClose={handleCloseModalConversation}
             onAddReact={addReact}
             onRemoveReact={removeReact}
           />
@@ -671,10 +784,7 @@ const Home = ({
             task={currentTask}
             conversations={conversationData?.[currentTask?.task_id] || []}
             open={openTaskView}
-            handleClose={() => {
-              setOpenTask(false);
-              setCurrentTask(null);
-            }}
+            handleClose={handleCloseModalTaskView}
             teamId={currentTeam?.team_id}
             channelId={currentChannel?.channel_id}
             updateTask={updateTask}
@@ -686,66 +796,45 @@ const Home = ({
           <ModalCreateTask
             onCreateTask={onCreateTask}
             open={openCreateTask}
-            handleClose={() => {
-              setCurrentTitle(null);
-              setOpenCreateTask(false);
-            }}
+            handleClose={handleCloseModalCreateTask}
             currentTitle={currentTitle}
             currentTeam={currentTeam}
             currentChannel={currentChannel}
             channels={channels}
           />
-          {openCreateSpace && (
-            <ModalCreateSpace
-              open={openCreateSpace}
-              handleClose={() => setOpenCreateSpace(false)}
-              onCreateSpace={onCreateSpace}
-            />
-          )}
-          {openEditSpaceChannel && (
-            <ModalEditGroupChannel
-              open={openEditSpaceChannel}
-              handleClose={() => setOpenEditSpaceChannel(false)}
-              onEditSpaceChannel={onEditSpaceChannel}
-              spaceName={selectedSpace?.space_name}
-            />
-          )}
-          {openCreateChannel && (
-            <ModalCreateChannel
-              space={space}
-              onCreateChannel={onCreateChannel}
-              open={openCreateChannel}
-              handleClose={() => setOpenCreateChannel(false)}
-              initialSpace={initialSpace}
-            />
-          )}
-          {isOpenInvite && (
-            <ModalInviteMember
-              open={isOpenInvite}
-              handleClose={() => setOpenInvite(false)}
-            />
-          )}
+          <ModalCreateSpace
+            open={openCreateSpace}
+            handleClose={handleCloseModalCreateSpace}
+            onCreateSpace={onCreateSpace}
+          />
+          <ModalEditGroupChannel
+            open={openEditSpaceChannel}
+            handleClose={handleCloseModalEditSpace}
+            onEditSpaceChannel={onEditSpaceChannel}
+            spaceName={selectedSpace?.space_name}
+          />
+          <ModalCreateChannel
+            space={space}
+            onCreateChannel={onCreateChannel}
+            open={openCreateChannel}
+            handleClose={handleCloseModalCreateChannel}
+            initialSpace={initialSpace}
+          />
+          <ModalInviteMember
+            open={isOpenInvite}
+            handleClose={handleCloseModalInviteMember}
+          />
           <ModalConfirmDeleteChannel
             open={isOpenConfirmDeleteChannel}
-            handleClose={() => setOpenConfirmDeleteChannel(false)}
+            handleClose={handleCloseModalDeleteChannel}
             channelName={channelDelete?.channel_name}
-            onDelete={async () => {
-              if (!channelDelete?.channel_id) return;
-              await deleteChannel(channelDelete?.channel_id);
-              setChannelDelete(null);
-              setOpenConfirmDeleteChannel(false);
-            }}
+            onDelete={handleDeleteChannel}
           />
           <ModalConfirmDeleteGroupChannel
             open={isOpenConfirmDeleteSpace}
             spaceName={selectedSpace?.space_name}
-            handleClose={() => setOpenConfirmDeleteSpace(false)}
-            onDelete={async () => {
-              if (!selectedSpace?.space_id) return;
-              await deleteSpaceChannel(selectedSpace?.space_id);
-              setSelectedSpace(null);
-              setOpenConfirmDeleteSpace(false);
-            }}
+            handleClose={handleCloseModalConfirmDeleteSpace}
+            onDelete={handleDeleteSpace}
           />
         </div>
       </DragDropContext>

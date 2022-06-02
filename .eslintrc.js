@@ -18,6 +18,7 @@ module.exports = {
     '@typescript-eslint/lines-between-class-members': 'off',
     'no-extra-boolean-cast': 'off',
     'react/jsx-props-no-spreading': 'off',
+    'react-hooks/exhaustive-deps': 'warn',
   },
   parserOptions: {
     ecmaVersion: 2020,

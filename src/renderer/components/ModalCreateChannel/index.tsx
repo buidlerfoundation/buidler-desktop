@@ -25,8 +25,13 @@ const ModalCreateChannel = ({
     members: [],
   });
   useEffect(() => {
-    setChannelData((data: any) => ({ ...data, space: initialSpace }));
-  }, [initialSpace]);
+    setChannelData({
+      name: '',
+      space: initialSpace,
+      isPrivate: false,
+      members: [],
+    });
+  }, [initialSpace, open]);
   return (
     <Modal
       open={open}

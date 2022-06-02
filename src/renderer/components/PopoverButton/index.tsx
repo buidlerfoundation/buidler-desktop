@@ -1,4 +1,9 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+} from 'react';
 import './index.scss';
 import Popover from '@material-ui/core/Popover';
 
@@ -21,6 +26,34 @@ type PopoverButtonProps = {
   popupOnly?: boolean;
 };
 
+type PopupItemProps = {
+  item: any;
+  onSelected: (item: any) => void;
+  onClose: () => void;
+};
+
+const PopupItem = ({ item, onSelected, onClose }: PopupItemProps) => {
+  const handleItemClick = useCallback(() => {
+    onSelected(item);
+    onClose();
+  }, [item, onClose, onSelected]);
+  return (
+    <div className="popup__item normal-button" onClick={handleItemClick}>
+      <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+        {item.icon && <img className="item__icon" src={item.icon} alt="" />}
+        <span className={`item__name ${item.type || 'default'}`}>
+          {item.label}
+        </span>
+      </div>
+      {item.shortcut && (
+        <span className={`item__name ${item.type || 'default'}`}>
+          {item.shortcut}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const PopoverButton = forwardRef(
   (
     {
@@ -40,6 +73,15 @@ const PopoverButton = forwardRef(
     const [anchorPopup, setPopup] = useState<any>(null);
     const open = Boolean(anchorPopup);
     const idPopup = open ? 'cpn-button-popover' : undefined;
+    const handleOpenPopup = useCallback((e) => {
+      e.stopPropagation();
+      setPopup(e.currentTarget);
+    }, []);
+    const handleClick = useCallback((e) => e.stopPropagation(), []);
+    const handleClose = useCallback(() => {
+      setPopup(null);
+      onClose?.();
+    }, [onClose]);
     useImperativeHandle(ref, () => {
       return {
         show(target: any, pos: any) {
@@ -57,36 +99,38 @@ const PopoverButton = forwardRef(
         },
       };
     });
-    const renderButton = () => {
+    const renderButton = useCallback(() => {
       if (popupOnly) return null;
       if (componentButton != null)
         return (
-          <div
-            className="normal-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setPopup(e.currentTarget);
-            }}
-          >
+          <div className="normal-button" onClick={handleOpenPopup}>
             {componentButton}
           </div>
         );
       return (
-        <div
-          className="main-button normal-button"
-          onClick={(e) => setPopup(e.currentTarget)}
-        >
+        <div className="main-button normal-button" onClick={handleOpenPopup}>
           <span className="title-button">{title}</span>
           {icon && <div style={{ width: 8 }} />}
           {icon && <img src={icon} alt="" />}
         </div>
       );
-    };
+    }, [componentButton, icon, popupOnly, title, handleOpenPopup]);
+    const renderPopupItem = useCallback(
+      (dt) => (
+        <PopupItem
+          item={dt}
+          onSelected={onSelected}
+          onClose={handleClose}
+          key={dt.value}
+        />
+      ),
+      [handleClose, onSelected]
+    );
     return (
       <>
         {renderButton()}
         <Popover
-          onClick={(e) => e.stopPropagation()}
+          onClick={handleClick}
           elevation={0}
           id={idPopup}
           transitionDuration={200}
@@ -94,10 +138,7 @@ const PopoverButton = forwardRef(
           anchorEl={anchorPopup}
           anchorReference={anchorReference}
           anchorPosition={anchorPosition}
-          onClose={() => {
-            setPopup(null);
-            onClose?.();
-          }}
+          onClose={handleClose}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
@@ -111,32 +152,7 @@ const PopoverButton = forwardRef(
             componentPopup
           ) : (
             <div className="popup__container">
-              {data?.map?.((dt) => (
-                <div
-                  className="popup__item normal-button"
-                  key={dt.value}
-                  onClick={() => {
-                    onSelected?.(dt);
-                    setPopup(null);
-                  }}
-                >
-                  <div
-                    style={{ display: 'flex', alignItems: 'center', flex: 1 }}
-                  >
-                    {dt.icon && (
-                      <img className="item__icon" src={dt.icon} alt="" />
-                    )}
-                    <span className={`item__name ${dt.type || 'default'}`}>
-                      {dt.label}
-                    </span>
-                  </div>
-                  {dt.shortcut && (
-                    <span className={`item__name ${dt.type || 'default'}`}>
-                      {dt.shortcut}
-                    </span>
-                  )}
-                </div>
-              ))}
+              {data?.map?.(renderPopupItem)}
             </div>
           )}
         </Popover>

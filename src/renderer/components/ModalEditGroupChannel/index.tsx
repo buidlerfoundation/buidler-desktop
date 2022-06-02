@@ -23,7 +23,7 @@ const ModalEditGroupChannel = ({
 
   useEffect(() => {
     setSpaceData({ name: spaceName });
-  }, [spaceName]);
+  }, [spaceName, open]);
 
   return (
     <Modal

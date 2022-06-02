@@ -1,6 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import { Emoji } from 'emoji-mart';
-import { useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import ImageHelper from 'renderer/common/ImageHelper';
@@ -31,13 +31,24 @@ const ChannelItem = ({
   const popupChannelIconRef = useRef<any>();
   const history = useHistory();
   const currentTeam = useSelector((state) => state.user.currentTeam);
-  const isSelected = c?.channel_id === currentChannel?.channel_id;
-  const isPrivate = c.channel_type === 'Private';
-  const isUnSeen = !c.seen;
-  const isMuted = c.notification_type === 'Muted';
-  const isQuiet = c.notification_type === 'Quiet';
-  const prefix = !isPrivate ? '# ' : '';
-  const renderChannelIcon = () => {
+  const isSelected = useMemo(
+    () => c?.channel_id === currentChannel?.channel_id,
+    [c?.channel_id, currentChannel?.channel_id]
+  );
+  const isPrivate = useMemo(
+    () => c.channel_type === 'Private',
+    [c.channel_type]
+  );
+  const isUnSeen = useMemo(() => !c.seen, [c.seen]);
+  const isMuted = useMemo(
+    () => c.notification_type === 'Muted',
+    [c.notification_type]
+  );
+  const isQuiet = useMemo(
+    () => c.notification_type === 'Quiet',
+    [c.notification_type]
+  );
+  const renderChannelIcon = useCallback(() => {
     if (c.attachment) {
       return (
         <>
@@ -69,34 +80,58 @@ const ChannelItem = ({
       return <img className="img-private" alt="" src={images.icPrivateWhite} />;
     }
     return <img className="img-private" alt="" src={images.icPublicChannel} />;
-  };
-  const onAddFiles = async (fs) => {
-    if (fs == null || fs.length === 0) return;
-    const file = [...fs][0];
-    uploadChannelAvatar(currentTeam.team_id, c?.channel_id, file);
-    popupChannelIconRef.current?.hide();
-  };
-  const onAddEmoji = async (emoji) => {
-    await updateChannel(c?.channel_id, {
-      channel_emoji: emoji.id,
-      channel_image_url: '',
-    });
-    popupChannelIconRef.current?.hide();
-  };
-  const onSelectRecentFile = async (file) => {
-    await updateChannel(currentChannel?.channel_id, {
-      channel_emoji: '',
-      channel_image_url: file.file_url,
-    });
-    popupChannelIconRef.current?.hide();
-  };
+  }, [
+    c.attachment,
+    c.channel_emoji,
+    c.channel_image_url,
+    currentTeam.team_id,
+    isPrivate,
+  ]);
+  const handleClick = useCallback(
+    () => history.replace(`/home?channel_id=${c?.channel_id}`),
+    [c?.channel_id, history]
+  );
+  const handleContextMenu = useCallback(
+    (e) => onContextChannel(e, c),
+    [c, onContextChannel]
+  );
+  const handlePopupClick = useCallback((e) => e.stopPropagation(), []);
+  const onAddFiles = useCallback(
+    async (fs) => {
+      if (fs == null || fs.length === 0) return;
+      const file = [...fs][0];
+      uploadChannelAvatar(currentTeam.team_id, c?.channel_id, file);
+      popupChannelIconRef.current?.hide();
+    },
+    [c?.channel_id, currentTeam?.team_id, uploadChannelAvatar]
+  );
+  const onAddEmoji = useCallback(
+    async (emoji) => {
+      await updateChannel(c?.channel_id, {
+        channel_emoji: emoji.id,
+        channel_image_url: '',
+      });
+      popupChannelIconRef.current?.hide();
+    },
+    [c?.channel_id, updateChannel]
+  );
+  const onSelectRecentFile = useCallback(
+    async (file) => {
+      await updateChannel(currentChannel?.channel_id, {
+        channel_emoji: '',
+        channel_image_url: file.file_url,
+      });
+      popupChannelIconRef.current?.hide();
+    },
+    [currentChannel?.channel_id, updateChannel]
+  );
   return (
     <div
       className={`channel-wrapper ${collapsed ? 'collapsed' : ''} ${
         isSelected ? 'channel-selected' : ''
       } ${isMuted ? 'channel-muted' : ''} ${isUnSeen ? 'channel-un-seen' : ''}`}
-      onClick={() => history.replace(`/home?channel_id=${c?.channel_id}`)}
-      onContextMenu={(e) => onContextChannel(e, c)}
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
     >
       {isOwner ? (
         <PopoverButton
@@ -105,10 +140,7 @@ const ChannelItem = ({
             <div className="channel-icon__wrapper">{renderChannelIcon()}</div>
           }
           componentPopup={
-            <div
-              className="emoji-picker__container"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="emoji-picker__container" onClick={handlePopupClick}>
               <EmojiAndAvatarPicker
                 onAddFiles={onAddFiles}
                 onAddEmoji={onAddEmoji}

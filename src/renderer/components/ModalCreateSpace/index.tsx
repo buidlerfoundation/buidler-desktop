@@ -1,5 +1,5 @@
 import { Modal } from '@material-ui/core';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CreateSpaceData } from 'renderer/models';
 import NormalButton from '../NormalButton';
@@ -28,6 +28,17 @@ const ModalCreateSpace = ({
     emoji: null,
     spaceType: 'Exclusive',
   });
+  useEffect(() => {
+    if (open) {
+      setSpaceData({
+        name: '',
+        description: '',
+        attachment: null,
+        emoji: null,
+        spaceType: 'Exclusive',
+      });
+    }
+  }, [open]);
   const onSecondaryPress = () => {
     if (modalState === 'Config') {
       setModalState('Information');

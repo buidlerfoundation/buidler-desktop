@@ -37,24 +37,38 @@ const EmojiAndAvatarPicker = ({
   useEffect(() => {
     fetchRecentFiles();
   }, [fetchRecentFiles]);
-  const onRandomClick = () => {
+  const onRandomClick = useCallback(() => {
     const res = randomEmoji();
     onAddEmoji({ id: res });
-  };
+  }, [onAddEmoji]);
+  const handleClickEmoji = useCallback(
+    (emoji) => {
+      onAddEmoji(emoji);
+    },
+    [onAddEmoji]
+  );
+  const handleLabelClick = useCallback(
+    (index) => () => setSelectedIndex(index),
+    []
+  );
+  const renderLabel = useCallback(
+    (el, index) => (
+      <div
+        className={`picker-title normal-button ${
+          selectedIndex === index ? 'selected' : ''
+        }`}
+        key={el}
+        onClick={handleLabelClick(index)}
+      >
+        <span>{el}</span>
+      </div>
+    ),
+    [selectedIndex, handleLabelClick]
+  );
   return (
     <div className="emoji-avatar-picker__container">
       <div className="picker-title__wrapper">
-        {labels.map((el, index) => (
-          <div
-            className={`picker-title normal-button ${
-              selectedIndex === index ? 'selected' : ''
-            }`}
-            key={el}
-            onClick={() => setSelectedIndex(index)}
-          >
-            <span>{el}</span>
-          </div>
-        ))}
+        {labels.map(renderLabel)}
         <div style={{ flex: 1 }} />
         {selectedIndex === 0 && (
           <div className="random-button normal-button" onClick={onRandomClick}>
@@ -63,12 +77,7 @@ const EmojiAndAvatarPicker = ({
         )}
       </div>
       {selectedIndex === 0 && (
-        <EmojiPicker
-          onClick={(emoji) => {
-            onAddEmoji(emoji);
-          }}
-          style={{ border: 'none' }}
-        />
+        <EmojiPicker onClick={handleClickEmoji} style={{ border: 'none' }} />
       )}
       {selectedIndex === 1 && (
         <AvatarUpload
