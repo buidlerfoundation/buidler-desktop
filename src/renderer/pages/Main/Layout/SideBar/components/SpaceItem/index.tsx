@@ -14,7 +14,7 @@ type SpaceItemProps = {
   channel: Array<any>;
   currentChannel: any;
   onContextChannel: (e: any, channel: any) => void;
-  onContextSpaceChannel: (e: any) => void;
+  onContextSpaceChannel: (e: any, c: any) => void;
   updateSpaceChannel: (spaceId: string, body: any) => any;
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   isOwner: boolean;
@@ -40,6 +40,12 @@ const SpaceItem = ({
   const toggleCollapsed = useCallback(
     () => setCollapsed((current) => !current),
     []
+  );
+  const handleContextMenuSpaceChannel = useCallback(
+    (e) => {
+      onContextSpaceChannel(e, space);
+    },
+    [onContextSpaceChannel, space]
   );
   const channelSpace = useMemo(() => {
     return channel
@@ -147,7 +153,7 @@ const SpaceItem = ({
       <div
         className="title-wrapper"
         onClick={toggleCollapsed}
-        onContextMenu={onContextSpaceChannel}
+        onContextMenu={handleContextMenuSpaceChannel}
       >
         {isOwner ? (
           <PopoverButton

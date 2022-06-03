@@ -11,7 +11,7 @@ type MemberSpaceProps = {
   channel: Array<any>;
   currentChannel: any;
   onInviteMember: () => void;
-  onContextMenu: (u: any) => (e: any) => void;
+  onContextMenu: (e: any, u: any) => void;
 };
 
 const MemberSpace = ({
@@ -48,7 +48,7 @@ const MemberSpace = ({
   const renderMember = useCallback(
     (u) => (
       <MemberChild
-        onContextChannel={onContextMenu(u)}
+        onContextChannel={onContextMenu}
         user={u}
         key={u.user_id}
         isUnSeen={

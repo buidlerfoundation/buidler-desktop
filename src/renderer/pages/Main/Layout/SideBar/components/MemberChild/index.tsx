@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import AvatarView from '../../../../../../components/AvatarView';
 import './index.scss';
@@ -7,7 +8,7 @@ type MemberChildProps = {
   onPress?: () => void;
   isUnSeen?: boolean;
   isSelected?: boolean;
-  onContextChannel?: (e: any) => void;
+  onContextChannel?: (e: any, u: any) => void;
   collapsed: boolean;
 };
 
@@ -19,13 +20,19 @@ const MemberChild = ({
   onContextChannel,
   collapsed,
 }: MemberChildProps) => {
+  const handleContextMenu = useCallback(
+    (e) => {
+      onContextChannel?.(e, user);
+    },
+    [onContextChannel, user]
+  );
   return (
     <div
       className={`member-child-container ${collapsed ? 'collapsed' : ''} ${
         isSelected ? 'active' : ''
       } ${isUnSeen ? 'un-seen' : ''}`}
       onClick={onPress}
-      onContextMenu={onContextChannel}
+      onContextMenu={handleContextMenu}
     >
       <div style={{ marginLeft: 20 }}>
         <AvatarView user={user} />

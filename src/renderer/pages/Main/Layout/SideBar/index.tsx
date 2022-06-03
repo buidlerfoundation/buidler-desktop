@@ -120,7 +120,7 @@ const SideBar = forwardRef(
       setOpenConfirmRemoveMember(false);
     }, [onRemoveTeamMember, selectedMenuMember]);
     const handleContextMenuSpace = useCallback(
-      (space) => (e) => {
+      (e, space) => {
         if (!isOwner) return;
         setSelectedMenuSpaceChannel(space);
         menuSpaceChannelRef.current?.show(e.currentTarget, {
@@ -148,16 +148,13 @@ const SideBar = forwardRef(
       },
       [isOwner]
     );
-    const handleContextMenuMemberSpace = useCallback(
-      (u) => (e) => {
-        setSelectedMenuMember(u);
-        menuMemberRef.current?.show(e.currentTarget, {
-          x: e.pageX,
-          y: e.pageY,
-        });
-      },
-      []
-    );
+    const handleContextMenuMemberSpace = useCallback((e, u) => {
+      setSelectedMenuMember(u);
+      menuMemberRef.current?.show(e.currentTarget, {
+        x: e.pageX,
+        y: e.pageY,
+      });
+    }, []);
     const onSelectedMenu = useCallback(
       (menu: any) => {
         switch (menu.value) {
@@ -231,7 +228,7 @@ const SideBar = forwardRef(
                   space={space}
                   channel={channel}
                   currentChannel={currentChannel}
-                  onContextSpaceChannel={handleContextMenuSpace(space)}
+                  onContextSpaceChannel={handleContextMenuSpace}
                   onContextChannel={handleContextMenuChannel}
                   updateSpaceChannel={updateSpaceChannel}
                   uploadSpaceAvatar={uploadSpaceAvatar}
