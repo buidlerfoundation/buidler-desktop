@@ -86,6 +86,8 @@ import icWalletConnect from '../assets/images/ic_wallet_connect.svg';
 import icCameraSolid from '../assets/images/ic_camera_solid.svg';
 import icClearText from '../assets/images/ic_clear_text.svg';
 import icStar from '../assets/images/ic_star.svg';
+import icSettingSpaceDisplay from '../assets/images/ic_setting_space_display.svg';
+import icSettingSpaceAccess from '../assets/images/ic_setting_space_access.svg';
 
 const images = {
   icTeamDefault,
@@ -176,6 +178,8 @@ const images = {
   icCameraSolid,
   icClearText,
   icStar,
+  icSettingSpaceDisplay,
+  icSettingSpaceAccess,
 };
 
 export default images;

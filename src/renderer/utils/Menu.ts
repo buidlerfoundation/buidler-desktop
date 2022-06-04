@@ -12,14 +12,9 @@ export const spaceChannelMenu = [
     icon: images.icSettingCreateGroupChannel,
   },
   {
-    label: 'Edit space name',
-    value: 'Edit space name',
-    icon: images.icSettingChannelEdit,
-  },
-  {
-    label: 'Delete space',
-    value: 'Delete space',
-    icon: images.icSettingChannelDelete,
+    label: 'Space setting',
+    value: 'Space setting',
+    icon: images.icCommunitySetting,
   },
 ];
 export const memberMenu = [

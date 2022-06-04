@@ -118,10 +118,10 @@ const ModalUserSetting = ({
     <Modal
       open={open}
       onClose={handleClose}
-      className="user-setting-modal"
+      className="setting-modal"
       style={{ backgroundColor: 'var(--color-backdrop)' }}
     >
-      <div className="user-setting__container">
+      <div className="setting-modal__container">
         <div className="left-side">
           {settings.map((group) => {
             return (

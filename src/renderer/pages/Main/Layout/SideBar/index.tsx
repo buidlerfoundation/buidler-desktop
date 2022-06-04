@@ -32,7 +32,6 @@ type SideBarProps = {
   userData?: any;
   teamUserData?: Array<any>;
   onEditGroupChannel: (group: any) => void;
-  onDeleteGroupChannel: (group: any) => void;
   onEditChannelName: (channel: any) => void;
   onDeleteChannel: (channel: any) => void;
   onEditChannelMember: (channel: any) => void;
@@ -62,7 +61,6 @@ const SideBar = forwardRef(
       findUser,
       userData,
       onCreateGroupChannel,
-      onDeleteGroupChannel,
       onEditChannelName,
       onDeleteChannel,
       onEditChannelMember,
@@ -166,12 +164,8 @@ const SideBar = forwardRef(
             onCreateGroupChannel();
             break;
           }
-          case 'Edit space name': {
+          case 'Space setting': {
             onEditGroupChannel(selectedMenuSpaceChannel);
-            break;
-          }
-          case 'Delete space': {
-            onDeleteGroupChannel(selectedMenuSpaceChannel);
             break;
           }
           case 'Edit member': {
@@ -200,7 +194,6 @@ const SideBar = forwardRef(
         onCreateChannel,
         onCreateGroupChannel,
         onDeleteChannel,
-        onDeleteGroupChannel,
         onEditChannelMember,
         onEditChannelName,
         onEditGroupChannel,

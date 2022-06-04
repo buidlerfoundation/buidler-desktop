@@ -14,6 +14,7 @@ import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
 import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
 import { CreateSpaceData } from 'renderer/models';
+import ModalSpaceSetting from 'renderer/components/ModalSpaceSetting';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
@@ -37,7 +38,6 @@ import ModalConfirmDeleteChannel from '../../components/ModalConfirmDeleteChanne
 import ModalInviteMember from '../../components/ModalInviteMember';
 import api from '../../api';
 import EmptyView from './container/EmptyView';
-import ModalEditGroupChannel from '../../components/ModalEditGroupChannel';
 
 type HomeProps = {
   team?: any;
@@ -307,8 +307,7 @@ const Home = ({
     setSelectedSpace(g);
     setOpenEditSpaceChannel(true);
   }, []);
-  const handleOpenDeleteSpace = useCallback((g) => {
-    setSelectedSpace(g);
+  const handleOpenDeleteSpace = useCallback(() => {
     setOpenConfirmDeleteSpace(true);
   }, []);
   const handleOpenDeleteChannel = useCallback((channel) => {
@@ -731,7 +730,6 @@ const Home = ({
             onCreateChannel={handleOpenCreateChannel}
             onCreateGroupChannel={handleOpenCreateSpace}
             onEditGroupChannel={handleOpenEditSpace}
-            onDeleteGroupChannel={handleOpenDeleteSpace}
             onDeleteChannel={handleOpenDeleteChannel}
             onRemoveTeamMember={handleRemoveTeamMember}
             onEditChannelMember={handleOpenEditChannelMember}
@@ -847,11 +845,10 @@ const Home = ({
             handleClose={handleCloseModalCreateSpace}
             onCreateSpace={onCreateSpace}
           />
-          <ModalEditGroupChannel
+          <ModalSpaceSetting
             open={openEditSpaceChannel}
             handleClose={handleCloseModalEditSpace}
-            onEditSpaceChannel={onEditSpaceChannel}
-            spaceName={selectedSpace?.space_name}
+            onDeleteClick={handleOpenDeleteSpace}
           />
           <ModalCreateChannel
             space={space}

@@ -1,12 +1,12 @@
 .create-space__container {
   width: 530px;
-  height: 680px;
+  height: 633px;
   display: flex;
   flex-direction: column;
   border-radius: 5px;
   border: 1px solid var(--color-stroke);
   background-color: var(--color-lighter-background);
-  padding: 25px;
+  padding: 25px 25px 20px 25px;
   .label__wrap {
     margin-top: 15px;
     display: flex;

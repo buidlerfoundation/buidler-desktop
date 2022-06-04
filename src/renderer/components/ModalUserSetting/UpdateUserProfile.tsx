@@ -69,7 +69,7 @@ const UpdateUserProfile = ({
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
           <span className="modal-label">User Profile</span>
-          <div className="avatar-view">
+          <div className="setting-avatar-view">
             <div
               className="user-avatar__wrapper"
               onClick={() => inputRef.current?.click()}

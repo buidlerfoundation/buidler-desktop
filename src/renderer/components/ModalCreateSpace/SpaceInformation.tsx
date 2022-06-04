@@ -112,10 +112,9 @@ const SpaceInformation = ({
         />
       </div>
       <div className="space-description__wrap">
-        <TextareaAutosize
+        <textarea
+          style={{ height: 370 }}
           className="space-description hide-scroll-bar"
-          minRows={16}
-          maxRows={16}
           placeholder="Description"
           value={spaceData.description || ''}
           onChange={handleUpdateDescription}
