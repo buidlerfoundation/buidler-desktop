@@ -9,7 +9,7 @@ import UpdateNotification from './UpdateNotification';
 import NormalButton from '../NormalButton';
 import SettingSecurity from './SettingSecurity';
 import ModalConfirmDelete from '../ModalConfirmDelete';
-import SettingBalance from '../ModalWalletSetting/SettingBalance';
+import SettingBalance from './SettingBalance';
 
 type ModalUserSettingProps = {
   open: boolean;
