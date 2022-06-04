@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import AppInput from '../AppInput';
 import AssignItem from './AssignItem';
@@ -16,33 +16,49 @@ const AssignPopup = ({
   onChanged,
 }: AssignPopupProps) => {
   const [filter, setFilter] = useState('');
+  const handleFilter = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value),
+    []
+  );
+  const handleSelectAssignee = useCallback(
+    (user) => {
+      onChanged(
+        !user.user_id || user.user_id === selected?.user_id ? null : user
+      );
+    },
+    [onChanged, selected?.user_id]
+  );
+  const filterTeamUser = useCallback(
+    (u) => u.user_name.toLowerCase().includes(filter.toLowerCase()),
+    [filter]
+  );
+  const renderTeamUser = useCallback(
+    (u) => (
+      <AssignItem
+        key={u.user_id}
+        isSelected={u.user_id === selected?.user_id}
+        user={u}
+        onClick={handleSelectAssignee}
+      />
+    ),
+    [handleSelectAssignee, selected?.user_id]
+  );
   return (
     <div className="assign-popup__container">
       <div className="assign__header">
         <AppInput
           style={{ fontWeight: 600 }}
           placeholder="Assign to..."
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={handleFilter}
         />
       </div>
       <div style={{ height: 10 }} />
       <AssignItem
         isSelected={false}
         user={{ user_id: '', user_name: 'Unassigned' }}
-        onClick={() => onChanged(null)}
+        onClick={handleSelectAssignee}
       />
-      {teamUserData
-        .filter((u) => u.user_name.toLowerCase().includes(filter.toLowerCase()))
-        .map((u) => (
-          <AssignItem
-            key={u.user_id}
-            isSelected={u.user_id === selected?.user_id}
-            user={u}
-            onClick={() => {
-              onChanged(u.user_id === selected?.user_id ? null : u);
-            }}
-          />
-        ))}
+      {teamUserData.filter(filterTeamUser).map(renderTeamUser)}
       <div style={{ height: 10 }} />
     </div>
   );

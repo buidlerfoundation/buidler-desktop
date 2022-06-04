@@ -2,13 +2,14 @@ import React from 'react';
 
 type IconStarProps = {
   fill?: string;
+  size?: number;
 };
 
-const IconStar = ({ fill }: IconStarProps) => {
+const IconStar = ({ fill, size = 16 }: IconStarProps) => {
   return (
     <svg
       width="18"
-      height="16"
+      height={size}
       viewBox="0 0 18 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

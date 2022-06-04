@@ -6,6 +6,7 @@ import ImageHelper from 'renderer/common/ImageHelper';
 import DefaultSpaceIcon from 'renderer/components/DefaultSpaceIcon';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
+import SpaceItemBadge from 'renderer/components/SpaceItemBadge';
 import ChannelItem from './ChannelItem';
 import './index.scss';
 
@@ -178,8 +179,13 @@ const SpaceItem = ({
         ) : (
           <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
         )}
-
         <span className="title text-ellipsis">{space.space_name}</span>
+        {space.space_type === 'Private' && (
+          <SpaceItemBadge
+            color={space.icon_color}
+            backgroundColor={space.icon_sub_color}
+          />
+        )}
       </div>
       {channelSpace?.map?.(renderChannelItem)}
     </div>

@@ -1,19 +1,18 @@
-import { CircularProgress } from '@material-ui/core';
-import React, { useRef } from 'react';
-import { Emoji } from 'emoji-mart';
-import { useSelector } from 'react-redux';
-import ImageHelper from 'renderer/common/ImageHelper';
-import images from 'renderer/common/images';
+import React, { useCallback, useRef } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import AppConfig from 'renderer/common/AppConfig';
 import { CreateSpaceData } from 'renderer/models';
+import api from 'renderer/api';
+import { useSelector } from 'react-redux';
+import { getUniqueId } from 'renderer/helpers/GenerateUUID';
 import EmojiAndAvatarPicker from '../EmojiAndAvatarPicker';
 import PopoverButton from '../PopoverButton';
 import './index.scss';
 import AppInput from '../AppInput';
+import SpaceIcon from './SpaceIcon';
 
 type SpaceInformationProps = {
-  setSpaceData: (spaceData: CreateSpaceData) => void;
+  setSpaceData: React.Dispatch<React.SetStateAction<CreateSpaceData>>;
   spaceData: CreateSpaceData;
 };
 
@@ -23,64 +22,78 @@ const SpaceInformation = ({
 }: SpaceInformationProps) => {
   const currentTeam = useSelector((state) => state.user.currentTeam);
   const popupSpaceIconRef = useRef<any>();
-  const renderSpaceIcon = () => {
-    if (spaceData.attachment) {
-      return (
-        <>
-          <img className="space-icon" src={spaceData.attachment.file} alt="" />
-          {spaceData?.attachment?.loading && (
-            <div className="attachment-loading">
-              <CircularProgress size={50} />
-            </div>
-          )}
-        </>
-      );
-    }
-    if (spaceData.imageUrl) {
-      return (
-        <img
-          className="space-icon"
-          src={ImageHelper.normalizeImage(
-            spaceData.imageUrl,
-            currentTeam.team_id
-          )}
-          alt=""
-        />
-      );
-    }
-    if (spaceData.emoji) {
-      return <Emoji emoji={spaceData.emoji} set="apple" size={40} />;
-    }
-    return <img alt="" src={images.icCameraSolid} />;
-  };
-  const onAddFiles = async (fs) => {
-    if (fs == null || fs.length === 0) return;
-    const file = [...fs][0];
-    const attachment = {
-      file: URL.createObjectURL(file),
-      // loading: true,
-      type: file.type,
-    };
-    // TODO: Handle Upload
-    setSpaceData({ ...spaceData, attachment, emoji: null });
-    popupSpaceIconRef.current?.hide();
-  };
-  const onAddEmoji = async (emoji) => {
-    setSpaceData({ ...spaceData, attachment: null, emoji: emoji.id });
-    popupSpaceIconRef.current?.hide();
-  };
+  const handleEmojiPickerClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation(),
+    []
+  );
+  const onAddFiles = useCallback(
+    async (fs) => {
+      if (fs == null || fs.length === 0) return;
+      const spaceId = spaceData.spaceId || getUniqueId();
+      const file = [...fs][0];
+      const attachment = {
+        file: URL.createObjectURL(file),
+        loading: true,
+        type: file.type,
+      };
+      setSpaceData((current) => ({
+        ...current,
+        spaceId,
+        attachment,
+        emoji: null,
+      }));
+      const res = await api.uploadFile(currentTeam?.team_id, spaceId, file);
+      setSpaceData((current) => ({
+        ...current,
+        spaceId,
+        attachment: {
+          ...current.attachment,
+          loading: false,
+        },
+        emoji: null,
+        url: res?.file_url,
+      }));
+      popupSpaceIconRef.current?.hide();
+    },
+    [currentTeam?.team_id, setSpaceData, spaceData.spaceId]
+  );
+  const onAddEmoji = useCallback(
+    async (emoji) => {
+      setSpaceData((current) => ({
+        ...current,
+        attachment: null,
+        emoji: emoji.id,
+        url: null,
+      }));
+      popupSpaceIconRef.current?.hide();
+    },
+    [setSpaceData]
+  );
+  const handleUpdateName = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+      setSpaceData((current) => ({
+        ...current,
+        name: e.target.value.toUpperCase(),
+      })),
+
+    [setSpaceData]
+  );
+  const handleUpdateDescription = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setSpaceData((current) => ({ ...current, description: e.target.value }));
+    },
+    [setSpaceData]
+  );
   return (
     <div className="space-information__container">
       <div className="title__wrap">
         <PopoverButton
           ref={popupSpaceIconRef}
-          componentButton={
-            <div className="space-icon__wrapper">{renderSpaceIcon()}</div>
-          }
+          componentButton={<SpaceIcon spaceData={spaceData} showDefault />}
           componentPopup={
             <div
               className="emoji-picker__container"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleEmojiPickerClick}
             >
               <EmojiAndAvatarPicker
                 onAddFiles={onAddFiles}
@@ -93,9 +106,7 @@ const SpaceInformation = ({
           style={{ marginLeft: 15 }}
           className="app-input-highlight"
           placeholder="Space name"
-          onChange={(e) =>
-            setSpaceData({ ...spaceData, name: e.target.value.toUpperCase() })
-          }
+          onChange={handleUpdateName}
           value={spaceData?.name}
           autoFocus
         />
@@ -107,9 +118,7 @@ const SpaceInformation = ({
           maxRows={16}
           placeholder="Description"
           value={spaceData.description || ''}
-          onChange={(e) => {
-            setSpaceData({ ...spaceData, description: e.target.value });
-          }}
+          onChange={handleUpdateDescription}
           maxLength={AppConfig.maxLengthSpaceDescription}
         />
         <div className="description-limit">

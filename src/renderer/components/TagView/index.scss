@@ -11,10 +11,15 @@
     color: var(--color-secondary-text);
     border: 1px solid var(--color-stroke);
   }
+  &:hover {
+    .button-add-channel {
+      display: flex;
+    }
+  }
 }
 
 .button-add-channel {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border-radius: 5px;

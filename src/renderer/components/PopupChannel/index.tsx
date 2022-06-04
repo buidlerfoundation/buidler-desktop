@@ -5,6 +5,36 @@ import GroupTitle from '../../pages/Main/Layout/SideBar/components/GroupTitle';
 import AppInput from '../AppInput';
 import './index.scss';
 
+type PopupChannelItemProps = {
+  item: any;
+  onClick: (item: any, isActive: boolean) => void;
+  isActive: boolean;
+};
+
+const PopupChannelItem = ({
+  item,
+  onClick,
+  isActive,
+}: PopupChannelItemProps) => {
+  const handleClick = useCallback(
+    () => onClick(item, isActive),
+    [item, isActive, onClick]
+  );
+  return (
+    <div className="channel-item normal-button" onClick={handleClick}>
+      <span className="channel-name">
+        {item.channel_type === 'Private' ? (
+          <img src={images.icPrivate} alt="" />
+        ) : (
+          '#'
+        )}{' '}
+        {item.channel_name}
+      </span>
+      {isActive && <img alt="" src={images.icCheck} />}
+    </div>
+  );
+};
+
 type PopupChannelProps = {
   channel: Array<any>;
   selected: Array<any>;
@@ -25,55 +55,60 @@ const PopupChannel = ({
       el.channel_name.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, channel]);
+  const handleFilter = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value),
+    []
+  );
+  const handleChannelClick = useCallback(
+    (item: any, isActive: boolean) => {
+      if (isActive) {
+        onChange(selected.filter((el) => el.channel_id !== item.channel_id));
+      } else {
+        onChange([...selected, item]);
+      }
+    },
+    [onChange, selected]
+  );
+  const filterChannel = useCallback(
+    (s: any) => {
+      return channels.filter((c) => c.space_id === s.space_id);
+    },
+    [channels]
+  );
+  const renderChannel = useCallback(
+    (c: any) => {
+      const isActive = selected?.find((el) => el.channel_id === c.channel_id);
+      return (
+        <PopupChannelItem
+          item={c}
+          isActive={isActive}
+          onClick={handleChannelClick}
+          key={c.channel_id}
+        />
+      );
+    },
+    [handleChannelClick, selected]
+  );
+  const renderSpace = useCallback(
+    (s, index) => {
+      return (
+        <div key={s?.space_id} style={{ marginTop: index === 0 ? 60 : 0 }}>
+          <GroupTitle title={s?.space_name} />
+          {filterChannel(s)?.map?.(renderChannel)}
+        </div>
+      );
+    },
+    [filterChannel, renderChannel]
+  );
   return (
     <div className="popup-channel__container hide-scroll-bar">
       <AppInput
         placeholder="Search channel"
         className="search-channel"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={handleFilter}
       />
-      {space.map((g, index) => {
-        return (
-          <div key={g?.space_id} style={{ marginTop: index === 0 ? 60 : 0 }}>
-            <GroupTitle title={g?.space_name} />
-            {channels
-              ?.filter((c: any) => c.space_id === g?.space_id)
-              ?.map?.((c: any) => {
-                const isActive = selected?.find(
-                  (el) => el.channel_id === c.channel_id
-                );
-                return (
-                  <div
-                    key={c.channel_id}
-                    className="channel-item normal-button"
-                    onClick={() => {
-                      if (isActive) {
-                        onChange(
-                          selected.filter(
-                            (el) => el.channel_id !== c.channel_id
-                          )
-                        );
-                      } else {
-                        onChange([...selected, c]);
-                      }
-                    }}
-                  >
-                    <span className="channel-name">
-                      {c.channel_type === 'Private' ? (
-                        <img src={images.icPrivate} alt="" />
-                      ) : (
-                        '#'
-                      )}{' '}
-                      {c.channel_name}
-                    </span>
-                    {isActive && <img alt="" src={images.icCheck} />}
-                  </div>
-                );
-              })}
-          </div>
-        );
-      })}
+      {space.map(renderSpace)}
     </div>
   );
 };

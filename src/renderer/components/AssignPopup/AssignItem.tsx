@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import './index.scss';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../common/images';
 import AvatarView from '../AvatarView';
-import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 
 type AssignItemProps = {
   isSelected: boolean;
   user: any;
-  onClick: () => void;
+  onClick: (user?: any) => void;
 };
 
 const AssignItem = ({ isSelected, onClick, user }: AssignItemProps) => {
+  const handleClick = useCallback(() => {
+    onClick(user);
+  }, [onClick, user]);
   return (
-    <div className="assign__item normal-button" onClick={onClick}>
+    <div className="assign__item normal-button" onClick={handleClick}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {(user.user_id && <AvatarView user={user} />) || (
           <img src={images.icUserCircle} alt="" />

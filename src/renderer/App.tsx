@@ -134,6 +134,11 @@ function App({ findUser, getInitial, logout }: AppProps) {
   };
   const materialTheme = createTheme({
     overrides,
+    typography: {
+      fontFamily: `-apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif`,
+      fontWeightMedium: 600,
+      fontWeightBold: 'bold',
+    },
   });
 
   return (

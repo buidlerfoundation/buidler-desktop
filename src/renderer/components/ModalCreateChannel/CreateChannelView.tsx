@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import NormalButton from '../NormalButton';
+import React, { useCallback, useMemo, useState } from 'react';
 import Popover from '@material-ui/core/Popover';
+import { useSelector } from 'react-redux';
 import './index.scss';
+import NormalButton from '../NormalButton';
 import images from '../../common/images';
 import GroupChannelPopup from '../GroupChannelPopup';
 import AppInput from '../AppInput';
-import { useSelector } from 'react-redux';
 import TeamUserItem from '../TeamUserItem';
 
 type CreateChannelViewProps = {
@@ -24,16 +24,62 @@ const CreateChannelView = ({
   space,
 }: CreateChannelViewProps) => {
   const [anchorPopupGroupChannel, setPopupGroupChannel] = useState(null);
-  const openGroupChannel = Boolean(anchorPopupGroupChannel);
-  const idPopupGroupChannel = openGroupChannel
-    ? 'group-channel-popover'
-    : undefined;
+  const idPopupGroupChannel = useMemo(() => {
+    return !!anchorPopupGroupChannel ? 'group-channel-popover' : undefined;
+  }, [anchorPopupGroupChannel]);
 
-  const openGroupChannelSelection = (event: any) => {
+  const handleUpdateChannelName = useCallback(
+    (e) => update('name', e.target.value.toLowerCase().replaceAll(' ', '-')),
+    [update]
+  );
+  const openGroupChannelSelection = useCallback((event: any) => {
     setPopupGroupChannel(event.currentTarget);
-  };
+  }, []);
   const teamUserData = useSelector((state: any) => state.user.teamUserData);
   const user = useSelector((state: any) => state.user.userData);
+  const handleUserClick = useCallback(
+    (userItem) => {
+      const newMembers = isSelected
+        ? channelData?.members.filter(
+            (u: any) => u.user_id !== userItem.user_id
+          )
+        : [...(channelData?.members || []), userItem];
+      update('members', newMembers);
+    },
+    [channelData?.members, update]
+  );
+  const handleUpdatePrivateChannel = useCallback(() => {
+    update('members', !channelData.isPrivate ? [user] : []);
+    update('isPrivate', !channelData.isPrivate);
+  }, [channelData?.isPrivate, update, user]);
+  const handleCloseSelectSpace = useCallback(
+    () => setPopupGroupChannel(null),
+    []
+  );
+  const handleSelectSpace = useCallback(
+    (item) => {
+      update('space', item);
+      setPopupGroupChannel(null);
+    },
+    [update]
+  );
+  const renderTeamUserData = useCallback(
+    (el: any) => {
+      const isSelected = !!channelData?.members?.find(
+        (u: any) => u.user_id === el.user_id
+      );
+      return (
+        <TeamUserItem
+          user={el}
+          key={el.user_id}
+          isSelected={isSelected}
+          disabled={el.user_id === user.user_id}
+          onClick={handleUserClick}
+        />
+      );
+    },
+    [channelData, handleUserClick, user?.user_id]
+  );
   return (
     <div className="create-channel-view__container">
       <span className="create-channel__title">Create channel</span>
@@ -41,9 +87,7 @@ const CreateChannelView = ({
       <AppInput
         className="app-input-highlight"
         placeholder="Enter channel name"
-        onChange={(e) =>
-          update('name', e.target.value.toLowerCase().replaceAll(' ', '-'))
-        }
+        onChange={handleUpdateChannelName}
         value={channelData?.name}
         autoFocus
       />
@@ -60,13 +104,7 @@ const CreateChannelView = ({
       <div className="row__center" style={{ marginTop: 30, display: 'none' }}>
         <span className="private-channel">Private Channel</span>
         <div style={{ width: 15 }} />
-        <div
-          style={{ display: 'flex' }}
-          onClick={() => {
-            update('members', !channelData.isPrivate ? [user] : []);
-            update('isPrivate', !channelData.isPrivate);
-          }}
-        >
+        <div style={{ display: 'flex' }} onClick={handleUpdatePrivateChannel}>
           <img
             src={
               channelData.isPrivate ? images.icCheckMain : images.icCheckOutline
@@ -78,26 +116,7 @@ const CreateChannelView = ({
       {channelData.isPrivate && (
         <div className="team-user hide-scroll-bar">
           <div style={{ height: 10 }} />
-          {teamUserData.map((el: any) => {
-            const isSelected = !!channelData?.members?.find(
-              (u: any) => u.user_id === el.user_id
-            );
-            const { members } = channelData;
-            return (
-              <TeamUserItem
-                user={el}
-                key={el.user_id}
-                isSelected={isSelected}
-                disabled={el.user_id === user.user_id}
-                onClick={() => {
-                  const newMembers = isSelected
-                    ? members.filter((u: any) => u.user_id !== el.user_id)
-                    : [...members, el];
-                  update('members', newMembers);
-                }}
-              />
-            );
-          })}
+          {teamUserData.map(renderTeamUserData)}
         </div>
       )}
       <div className="channel__bottom">
@@ -108,9 +127,9 @@ const CreateChannelView = ({
       <Popover
         elevation={0}
         id={idPopupGroupChannel}
-        open={openGroupChannel}
+        open={!!anchorPopupGroupChannel}
         anchorEl={anchorPopupGroupChannel}
-        onClose={() => setPopupGroupChannel(null)}
+        onClose={handleCloseSelectSpace}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -120,13 +139,7 @@ const CreateChannelView = ({
           horizontal: 'left',
         }}
       >
-        <GroupChannelPopup
-          space={space}
-          onSelect={(item) => {
-            update('space', item);
-            setPopupGroupChannel(null);
-          }}
-        />
+        <GroupChannelPopup space={space} onSelect={handleSelectSpace} />
       </Popover>
     </div>
   );

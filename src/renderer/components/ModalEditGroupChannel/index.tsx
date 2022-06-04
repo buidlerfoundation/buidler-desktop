@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Modal from '@material-ui/core/Modal';
 import './index.scss';
 import NormalButton from '../NormalButton';
@@ -24,7 +24,14 @@ const ModalEditGroupChannel = ({
   useEffect(() => {
     setSpaceData({ name: spaceName });
   }, [spaceName, open]);
-
+  const handleUpdateSpaceName = useCallback(
+    (e) => setSpaceData({ name: e.target.value.toUpperCase() }),
+    []
+  );
+  const handleEditSpace = useCallback(() => {
+    if (!spaceData.name) return;
+    onEditSpaceChannel(spaceData);
+  }, [onEditSpaceChannel, spaceData]);
   return (
     <Modal
       open={open}
@@ -39,23 +46,14 @@ const ModalEditGroupChannel = ({
           <AppInput
             className="app-input-highlight"
             placeholder="Enter space name"
-            onChange={(e) =>
-              setSpaceData({ name: e.target.value.toUpperCase() })
-            }
+            onChange={handleUpdateSpaceName}
             value={spaceData?.name}
             autoFocus
           />
           <div className="group-channel__bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
             <div style={{ width: 10 }} />
-            <NormalButton
-              title="Save"
-              onPress={() => {
-                if (!spaceData.name) return;
-                onEditSpaceChannel(spaceData);
-              }}
-              type="main"
-            />
+            <NormalButton title="Save" onPress={handleEditSpace} type="main" />
           </div>
         </div>
       </div>

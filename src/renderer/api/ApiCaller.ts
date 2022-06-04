@@ -1,6 +1,6 @@
+import toast from 'react-hot-toast';
 import AppConfig, { AsyncKey } from '../common/AppConfig';
 import { getCookie } from '../common/Cookie';
-import toast from 'react-hot-toast';
 
 const METHOD_GET = 'get';
 const METHOD_POST = 'post';
@@ -8,12 +8,17 @@ const METHOD_PUT = 'put';
 const METHOD_DELETE = 'delete';
 const METHOD_PATCH = 'patch';
 
-async function requestAPI(
+async function requestAPI<T = any>(
   method: string,
   uri: string,
   body?: any,
   serviceBaseUrl?: string
-) {
+): Promise<{
+  success: boolean;
+  data?: T;
+  statusCode: number;
+  message?: string;
+}> {
   // Build API header
   const headers: any = {
     Accept: '*/*',
@@ -88,24 +93,24 @@ async function requestAPI(
 const timeRequestMap: { [key: string]: any } = {};
 
 const ApiCaller = {
-  get(url: string, baseUrl?: string): Promise<any> {
-    return requestAPI(METHOD_GET, url, undefined, baseUrl);
+  get<T>(url: string, baseUrl?: string) {
+    return requestAPI<T>(METHOD_GET, url, undefined, baseUrl);
   },
 
-  post(url: string, data?: any, baseUrl?: string): Promise<any> {
-    return requestAPI(METHOD_POST, url, data, baseUrl);
+  post<T>(url: string, data?: any, baseUrl?: string) {
+    return requestAPI<T>(METHOD_POST, url, data, baseUrl);
   },
 
-  patch(url: string, data?: any, baseUrl?: string): Promise<any> {
-    return requestAPI(METHOD_PATCH, url, data, baseUrl);
+  patch<T>(url: string, data?: any, baseUrl?: string) {
+    return requestAPI<T>(METHOD_PATCH, url, data, baseUrl);
   },
 
-  put(url: string, data?: any, baseUrl?: string): Promise<any> {
-    return requestAPI(METHOD_PUT, url, data, baseUrl);
+  put<T>(url: string, data?: any, baseUrl?: string) {
+    return requestAPI<T>(METHOD_PUT, url, data, baseUrl);
   },
 
-  delete(url: string, data?: any, baseUrl?: string): Promise<any> {
-    return requestAPI(METHOD_DELETE, url, data, baseUrl);
+  delete<T>(url: string, data?: any, baseUrl?: string) {
+    return requestAPI<T>(METHOD_DELETE, url, data, baseUrl);
   },
 
   getWithLatestResponse(url: string, baseUrl?: string): Promise<any> {

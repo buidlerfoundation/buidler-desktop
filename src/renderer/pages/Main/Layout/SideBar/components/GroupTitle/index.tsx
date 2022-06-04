@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import './index.scss';
 import images from '../../../../../../common/images';
 
@@ -15,6 +15,13 @@ const GroupTitle = ({
   isCollapsed,
   toggleCollapsed,
 }: GroupTitleProps) => {
+  const handleCreateChannel = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      onCreateChannel?.();
+    },
+    [onCreateChannel]
+  );
   return (
     <div
       className="group-title-container normal-button"
@@ -35,16 +42,15 @@ const GroupTitle = ({
       </div>
       <span className="group-title__title">{title}</span>
       <div style={{ flex: 1 }} />
-      <div
-        className="plus-button"
-        style={{ padding: 7 }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onCreateChannel?.();
-        }}
-      >
-        <img alt="" src={images.icPlus} />
-      </div>
+      {onCreateChannel && (
+        <div
+          className="plus-button"
+          style={{ padding: 7 }}
+          onClick={handleCreateChannel}
+        >
+          <img alt="" src={images.icPlus} />
+        </div>
+      )}
       <div style={{ width: 10 }} />
     </div>
   );

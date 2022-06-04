@@ -1,27 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import './index.scss';
+import Popover from '@material-ui/core/Popover';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import Dropzone, { useDropzone } from 'react-dropzone';
+import { CircularProgress } from '@material-ui/core';
+import TextareaAutosize from 'react-textarea-autosize';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
+import { useSelector } from 'react-redux';
+import ImageHelper from 'renderer/common/ImageHelper';
+import AttachmentItem from '../AttachmentItem';
+import StatusSelectionPopup from '../StatusSelectionPopup';
+import AssignPopup from '../AssignPopup';
+import PopoverButton from '../PopoverButton';
 import images from '../../common/images';
 import IconButton from '../IconButton';
 import NormalButton from '../NormalButton';
 import TagView from '../TagView';
-import './index.scss';
-import Popover from '@material-ui/core/Popover';
-import StatusSelectionPopup from '../StatusSelectionPopup';
-import AssignPopup from '../AssignPopup';
-import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import DatePickerV2 from '../DatePickerV2';
 import { dateFormatted } from '../../utils/DateUtils';
-import Dropzone, { useDropzone } from 'react-dropzone';
-import { CircularProgress } from '@material-ui/core';
-import TextareaAutosize from 'react-textarea-autosize';
-import PopoverButton from '../PopoverButton';
-import { normalizeUserName } from 'renderer/helpers/MessageHelper';
-import { useSelector } from 'react-redux';
-import AttachmentItem from '../AttachmentItem';
 
 type CreateTaskViewProps = {
   onCancel: () => void;
   onCreate: () => void;
-  toggleFullScreen: () => void;
   taskData: any;
   update: (key: string, val: any) => void;
   onAddFiles: (files: any) => void;
@@ -32,7 +32,6 @@ type CreateTaskViewProps = {
 const CreateTaskView = ({
   onCancel,
   onCreate,
-  toggleFullScreen,
   taskData,
   update,
   onAddFiles,
@@ -49,35 +48,72 @@ const CreateTaskView = ({
   const openAssignee = Boolean(anchorPopupAssignee);
   const idPopupStatus = openStatus ? 'status-popover' : undefined;
   const idPopupAssignee = openAssignee ? 'assign-popover' : undefined;
-  const openStatusSelection = (event: any) => {
-    setPopupStatus(event.currentTarget);
-  };
-  const openAssigneeSelection = (event: any) => {
-    setPopupAssignee(event.currentTarget);
-  };
-  const handleDateChange = (date: MaterialUiPickersDate) => {
-    popupDatePickerRef.current?.hide();
-    update('dueDate', date);
-  };
-  const renderAttachment = (att: any, index: number) => {
-    return (
-      <AttachmentItem
-        att={att}
-        key={att.randomId || att.id || index}
-        onRemove={() => onRemoveFile(att)}
-        teamId={currentTeam.team_id}
-      />
-    );
-    if (att.type.includes('video')) {
+  const openStatusSelection = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      setPopupStatus(event.currentTarget);
+    },
+    []
+  );
+  const handleUpdateChannel = useCallback(
+    (channels) => {
+      update('channels', channels);
+    },
+    [update]
+  );
+  const openAssigneeSelection = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      setPopupAssignee(event.currentTarget);
+    },
+    []
+  );
+  const handleDateChange = useCallback(
+    (date?: MaterialUiPickersDate) => {
+      popupDatePickerRef.current?.hide();
+      update('dueDate', date);
+    },
+    [update]
+  );
+  const renderAttachment = useCallback(
+    (att: any, index: number) => {
+      return (
+        <AttachmentItem
+          att={att}
+          key={att.randomId || att.id || index}
+          onRemove={() => onRemoveFile(att)}
+          teamId={currentTeam.team_id}
+        />
+      );
+      if (att.type.includes('video')) {
+        return (
+          <div
+            className="attachment-item"
+            key={att.randomId || att.id || index}
+            style={{ marginRight: 16, marginBottom: 16 }}
+          >
+            <video>
+              <source src={att.file} type="video/mp4" />
+            </video>
+            <div
+              className="attachment-delete normal-button"
+              onClick={() => onRemoveFile(att)}
+            >
+              <img alt="" src={images.icCircleClose} />
+            </div>
+          </div>
+        );
+      }
       return (
         <div
           className="attachment-item"
           key={att.randomId || att.id || index}
           style={{ marginRight: 16, marginBottom: 16 }}
         >
-          <video>
-            <source src={att.file} type="video/mp4" />
-          </video>
+          <img className="attachment-image" alt="" src={att.file || att.url} />
+          {att.loading && (
+            <div className="attachment-loading">
+              <CircularProgress />
+            </div>
+          )}
           <div
             className="attachment-delete normal-button"
             onClick={() => onRemoveFile(att)}
@@ -86,35 +122,76 @@ const CreateTaskView = ({
           </div>
         </div>
       );
-    }
-    return (
-      <div
-        className="attachment-item"
-        key={att.randomId || att.id || index}
-        style={{ marginRight: 16, marginBottom: 16 }}
-      >
-        <img className="attachment-image" alt="" src={att.file || att.url} />
-        {att.loading && (
-          <div className="attachment-loading">
-            <CircularProgress />
-          </div>
-        )}
-        <div
-          className="attachment-delete normal-button"
-          onClick={() => onRemoveFile(att)}
-        >
-          <img alt="" src={images.icCircleClose} />
-        </div>
-      </div>
-    );
-  };
-  const _onPaste = (e: any) => {
-    const { files } = e.clipboardData;
-    if (files?.length > 0) {
-      onAddFiles(files);
-    }
-    pasteFile.current = files?.length > 0;
-  };
+    },
+    [currentTeam?.team_id, onRemoveFile]
+  );
+  const handleUpdateTitle = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (pasteFile.current) {
+        pasteFile.current = false;
+        update('title', taskData.title);
+        return;
+      }
+      let { value } = e.target;
+      const subStr = value.substring(0, 4);
+      if (subStr.toLowerCase() !== 'http') {
+        value = value.charAt(0).toUpperCase() + value.slice(1);
+      }
+      update('title', value);
+    },
+    [taskData.title, update]
+  );
+  const handleUpdateNote = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (pasteFile.current) {
+        pasteFile.current = false;
+        update('notes', taskData.notes);
+        return;
+      }
+      update('notes', e.target.value);
+    },
+    [taskData.notes, update]
+  );
+  const _onPaste = useCallback(
+    (e: any) => {
+      const { files } = e.clipboardData;
+      if (files?.length > 0) {
+        onAddFiles(files);
+      }
+      pasteFile.current = files?.length > 0;
+    },
+    [onAddFiles]
+  );
+  const handleClearDate = useCallback(
+    () => handleDateChange(null),
+    [handleDateChange]
+  );
+  const handleAttachClick = useCallback(() => {
+    inputRef.current?.click();
+  }, []);
+  const handleCloseAssignee = useCallback(() => setPopupAssignee(null), []);
+  const handleSelectAssignee = useCallback(
+    (u) => {
+      setPopupAssignee(null);
+      update('assignee', u);
+    },
+    [update]
+  );
+  const handleCloseStatus = useCallback(() => setPopupStatus(null), []);
+  const handleSelectStatus = useCallback(
+    (status) => {
+      setPopupStatus(null);
+      update('currentStatus', status);
+    },
+    [update]
+  );
+  const onChangeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onAddFiles(e.target.files);
+      e.target.value = null;
+    },
+    [onAddFiles]
+  );
   return (
     <Dropzone onDrop={onAddFiles}>
       {({ getRootProps, getInputProps }) => (
@@ -143,19 +220,7 @@ const CreateTaskView = ({
             minRows={2}
             maxRows={12}
             placeholder="Add title"
-            onChange={(e) => {
-              if (pasteFile.current) {
-                pasteFile.current = false;
-                update('title', taskData.title);
-                return;
-              }
-              let { value } = e.target;
-              const subStr = value.substring(0, 4);
-              if (subStr.toLowerCase() !== 'http') {
-                value = value.charAt(0).toUpperCase() + value.slice(1);
-              }
-              update('title', value);
-            }}
+            onChange={handleUpdateTitle}
             value={taskData.title || ''}
             autoFocus
             onPaste={_onPaste}
@@ -166,14 +231,7 @@ const CreateTaskView = ({
             maxRows={12}
             placeholder="Add note"
             value={taskData.notes || ''}
-            onChange={(e) => {
-              if (pasteFile.current) {
-                pasteFile.current = false;
-                update('notes', taskData.notes);
-                return;
-              }
-              update('notes', e.target.value);
-            }}
+            onChange={handleUpdateNote}
             onPaste={_onPaste}
           />
           <div className="task__attachment-view">
@@ -183,9 +241,7 @@ const CreateTaskView = ({
             <TagView
               currentChannel={currentChannel}
               channels={taskData.channels}
-              onChange={(channels) => {
-                update('channels', channels);
-              }}
+              onChange={handleUpdateChannel}
             />
           </div>
           <div className="task__actions">
@@ -193,7 +249,14 @@ const CreateTaskView = ({
               title={
                 normalizeUserName(taskData?.assignee?.user_name) || 'Unassigned'
               }
-              icon={taskData.assignee?.avatar_url || images.icUser}
+              icon={
+                taskData.assignee?.user_id
+                  ? ImageHelper.normalizeImage(
+                      taskData.assignee?.avatar_url,
+                      taskData.assignee?.user_id
+                    )
+                  : images.icUser
+              }
               onPress={openAssigneeSelection}
               imgStyle={
                 taskData?.assignee
@@ -205,7 +268,6 @@ const CreateTaskView = ({
             <div className="task__due-date-container">
               <PopoverButton
                 ref={popupDatePickerRef}
-                onClose={() => {}}
                 componentButton={
                   <IconButton
                     title={
@@ -215,14 +277,13 @@ const CreateTaskView = ({
                     }
                     icon={images.icCalendar}
                     imgStyle={{ filter: 'brightness(0.5)' }}
-                    onPress={() => {}}
                   />
                 }
                 componentPopup={
                   <DatePickerV2
                     selectedDate={taskData?.dueDate || new Date()}
                     handleDateChange={handleDateChange}
-                    onClear={() => handleDateChange(null)}
+                    onClear={handleClearDate}
                   />
                 }
               />
@@ -231,9 +292,7 @@ const CreateTaskView = ({
             <IconButton
               title="Attach"
               icon={images.icAttachment}
-              onPress={() => {
-                inputRef.current?.click();
-              }}
+              onPress={handleAttachClick}
             />
           </div>
           <div className="task__bottom">
@@ -246,7 +305,7 @@ const CreateTaskView = ({
             id={idPopupAssignee}
             open={openAssignee}
             anchorEl={anchorPopupAssignee}
-            onClose={() => setPopupAssignee(null)}
+            onClose={handleCloseAssignee}
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'left',
@@ -258,10 +317,7 @@ const CreateTaskView = ({
           >
             <AssignPopup
               selected={taskData?.assignee}
-              onChanged={(u) => {
-                setPopupAssignee(null);
-                update('assignee', u);
-              }}
+              onChanged={handleSelectAssignee}
             />
           </Popover>
           <Popover
@@ -269,7 +325,7 @@ const CreateTaskView = ({
             id={idPopupStatus}
             open={openStatus}
             anchorEl={anchorPopupStatus}
-            onClose={() => setPopupStatus(null)}
+            onClose={handleCloseStatus}
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'left',
@@ -279,21 +335,13 @@ const CreateTaskView = ({
               horizontal: 'left',
             }}
           >
-            <StatusSelectionPopup
-              onSelectedStatus={(status) => {
-                setPopupStatus(null);
-                update('currentStatus', status);
-              }}
-            />
+            <StatusSelectionPopup onSelectedStatus={handleSelectStatus} />
           </Popover>
           <input
             {...getInputProps()}
             ref={inputRef}
             accept="image/*,video/*,application/*"
-            onChange={(e: any) => {
-              onAddFiles(e.target.files);
-              e.target.value = null;
-            }}
+            onChange={onChangeFile}
           />
         </div>
       )}

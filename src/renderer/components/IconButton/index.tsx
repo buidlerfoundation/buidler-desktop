@@ -4,7 +4,7 @@ import './index.scss';
 type IconButtonProps = {
   title: string;
   icon: any;
-  onPress: (e: any) => void;
+  onPress: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   imgStyle?: any;
   color?: string;
 };

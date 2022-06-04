@@ -74,6 +74,12 @@ input {
   }
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 textarea {
   resize: none;
   background-color: var(--color-lighter-background);

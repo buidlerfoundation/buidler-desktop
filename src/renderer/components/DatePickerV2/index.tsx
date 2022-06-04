@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Calendar, useStaticState } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import './index.scss';
@@ -19,6 +19,15 @@ const DatePickerV2 = ({
     value: selectedDate,
     onChange: handleDateChange,
   });
+  const handleTodayClick = useCallback(() => {
+    handleDateChange(new Date());
+  }, [handleDateChange]);
+  const handleTomorrowClick = useCallback(() => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    handleDateChange(tomorrow);
+  }, [handleDateChange]);
   return (
     <div className="date-picker-container">
       <Calendar
@@ -26,12 +35,7 @@ const DatePickerV2 = ({
         leftArrowButtonProps={{ style: { padding: 8 } }}
         rightArrowButtonProps={{ style: { padding: 8 } }}
       />
-      <div
-        className="action-button normal-button"
-        onClick={() => {
-          handleDateChange(new Date());
-        }}
-      >
+      <div className="action-button normal-button" onClick={handleTodayClick}>
         <img
           src={images.icCalendarToday}
           alt=""
@@ -41,12 +45,7 @@ const DatePickerV2 = ({
       </div>
       <div
         className="action-button normal-button"
-        onClick={() => {
-          const today = new Date();
-          const tomorrow = new Date(today);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          handleDateChange(tomorrow);
-        }}
+        onClick={handleTomorrowClick}
       >
         <img
           src={images.icCalendarTomorrow}

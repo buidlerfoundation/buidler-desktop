@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import images from 'renderer/common/images';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import AvatarView from '../AvatarView';
@@ -7,7 +7,7 @@ import './index.scss';
 type TeamUserItemProps = {
   user: any;
   isSelected?: boolean;
-  onClick?: () => void;
+  onClick?: (user: any) => void;
   disabled?: boolean;
 };
 
@@ -17,8 +17,11 @@ const TeamUserItem = ({
   onClick,
   disabled,
 }: TeamUserItemProps) => {
+  const handleClick = useCallback(() => {
+    return disabled ? undefined : onClick?.(user);
+  }, [disabled, onClick, user]);
   return (
-    <div className="user-item" onClick={disabled ? undefined : onClick}>
+    <div className="user-item" onClick={handleClick}>
       <AvatarView user={user} size={25} />
       <span className={`user-name ${isSelected && 'selected'}`}>
         {normalizeUserName(user.user_name)}

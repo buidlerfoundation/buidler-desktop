@@ -1,10 +1,12 @@
 import { Modal } from '@material-ui/core';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { CreateSpaceData } from 'renderer/models';
+import api from 'renderer/api';
+import { CreateSpaceData, UserNFTCollection } from 'renderer/models';
 import NormalButton from '../NormalButton';
 import './index.scss';
 import SpaceConfig from './SpaceConfig';
+import SpaceIcon from './SpaceIcon';
 import SpaceInformation from './SpaceInformation';
 
 type ModalCreateSpaceProps = {
@@ -21,13 +23,21 @@ const ModalCreateSpace = ({
   const [modalState, setModalState] = useState<'Information' | 'Config'>(
     'Information'
   );
+  const [nftCollections, setNFTCollections] = useState<
+    Array<UserNFTCollection>
+  >([]);
   const [spaceData, setSpaceData] = useState<CreateSpaceData>({
     name: '',
     description: '',
     attachment: null,
     emoji: null,
     spaceType: 'Exclusive',
+    condition: null,
   });
+  const fetchNFTCollections = useCallback(async () => {
+    const res = await api.getNFTCollection();
+    setNFTCollections(res?.data || []);
+  }, []);
   useEffect(() => {
     if (open) {
       setSpaceData({
@@ -36,17 +46,19 @@ const ModalCreateSpace = ({
         attachment: null,
         emoji: null,
         spaceType: 'Exclusive',
+        condition: null,
       });
+      fetchNFTCollections();
     }
-  }, [open]);
-  const onSecondaryPress = () => {
+  }, [open, fetchNFTCollections]);
+  const onSecondaryPress = useCallback(() => {
     if (modalState === 'Config') {
       setModalState('Information');
     } else {
       handleClose();
     }
-  };
-  const onPrimaryPress = () => {
+  }, [handleClose, modalState]);
+  const onPrimaryPress = useCallback(() => {
     if (modalState === 'Information') {
       if (!spaceData.name) {
         toast.error('Space name can not be empty');
@@ -54,20 +66,31 @@ const ModalCreateSpace = ({
       }
       setModalState('Config');
     } else {
-      // Create Space
+      onCreateSpace(spaceData);
     }
-  };
+  }, [modalState, onCreateSpace, spaceData]);
   return (
     <Modal open={open} onClose={handleClose} className="modal-container">
       <div className="create-space__container">
-        <div className="label">
-          <span>Create Space</span>
+        <div className="label__wrap">
+          {modalState === 'Information' ? (
+            <span className="label">Create Space</span>
+          ) : (
+            <>
+              <SpaceIcon spaceData={spaceData} emojiSize={30} />
+              <span className="label">{spaceData.name}</span>
+            </>
+          )}
         </div>
         {modalState === 'Information' && (
           <SpaceInformation spaceData={spaceData} setSpaceData={setSpaceData} />
         )}
         {modalState === 'Config' && (
-          <SpaceConfig spaceData={spaceData} setSpaceData={setSpaceData} />
+          <SpaceConfig
+            spaceData={spaceData}
+            setSpaceData={setSpaceData}
+            nftCollections={nftCollections}
+          />
         )}
         <div className="create-space__footer">
           <NormalButton

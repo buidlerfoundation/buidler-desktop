@@ -1,7 +1,23 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import { ProgressStatus } from '../../common/AppConfig';
-import AppInput from '../AppInput';
 import './index.scss';
+
+type StatusItemProps = {
+  item: any;
+  onClick: (item: any) => void;
+};
+
+const StatusItem = ({ item, onClick }: StatusItemProps) => {
+  const handleClick = useCallback(() => onClick(item), [item, onClick]);
+  return (
+    <div className="status-selection__item normal-button" onClick={handleClick}>
+      <img alt="" src={item.icon} />
+      <span style={{ marginLeft: 15 }} className={`status__name ${item.type}`}>
+        {item.title}
+      </span>
+    </div>
+  );
+};
 
 type StatusSelectionPopupProps = {
   onSelectedStatus: (status: any) => void;
@@ -12,27 +28,18 @@ const StatusSelectionPopup = ({
   onSelectedStatus,
   data,
 }: StatusSelectionPopupProps) => {
-  const [filter, setFilter] = useState('');
+  const handleClick = useCallback(
+    (st) => onSelectedStatus(st),
+    [onSelectedStatus]
+  );
+  const renderStatusItem = useCallback(
+    (st) => <StatusItem key={st.title} item={st} onClick={handleClick} />,
+    [handleClick]
+  );
   return (
     <div className="status-selection-popup__container">
       <div style={{ height: 10 }} />
-      {(data || ProgressStatus)
-        .filter((st) => st.title.toLowerCase().includes(filter.toLowerCase()))
-        .map((st) => (
-          <div
-            className="status-selection__item normal-button"
-            key={st.title}
-            onClick={() => onSelectedStatus(st)}
-          >
-            <img alt="" src={st.icon} />
-            <span
-              style={{ marginLeft: 15 }}
-              className={`status__name ${st.type}`}
-            >
-              {st.title}
-            </span>
-          </div>
-        ))}
+      {(data || ProgressStatus).map(renderStatusItem)}
       <div style={{ height: 10 }} />
     </div>
   );

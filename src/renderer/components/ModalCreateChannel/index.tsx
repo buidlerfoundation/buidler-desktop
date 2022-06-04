@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Modal from '@material-ui/core/Modal';
 import './index.scss';
 import CreateChannelView from './CreateChannelView';
@@ -32,6 +32,16 @@ const ModalCreateChannel = ({
       members: [],
     });
   }, [initialSpace, open]);
+  const handleCreateChannel = useCallback(() => {
+    if (channelData.space == null) {
+      // show error
+      return;
+    }
+    onCreateChannel(channelData);
+  }, [channelData, onCreateChannel]);
+  const handleUpdateData = useCallback((key, val) => {
+    setChannelData((data: any) => ({ ...data, [key]: val }));
+  }, []);
   return (
     <Modal
       open={open}
@@ -43,17 +53,9 @@ const ModalCreateChannel = ({
         <CreateChannelView
           space={space}
           onCancel={handleClose}
-          onCreate={() => {
-            if (channelData.space == null) {
-              // show error
-              return;
-            }
-            onCreateChannel(channelData);
-          }}
+          onCreate={handleCreateChannel}
           channelData={channelData}
-          update={(key, val) => {
-            setChannelData((data: any) => ({ ...data, [key]: val }));
-          }}
+          update={handleUpdateData}
         />
       </div>
     </Modal>

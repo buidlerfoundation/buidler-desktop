@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Modal from '@material-ui/core/Modal';
 import './index.scss';
-import NormalButton from '../NormalButton';
-import AppInput from '../AppInput';
-import TextareaAutosize from 'react-textarea-autosize';
 import images from 'renderer/common/images';
 import toast from 'react-hot-toast';
 import api from 'renderer/api';
 import { useSelector } from 'react-redux';
+import NormalButton from '../NormalButton';
 
 type ModalInviteMemberProps = {
   open: boolean;
@@ -27,12 +25,12 @@ const ModalInviteMember = ({ open, handleClose }: ModalInviteMemberProps) => {
       getLink();
     }
   }, [open, getLink]);
-  const onCopyLink = async () => {
+  const onCopyLink = useCallback(async () => {
     await navigator.clipboard.writeText(inviteLink);
     toast.success('Invite link was copied.', {
       className: 'Success !',
     });
-  };
+  }, [inviteLink]);
   return (
     <Modal
       open={open}

@@ -7,12 +7,13 @@ import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import { setCookie } from 'renderer/common/Cookie';
-import { AsyncKey } from 'renderer/common/AppConfig';
+import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/components/ModalOTP';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
 import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
+import { CreateSpaceData } from 'renderer/models';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
@@ -457,14 +458,53 @@ const Home = ({
     () => setOpenCreateSpace(false),
     []
   );
-  const onCreateSpace = useCallback(async (spaceData: any) => {
-    // await createSpaceChannel(currentTeam.team_id, {
-    //   space_name: spaceData.name,
-    //   order: space?.[space.length - 1].order + 1,
-    // });
-    // setOpenCreateGroupChannel(false);
-    // sideBarRef.current?.scrollToBottom?.();
-  }, []);
+  const onCreateSpace = useCallback(
+    async (spaceData: CreateSpaceData) => {
+      let error = '';
+      let body = {
+        space_name: spaceData.name,
+        space_type: spaceData.spaceType === 'Exclusive' ? 'Private' : 'Public',
+        space_id: spaceData.spaceId,
+        space_emoji: spaceData.emoji,
+        space_image_url: spaceData.url,
+      };
+      if (spaceData.spaceType === 'Exclusive') {
+        if (!spaceData.spaceBadgeId) {
+          error = 'Badge can not be empty';
+        } else if (!spaceData.condition) {
+          error = 'NFT can not be empty';
+        } else if (
+          !spaceData.condition.amount &&
+          !spaceData.condition.amountInput
+        ) {
+          error = 'NFT amount can not be empty';
+        }
+        if (error) {
+          toast.error(error);
+          return null;
+        }
+        const badge = SpaceBadge.find((el) => el.id === spaceData.spaceBadgeId);
+        body = {
+          ...body,
+          space_conditions: [
+            {
+              contract_address: spaceData.condition?.address,
+              amount:
+                spaceData.condition?.amount || spaceData.condition?.amountInput,
+            },
+          ],
+          description: spaceData.description,
+          icon_color: badge?.color,
+          icon_sub_color: badge?.backgroundColor,
+        };
+      }
+      await createSpaceChannel(currentTeam.team_id, body);
+      setOpenCreateSpace(false);
+      sideBarRef.current?.scrollToBottom?.();
+      return null;
+    },
+    [createSpaceChannel, currentTeam?.team_id]
+  );
   const handleCloseModalEditSpace = useCallback(
     () => setOpenEditSpaceChannel(false),
     []
