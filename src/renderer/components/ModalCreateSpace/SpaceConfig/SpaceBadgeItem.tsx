@@ -17,7 +17,8 @@ const SpaceBadgeItem = ({ item, onClick, isActive }: SpaceBadgeItemProps) => {
       className="badge-item"
       style={{
         '--hover-background': item.backgroundColor,
-        outline: isActive ? `1px solid ${item.color}` : 'none',
+        border: isActive ? `1px solid ${item.color}` : 'none',
+        backgroundColor: isActive ? item.backgroundColor : undefined,
       }}
       onClick={handleClick}
     >
