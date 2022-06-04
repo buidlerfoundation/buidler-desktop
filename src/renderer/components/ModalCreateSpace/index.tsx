@@ -48,6 +48,7 @@ const ModalCreateSpace = ({
         spaceType: 'Exclusive',
         condition: null,
       });
+      setModalState('Information');
       fetchNFTCollections();
     }
   }, [open, fetchNFTCollections]);
