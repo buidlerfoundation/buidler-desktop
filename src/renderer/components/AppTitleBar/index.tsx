@@ -6,6 +6,7 @@ import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import actionTypes from 'renderer/actions/ActionTypes';
+import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import actions from '../../actions';
 import './index.scss';
 import TeamItem from './TeamItem';
@@ -24,7 +25,7 @@ import ModalBackup from '../ModalBackup';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
-import ModalWalletSetting from '../ModalWalletSetting';
+import AvatarView from '../AvatarView';
 
 type AppTitleBarProps = {
   team?: Array<any>;
@@ -35,8 +36,6 @@ type AppTitleBarProps = {
   createTeam?: (body: any) => any;
   leaveTeam?: (teamId: string) => any;
   userData?: any;
-  currentChannel?: any;
-  updateUserChannel?: (channels: Array<any>) => any;
   logout?: () => any;
   updateUser?: (userData: any) => any;
   privateKey?: string;
@@ -54,8 +53,6 @@ const AppTitleBar = ({
   createTeam,
   leaveTeam,
   userData,
-  currentChannel,
-  updateUserChannel,
   logout,
   updateUser,
   privateKey,
@@ -85,7 +82,6 @@ const AppTitleBar = ({
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
-  const [isOpenModalWallet, setOpenModalWallet] = useState(false);
   const [isOpenModalBackup, setOpenModalBackup] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
   const [hoverTeam, setHoverTeam] = useState(false);
@@ -258,24 +254,14 @@ const AppTitleBar = ({
         </div>
         {userData && (
           <div className="action-right">
-            {/* <div
-              className="action-item normal-button"
-              style={{ marginRight: 10 }}
-              onClick={() => history.replace('/started')}
-            >
-              <img src={images.icSearch} alt="" />
-            </div> */}
             <div
-              className="action-item normal-button"
-              onClick={() => setOpenModalWallet(true)}
-            >
-              <img src={images.icWallet} alt="" />
-            </div>
-            <div
-              className="action-item normal-button"
+              className="user-setting__wrap normal-button"
               onClick={() => setOpenModalUser(true)}
             >
-              <img src={images.icUser} alt="" />
+              <span className="user-name">
+                {normalizeUserName(userData.user_name)}
+              </span>
+              <AvatarView user={userData} />
             </div>
           </div>
         )}
@@ -299,9 +285,6 @@ const AppTitleBar = ({
           open={isOpenModalUser}
           handleClose={() => setOpenModalUser(false)}
           user={userData}
-          currentChannel={currentChannel}
-          updateUserChannel={updateUserChannel}
-          channels={channels}
           updateUser={updateUser}
           onLogout={async () => {
             const loginType = await getCookie(AsyncKey.loginType);
@@ -323,7 +306,6 @@ const AppTitleBar = ({
               });
             }
           }}
-          onBackupPress={onBackupPress}
         />
         <ModalBackup
           open={isOpenModalBackup}
@@ -364,10 +346,6 @@ const AppTitleBar = ({
           updateTeam={updateTeam}
           onDeleteClick={onDeleteClick}
         />
-        <ModalWalletSetting
-          open={isOpenModalWallet}
-          handleClose={() => setOpenModalWallet(false)}
-        />
       </div>
     );
   }
@@ -387,7 +365,6 @@ const mapStateToProps = (state: any) => {
     imgDomain: state.user.imgDomain,
     channels: state.user.channel,
     userData: state.user.userData,
-    currentChannel: state.user.currentChannel,
     privateKey: state.configs.privateKey,
   };
 };

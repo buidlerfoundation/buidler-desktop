@@ -1,42 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from '@material-ui/core';
+import api from 'renderer/api';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 import './index.scss';
 import images from '../../common/images';
 import UpdateUserProfile from './UpdateUserProfile';
 import UpdateNotification from './UpdateNotification';
-import UpdateDefaultChannel from './UpdateDefaultChannel';
-import api from 'renderer/api';
 import NormalButton from '../NormalButton';
-import SettingWallet from './SettingWallet';
-import { useSelector } from 'react-redux';
 import SettingSecurity from './SettingSecurity';
 import ModalConfirmDelete from '../ModalConfirmDelete';
-import GlobalVariable from 'renderer/services/GlobalVariable';
+import SettingBalance from '../ModalWalletSetting/SettingBalance';
 
 type ModalUserSettingProps = {
   open: boolean;
   handleClose: () => void;
   user?: any;
-  currentChannel?: any;
-  updateUserChannel?: (channels: Array<any>) => any;
-  channels?: Array<any>;
   onLogout: () => void;
   updateUser?: (userData: any) => any;
-  onBackupPress: () => void;
 };
 
 const ModalUserSetting = ({
   open,
   user,
   handleClose,
-  currentChannel,
-  updateUserChannel,
-  channels,
   onLogout,
   updateUser,
-  onBackupPress,
 }: ModalUserSettingProps) => {
-  const seed = useSelector((state: any) => state.configs.seed);
   const [isOpenConfirmLogout, setOpenConfirmLogout] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,33 +58,54 @@ const ModalUserSetting = ({
   }, [user, open]);
   const settings = [
     {
-      label: 'User profile',
-      icon: images.icUserCircle,
       id: '1',
+      groupLabel: 'Wallet',
+      items: [
+        {
+          label: 'Balance',
+          icon: images.icSettingWalletBalance,
+          id: 'wallet_balance',
+        },
+        {
+          label: 'Transaction',
+          icon: images.icSettingWalletTransaction,
+          id: 'wallet_transaction',
+        },
+        {
+          label: 'NFTs',
+          icon: images.icSettingWalletNFT,
+          id: 'wallet_nft',
+        },
+        {
+          label: 'Settings',
+          icon: images.icCommunitySetting,
+          id: 'wallet_settings',
+        },
+      ],
     },
     {
-      label: 'Notification',
-      icon: images.icSettingChannelNotification,
       id: '2',
-    },
-    {
-      label: 'Wallet',
-      icon: images.icSettingWallet,
-      id: '3',
-      badge: !!seed,
-    },
-    // {
-    //   label: 'Default channel',
-    //   icon: images.icUserSettingDefaultChannelWhite,
-    //   id: '4',
-    // },
-    {
-      label: 'Security',
-      icon: images.icSettingSecure,
-      id: '5',
+      groupLabel: 'General',
+      items: [
+        {
+          label: 'User profile',
+          icon: images.icUserCircle,
+          id: 'general_user_profile',
+        },
+        {
+          label: 'Notification',
+          icon: images.icSettingChannelNotification,
+          id: 'general_notification',
+        },
+        {
+          label: 'Security',
+          icon: images.icSettingSecure,
+          id: 'general_security',
+        },
+      ],
     },
   ];
-  const [currentPageId, setCurrentPageId] = useState(settings[0].id);
+  const [currentPageId, setCurrentPageId] = useState('wallet_balance');
   const onSave = async () => {
     if (uploading) return;
     setLoading(true);
@@ -113,20 +123,26 @@ const ModalUserSetting = ({
     >
       <div className="user-setting__container">
         <div className="left-side">
-          <div className="group-setting-title" style={{ marginTop: 10 }}>
-            <span>GENERAL</span>
-          </div>
-          {settings.map((el) => {
-            const isActive = currentPageId === el.id;
+          {settings.map((group) => {
             return (
-              <div
-                className={`setting-item ${isActive && 'active'}`}
-                key={el.label}
-                onClick={() => setCurrentPageId(el.id)}
-              >
-                <img alt="" src={el.icon} />
-                <span className="setting-label">{el.label}</span>
-                {el.badge && <div className="badge-backup mr10" />}
+              <div key={group.id}>
+                <div className="group-setting-title" style={{ marginTop: 10 }}>
+                  <span>{group.groupLabel}</span>
+                </div>
+                {group.items.map((el) => {
+                  const isActive = currentPageId === el.id;
+                  return (
+                    <div
+                      className={`setting-item ${isActive && 'active'}`}
+                      key={el.label}
+                      onClick={() => setCurrentPageId(el.id)}
+                    >
+                      <img alt="" src={el.icon} />
+                      <span className="setting-label">{el.label}</span>
+                      {el.badge && <div className="badge-backup mr10" />}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
@@ -142,7 +158,8 @@ const ModalUserSetting = ({
           </div>
         </div>
         <div className="body">
-          {currentPageId === '1' && (
+          {currentPageId === 'wallet_balance' && <SettingBalance />}
+          {currentPageId === 'general_user_profile' && (
             <UpdateUserProfile
               setUploading={setUploading}
               collectibleData={collectibleData}
@@ -158,19 +175,8 @@ const ModalUserSetting = ({
               }
             />
           )}
-          {currentPageId === '2' && <UpdateNotification />}
-          {currentPageId === '3' && (
-            <SettingWallet onBackupPress={onBackupPress} />
-          )}
-          {currentPageId === '4' && (
-            <UpdateDefaultChannel
-              user={user}
-              channels={channels}
-              currentChannel={currentChannel}
-              updateUserChannel={updateUserChannel}
-            />
-          )}
-          {currentPageId === '5' && <SettingSecurity />}
+          {currentPageId === 'general_notification' && <UpdateNotification />}
+          {currentPageId === 'general_security' && <SettingSecurity />}
           <div style={{ flex: 1 }} />
           <div className="bottom">
             <NormalButton title="Cancel" onPress={handleClose} type="normal" />
