@@ -215,7 +215,7 @@ const AppTitleBar = ({
     [currentTeam?.team_id, setTeam]
   );
   const handleCommunityContextMenu = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>, t: Community) => {
       setSelectedMenuTeam(t);
       menuTeamRef.current?.show(e.currentTarget, {
         x: e.pageX,

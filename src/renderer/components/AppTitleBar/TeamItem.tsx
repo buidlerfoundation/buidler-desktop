@@ -8,7 +8,10 @@ type TeamItemProps = {
   t: Community;
   isSelected: boolean;
   onChangeTeam: (team: Community) => void;
-  onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onContextMenu: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    team: Community
+  ) => void;
 };
 
 const TeamItem = ({
@@ -18,11 +21,17 @@ const TeamItem = ({
   onContextMenu,
 }: TeamItemProps) => {
   const handleClick = useCallback(() => onChangeTeam(t), [onChangeTeam, t]);
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      onContextMenu(e, t);
+    },
+    [onContextMenu, t]
+  );
   return (
     <div
       className={`team-item ${isSelected ? 'team-selected' : ''}`}
       onClick={handleClick}
-      onContextMenu={onContextMenu}
+      onContextMenu={handleContextMenu}
     >
       {t?.team_icon ? (
         <img

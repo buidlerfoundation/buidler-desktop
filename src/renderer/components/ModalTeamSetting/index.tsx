@@ -72,7 +72,11 @@ const ModalTeamSetting = ({
     },
     [team?.team_id, updateTeam]
   );
-  const srcImage = () => {
+  const handleInputFileClick = useCallback(
+    () => inputFileRef.current?.click(),
+    []
+  );
+  const srcImage = useCallback(() => {
     if (file) return file.file;
     return team?.team_icon
       ? ImageHelper.normalizeImage(team?.team_icon, team?.team_id, {
@@ -80,7 +84,17 @@ const ModalTeamSetting = ({
           h: 90,
         })
       : images.icTeamDefault;
-  };
+  }, [file, team?.team_icon, team?.team_id]);
+  const handleChangeName = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTeamName(e.target.value);
+    },
+    []
+  );
+  const handleInputNameBlur = useCallback(() => {
+    GlobalVariable.isInputFocus = false;
+    updateTeam(team.team_id, { team_display_name: teamName });
+  }, [team?.team_id, teamName, updateTeam]);
   const handleChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onAddFile(e.target.files);
@@ -142,7 +156,7 @@ const ModalTeamSetting = ({
               <span className="modal-label">Community Profile</span>
               <div
                 className="team-avatar__wrapper normal-button"
-                onClick={() => inputFileRef.current?.click()}
+                onClick={handleInputFileClick}
               >
                 {file || team?.team_icon ? (
                   <img className="team-avatar" src={srcImage()} alt="" />
@@ -170,14 +184,9 @@ const ModalTeamSetting = ({
                 <AppInput
                   className="app-input"
                   placeholder="Enter your name"
-                  onChange={(e) => {
-                    setTeamName(e.target.value);
-                  }}
+                  onChange={handleChangeName}
                   value={teamName}
-                  onBlur={() => {
-                    GlobalVariable.isInputFocus = false;
-                    updateTeam(team.team_id, { team_display_name: teamName });
-                  }}
+                  onBlur={handleInputNameBlur}
                 />
               </div>
               <div className="delete__wrapper" onClick={onDeleteClick}>
