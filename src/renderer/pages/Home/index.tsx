@@ -13,7 +13,7 @@ import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils'
 import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
 import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
-import { CreateSpaceData } from 'renderer/models';
+import { CreateSpaceData, Space } from 'renderer/models';
 import ModalSpaceSetting from 'renderer/components/ModalSpaceSetting';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
@@ -195,7 +195,7 @@ const Home = ({
   });
   const [hoverTask, setHoverTask] = useState<any>(null);
   const [initialSpace, setInitialSpace] = useState(null);
-  const [selectedSpace, setSelectedSpace] = useState<any>(null);
+  const [selectedSpace, setSelectedSpace] = useState<Space>(null);
   const [channelDelete, setChannelDelete] = useState<any>(null);
   const [isOpenInvite, setOpenInvite] = useState(false);
   const [isOpenConfirmDeleteSpace, setOpenConfirmDeleteSpace] = useState(false);
@@ -492,7 +492,7 @@ const Home = ({
                 spaceData.condition?.amount || spaceData.condition?.amountInput,
             },
           ],
-          description: spaceData.description,
+          space_description: spaceData.description,
           icon_color: badge?.color,
           icon_sub_color: badge?.backgroundColor,
         };
@@ -849,6 +849,8 @@ const Home = ({
             open={openEditSpaceChannel}
             handleClose={handleCloseModalEditSpace}
             onDeleteClick={handleOpenDeleteSpace}
+            space={selectedSpace}
+            updateSpaceChannel={updateSpaceChannel}
           />
           <ModalCreateChannel
             space={space}

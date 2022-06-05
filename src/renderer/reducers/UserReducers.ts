@@ -1,8 +1,24 @@
+import { Reducer } from 'redux';
+import { Channel, Community, Space, UserData } from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 import { AsyncKey } from '../common/AppConfig';
 import { setCookie } from '../common/Cookie';
 
-const initialState = {
+interface UserReducerState {
+  userData: UserData;
+  team: Array<Community>;
+  channel: Array<Channel>;
+  spaceChannel: Array<Space>;
+  currentTeam: Community;
+  currentChannel: Channel;
+  imgDomain: string;
+  imgConfig: any;
+  teamUserData: Array<UserData>;
+  lastChannel: { [key: string]: Channel };
+  spaceMembers: Array<UserData>;
+}
+
+const initialState: UserReducerState = {
   userData: null,
   team: null,
   channel: [],
@@ -17,7 +33,10 @@ const initialState = {
   spaceMembers: [],
 };
 
-const userReducers = (state = initialState, action) => {
+const userReducers: Reducer<UserReducerState, any> = (
+  state = initialState,
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case actionTypes.SPACE_MEMBER_SUCCESS: {

@@ -1,5 +1,4 @@
 import React, { useCallback, useRef } from 'react';
-import TextareaAutosize from 'react-textarea-autosize';
 import AppConfig from 'renderer/common/AppConfig';
 import { CreateSpaceData } from 'renderer/models';
 import api from 'renderer/api';
@@ -14,11 +13,13 @@ import SpaceIcon from './SpaceIcon';
 type SpaceInformationProps = {
   setSpaceData: React.Dispatch<React.SetStateAction<CreateSpaceData>>;
   spaceData: CreateSpaceData;
+  spaceId?: string;
 };
 
 const SpaceInformation = ({
   spaceData,
   setSpaceData,
+  spaceId,
 }: SpaceInformationProps) => {
   const currentTeam = useSelector((state) => state.user.currentTeam);
   const popupSpaceIconRef = useRef<any>();
@@ -29,7 +30,7 @@ const SpaceInformation = ({
   const onAddFiles = useCallback(
     async (fs) => {
       if (fs == null || fs.length === 0) return;
-      const spaceId = spaceData.spaceId || getUniqueId();
+      const id = spaceData.spaceId || getUniqueId();
       const file = [...fs][0];
       const attachment = {
         file: URL.createObjectURL(file),
@@ -38,14 +39,14 @@ const SpaceInformation = ({
       };
       setSpaceData((current) => ({
         ...current,
-        spaceId,
+        spaceId: id,
         attachment,
         emoji: null,
       }));
-      const res = await api.uploadFile(currentTeam?.team_id, spaceId, file);
+      const res = await api.uploadFile(currentTeam?.team_id, id, file);
       setSpaceData((current) => ({
         ...current,
-        spaceId,
+        spaceId: id,
         attachment: {
           ...current.attachment,
           loading: false,
@@ -66,6 +67,17 @@ const SpaceInformation = ({
         url: null,
       }));
       popupSpaceIconRef.current?.hide();
+    },
+    [setSpaceData]
+  );
+  const onSelectRecentFile = useCallback(
+    async (file) => {
+      setSpaceData((current) => ({
+        ...current,
+        attachment: null,
+        emoji: null,
+        url: file.file_url,
+      }));
     },
     [setSpaceData]
   );
@@ -98,6 +110,8 @@ const SpaceInformation = ({
               <EmojiAndAvatarPicker
                 onAddFiles={onAddFiles}
                 onAddEmoji={onAddEmoji}
+                spaceId={spaceId}
+                onSelectRecentFile={onSelectRecentFile}
               />
             </div>
           }

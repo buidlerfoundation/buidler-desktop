@@ -1,6 +1,7 @@
 import { getDeviceCode } from 'renderer/common/Cookie';
-import { UserNFTCollection } from 'renderer/models';
+import { SpaceCollectionData, UserNFTCollection } from 'renderer/models';
 import ApiCaller from './ApiCaller';
+import Caller from './Caller';
 
 export const loginWithGoogle = (code: string) =>
   ApiCaller.post('user', { code });
@@ -63,3 +64,6 @@ export const removeDevice = (body: any) =>
 
 export const getNFTCollection = () =>
   ApiCaller.get<Array<UserNFTCollection>>('user/nft-collection');
+
+export const getSpaceCondition = (spaceId: string) =>
+  Caller.get<Array<SpaceCollectionData>>(`space/${spaceId}/condition`);

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect, useSelector } from 'react-redux';
-import { Switch, Route, HashRouter, useHistory } from 'react-router-dom';
+import { Switch, Route, useHistory } from 'react-router-dom';
 import MainWrapper from './Layout';
 import Home from '../Home';
 import LoginScreen from '../Login';
@@ -50,21 +50,19 @@ const Main = ({ getInitial }: MainProps) => {
     return <div className="main-load-page" />;
   }
   return (
-    <HashRouter>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <AppTitleBar />
-        <MainWrapper>
-          <Switch>
-            <Route exact path="/" component={Splash} />
-            <PrivateRoute exact path="/home" component={Home} />
-            <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
-            <Route exact path="/login" component={LoginScreen} />
-            <Route exact path="/started" component={Started} />
-            <Route exact path="/create-team" component={CreateTeam} />
-          </Switch>
-        </MainWrapper>
-      </div>
-    </HashRouter>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <AppTitleBar />
+      <MainWrapper>
+        <Switch>
+          <Route exact path="/" component={Splash} />
+          <PrivateRoute exact path="/home" component={Home} />
+          <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
+          <Route exact path="/login" component={LoginScreen} />
+          <Route exact path="/started" component={Started} />
+          <Route exact path="/create-team" component={CreateTeam} />
+        </Switch>
+      </MainWrapper>
+    </div>
   );
 };
 const mapActionsToProps = (dispatch: any) =>

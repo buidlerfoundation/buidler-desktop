@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import LoadingReducer from './loadingReducer';
-import LoadMoreReducer from './loadMoreReducer';
+import LoadMoreReducer from './moreReducer';
 import ErrorReducer from './errorReducer';
 import ConfigReducers from './ConfigReducers';
 import UserReducers from './UserReducers';
@@ -24,9 +24,6 @@ const appReducer = combineReducers({
 });
 
 const rootReducer = (state, action) => {
-  // if (action.type === actions.userTypes.LOG_OUT) {
-  //   state = undefined;
-  // }
   return appReducer(state, action);
 };
 

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
+import { Community } from 'renderer/models';
 import ImageHelper from '../../common/ImageHelper';
-import images from '../../common/images';
 import DefaultSpaceIcon from '../DefaultSpaceIcon';
 import './index.scss';
 
 type TeamItemProps = {
-  t: any;
+  t: Community;
   isSelected: boolean;
-  onChangeTeam: () => void;
-  onContextMenu: (e: any) => void;
+  onChangeTeam: (team: Community) => void;
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 };
 
 const TeamItem = ({
@@ -17,10 +17,11 @@ const TeamItem = ({
   onChangeTeam,
   onContextMenu,
 }: TeamItemProps) => {
+  const handleClick = useCallback(() => onChangeTeam(t), [onChangeTeam, t]);
   return (
     <div
       className={`team-item ${isSelected ? 'team-selected' : ''}`}
-      onClick={onChangeTeam}
+      onClick={handleClick}
       onContextMenu={onContextMenu}
     >
       {t?.team_icon ? (

@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Modal, CircularProgress } from '@material-ui/core';
+import Dropzone from 'react-dropzone';
+import { Community } from 'renderer/models';
 import './index.scss';
 import images from '../../common/images';
 import AppInput from '../AppInput';
 import ImageHelper from '../../common/ImageHelper';
-import Dropzone from 'react-dropzone';
 import { getUniqueId } from '../../helpers/GenerateUUID';
 import api from '../../api';
 import GlobalVariable from '../../services/GlobalVariable';
@@ -13,7 +14,7 @@ import DefaultSpaceIcon from '../DefaultSpaceIcon';
 type ModalTeamSettingProps = {
   open: boolean;
   handleClose: () => void;
-  team: any;
+  team: Community;
   updateTeam: (teamId: string, body: any) => any;
   onDeleteClick: () => void;
 };
@@ -36,36 +37,41 @@ const ModalTeamSetting = ({
     setFile(null);
     generateId.current = '';
   }, [open]);
-  const onAddFile = (fs: any) => {
-    if (fs == null) return;
-    generateId.current = getUniqueId();
-    const data = [...fs];
-    const f = data?.[0];
-    if (!f) return;
-    const attachment = {
-      file: URL.createObjectURL(f),
-      randomId: Math.random(),
-      loading: true,
-      type: f.type,
-      name: f.name,
-    };
-    setFile(attachment);
-    api.uploadFile(team.team_id, generateId.current, f).then((res) => {
-      if (res.statusCode === 200) {
-        setFile((current: any) => ({
-          ...current,
-          loading: false,
-          url: res.file_url,
-          id: res.file.file_id,
-        }));
-        updateTeam(team.team_id, { team_icon: res.file_url });
-      } else {
-        setFile(null);
-      }
-
-      return null;
-    });
-  };
+  const onAddFile = useCallback(
+    (fs: any) => {
+      if (fs == null) return;
+      generateId.current = getUniqueId();
+      const data = [...fs];
+      const f = data?.[0];
+      if (!f) return;
+      const attachment = {
+        file: URL.createObjectURL(f),
+        randomId: Math.random(),
+        loading: true,
+        type: f.type,
+        name: f.name,
+      };
+      setFile(attachment);
+      api
+        .uploadFile(team.team_id, generateId.current, f)
+        .then((res) => {
+          if (res.statusCode === 200) {
+            setFile((current: any) => ({
+              ...current,
+              loading: false,
+              url: res.file_url,
+              id: res.file.file_id,
+            }));
+            updateTeam(team.team_id, { team_icon: res.file_url });
+          } else {
+            setFile(null);
+          }
+          return null;
+        })
+        .catch((err) => console.log(err));
+    },
+    [team?.team_id, updateTeam]
+  );
   const srcImage = () => {
     if (file) return file.file;
     return team?.team_icon
@@ -75,6 +81,13 @@ const ModalTeamSetting = ({
         })
       : images.icTeamDefault;
   };
+  const handleChangeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onAddFile(e.target.files);
+      e.target.value = null;
+    },
+    [onAddFile]
+  );
   return (
     <Dropzone onDrop={onAddFile} multiple={false}>
       {({ getRootProps, getInputProps }) => (
@@ -176,10 +189,7 @@ const ModalTeamSetting = ({
               {...getInputProps()}
               ref={inputFileRef}
               accept="image/*"
-              onChange={(e: any) => {
-                onAddFile(e.target.files);
-                e.target.value = null;
-              }}
+              onChange={handleChangeFile}
             />
           </div>
         </Modal>

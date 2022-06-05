@@ -1,6 +1,16 @@
+import { Reducer } from 'redux';
 import actionTypes from 'renderer/actions/ActionTypes';
 
-const initialState = {
+interface ConfigReducerState {
+  privateKey: string;
+  seed: string;
+  channelPrivateKey: { [key: string]: any };
+  openOTP: boolean;
+  requestOtpCode: string;
+  dataFromUrl: string;
+}
+
+const initialState: ConfigReducerState = {
   privateKey: '',
   seed: '',
   channelPrivateKey: {},
@@ -9,7 +19,10 @@ const initialState = {
   dataFromUrl: '',
 };
 
-const configReducers = (state = initialState, action) => {
+const configReducers: Reducer<ConfigReducerState, any> = (
+  state = initialState,
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case actionTypes.SET_DATA_FROM_URL: {

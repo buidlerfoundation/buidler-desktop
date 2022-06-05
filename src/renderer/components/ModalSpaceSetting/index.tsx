@@ -1,14 +1,10 @@
 import { Modal } from '@material-ui/core';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import api from 'renderer/api';
+import { SpaceBadge } from 'renderer/common/AppConfig';
 import images from 'renderer/common/images';
-import { CreateSpaceData, UserNFTCollection } from 'renderer/models';
+import { CreateSpaceData, Space, UserNFTCollection } from 'renderer/models';
 import SpaceConfig from '../ModalCreateSpace/SpaceConfig';
 import SpaceInformation from '../ModalCreateSpace/SpaceInformation';
 import NormalButton from '../NormalButton';
@@ -18,12 +14,16 @@ type ModalSpaceSettingProps = {
   open: boolean;
   handleClose: () => void;
   onDeleteClick: () => void;
+  space?: Space;
+  updateSpaceChannel: (spaceId: string, body: any) => any;
 };
 
 const ModalSpaceSetting = ({
   open,
   handleClose,
   onDeleteClick,
+  space,
+  updateSpaceChannel,
 }: ModalSpaceSettingProps) => {
   const [loading, setLoading] = useState(false);
   const [spaceData, setSpaceData] = useState<CreateSpaceData>({
@@ -42,6 +42,29 @@ const ModalSpaceSetting = ({
     const res = await api.getNFTCollection();
     setNFTCollections(res?.data || []);
   }, []);
+  const initSpaceData = useCallback(async () => {
+    if (space) {
+      const res = await api.getSpaceCondition(space?.space_id);
+      setSpaceData({
+        name: space?.space_name,
+        description: space?.space_description || '',
+        attachment: null,
+        emoji: space?.space_emoji,
+        spaceType: space?.space_type === 'Public' ? 'Public' : 'Exclusive',
+        url: space?.space_image_url,
+        condition:
+          res.data?.length > 0
+            ? {
+                address: res.data?.[0]?.contract_address,
+                amountInput: res.data?.[0]?.amount,
+                amount: 0,
+              }
+            : null,
+        spaceBadgeId: SpaceBadge.find((el) => el.color === space.icon_color)
+          ?.id,
+      });
+    }
+  }, [space]);
   const settings = useRef([
     {
       id: '1',
@@ -65,19 +88,54 @@ const ModalSpaceSetting = ({
   }, [onDeleteClick]);
   useEffect(() => {
     if (open) {
-      setSpaceData({
-        name: '',
-        description: '',
-        attachment: null,
-        emoji: null,
-        spaceType: 'Exclusive',
-        condition: null,
-      });
+      initSpaceData();
       fetchNFTCollections();
       setCurrentPageId('space_display');
     }
-  }, [open, fetchNFTCollections]);
-  const onSave = useCallback(async () => {}, []);
+  }, [open, initSpaceData, fetchNFTCollections]);
+  const onSave = useCallback(async () => {
+    if (spaceData.attachment?.loading) {
+      toast.error('Waiting for upload attachment');
+    } else if (space?.space_id) {
+      const badge = SpaceBadge.find((el) => el.id === spaceData.spaceBadgeId);
+      setLoading(true);
+      const body = {
+        space_name: spaceData.name,
+        space_type: spaceData.spaceType === 'Exclusive' ? 'Private' : 'Public',
+        space_emoji: spaceData.emoji,
+        space_image_url: spaceData.url,
+        space_description: spaceData.description,
+      };
+      if (spaceData.spaceType === 'Exclusive') {
+        body.icon_color = badge?.color;
+        body.icon_sub_color = badge?.backgroundColor;
+        if (spaceData.condition) {
+          body.space_conditions = [
+            {
+              contract_address: spaceData.condition?.address,
+              amount:
+                spaceData.condition?.amount || spaceData.condition?.amountInput,
+            },
+          ];
+        }
+      }
+      await updateSpaceChannel(space?.space_id, body);
+      setLoading(false);
+      handleClose();
+    }
+  }, [
+    handleClose,
+    space?.space_id,
+    spaceData.attachment?.loading,
+    spaceData.condition,
+    spaceData.description,
+    spaceData.emoji,
+    spaceData.name,
+    spaceData.spaceBadgeId,
+    spaceData.spaceType,
+    spaceData.url,
+    updateSpaceChannel,
+  ]);
   return (
     <Modal
       open={open}
@@ -121,6 +179,7 @@ const ModalSpaceSetting = ({
             <SpaceInformation
               spaceData={spaceData}
               setSpaceData={setSpaceData}
+              spaceId={space?.space_id}
             />
           )}
           {currentPageId === 'space_access' && (

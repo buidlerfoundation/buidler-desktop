@@ -32,14 +32,11 @@ const SpaceIcon = ({
         </>
       );
     }
-    if (spaceData.imageUrl) {
+    if (spaceData.url) {
       return (
         <img
           className="space-icon"
-          src={ImageHelper.normalizeImage(
-            spaceData.imageUrl,
-            currentTeam.team_id
-          )}
+          src={ImageHelper.normalizeImage(spaceData.url, currentTeam.team_id)}
           alt=""
         />
       );

@@ -3,6 +3,11 @@
   align-items: center;
   flex: 1;
   overflow-x: auto;
+  &:hover {
+    .create-team-button {
+      display: flex;
+    }
+  }
 }
 
 .action-right {
@@ -59,7 +64,7 @@
 .create-team-button {
   min-width: 30px;
   min-height: 30px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   margin-left: 10px;

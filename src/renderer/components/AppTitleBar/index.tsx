@@ -7,6 +7,8 @@ import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
+import useAppSelector from 'renderer/hooks/useAppSelector';
+import { Community } from 'renderer/models';
 import actions from '../../actions';
 import './index.scss';
 import TeamItem from './TeamItem';
@@ -21,45 +23,36 @@ import {
   getDeviceCode,
   setCookie,
 } from '../../common/Cookie';
-import ModalBackup from '../ModalBackup';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 import AvatarView from '../AvatarView';
 
 type AppTitleBarProps = {
-  team?: Array<any>;
-  currentTeam?: any;
   setCurrentTeam?: (team: any) => any;
-  imgDomain?: string;
-  channels?: Array<any>;
   createTeam?: (body: any) => any;
   leaveTeam?: (teamId: string) => any;
-  userData?: any;
   logout?: () => any;
   updateUser?: (userData: any) => any;
-  privateKey?: string;
   findTeamAndChannel: () => any;
   updateTeam: (teamId: string, body: any) => any;
   deleteTeam: (teamId: string) => any;
 };
 
 const AppTitleBar = ({
-  team,
-  currentTeam,
   setCurrentTeam,
-  imgDomain,
-  channels,
   createTeam,
   leaveTeam,
-  userData,
   logout,
   updateUser,
-  privateKey,
   findTeamAndChannel,
   updateTeam,
   deleteTeam,
 }: AppTitleBarProps) => {
+  const { team, userData, currentTeam, imgDomain, channel } = useAppSelector(
+    (state) => state.user
+  );
+  const privateKey = useAppSelector((state) => state.configs.privateKey);
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -82,9 +75,7 @@ const AppTitleBar = ({
   const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
-  const [isOpenModalBackup, setOpenModalBackup] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
-  const [hoverTeam, setHoverTeam] = useState(false);
   const setTeam = useCallback(
     (t: any) => {
       history.replace('/home');
@@ -92,9 +83,13 @@ const AppTitleBar = ({
     },
     [setCurrentTeam, history]
   );
-  const onDeleteClick = () => {
+  const handleCloseTeamSetting = useCallback(() => {
+    setSelectedMenuTeam(null);
+    setOpenTeamSetting(false);
+  }, []);
+  const onDeleteClick = useCallback(() => {
     setOpenConfirmDeleteTeam(true);
-  };
+  }, []);
   useEffect(() => {
     const listener = (event: any) => {
       if (event.metaKey) {
@@ -142,7 +137,7 @@ const AppTitleBar = ({
     window.electron.ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
     window.electron.ipcRenderer.on('window-focus', windowFocusListener);
     window.electron.ipcRenderer.on('window-blur', windowBlurListener);
-    const unseenChannel = channels?.find?.((el) => !el.seen);
+    const unseenChannel = channel?.find?.((el) => !el.seen);
     if (unseenChannel) {
       window.electron.ipcRenderer.sendMessage('show-badge', 'ping');
     } else {
@@ -169,8 +164,12 @@ const AppTitleBar = ({
       );
       document.removeEventListener('keydown', listener);
     };
-  }, [team, setTeam, currentTeam, channels, dispatch, history]);
-  const onDeleteTeam = async () => {
+  }, [team, setTeam, currentTeam, channel, dispatch, history]);
+  const handleCloseDeleteTeam = useCallback(
+    () => setOpenConfirmDeleteTeam(false),
+    []
+  );
+  const onDeleteTeam = useCallback(async () => {
     const nextTeam =
       currentTeam.team_id === selectedMenuTeam.team_id
         ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
@@ -181,8 +180,18 @@ const AppTitleBar = ({
     }
     setOpenConfirmDeleteTeam(false);
     setOpenTeamSetting(false);
-  };
-  const onLeaveTeam = async () => {
+  }, [
+    currentTeam?.team_id,
+    deleteTeam,
+    selectedMenuTeam?.team_id,
+    setTeam,
+    team,
+  ]);
+  const handleCloseModalConfirmDelete = useCallback(() => {
+    setSelectedMenuTeam(null);
+    setOpenConfirmLeave(false);
+  }, []);
+  const onLeaveTeam = useCallback(async () => {
     const nextTeam =
       currentTeam.team_id === selectedMenuTeam.team_id
         ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
@@ -192,8 +201,72 @@ const AppTitleBar = ({
       setTeam(nextTeam);
     }
     setOpenConfirmLeave(false);
-  };
-  const onSelectedMenu = async (menu: any) => {
+  }, [
+    currentTeam?.team_id,
+    leaveTeam,
+    selectedMenuTeam?.team_id,
+    setTeam,
+    team,
+  ]);
+  const handleChangeCommunity = useCallback(
+    (t: Community) => {
+      if (currentTeam.team_id !== t.team_id) setTeam(t);
+    },
+    [currentTeam?.team_id, setTeam]
+  );
+  const handleCommunityContextMenu = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      setSelectedMenuTeam(t);
+      menuTeamRef.current?.show(e.currentTarget, {
+        x: e.pageX,
+        y: e.pageY,
+      });
+    },
+    []
+  );
+  const handleOpenModalTeam = useCallback(() => setOpenModalTeam(true), []);
+  const handleOpenModalUser = useCallback(() => setOpenModalUser(true), []);
+  const handleCloseModalTeam = useCallback(() => setOpenModalTeam(false), []);
+  const handleCreateTeam = useCallback(
+    async (body) => {
+      await createTeam?.({
+        team_id: body.teamId,
+        team_display_name: body.name,
+        team_icon: body.teamIcon?.url,
+      });
+      setOpenModalTeam(false);
+    },
+    [createTeam]
+  );
+  const handleAcceptTeam = useCallback(() => {
+    findTeamAndChannel();
+    setOpenModalTeam(false);
+  }, [findTeamAndChannel]);
+  const handleCloseModalUserSetting = useCallback(
+    () => setOpenModalUser(false),
+    []
+  );
+  const handleLogout = useCallback(async () => {
+    const loginType = await getCookie(AsyncKey.loginType);
+    if (
+      loginType === LoginType.WalletConnect ||
+      WalletConnectUtils.connector?.connected
+    ) {
+      WalletConnectUtils.disconnect();
+    }
+    if (loginType === LoginType.WalletImport) {
+      const deviceCode = await getDeviceCode();
+      await api.removeDevice({
+        device_code: deviceCode,
+      });
+      clearData(() => {
+        setOpenModalUser(false);
+        history.replace('/started');
+        logout?.();
+      });
+    }
+  }, [history, logout]);
+  const onSelectedMenu = useCallback(async (menu: any) => {
     switch (menu.value) {
       case 'Leave community': {
         setOpenConfirmLeave(true);
@@ -206,57 +279,42 @@ const AppTitleBar = ({
       default:
         break;
     }
-  };
+  }, []);
 
-  const onBackupPress = () => {
-    setOpenModalUser(false);
-    setOpenModalBackup(true);
-  };
+  const renderTeam = useCallback(
+    (el: Community) => {
+      const isSelected = el.team_id === currentTeam.team_id;
+      return (
+        <TeamItem
+          key={el.team_id}
+          isSelected={isSelected}
+          t={el}
+          onChangeTeam={handleChangeCommunity}
+          onContextMenu={handleCommunityContextMenu}
+        />
+      );
+    },
+    [currentTeam?.team_id, handleChangeCommunity, handleCommunityContextMenu]
+  );
 
   if (privateKey || WalletConnectUtils?.connector?.connected) {
     return (
       <div id="title-bar">
         <div style={{ width: !isFullscreen ? 100 : 0 }} />
-        <div
-          className="list-team hide-scroll-bar"
-          onMouseEnter={() => setHoverTeam(true)}
-          onMouseLeave={() => setHoverTeam(false)}
-        >
-          {imgDomain &&
-            team?.map?.((t) => {
-              const isSelected = t.team_id === currentTeam.team_id;
-              return (
-                <TeamItem
-                  key={t.team_id}
-                  isSelected={isSelected}
-                  t={t}
-                  onChangeTeam={() => {
-                    if (currentTeam.team_id !== t.team_id) setTeam(t);
-                  }}
-                  onContextMenu={(e) => {
-                    setSelectedMenuTeam(t);
-                    menuTeamRef.current?.show(e.currentTarget, {
-                      x: e.pageX,
-                      y: e.pageY,
-                    });
-                  }}
-                />
-              );
-            })}
-          {hoverTeam && (
-            <div
-              className="normal-button create-team-button"
-              onClick={() => setOpenModalTeam(true)}
-            >
-              <img alt="" src={images.icPlus} />
-            </div>
-          )}
+        <div className="list-team hide-scroll-bar">
+          {imgDomain && team?.map?.(renderTeam)}
+          <div
+            className="normal-button create-team-button"
+            onClick={handleOpenModalTeam}
+          >
+            <img alt="" src={images.icPlus} />
+          </div>
         </div>
         {userData && (
           <div className="action-right">
             <div
               className="user-setting__wrap normal-button"
-              onClick={() => setOpenModalUser(true)}
+              onClick={handleOpenModalUser}
             >
               <span className="user-name">
                 {normalizeUserName(userData.user_name)}
@@ -267,63 +325,26 @@ const AppTitleBar = ({
         )}
         <ModalTeam
           open={isOpenModalTeam}
-          handleClose={() => setOpenModalTeam(false)}
-          onCreateTeam={async (body) => {
-            await createTeam?.({
-              team_id: body.teamId,
-              team_display_name: body.name,
-              team_icon: body.teamIcon?.url,
-            });
-            setOpenModalTeam(false);
-          }}
-          onAcceptTeam={() => {
-            findTeamAndChannel();
-            setOpenModalTeam(false);
-          }}
+          handleClose={handleCloseModalTeam}
+          onCreateTeam={handleCreateTeam}
+          onAcceptTeam={handleAcceptTeam}
         />
         <ModalUserSetting
           open={isOpenModalUser}
-          handleClose={() => setOpenModalUser(false)}
+          handleClose={handleCloseModalUserSetting}
           user={userData}
           updateUser={updateUser}
-          onLogout={async () => {
-            const loginType = await getCookie(AsyncKey.loginType);
-            if (
-              loginType === LoginType.WalletConnect ||
-              WalletConnectUtils.connector?.connected
-            ) {
-              WalletConnectUtils.disconnect();
-            }
-            if (loginType === LoginType.WalletImport) {
-              const deviceCode = await getDeviceCode();
-              await api.removeDevice({
-                device_code: deviceCode,
-              });
-              clearData(() => {
-                setOpenModalUser(false);
-                history.replace('/started');
-                logout?.();
-              });
-            }
-          }}
-        />
-        <ModalBackup
-          open={isOpenModalBackup}
-          handleClose={() => setOpenModalBackup(false)}
+          onLogout={handleLogout}
         />
         <PopoverButton
           popupOnly
           ref={menuTeamRef}
           data={teamMenu}
           onSelected={onSelectedMenu}
-          onClose={() => {}}
         />
         <ModalConfirmDelete
           open={isOpenConfirmLeave}
-          handleClose={() => {
-            setSelectedMenuTeam(null);
-            setOpenConfirmLeave(false);
-          }}
+          handleClose={handleCloseModalConfirmDelete}
           title="Leave community"
           description="Are you sure you want to leave?"
           contentName={selectedMenuTeam?.team_display_name}
@@ -332,16 +353,13 @@ const AppTitleBar = ({
         />
         <ModalConfirmDeleteTeam
           open={isOpenConfirmDeleteTeam}
-          handleClose={() => setOpenConfirmDeleteTeam(false)}
+          handleClose={handleCloseDeleteTeam}
           teamName={selectedMenuTeam?.team_display_name}
           onDelete={onDeleteTeam}
         />
         <ModalTeamSetting
           open={openTeamSetting}
-          handleClose={() => {
-            setSelectedMenuTeam(null);
-            setOpenTeamSetting(false);
-          }}
+          handleClose={handleCloseTeamSetting}
           team={selectedMenuTeam}
           updateTeam={updateTeam}
           onDeleteClick={onDeleteClick}
@@ -358,18 +376,7 @@ const AppTitleBar = ({
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    team: state.user.team,
-    currentTeam: state.user.currentTeam,
-    imgDomain: state.user.imgDomain,
-    channels: state.user.channel,
-    userData: state.user.userData,
-    privateKey: state.configs.privateKey,
-  };
-};
-
 const mapActionsToProps = (dispatch: any) =>
   bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapActionsToProps)(AppTitleBar);
+export default connect(undefined, mapActionsToProps)(AppTitleBar);
