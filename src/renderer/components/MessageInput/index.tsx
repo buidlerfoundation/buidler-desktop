@@ -315,6 +315,10 @@ const MessageInput = ({
           onBlur={() => {
             GlobalVariable.isInputFocus = false;
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.metaKey && !e.shiftKey)
+              e.preventDefault();
+          }}
           onChange={(e) => {
             const valueTrimmed = e.target.value.trim();
             if (
