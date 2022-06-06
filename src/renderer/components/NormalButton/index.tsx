@@ -14,7 +14,7 @@ type NormalButtonProps = {
 const NormalButton = ({ title, type, onPress, loading }: NormalButtonProps) => {
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
-      if (!event.shiftKey && event.key === 'Enter' && type === 'main') {
+      if (event.metaKey && event.key === 'Enter' && type === 'main') {
         event.preventDefault();
         onPress?.();
       }

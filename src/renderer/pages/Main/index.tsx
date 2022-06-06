@@ -10,7 +10,6 @@ import { AsyncKey } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
 import Splash from '../Splash';
 import actions from '../../actions';
-import CreateTeam from '../CreateTeam';
 import AppTitleBar from '../../components/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
@@ -61,7 +60,6 @@ const Main = ({ getInitial }: MainProps) => {
           <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
           <Route exact path="/login" component={LoginScreen} />
           <Route exact path="/started" component={Started} />
-          <Route exact path="/create-team" component={CreateTeam} />
         </Switch>
       </MainWrapper>
     </div>

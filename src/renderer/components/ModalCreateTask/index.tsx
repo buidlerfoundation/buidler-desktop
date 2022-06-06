@@ -62,18 +62,6 @@ const ModalCreateTask = ({
       setTaskData(initialState);
     }
   }, [open, initialState]);
-  useEffect(() => {
-    const listener = (event: any) => {
-      if (event.metaKey && event.key === 'Enter' && open) {
-        event.preventDefault();
-        createTask();
-      }
-    };
-    document.addEventListener('keydown', listener);
-    return () => {
-      document.removeEventListener('keydown', listener);
-    };
-  }, [taskData, createTask, open]);
   const handleCreateTask = useCallback(() => {
     if (taskData.title.trim() !== '')
       onCreateTask(taskData, generateId.current);
