@@ -97,3 +97,15 @@ export interface SpaceCollectionData {
   amount: number;
   nft_collection: NFTCollection;
 }
+
+export interface SettingItem {
+  label: string;
+  icon: string;
+  id: string;
+}
+
+export interface GroupSettingItem {
+  id: string;
+  groupLabel: string;
+  items: Array<SettingItem>;
+}

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@material-ui/core';
 import api from 'renderer/api';
 import GlobalVariable from 'renderer/services/GlobalVariable';
+import { GroupSettingItem, UserData } from 'renderer/models';
 import './index.scss';
 import images from '../../common/images';
 import UpdateUserProfile from './UpdateUserProfile';
@@ -10,11 +11,13 @@ import NormalButton from '../NormalButton';
 import SettingSecurity from './SettingSecurity';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import SettingBalance from './SettingBalance';
+import ModalSetting from '../ModalSetting';
+import GroupSettingTitle from '../ModalSetting/GroupSettingTitle';
 
 type ModalUserSettingProps = {
   open: boolean;
   handleClose: () => void;
-  user?: any;
+  user?: UserData;
   onLogout: () => void;
   updateUser?: (userData: any) => any;
 };
@@ -106,50 +109,61 @@ const ModalUserSetting = ({
     },
   ];
   const [currentPageId, setCurrentPageId] = useState('wallet_balance');
-  const onSave = async () => {
+  const onSave = useCallback(async () => {
     if (uploading) return;
     setLoading(true);
     await updateUser?.(userData);
     setLoading(false);
     handleClose();
-  };
-
+  }, [handleClose, updateUser, uploading, userData]);
+  const handleChangePage = useCallback((id) => setCurrentPageId(id), []);
+  const handleOpenConfirmLogout = useCallback(
+    () => setOpenConfirmLogout(true),
+    []
+  );
+  const handleUpdateAvatar = useCallback(
+    (url) =>
+      setUserData((current) => ({
+        ...current,
+        avatarUrl: url || user?.avatar_url,
+      })),
+    [user?.avatar_url]
+  );
+  const handleUpdateENS = useCallback(
+    (ens) => setUserData((current) => ({ ...current, ensAsset: ens })),
+    []
+  );
+  const handleUpdateNFT = useCallback(
+    (nft) => setUserData((current) => ({ ...current, nftAsset: nft })),
+    []
+  );
+  const handleUpdateUserName = useCallback(
+    (name) => setUserData((current) => ({ ...current, userName: name })),
+    []
+  );
+  const handleCloseModalConfirmDelete = useCallback(
+    () => setOpenConfirmLogout(false),
+    []
+  );
+  const renderSettingItem = useCallback(
+    (group: GroupSettingItem) => {
+      return (
+        <GroupSettingTitle
+          key={group.id}
+          group={group}
+          currentPageId={currentPageId}
+          onItemClick={handleChangePage}
+        />
+      );
+    },
+    [currentPageId, handleChangePage]
+  );
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      className="setting-modal"
-      style={{ backgroundColor: 'var(--color-backdrop)' }}
-    >
+    <ModalSetting open={open} handleClose={handleClose}>
       <div className="setting-modal__container">
         <div className="left-side">
-          {settings.map((group) => {
-            return (
-              <div key={group.id}>
-                <div className="group-setting-title" style={{ marginTop: 10 }}>
-                  <span>{group.groupLabel}</span>
-                </div>
-                {group.items.map((el) => {
-                  const isActive = currentPageId === el.id;
-                  return (
-                    <div
-                      className={`setting-item ${isActive && 'active'}`}
-                      key={el.label}
-                      onClick={() => setCurrentPageId(el.id)}
-                    >
-                      <img alt="" src={el.icon} />
-                      <span className="setting-label">{el.label}</span>
-                      {el.badge && <div className="badge-backup mr10" />}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-          <div
-            className="log-out__wrapper"
-            onClick={() => setOpenConfirmLogout(true)}
-          >
+          {settings.map(renderSettingItem)}
+          <div className="log-out__wrapper" onClick={handleOpenConfirmLogout}>
             <img alt="" src={images.icLeaveTeam} />
             <span className="log-out-text">Logout</span>
           </div>
@@ -165,14 +179,10 @@ const ModalUserSetting = ({
               collectibleData={collectibleData}
               userData={userData}
               user={user}
-              onUpdateAvatar={(url) =>
-                setUserData({ ...userData, avatarUrl: url || user?.avatar_url })
-              }
-              onUpdateENS={(ens) => setUserData({ ...userData, ensAsset: ens })}
-              onUpdateNFT={(nft) => setUserData({ ...userData, nftAsset: nft })}
-              onUpdateUserName={(name) =>
-                setUserData({ ...userData, userName: name })
-              }
+              onUpdateAvatar={handleUpdateAvatar}
+              onUpdateENS={handleUpdateENS}
+              onUpdateNFT={handleUpdateNFT}
+              onUpdateUserName={handleUpdateUserName}
             />
           )}
           {currentPageId === 'general_notification' && <UpdateNotification />}
@@ -191,14 +201,14 @@ const ModalUserSetting = ({
         </div>
         <ModalConfirmDelete
           open={isOpenConfirmLogout}
-          handleClose={() => setOpenConfirmLogout(false)}
+          handleClose={handleCloseModalConfirmDelete}
           title="Logout"
           description="Buidler will automatically remove all your data from this account if you log out. Are you sure you want to log out?"
           onDelete={onLogout}
           contentDelete="Logout"
         />
       </div>
-    </Modal>
+    </ModalSetting>
   );
 };
 
