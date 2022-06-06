@@ -409,10 +409,13 @@ class SocketUtil {
       this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
     });
     this.socket.on('ON_CREATE_NEW_SPACE', (data: any) => {
-      store.dispatch({
-        type: actionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
-        payload: data,
-      });
+      const user = store.getState()?.user;
+      if (user?.currentTeam?.team_id === data?.team_id) {
+        store.dispatch({
+          type: actionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
+          payload: data,
+        });
+      }
     });
     this.socket.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
       const { channel, key, timestamp } = data;
