@@ -1,17 +1,33 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { CircularProgress, Modal } from '@material-ui/core';
-import './index.scss';
-import NormalButton from '../NormalButton';
-import AppInput from '../AppInput';
-import images from '../../common/images';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Modal } from '@material-ui/core';
 import Dropzone from 'react-dropzone';
+import toast from 'react-hot-toast';
+import { setCookie } from 'renderer/common/Cookie';
+import { AsyncKey } from 'renderer/common/AppConfig';
+import './index.scss';
 import { getUniqueId } from '../../helpers/GenerateUUID';
 import api from '../../api';
 import CreateCommunityState from './CreateCommunityState';
 import JoinCommunityState from './JoinCommunityState';
-import toast from 'react-hot-toast';
-import { setCookie } from 'renderer/common/Cookie';
-import { AsyncKey } from 'renderer/common/AppConfig';
+
+type TabItemProps = {
+  tab: { name: string };
+  index: number;
+  onClick: (index: number) => void;
+  isActive: boolean;
+};
+
+const TabItem = ({ tab, index, onClick, isActive }: TabItemProps) => {
+  const handleClick = useCallback(() => onClick(index), [index, onClick]);
+  return (
+    <div
+      className={`tab-item ${isActive ? 'active' : ''}`}
+      onClick={handleClick}
+    >
+      <span>{tab.name}</span>
+    </div>
+  );
+};
 
 type ModalTeamProps = {
   open: boolean;
@@ -35,7 +51,7 @@ const ModalTeam = ({
   const [file, setFile] = useState<any>(null);
   const inputFileRef = useRef<any>();
   const generateId = useRef<string>('');
-  const onAddFile = (fs: any) => {
+  const onAddFile = useCallback((fs: any) => {
     if (fs == null) return;
     generateId.current = getUniqueId();
     const data = [...fs];
@@ -49,28 +65,39 @@ const ModalTeam = ({
       name: f.name,
     };
     setFile(attachment);
-    api.uploadFile(generateId.current, generateId.current, f).then((res) => {
-      if (res.statusCode === 200) {
-        setFile((current: any) => ({
-          ...current,
-          loading: false,
-          url: res.file_url,
-          id: res.file.file_id,
-        }));
-      } else {
-        setFile(null);
-      }
+    api
+      .uploadFile(generateId.current, generateId.current, f)
+      .then((res) => {
+        if (res.statusCode === 200) {
+          setFile((current: any) => ({
+            ...current,
+            loading: false,
+            url: res.file_url,
+            id: res.file.file_id,
+          }));
+        } else {
+          setFile(null);
+        }
 
-      return null;
-    });
-  };
-
-  const onPaste = (e: any) => {
+        return null;
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  const handleChangeTab = useCallback((index) => setTabIndex(index), []);
+  const handleAvatarPress = useCallback(
+    () => inputFileRef.current?.click(),
+    []
+  );
+  const handleChangeTeamName = useCallback(
+    (e) => setTeamData({ name: e.target.value }),
+    []
+  );
+  const onPaste = useCallback((e: any) => {
     const fs = e.clipboardData.files;
     if (fs?.length > 0) {
       onAddFile(fs);
     }
-  };
+  }, []);
 
   useEffect(() => {
     generateId.current = null;
@@ -79,7 +106,54 @@ const ModalTeam = ({
     setTeamData({ name: '' });
     setTabIndex(0);
   }, [open]);
-
+  const handleCreateCommunity = useCallback(() => {
+    if (!teamData.name) return;
+    onCreateTeam({
+      ...teamData,
+      teamIcon: file,
+      teamId: generateId.current,
+    });
+  }, [file, onCreateTeam, teamData]);
+  const handlePasteLink = useCallback(async () => {
+    const text = await navigator.clipboard.readText();
+    setLink(text);
+  }, []);
+  const handleJoinCommunity = useCallback(async () => {
+    if (!link || !link.includes('invite.buidler')) {
+      toast.error('Invalid invitation link');
+      return;
+    }
+    const idx = link.lastIndexOf('/');
+    const invitationId = link.substring(idx + 1);
+    const res = await api.acceptInvitation(invitationId);
+    if (res.statusCode === 200) {
+      setCookie(AsyncKey.lastTeamId, res.team_id);
+      onAcceptTeam();
+    }
+  }, [link, onAcceptTeam]);
+  const handleChangeLink = useCallback((e) => setLink(e.target.value), []);
+  const handleChangeFile = useCallback(
+    (e: React.ChangeEventHandler<HTMLInputElement>) => {
+      onAddFile(e.target.files);
+      e.target.value = null;
+    },
+    []
+  );
+  const renderTab = useCallback(
+    (tab, index) => {
+      const isActive = index === tabIndex;
+      return (
+        <TabItem
+          tab={tab}
+          index={index}
+          key={tab.name}
+          isActive={isActive}
+          onClick={handleChangeTab}
+        />
+      );
+    },
+    [handleChangeTab, tabIndex]
+  );
   return (
     <Dropzone onDrop={onAddFile} multiple={false}>
       {({ getRootProps, getInputProps }) => (
@@ -90,70 +164,32 @@ const ModalTeam = ({
           style={{ backgroundColor: 'var(--color-backdrop)' }}
         >
           <div className="team-view__container" {...getRootProps()}>
-            <div className="label-wrapper">
-              {tabs.map((tab, index) => {
-                const isActive = index === tabIndex;
-                return (
-                  <div
-                    className={`tab-item ${isActive ? 'active' : ''}`}
-                    key={tab.name}
-                    onClick={() => setTabIndex(index)}
-                  >
-                    <span>{tab.name}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <div className="label-wrapper">{tabs.map(renderTab)}</div>
             {tabIndex === 0 && (
               <CreateCommunityState
-                onAvatarPress={() => inputFileRef.current?.click()}
-                onChangeTeamName={(e) => setTeamData({ name: e.target.value })}
+                onAvatarPress={handleAvatarPress}
+                onChangeTeamName={handleChangeTeamName}
                 onPaste={onPaste}
                 file={file}
                 teamName={teamData?.name || ''}
                 handleClose={handleClose}
-                onCreatePress={() => {
-                  if (!teamData.name) return;
-                  onCreateTeam({
-                    ...teamData,
-                    teamIcon: file,
-                    teamId: generateId.current,
-                  });
-                }}
+                onCreatePress={handleCreateCommunity}
               />
             )}
             {tabIndex === 1 && (
               <JoinCommunityState
-                onPaste={async () => {
-                  const text = await navigator.clipboard.readText();
-                  setLink(text);
-                }}
+                onPaste={handlePasteLink}
                 handleClose={handleClose}
-                onJoinPress={async () => {
-                  if (!link || !link.includes('invite.buidler')) {
-                    toast.error('Invalid invitation link');
-                    return;
-                  }
-                  const idx = link.lastIndexOf('/');
-                  const invitationId = link.substring(idx + 1);
-                  const res = await api.acceptInvitation(invitationId);
-                  if (res.statusCode === 200) {
-                    setCookie(AsyncKey.lastTeamId, res.team_id);
-                    onAcceptTeam();
-                  }
-                }}
+                onJoinPress={handleJoinCommunity}
                 link={link}
-                onChange={(e) => setLink(e.target.value)}
+                onChange={handleChangeLink}
               />
             )}
             <input
               {...getInputProps()}
               ref={inputFileRef}
               accept="image/*"
-              onChange={(e: any) => {
-                onAddFile(e.target.files);
-                e.target.value = null;
-              }}
+              onChange={handleChangeFile}
             />
           </div>
         </Modal>

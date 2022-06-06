@@ -20,6 +20,7 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'react-hooks/exhaustive-deps': 'warn',
     'jsx-a11y/media-has-caption': 'off',
+    'jsx-a11y/no-autofocus': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
