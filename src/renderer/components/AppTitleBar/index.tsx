@@ -1,28 +1,21 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
-import actionTypes from 'renderer/actions/ActionTypes';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Community } from 'renderer/models';
 import actions from '../../actions';
 import './index.scss';
 import TeamItem from './TeamItem';
-import GlobalVariable from '../../services/GlobalVariable';
 import images from '../../common/images';
 import ModalTeam from '../ModalTeam';
 import ModalUserSetting from '../ModalUserSetting';
 import PopoverButton from '../PopoverButton';
-import {
-  clearData,
-  getCookie,
-  getDeviceCode,
-  setCookie,
-} from '../../common/Cookie';
+import { clearData, getCookie, getDeviceCode } from '../../common/Cookie';
 import ModalConfirmDelete from '../ModalConfirmDelete';
 import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
@@ -49,11 +42,10 @@ const AppTitleBar = ({
   updateTeam,
   deleteTeam,
 }: AppTitleBarProps) => {
-  const { team, userData, currentTeam, imgDomain, channel } = useAppSelector(
+  const { team, userData, currentTeam, imgDomain } = useAppSelector(
     (state) => state.user
   );
-  const privateKey = useAppSelector((state) => state.configs.privateKey);
-  const dispatch = useDispatch();
+  const { privateKey, isFullScreen } = useAppSelector((state) => state.configs);
   const history = useHistory();
   const location = useLocation();
   const [openTeamSetting, setOpenTeamSetting] = useState(false);
@@ -72,7 +64,6 @@ const AppTitleBar = ({
   const menuTeamRef = useRef<any>();
   const [isOpenConfirmLeave, setOpenConfirmLeave] = useState(false);
   const [isOpenConfirmDeleteTeam, setOpenConfirmDeleteTeam] = useState(false);
-  const [isFullscreen, setFullscreen] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
@@ -105,66 +96,11 @@ const AppTitleBar = ({
         }
       }
     };
-    const openUrlListener = (evt, data) => {
-      dispatch({ type: actionTypes.SET_DATA_FROM_URL, payload: data });
-    };
-    const enterFullscreenListener = () => {
-      setFullscreen(true);
-    };
-    const leaveFullscreenListener = () => {
-      setFullscreen(false);
-    };
-    const windowFocusListener = async () => {
-      GlobalVariable.isWindowFocus = true;
-      const lastTime = await getCookie(AsyncKey.lastTimeFocus);
-      const currentTime = new Date().getTime();
-      if (
-        lastTime &&
-        currentTime - lastTime > 60000 * 30 &&
-        !WalletConnectUtils?.connector?.connected
-      ) {
-        dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
-        history.replace('/unlock');
-      }
-    };
-    const windowBlurListener = () => {
-      setCookie(AsyncKey.lastTimeFocus, new Date().getTime());
-      GlobalVariable.isWindowFocus = false;
-    };
     document.addEventListener('keydown', listener);
-    window.electron.ipcRenderer.on('open-url', openUrlListener);
-    window.electron.ipcRenderer.on('enter-fullscreen', enterFullscreenListener);
-    window.electron.ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
-    window.electron.ipcRenderer.on('window-focus', windowFocusListener);
-    window.electron.ipcRenderer.on('window-blur', windowBlurListener);
-    const unseenChannel = channel?.find?.((el) => !el.seen);
-    if (unseenChannel) {
-      window.electron.ipcRenderer.sendMessage('show-badge', 'ping');
-    } else {
-      window.electron.ipcRenderer.sendMessage('hide-badge', 'ping');
-    }
-    // console.log('unseen channel: ', unseenChannel);
     return () => {
-      window.electron.ipcRenderer.removeListener('open-url', openUrlListener);
-      window.electron.ipcRenderer.removeListener(
-        'enter-fullscreen',
-        enterFullscreenListener
-      );
-      window.electron.ipcRenderer.removeListener(
-        'leave-fullscreen',
-        leaveFullscreenListener
-      );
-      window.electron.ipcRenderer.removeListener(
-        'window-focus',
-        windowFocusListener
-      );
-      window.electron.ipcRenderer.removeListener(
-        'window-blur',
-        windowBlurListener
-      );
       document.removeEventListener('keydown', listener);
     };
-  }, [team, setTeam, currentTeam, channel, dispatch, history]);
+  }, [currentTeam?.team_id, setTeam, team]);
   const handleCloseDeleteTeam = useCallback(
     () => setOpenConfirmDeleteTeam(false),
     []
@@ -300,7 +236,7 @@ const AppTitleBar = ({
   if (privateKey || WalletConnectUtils?.connector?.connected) {
     return (
       <div id="title-bar">
-        <div style={{ width: !isFullscreen ? 100 : 0 }} />
+        <div style={{ width: !isFullScreen ? 100 : 0 }} />
         <div className="list-team hide-scroll-bar">
           {imgDomain && team?.map?.(renderTeam)}
           <div

@@ -8,6 +8,7 @@ interface ConfigReducerState {
   openOTP: boolean;
   requestOtpCode: string;
   dataFromUrl: string;
+  isFullScreen: boolean;
 }
 
 const initialState: ConfigReducerState = {
@@ -17,6 +18,7 @@ const initialState: ConfigReducerState = {
   openOTP: false,
   requestOtpCode: '',
   dataFromUrl: '',
+  isFullScreen: false,
 };
 
 const configReducers: Reducer<ConfigReducerState, any> = (
@@ -25,6 +27,12 @@ const configReducers: Reducer<ConfigReducerState, any> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.UPDATE_FULL_SCREEN: {
+      return {
+        ...state,
+        isFullScreen: payload,
+      };
+    }
     case actionTypes.SET_DATA_FROM_URL: {
       return {
         ...state,

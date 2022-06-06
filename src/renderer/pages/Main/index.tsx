@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect, useSelector } from 'react-redux';
 import { Switch, Route, useHistory } from 'react-router-dom';
+import AppListener from 'renderer/components/AppListener';
 import MainWrapper from './Layout';
 import Home from '../Home';
 import LoginScreen from '../Login';
@@ -52,6 +53,7 @@ const Main = ({ getInitial }: MainProps) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <AppTitleBar />
+      <AppListener />
       <MainWrapper>
         <Switch>
           <Route exact path="/" component={Splash} />
