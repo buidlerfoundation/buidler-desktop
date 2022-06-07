@@ -86,7 +86,7 @@ const Started = ({ logout }: StartedProps) => {
   const doingLogin = useCallback(async () => {
     if (
       !WalletConnectUtils.connector ||
-      !WalletConnectUtils.connector.connected
+      !WalletConnectUtils.connector?.connected
     )
       return;
     try {
