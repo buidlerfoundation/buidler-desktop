@@ -43,6 +43,9 @@ const ModalSpaceDetail = ({
   }, [space?.space_id]);
   useEffect(() => {
     if (open) {
+      setSpaceMembers([]);
+      setTotalMember(0);
+      setSpaceCondition([]);
       fetchSpaceCondition();
       fetchSpaceMember();
     }
