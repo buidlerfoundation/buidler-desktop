@@ -1,27 +1,23 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { useHistory } from 'react-router-dom';
 import actions from '../../actions';
 import './index.scss';
-import { useHistory } from 'react-router-dom';
 import { getCookie } from '../../common/Cookie';
 import { AsyncKey } from '../../common/AppConfig';
 import HomeLoading from '../../components/HomeLoading';
 
 type SplashProps = {
   findUser: () => any;
-  findTeamAndChannel: (showLoading?: boolean) => any;
 };
 
-const Splash = ({ findUser, findTeamAndChannel }: SplashProps) => {
+const Splash = ({ findUser }: SplashProps) => {
   const history = useHistory();
-  const initApp = useCallback(
-    async (showLoading = true) => {
-      await findUser();
-      history.replace('/home');
-    },
-    [findUser, history]
-  );
+  const initApp = useCallback(async () => {
+    await findUser();
+    history.replace('/home');
+  }, [findUser, history]);
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then(async (res: any) => {
@@ -43,11 +39,7 @@ const Splash = ({ findUser, findTeamAndChannel }: SplashProps) => {
   return <HomeLoading />;
 };
 
-const mapStateToProps = (state: any) => {
-  return {};
-};
-
 const mapActionsToProps = (dispatch: any) =>
   bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapActionsToProps)(Splash);
+export default connect(undefined, mapActionsToProps)(Splash);
