@@ -23,8 +23,9 @@ const ModalSpaceDetail = ({
   space,
 }: ModalSpaceDetailProps) => {
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
+  const [loading, setLoading] = useState(false);
   const [spaceMembers, setSpaceMembers] = useState<Array<SpaceMember>>([]);
-  const [totalMember, setTotalMember] = useState(0);
+  const [totalMember, setTotalMember] = useState('');
   const [spaceCondition, setSpaceCondition] = useState<
     Array<SpaceCollectionData>
   >([]);
@@ -38,18 +39,23 @@ const ModalSpaceDetail = ({
     if (space?.space_id) {
       const res = await api.getSpaceMembers(space?.space_id);
       setSpaceMembers(res.data || []);
-      setTotalMember(res.total || 0);
+      setTotalMember(res.total || '');
     }
   }, [space?.space_id]);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([fetchSpaceCondition(), fetchSpaceMember()]);
+    setLoading(false);
+  }, [fetchSpaceCondition, fetchSpaceMember]);
+
   useEffect(() => {
     if (open) {
       setSpaceMembers([]);
-      setTotalMember(0);
+      setTotalMember('');
       setSpaceCondition([]);
-      fetchSpaceCondition();
-      fetchSpaceMember();
+      fetchData();
     }
-  }, [fetchSpaceCondition, fetchSpaceMember, open]);
+  }, [fetchData, open]);
   const renderSpaceIcon = useCallback(() => {
     if (space?.space_image_url) {
       return (
@@ -87,6 +93,7 @@ const ModalSpaceDetail = ({
     (item: SpaceMember) => <SpaceMemberItem key={item.user_id} item={item} />,
     []
   );
+  if (loading) return null;
   return (
     <ModalFullScreen
       open={open && !!space}
