@@ -127,10 +127,12 @@ const ModalSpaceDetail = ({
             <span className="member-count">{formatNumber(totalMember)}</span>
           </div>
         </div>
-        <div className="space-condition__wrap">
-          <span className="condition-label">Entry requirements</span>
-          {spaceCondition.map(renderNFTCondition)}
-        </div>
+        {spaceCondition.length > 0 && (
+          <div className="space-condition__wrap">
+            <span className="condition-label">Entry requirements</span>
+            {spaceCondition.map(renderNFTCondition)}
+          </div>
+        )}
         {spaceMembers.length > 0 && (
           <div className="space-member__wrap">
             {spaceMembers.map(renderSpaceMember)}

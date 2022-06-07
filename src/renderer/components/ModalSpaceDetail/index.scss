@@ -83,13 +83,9 @@
     }
   }
   .space-member__wrap {
-    margin: 30px 25px;
-    background-color: var(--color-highlight);
-    border-radius: 5px;
-    border: 1px solid var(--color-stroke);
+    margin: 20px 18px 30px 18px;
     display: flex;
     flex-wrap: wrap;
-    padding: 10px 12px;
   }
 }
 
@@ -151,8 +147,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 110px;
-  padding: 10px 8px;
+  width: 122px;
+  padding: 12px 10px;
+  background-color: var(--color-highlight);
+  border-radius: 5px;
+  margin: 10px 7px;
   .member-avatar {
     width: 30px;
     height: 30px;
@@ -164,6 +163,6 @@
     line-height: 22px;
     font-weight: 600;
     color: var(--color-primary-text);
-    max-width: 110px;
+    max-width: 100px;
   }
 }
