@@ -3,7 +3,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from 'renderer/api';
 import { SpaceBadge } from 'renderer/common/AppConfig';
+import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { CreateSpaceData, Space, UserNFTCollection } from 'renderer/models';
 import SpaceConfig from '../ModalCreateSpace/SpaceConfig';
 import SpaceInformation from '../ModalCreateSpace/SpaceInformation';
@@ -25,6 +27,7 @@ const ModalSpaceSetting = ({
   space,
   updateSpaceChannel,
 }: ModalSpaceSettingProps) => {
+  const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const [loading, setLoading] = useState(false);
   const [spaceData, setSpaceData] = useState<CreateSpaceData>({
     name: '',
@@ -106,12 +109,21 @@ const ModalSpaceSetting = ({
         space_image_url: spaceData.url,
         space_description: spaceData.description,
       };
+      if (spaceData.url) {
+        const url = ImageHelper.normalizeImage(
+          spaceData.url,
+          currentTeam.team_id
+        );
+        const colorAverage = await getSpaceBackgroundColor(url);
+        body.space_background_color = colorAverage;
+      }
       if (spaceData.spaceType === 'Exclusive') {
         body.icon_color = badge?.color;
         body.icon_sub_color = badge?.backgroundColor;
         if (spaceData.condition) {
           body.space_conditions = [
             {
+              network: spaceData.condition?.network,
               contract_address: spaceData.condition?.address,
               amount:
                 spaceData.condition?.amount || spaceData.condition?.amountInput,
@@ -124,6 +136,7 @@ const ModalSpaceSetting = ({
       handleClose();
     }
   }, [
+    currentTeam?.team_id,
     handleClose,
     space?.space_id,
     spaceData.attachment?.loading,

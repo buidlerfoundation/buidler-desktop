@@ -1,4 +1,6 @@
+import { SpaceMember } from 'renderer/models';
 import ApiCaller from './ApiCaller';
+import Caller from './Caller';
 
 export const createChannel = (teamId: string, body: any) =>
   ApiCaller.post(`channel/${teamId}`, body);
@@ -39,4 +41,4 @@ export const deleteSpaceChannel = (spaceId: string) =>
   ApiCaller.delete(`space/${spaceId}`);
 
 export const getSpaceMembers = (id: string) =>
-  ApiCaller.get(`space/${id}/member`);
+  Caller.get<Array<SpaceMember>>(`space/${id}/member`);

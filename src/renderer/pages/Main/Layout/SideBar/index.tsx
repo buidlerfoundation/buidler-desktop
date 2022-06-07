@@ -11,6 +11,7 @@ import './index.scss';
 import { connect } from 'react-redux';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
+import { Space } from 'renderer/models';
 import { createErrorMessageSelector } from '../../../../reducers/selectors';
 import actionTypes from '../../../../actions/ActionTypes';
 import PopoverButton from '../../../../components/PopoverButton';
@@ -45,6 +46,7 @@ type SideBarProps = {
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   updateChannel: (channelId: string, body: any) => any;
   uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
+  onSpaceBadgeClick: (space: Space) => void;
 };
 
 const SideBar = forwardRef(
@@ -71,6 +73,7 @@ const SideBar = forwardRef(
       uploadSpaceAvatar,
       updateChannel,
       uploadChannelAvatar,
+      onSpaceBadgeClick,
     }: SideBarProps,
     ref
   ) => {
@@ -227,6 +230,7 @@ const SideBar = forwardRef(
                   uploadSpaceAvatar={uploadSpaceAvatar}
                   updateChannel={updateChannel}
                   uploadChannelAvatar={uploadChannelAvatar}
+                  onSpaceBadgeClick={onSpaceBadgeClick}
                 />
               </div>
             )}
@@ -243,6 +247,7 @@ const SideBar = forwardRef(
         updateSpaceChannel,
         uploadChannelAvatar,
         uploadSpaceAvatar,
+        onSpaceBadgeClick,
       ]
     );
     return (

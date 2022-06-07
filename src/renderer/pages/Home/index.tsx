@@ -15,6 +15,9 @@ import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
 import { CreateSpaceData, Space } from 'renderer/models';
 import ModalSpaceSetting from 'renderer/components/ModalSpaceSetting';
+import ModalSpaceDetail from 'renderer/components/ModalSpaceDetail';
+import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
+import ImageHelper from 'renderer/common/ImageHelper';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
@@ -195,6 +198,7 @@ const Home = ({
   });
   const [hoverTask, setHoverTask] = useState<any>(null);
   const [initialSpace, setInitialSpace] = useState(null);
+  const [isOpenSpaceDetail, setOpenSpaceDetail] = useState(false);
   const [selectedSpace, setSelectedSpace] = useState<Space>(null);
   const [channelDelete, setChannelDelete] = useState<any>(null);
   const [isOpenInvite, setOpenInvite] = useState(false);
@@ -335,6 +339,10 @@ const Home = ({
     [setCurrentChannel]
   );
   const handleOpenInviteMember = useCallback(() => setOpenInvite(true), []);
+  const handleSpaceBadgeClick = useCallback((s: Space) => {
+    setSelectedSpace(s);
+    setOpenSpaceDetail(true);
+  }, []);
   const handleOpenConversation = useCallback((message) => {
     setCurrentMessage(message);
     setOpenConversation(true);
@@ -388,6 +396,10 @@ const Home = ({
   const handleAddTask = useCallback((title) => {
     setCurrentTitle(title);
     setOpenCreateTask(true);
+  }, []);
+  const handleCloseModalSpaceDetail = useCallback(() => {
+    setOpenSpaceDetail(false);
+    setSelectedSpace(null);
   }, []);
   const handleCloseModalConversation = useCallback(() => {
     setOpenConversation(false);
@@ -467,6 +479,14 @@ const Home = ({
         space_emoji: spaceData.emoji,
         space_image_url: spaceData.url,
       };
+      if (spaceData.url) {
+        const url = ImageHelper.normalizeImage(
+          spaceData.url,
+          currentTeam.team_id
+        );
+        const colorAverage = await getSpaceBackgroundColor(url);
+        body.space_background_color = colorAverage;
+      }
       if (spaceData.spaceType === 'Exclusive') {
         if (!spaceData.spaceBadgeId) {
           error = 'Badge can not be empty';
@@ -487,6 +507,7 @@ const Home = ({
           ...body,
           space_conditions: [
             {
+              network: spaceData.condition?.network,
               contract_address: spaceData.condition?.address,
               amount:
                 spaceData.condition?.amount || spaceData.condition?.amountInput,
@@ -743,6 +764,7 @@ const Home = ({
             uploadSpaceAvatar={uploadSpaceAvatar}
             updateChannel={updateChannel}
             uploadChannelAvatar={uploadChannelAvatar}
+            onSpaceBadgeClick={handleSpaceBadgeClick}
           />
 
           <div className="home-body">
@@ -810,7 +832,11 @@ const Home = ({
               />
             )}
           </div>
-
+          <ModalSpaceDetail
+            space={selectedSpace}
+            open={isOpenSpaceDetail}
+            handleClose={handleCloseModalSpaceDetail}
+          />
           <ModalConversation
             message={currentMessage}
             open={openConversation}

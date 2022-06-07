@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './index.scss';
 
 type ModalFullScreenProps = {
   open: boolean;
   onClosed: () => void;
-  children: any;
+  children: React.ReactElement;
   position?: 'center' | 'right';
 };
 
@@ -15,20 +15,28 @@ const ModalFullScreen = ({
   position = 'center',
 }: ModalFullScreenProps) => {
   const [isOpen, setOpen] = useState(open);
+  useEffect(() => {
+    setOpen(open);
+  }, [open]);
+  const onParentClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+    },
+    []
+  );
+  const onBackgroundClick = useCallback(() => {
+    setOpen(false);
+    onClosed();
+  }, [onClosed]);
   if (!isOpen) return null;
   return (
     <div
       className="modal-fullscreen__container modal-fullscreen__backdrop"
-      onClick={(e) => {
-        setOpen(false);
-        onClosed();
-      }}
+      onClick={onBackgroundClick}
     >
       <div
         className={`modal-fullscreen__view modal-fullscreen__${position}`}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+        onClick={onParentClick}
       >
         {children}
       </div>

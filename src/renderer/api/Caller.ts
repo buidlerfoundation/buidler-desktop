@@ -18,6 +18,7 @@ async function requestAPI<T = any>(
   data?: T;
   statusCode: number;
   message?: string;
+  total?: number;
 }> {
   // Build API header
   const headers: any = {
@@ -76,6 +77,9 @@ async function requestAPI<T = any>(
       return res.json().then((data) => {
         if (res.status !== 200) {
           toast.error(data.message || data);
+        }
+        if (data.data) {
+          return { ...data, statusCode: res.status };
         }
         return { data, statusCode: res.status };
       });

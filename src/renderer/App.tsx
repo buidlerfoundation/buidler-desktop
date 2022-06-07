@@ -103,18 +103,18 @@ function App({ findUser, getInitial, logout }: AppProps) {
     });
   }, [logout]);
   useEffect(() => {
-    WalletConnectUtils.init(walletConnectLogout);
-    if (!WalletConnectUtils.connector?.connected) {
-      getCookie(AsyncKey.loginType)
-        .then((res) => {
-          if (res === LoginType.WalletConnect) {
+    getCookie(AsyncKey.loginType)
+      .then((res) => {
+        if (res === LoginType.WalletConnect) {
+          WalletConnectUtils.init(walletConnectLogout);
+          if (!WalletConnectUtils.connector?.connected) {
             walletConnectLogout();
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [walletConnectLogout]);
   const overrides: any = {
     MuiPickersDay: {

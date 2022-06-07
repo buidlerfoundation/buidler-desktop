@@ -7,11 +7,13 @@ import DefaultSpaceIcon from 'renderer/components/DefaultSpaceIcon';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
 import SpaceItemBadge from 'renderer/components/SpaceItemBadge';
+import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
+import { Space } from 'renderer/models';
 import ChannelItem from './ChannelItem';
 import './index.scss';
 
 type SpaceItemProps = {
-  space: any;
+  space: Space;
   channel: Array<any>;
   currentChannel: any;
   onContextChannel: (e: any, channel: any) => void;
@@ -21,6 +23,7 @@ type SpaceItemProps = {
   isOwner: boolean;
   updateChannel: (channelId: string, body: any) => any;
   uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
+  onSpaceBadgeClick: (space: Space) => void;
 };
 
 const SpaceItem = ({
@@ -34,6 +37,7 @@ const SpaceItem = ({
   isOwner,
   updateChannel,
   uploadChannelAvatar,
+  onSpaceBadgeClick,
 }: SpaceItemProps) => {
   const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
@@ -119,13 +123,26 @@ const SpaceItem = ({
   );
   const onSelectRecentFile = useCallback(
     async (file) => {
+      const url = ImageHelper.normalizeImage(
+        file.file_url,
+        currentTeam.team_id
+      );
+      const colorAverage = await getSpaceBackgroundColor(url);
       await updateSpaceChannel(space.space_id, {
         space_emoji: '',
         space_image_url: file.file_url,
+        space_background_color: colorAverage,
       });
       popupSpaceIconRef.current?.hide();
     },
-    [space?.space_id, updateSpaceChannel]
+    [currentTeam?.team_id, space.space_id, updateSpaceChannel]
+  );
+  const handleBadgeClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      onSpaceBadgeClick(space);
+    },
+    [onSpaceBadgeClick, space]
   );
   const renderChannelItem = useCallback(
     (c: any) => (
@@ -184,6 +201,7 @@ const SpaceItem = ({
           <SpaceItemBadge
             color={space.icon_color}
             backgroundColor={space.icon_sub_color}
+            onClick={handleBadgeClick}
           />
         )}
       </div>

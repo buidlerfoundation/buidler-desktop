@@ -85,6 +85,7 @@ const SpaceConfig = ({
           address: selected?.contract_address,
           amount: 0,
           amountInput: '',
+          network: selected?.network,
         },
       }));
     },

@@ -1,12 +1,14 @@
+export type LocalAttachment = {
+  file: any;
+  loading: boolean;
+  type: string;
+};
+
 export type CreateSpaceData = {
   spaceId?: string;
   name: string;
   description?: string;
-  attachment?: {
-    file: any;
-    loading: boolean;
-    type: string;
-  };
+  attachment?: LocalAttachment;
   emoji?: string;
   url?: string;
   spaceType: 'Public' | 'Exclusive';
@@ -15,6 +17,7 @@ export type CreateSpaceData = {
     address: string;
     amount?: number;
     amountInput?: string;
+    network: string;
   };
 };
 
@@ -67,6 +70,8 @@ export interface Space {
   space_description?: string;
   icon_color?: string;
   icon_sub_color?: string;
+  attachment?: LocalAttachment;
+  space_background_color?: string;
 }
 
 export interface Community {
@@ -108,4 +113,10 @@ export interface GroupSettingItem {
   id: string;
   groupLabel: string;
   items: Array<SettingItem>;
+}
+
+export interface SpaceMember {
+  user_id: string;
+  user_name: string;
+  avatar_url?: string;
 }
