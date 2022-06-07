@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal } from '@material-ui/core';
 import './index.scss';
-import NormalButton from '../NormalButton';
-import ImportState from './ImportState';
-import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
+import NormalButton from '../NormalButton';
+import ImportState from './ImportState';
+import CreatePasswordState from '../ModalCreatePassword/CreatePasswordState';
 
 type ModalImportSeedPhraseProps = {
   open: boolean;

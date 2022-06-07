@@ -28,61 +28,6 @@ const Started = ({ logout }: StartedProps) => {
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
   const [isOpenImportModal, setOpenImportModal] = useState(false);
-  const loggedOn = async (
-    seed: string,
-    password: string,
-    backupLater?: boolean
-  ) => {
-    const iv = await getIV();
-    let privateKey;
-    let signingKey;
-    if (isValidPrivateKey(seed)) {
-      privateKey = seed;
-      if (privateKey.substring(0, 2) !== '0x') {
-        privateKey = `0x${privateKey}`;
-      }
-      signingKey = new utils.SigningKey(privateKey);
-    } else {
-      const wallet = ethers.Wallet.fromMnemonic(seed);
-      privateKey = wallet.privateKey;
-      signingKey = wallet._signingKey();
-    }
-    const publicKey = utils.computePublicKey(privateKey, true);
-    const address = utils.computeAddress(privateKey);
-    dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
-    const data = { [publicKey]: privateKey };
-    const encryptedData = encryptString(JSON.stringify(data), password, iv);
-    if (backupLater) {
-      const encryptedSeed = encryptString(seed, password, iv);
-      setCookie(AsyncKey.encryptedSeedKey, encryptedSeed);
-      dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
-    }
-    setCookie(AsyncKey.encryptedDataKey, encryptedData);
-    const { nonce } = await api.requestNonceWithAddress(address);
-    if (nonce) {
-      const msgHash = utils.hashMessage(nonce);
-      const msgHashBytes = utils.arrayify(msgHash);
-      const signature = signingKey.signDigest(msgHashBytes);
-      const res = await api.verifyNonce(nonce, signature.compact);
-      if (res.statusCode === 200) {
-        setCookie(AsyncKey.accessTokenKey, res.token);
-        const privateKeyChannel = await getPrivateChannel(privateKey);
-        dispatch({
-          type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
-          payload: privateKeyChannel,
-        });
-        if (dataFromUrl?.includes?.('invitation')) {
-          const invitationId = dataFromUrl.split('=')[1];
-          const acceptRes = await api.acceptInvitation(invitationId);
-          if (acceptRes.statusCode === 200) {
-            dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
-          }
-        }
-        await setCookie(AsyncKey.loginType, LoginType.WalletImport);
-        history.replace('/home');
-      }
-    }
-  };
   const doingLogin = useCallback(async () => {
     if (
       !WalletConnectUtils.connector ||
@@ -109,6 +54,93 @@ const Started = ({ logout }: StartedProps) => {
       WalletConnectUtils.connector.killSession();
     }
   }, [history]);
+  const handleOpenModalCreate = useCallback(
+    () => setOpenPasswordModal(true),
+    []
+  );
+  const handleOpenModalImport = useCallback(() => setOpenImportModal(true), []);
+  const onWCConnected = useCallback(() => {
+    setTimeout(doingLogin, 300);
+  }, [doingLogin]);
+  const onWCDisconnected = useCallback(async () => {
+    if (!window.location.href.includes('started')) {
+      const deviceCode = await getDeviceCode();
+      await api.removeDevice({
+        device_code: deviceCode,
+      });
+    }
+    clearData(() => {
+      if (!window.location.href.includes('started')) {
+        window.location.reload();
+      }
+      logout?.();
+    });
+  }, [logout]);
+  const handleWalletConnect = useCallback(() => {
+    WalletConnectUtils.connect(onWCConnected, onWCDisconnected);
+  }, [onWCConnected, onWCDisconnected]);
+  const handleCloseModalCreate = useCallback(
+    () => setOpenPasswordModal(false),
+    []
+  );
+  const handleCloseModalImport = useCallback(
+    () => setOpenImportModal(false),
+    []
+  );
+  const loggedOn = useCallback(
+    async (seed: string, password: string, backupLater?: boolean) => {
+      const iv = await getIV();
+      let privateKey;
+      let signingKey;
+      if (isValidPrivateKey(seed)) {
+        privateKey = seed;
+        if (privateKey.substring(0, 2) !== '0x') {
+          privateKey = `0x${privateKey}`;
+        }
+        signingKey = new utils.SigningKey(privateKey);
+      } else {
+        const wallet = ethers.Wallet.fromMnemonic(seed);
+        privateKey = wallet.privateKey;
+        signingKey = wallet._signingKey();
+      }
+      const publicKey = utils.computePublicKey(privateKey, true);
+      const address = utils.computeAddress(privateKey);
+      dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
+      const data = { [publicKey]: privateKey };
+      const encryptedData = encryptString(JSON.stringify(data), password, iv);
+      if (backupLater) {
+        const encryptedSeed = encryptString(seed, password, iv);
+        setCookie(AsyncKey.encryptedSeedKey, encryptedSeed);
+        dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
+      }
+      setCookie(AsyncKey.encryptedDataKey, encryptedData);
+      const { nonce } = await api.requestNonceWithAddress(address);
+      if (nonce) {
+        const msgHash = utils.hashMessage(nonce);
+        const msgHashBytes = utils.arrayify(msgHash);
+        const signature = signingKey.signDigest(msgHashBytes);
+        const res = await api.verifyNonce(nonce, signature.compact);
+        if (res.statusCode === 200) {
+          setCookie(AsyncKey.accessTokenKey, res.token);
+          const privateKeyChannel = await getPrivateChannel(privateKey);
+          dispatch({
+            type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+            payload: privateKeyChannel,
+          });
+          if (dataFromUrl?.includes?.('invitation')) {
+            const invitationId = dataFromUrl.split('=')[1];
+            const acceptRes = await api.acceptInvitation(invitationId);
+            if (acceptRes.statusCode === 200) {
+              dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
+            }
+          }
+          await setCookie(AsyncKey.loginType, LoginType.WalletImport);
+          history.replace('/home');
+        }
+      }
+    },
+    [dataFromUrl, dispatch, history]
+  );
   return (
     <div className="started-container">
       <div className="started-body">
@@ -129,7 +161,7 @@ const Started = ({ logout }: StartedProps) => {
         </div>
         <div
           className="wallet-button normal-button"
-          onClick={() => setOpenPasswordModal(true)}
+          onClick={handleOpenModalCreate}
         >
           <span>New wallet</span>
           <div className="wallet-icon">
@@ -138,7 +170,7 @@ const Started = ({ logout }: StartedProps) => {
         </div>
         <div
           className="wallet-button normal-button"
-          onClick={() => setOpenImportModal(true)}
+          onClick={handleOpenModalImport}
         >
           <span>Import wallet</span>
           <div className="wallet-icon">
@@ -147,27 +179,7 @@ const Started = ({ logout }: StartedProps) => {
         </div>
         <div
           className="wallet-button normal-button"
-          onClick={() => {
-            WalletConnectUtils.connect(
-              async () => {
-                setTimeout(doingLogin, 300);
-              },
-              async () => {
-                if (!window.location.href.includes('started')) {
-                  const deviceCode = await getDeviceCode();
-                  await api.removeDevice({
-                    device_code: deviceCode,
-                  });
-                }
-                clearData(() => {
-                  if (!window.location.href.includes('started')) {
-                    window.location.reload();
-                  }
-                  logout?.();
-                });
-              }
-            );
-          }}
+          onClick={handleWalletConnect}
         >
           <span>WalletConnect</span>
           <div className="wallet-icon">
@@ -177,12 +189,12 @@ const Started = ({ logout }: StartedProps) => {
       </div>
       <ModalCreatePassword
         open={isOpenPasswordModal}
-        handleClose={() => setOpenPasswordModal(false)}
+        handleClose={handleCloseModalCreate}
         loggedOn={loggedOn}
       />
       <ModalImportSeedPhrase
         open={isOpenImportModal}
-        handleClose={() => setOpenImportModal(false)}
+        handleClose={handleCloseModalImport}
         loggedOn={loggedOn}
       />
     </div>

@@ -1,13 +1,13 @@
 import { Modal } from '@material-ui/core';
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { ethers } from 'ethers';
+import toast from 'react-hot-toast';
 import NormalButton from '../NormalButton';
 import CreatePasswordState from './CreatePasswordState';
 import './index.scss';
-import { ethers } from 'ethers';
 import StoreSeedPhraseState from './StoreSeedPhraseState';
 import BackupSeedPhraseState from './BackupSeedPhraseState';
 import { createConfirmSeedState } from '../../helpers/SeedHelper';
-import toast from 'react-hot-toast';
 
 type ModalCreatePasswordProps = {
   open: boolean;

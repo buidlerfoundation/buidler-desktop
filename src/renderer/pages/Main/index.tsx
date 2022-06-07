@@ -5,7 +5,6 @@ import { Switch, Route, useHistory } from 'react-router-dom';
 import AppListener from 'renderer/components/AppListener';
 import MainWrapper from './Layout';
 import Home from '../Home';
-import LoginScreen from '../Login';
 import { AsyncKey } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
 import Splash from '../Splash';
@@ -58,7 +57,6 @@ const Main = ({ getInitial }: MainProps) => {
           <Route exact path="/" component={Splash} />
           <PrivateRoute exact path="/home" component={Home} />
           <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
-          <Route exact path="/login" component={LoginScreen} />
           <Route exact path="/started" component={Started} />
         </Switch>
       </MainWrapper>
