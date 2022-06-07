@@ -5,6 +5,7 @@ import api from 'renderer/api';
 import { SpaceBadge } from 'renderer/common/AppConfig';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
+import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { CreateSpaceData, Space, UserNFTCollection } from 'renderer/models';
 import SpaceConfig from '../ModalCreateSpace/SpaceConfig';
