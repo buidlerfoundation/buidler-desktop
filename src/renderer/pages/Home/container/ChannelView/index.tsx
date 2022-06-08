@@ -6,6 +6,7 @@ import React, {
   useImperativeHandle,
   useCallback,
   useMemo,
+  memo,
 } from 'react';
 import Dropzone from 'react-dropzone';
 import { AttachmentData, MessageData, MessageGroup } from 'renderer/models';
@@ -107,10 +108,9 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
-    const messagesGroup = useMemo<Array<MessageGroup>>(
-      () => normalizeMessages(messages),
-      [messages]
-    );
+    const messagesGroup = useMemo<Array<MessageGroup>>(() => {
+      return normalizeMessages(messages);
+    }, [messages]);
     const userData = useSelector((state: any) => state.user.userData);
     const channelPrivateKey = useSelector(
       (state: any) => state.configs.channelPrivateKey
@@ -546,6 +546,7 @@ const ChannelView = forwardRef(
               onRemoveReact={onRemoveReact}
               onMenuSelected={onMenuMessage}
               onSelectTask={onSelectTask}
+              content={msg.content}
             />
           );
         }
@@ -561,6 +562,7 @@ const ChannelView = forwardRef(
             onRemoveReact={onRemoveReact}
             onMenuSelected={onMenuMessage}
             onSelectTask={onSelectTask}
+            content={msg.content}
           />
         );
       },
@@ -686,4 +688,4 @@ const ChannelView = forwardRef(
   }
 );
 
-export default ChannelView;
+export default memo(ChannelView);

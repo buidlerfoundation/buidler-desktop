@@ -4,6 +4,7 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  memo,
 } from 'react';
 import './index.scss';
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
@@ -419,4 +420,4 @@ const MessageInput = ({
   );
 };
 
-export default MessageInput;
+export default memo(MessageInput);

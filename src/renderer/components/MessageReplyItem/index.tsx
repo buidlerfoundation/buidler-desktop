@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo, useState } from 'react';
+import React, { useRef, useCallback, useMemo, useState, memo } from 'react';
 import { useHistory } from 'react-router-dom';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { MessageData } from 'renderer/models';
@@ -27,6 +27,7 @@ type MessageReplyItemProps = {
   onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask: (task: any) => void;
+  content: string;
 };
 
 const MessageReplyItem = ({
@@ -41,6 +42,7 @@ const MessageReplyItem = ({
   onRemoveReact,
   onMenuSelected,
   onSelectTask,
+  content,
 }: MessageReplyItemProps) => {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const reactData = useAppSelector((state) => state.reactReducer.reactData);
@@ -193,7 +195,7 @@ const MessageReplyItem = ({
               message.isSending ? 'message-reply-sending' : ''
             } enable-user-select`}
             dangerouslySetInnerHTML={{
-              __html: normalizeMessageText(message.content),
+              __html: normalizeMessageText(content),
             }}
           />
           <MessagePhotoItem
@@ -268,4 +270,4 @@ const MessageReplyItem = ({
   );
 };
 
-export default MessageReplyItem;
+export default memo(MessageReplyItem);

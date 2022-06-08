@@ -1,5 +1,5 @@
 import { EmojiData } from 'emoji-mart';
-import React, { useRef, useMemo, useCallback, useState } from 'react';
+import React, { useRef, useMemo, useCallback, useState, memo } from 'react';
 import { useHistory } from 'react-router-dom';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { MessageData, TaskData } from 'renderer/models';
@@ -27,6 +27,7 @@ type MessageItemProps = {
   onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected?: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask?: (task: TaskData) => void;
+  content: string;
 };
 
 const MessageItem = ({
@@ -40,8 +41,8 @@ const MessageItem = ({
   onRemoveReact,
   onMenuSelected,
   onSelectTask,
+  content,
 }: MessageItemProps) => {
-  // console.log('XXX: Render Message');
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { teamUserData, currentTeam, userData } = useAppSelector(
     (state) => state.user
@@ -170,7 +171,7 @@ const MessageItem = ({
                 message.isHead ? 'message-head__message' : ''
               } ${message.isSending ? 'message-item-sending' : ''}`}
               dangerouslySetInnerHTML={{
-                __html: normalizeMessageText(message.content),
+                __html: normalizeMessageText(content),
               }}
             />
           </div>
@@ -244,4 +245,4 @@ const MessageItem = ({
   );
 };
 
-export default MessageItem;
+export default memo(MessageItem);
