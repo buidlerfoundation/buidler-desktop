@@ -579,7 +579,6 @@ const ChannelView = forwardRef(
                             key={msg.message_id}
                             message={msg}
                             onCreateTask={onCreateTaskFromMessage(msg)}
-                            onClick={handleOpenConversation(msg)}
                             disableHover={isScrolling}
                             zIndex={messages.length - index}
                             onReplyPress={onReplyPress(msg)}

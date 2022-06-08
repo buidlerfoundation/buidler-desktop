@@ -21,6 +21,8 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'jsx-a11y/media-has-caption': 'off',
     'jsx-a11y/no-autofocus': 'off',
+    'no-cond-assign': 'off',
+    'react/no-danger': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

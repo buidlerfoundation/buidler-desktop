@@ -1,8 +1,11 @@
 import React from 'react';
-import { Picker } from 'emoji-mart';
+import { EmojiData, Picker } from 'emoji-mart';
 
 type EmojiPickerProps = {
-  onClick: (emoji: any, event: any) => void;
+  onClick: (
+    emoji: EmojiData,
+    event: React.MouseEvent<HTMLElement, MouseEvent>
+  ) => void;
   style?: CSSProperties | undefined;
 };
 

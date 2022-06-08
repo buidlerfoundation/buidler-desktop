@@ -52,10 +52,6 @@ const ModalCreateTask = ({
     [currentChannel?.user, currentTitle]
   );
   const [taskData, setTaskData] = useState<any>(initialState);
-  const createTask = useCallback(() => {
-    if (taskData.title === '') return;
-    onCreateTask(taskData, generateId.current);
-  }, [taskData, onCreateTask]);
   useEffect(() => {
     if (open) {
       generateId.current = '';

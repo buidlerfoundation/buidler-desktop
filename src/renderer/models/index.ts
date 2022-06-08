@@ -120,3 +120,78 @@ export interface SpaceMember {
   user_name: string;
   avatar_url?: string;
 }
+
+export interface ReactReducerData {
+  count: number;
+  isReacted: boolean;
+  reactName: string;
+  skin: number;
+}
+
+export interface AttachmentData {
+  file_id: string;
+  file_url: string;
+  mimetype: string;
+  original_name: string;
+}
+
+export interface UserReaction {
+  attachment_id: string;
+  emoji_id: string;
+}
+
+export interface TagData {
+  mention_id: string;
+  tag_type: string;
+}
+
+export interface ReactionData {
+  attachment_id: string;
+  emoji_id: string;
+  reaction_count: string;
+  skin: number;
+}
+
+export interface TaskData {
+  channel: Array<Channel>;
+  comment_count: number;
+  creator: UserData;
+  creator_id: string;
+  notes: string;
+  reaction_data: Array<ReactionData>;
+  status: 'pinned' | 'todo' | 'doing' | 'done' | 'archived';
+  task_attachment: Array<AttachmentData>;
+  task_id: string;
+  task_tag: Array<TagData>;
+  title: string;
+  up_votes: number;
+  user_reaction: Array<UserReaction>;
+}
+
+export interface ConversationData {
+  content: string;
+  createdAt: sting;
+  message_attachment: Array<AttachmentData>;
+  message_id: string;
+  message_tag: Array<TagData>;
+  parent_id: string;
+  plain_text: string;
+  sender_id: string;
+  updatedAt: string;
+  task: TaskData;
+}
+
+export interface MessageData extends ConversationData {
+  conversation_data: Array<ConversationData>;
+  isHead: boolean;
+  isConversationHead: boolean;
+  reaction_data: Array<ReactionData>;
+  user_reaction: Array<UserReaction>;
+  isSending?: boolean;
+}
+
+export interface ReactUserApiData {
+  emoji_id: string;
+  skin: number;
+  user_id: string;
+}

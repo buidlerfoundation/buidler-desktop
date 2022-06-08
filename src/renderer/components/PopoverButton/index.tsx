@@ -3,6 +3,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useCallback,
+  useMemo,
 } from 'react';
 import './index.scss';
 import Popover from '@material-ui/core/Popover';
@@ -24,6 +25,7 @@ type PopoverButtonProps = {
   onSelected?: (data: PopoverItem) => void;
   onClose?: () => void;
   popupOnly?: boolean;
+  onOpen?: () => void;
 };
 
 type PopupItemProps = {
@@ -65,18 +67,25 @@ const PopoverButton = forwardRef(
       onClose,
       componentPopup,
       popupOnly,
+      onOpen,
     }: PopoverButtonProps,
     ref
   ) => {
     const [anchorReference, setAnchorReference] = useState<any>('anchorEl');
     const [anchorPosition, setAnchorPosition] = useState({ left: 0, top: 0 });
     const [anchorPopup, setPopup] = useState<any>(null);
-    const open = Boolean(anchorPopup);
-    const idPopup = open ? 'cpn-button-popover' : undefined;
-    const handleOpenPopup = useCallback((e) => {
-      e.stopPropagation();
-      setPopup(e.currentTarget);
-    }, []);
+    const idPopup = useMemo(
+      () => (!!anchorPopup ? 'cpn-button-popover' : undefined),
+      [anchorPopup]
+    );
+    const handleOpenPopup = useCallback(
+      (e) => {
+        e.stopPropagation();
+        setPopup(e.currentTarget);
+        onOpen?.();
+      },
+      [onOpen]
+    );
     const handleClick = useCallback((e) => e.stopPropagation(), []);
     const handleClose = useCallback(() => {
       setPopup(null);
@@ -93,7 +102,7 @@ const PopoverButton = forwardRef(
           }
           setPopup(target);
         },
-        isOpen: open,
+        isOpen: !!anchorPopup,
         hide() {
           setPopup(null);
         },
@@ -134,7 +143,7 @@ const PopoverButton = forwardRef(
           elevation={0}
           id={idPopup}
           transitionDuration={200}
-          open={open}
+          open={!!anchorPopup}
           anchorEl={anchorPopup}
           anchorReference={anchorReference}
           anchorPosition={anchorPosition}

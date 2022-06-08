@@ -79,7 +79,7 @@ const CreateTaskView = ({
         <AttachmentItem
           att={att}
           key={att.randomId || att.id || index}
-          onRemove={() => onRemoveFile(att)}
+          onRemove={onRemoveFile}
           teamId={currentTeam.team_id}
         />
       );
@@ -95,7 +95,7 @@ const CreateTaskView = ({
             </video>
             <div
               className="attachment-delete normal-button"
-              onClick={() => onRemoveFile(att)}
+              onClick={onRemoveFile}
             >
               <img alt="" src={images.icCircleClose} />
             </div>
@@ -116,7 +116,7 @@ const CreateTaskView = ({
           )}
           <div
             className="attachment-delete normal-button"
-            onClick={() => onRemoveFile(att)}
+            onClick={onRemoveFile}
           >
             <img alt="" src={images.icCircleClose} />
           </div>

@@ -6,9 +6,6 @@
   display: flex;
   position: relative;
   padding: 5px 0;
-  &:hover {
-    background-color: var(--color-highlight);
-  }
   .message-reply-item__avatar-view {
     display: flex;
     margin-top: 5px;
@@ -93,10 +90,11 @@
     font-weight: 500;
     font-size: 11px;
     color: var(--color-secondary-text);
+    display: none;
   }
   .message-reply-item__menu {
     border-radius: 5px;
-    display: flex;
+    display: none;
     height: 40px;
     position: absolute;
     top: -20px;
@@ -114,6 +112,18 @@
         cursor: pointer;
         background-color: var(--color-stroke);
       }
+    }
+  }
+  .popover-open {
+    display: flex;
+  }
+  &:hover {
+    background-color: var(--color-highlight);
+    .message-reply-item__menu {
+      display: flex;
+    }
+    .message-reply-item__time {
+      display: block;
     }
   }
 }

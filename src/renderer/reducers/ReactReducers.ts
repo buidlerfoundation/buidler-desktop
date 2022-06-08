@@ -1,10 +1,19 @@
+import { AnyAction, Reducer } from 'redux';
+import { ReactReducerData } from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 
-const initialState = {
+interface ReactReducerState {
+  reactData: { [key: string]: Array<ReactReducerData> };
+}
+
+const initialState: ReactReducerState = {
   reactData: {},
 };
 
-const reactReducers = (state = initialState, action) => {
+const reactReducers: Reducer<ReactReducerState, AnyAction> = (
+  state = initialState,
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case actionTypes.TASK_SUCCESS: {

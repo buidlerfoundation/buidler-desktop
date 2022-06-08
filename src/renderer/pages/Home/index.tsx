@@ -116,7 +116,6 @@ type HomeProps = {
   deleteTeam: (teamId: string) => any;
   findUser: () => any;
   findTeamAndChannel: () => any;
-  setCurrentTeam: (team: any) => any;
   getSpaceMembers: (spaceId: string) => any;
 };
 
@@ -176,7 +175,6 @@ const Home = ({
   deleteTeam,
   findUser,
   findTeamAndChannel,
-  setCurrentTeam,
   uploadSpaceAvatar,
   uploadChannelAvatar,
   getSpaceMembers,
@@ -528,15 +526,6 @@ const Home = ({
   const handleCloseModalEditSpace = useCallback(
     () => setOpenEditSpaceChannel(false),
     []
-  );
-  const onEditSpaceChannel = useCallback(
-    async (spaceData: any) => {
-      await updateSpaceChannel(selectedSpace.space_id, {
-        space_name: spaceData.name,
-      });
-      setOpenEditSpaceChannel(false);
-    },
-    [selectedSpace?.space_id, updateSpaceChannel]
   );
   const onCreateChannel = useCallback(
     async (channelData: any) => {

@@ -5,13 +5,14 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import images from '../../common/images';
 import './index.scss';
-import { connect } from 'react-redux';
+import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
+import Popper from '@material-ui/core/Popper';
+import useAppSelector from 'renderer/hooks/useAppSelector';
+import { UserData } from 'renderer/models';
+import images from '../../common/images';
 import { getIconByStatus } from '../../helpers/TaskHelper';
 import AvatarView from '../AvatarView';
-import ContentEditable from 'react-contenteditable';
-import Popper from '@material-ui/core/Popper';
 import GlobalVariable from '../../services/GlobalVariable';
 import {
   extractContent,
@@ -21,23 +22,48 @@ import {
 } from '../../helpers/MessageHelper';
 import AttachmentItem from '../AttachmentItem';
 
+type MentionItemProps = {
+  item: UserData;
+  index: number;
+  selectedMentionIndex: number;
+  onEnter: (index: number) => void;
+  enterMention: () => void;
+};
+
+const MentionItem = ({
+  item,
+  index,
+  selectedMentionIndex,
+  onEnter,
+  enterMention,
+}: MentionItemProps) => {
+  const onMouseEnter = useCallback(() => onEnter(index), [index, onEnter]);
+  return (
+    <div
+      className={`mention-item ${index === selectedMentionIndex && 'active'}`}
+      onMouseEnter={onMouseEnter}
+      onClick={enterMention}
+    >
+      <AvatarView user={item} size={25} />
+      <span className="mention-name">{normalizeUserName(item.user_name)}</span>
+    </div>
+  );
+};
+
 type MessageInputProps = {
   placeholder: string;
-  inputRef?: any;
+  inputRef?: React.RefObject<HTMLElement>;
   onCircleClick: () => void;
-  onKeyDown: (e: any) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   text: string;
-  setText: (text: string) => void;
-  onPaste: (e: any) => void;
+  setText: React.Dispatch<React.SetStateAction<string>>;
+  onPaste: (e: React.ClipboardEvent<HTMLDivElement>) => void;
   attachments?: Array<any>;
   onRemoveFile: (file: any) => void;
   messageReply?: any;
-  teamUserData?: Array<any>;
   onRemoveReply?: () => void;
   replyTask?: any;
   messageEdit?: any;
-  currentTeam: any;
-  currentChannel: any;
 };
 
 const MessageInput = ({
@@ -51,23 +77,23 @@ const MessageInput = ({
   attachments = [],
   onRemoveFile,
   messageReply,
-  teamUserData = [],
   onRemoveReply,
   replyTask,
   messageEdit,
-  currentTeam,
-  currentChannel,
 }: MessageInputProps) => {
+  const { teamUserData, currentTeam, currentChannel } = useAppSelector(
+    (state) => state.user
+  );
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const [mentionPos, setMentionPos] = useState({ start: -1, end: -1 });
   const [mentionStr, setMentionStr] = useState<string | null>(null);
   const [anchorPopup, setPopup] = useState<any>(null);
-  const openPopupMention = Boolean(anchorPopup);
-  const sender = teamUserData?.find?.(
-    (u) => u?.user_id === messageReply?.sender_id
+  const sender = useMemo(
+    () => teamUserData?.find?.((u) => u?.user_id === messageReply?.sender_id),
+    [messageReply?.sender_id, teamUserData]
   );
   const containerRef = useRef<any>();
-  const renderReply = () => {
+  const renderReply = useCallback(() => {
     if (messageEdit) {
       return (
         <div className="message-input__reply-container">
@@ -139,29 +165,14 @@ const MessageInput = ({
       );
     }
     return null;
-  };
-  const getCaretPosition = (editableDiv: any) => {
-    let caretPos = 0;
-    let sel: any;
-    let range;
-    if (window.getSelection) {
-      sel = window.getSelection();
-      if (sel.rangeCount) {
-        range = sel.getRangeAt(0);
-        if (range.commonAncestorContainer.parentNode === editableDiv) {
-          caretPos = range.endOffset;
-        }
-      }
-    }
-    return caretPos;
-  };
-  const getCaretIndex = (element: any) => {
+  }, [messageEdit, messageReply, onRemoveReply, replyTask, sender]);
+  const getCaretIndex = useCallback((element: HTMLElement) => {
     let position = 0;
     const isSupported = typeof window.getSelection !== 'undefined';
     if (isSupported) {
-      const selection: any = window.getSelection();
+      const selection = window.getSelection();
       if (selection.rangeCount !== 0) {
-        const range: any = window?.getSelection?.()?.getRangeAt(0);
+        const range = window?.getSelection?.()?.getRangeAt(0);
         const preCaretRange = range.cloneRange();
         preCaretRange.selectNodeContents(element);
         preCaretRange.setEnd(range.endContainer, range.endOffset);
@@ -169,7 +180,7 @@ const MessageInput = ({
       }
     }
     return position;
-  };
+  }, []);
   const users = useMemo(() => {
     if (!currentChannel) return [];
     const { channel_type, channel_member } = currentChannel;
@@ -181,8 +192,12 @@ const MessageInput = ({
       .filter((id: string) => !!teamUserData.find((el) => el?.user_id === id))
       .map((id: any) => teamUserData.find((el) => el?.user_id === id));
   }, [currentChannel, teamUserData]);
-  const dataMention = users.filter((el: any) =>
-    el?.user_name?.toLowerCase?.()?.includes?.(mentionStr?.toLowerCase?.())
+  const dataMention = useMemo(
+    () =>
+      users.filter((el: UserData) =>
+        el?.user_name?.toLowerCase?.()?.includes?.(mentionStr?.toLowerCase?.())
+      ),
+    [mentionStr, users]
   );
   const onCloseMention = useCallback(() => {
     setPopup(null);
@@ -204,7 +219,7 @@ const MessageInput = ({
       indices2.push(result2.index);
     }
     return indices2[indices1.length - 1];
-  }, [inputRef, mentionStr, text]);
+  }, [getCaretIndex, inputRef, mentionStr, text]);
   const enterMention = useCallback(() => {
     const el = dataMention[selectedMentionIndex];
     const idx = findMentionIndexHtml();
@@ -253,7 +268,7 @@ const MessageInput = ({
         onKeyDown(e);
       }
     };
-    document.onclick = (e) => {
+    document.onclick = () => {
       if (anchorPopup) {
         setPopup(null);
       }
@@ -273,7 +288,6 @@ const MessageInput = ({
     }
   }, [mentionPos, text]);
   useEffect(() => {
-    const pos = getCaretPosition(inputRef.current);
     if (
       mentionStr !== null &&
       users.filter((el: any) =>
@@ -281,19 +295,87 @@ const MessageInput = ({
       ).length > 0 &&
       text.length > 0
     ) {
-      // const { x, y } = containerRef.current.getBoundingClientRect();
       setPopup(containerRef.current);
     } else {
       setPopup(null);
     }
   }, [mentionStr, inputRef, mentionPos.start, text, users]);
-  const checkTriggerMention = (value: string) => {
-    const idx = getCaretIndex(inputRef.current);
-    const str = extractContent(value || text).replaceAll('\n', '');
-    const start = str.substring(0, idx).lastIndexOf('@');
-    setMentionPos({ start, end: idx });
-    setSelectedMentionIndex(0);
-  };
+  const checkTriggerMention = useCallback(
+    (value: string) => {
+      const idx = getCaretIndex(inputRef.current);
+      const str = extractContent(value || text).replaceAll('\n', '');
+      const start = str.substring(0, idx).lastIndexOf('@');
+      setMentionPos({ start, end: idx });
+      setSelectedMentionIndex(0);
+    },
+    [getCaretIndex, inputRef, text]
+  );
+  const handleMentionEnter = useCallback(
+    (index: number) => setSelectedMentionIndex(index),
+    []
+  );
+  const handleFocus = useCallback(() => {
+    GlobalVariable.isInputFocus = true;
+  }, []);
+  const handleBlur = useCallback(() => {
+    GlobalVariable.isInputFocus = false;
+  }, []);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' && !e.metaKey && !e.shiftKey) e.preventDefault();
+    },
+    []
+  );
+  const handleChangeText = useCallback(
+    (e: ContentEditableEvent) => {
+      const valueTrimmed = e.target.value.trim();
+      if (
+        extractContent(text) === extractContent(e.target.value) &&
+        valueTrimmed[0] === '<' &&
+        valueTrimmed[valueTrimmed.length - 1] === '>' &&
+        valueTrimmed.substring(valueTrimmed.length - 4) !== '<br>'
+      ) {
+        setText('');
+      } else if (valueTrimmed.substring(valueTrimmed.length - 4) === '</a>') {
+        const lastIdx = getLastIndexOfMention(valueTrimmed);
+        if (lastIdx > 0) {
+          setText(valueTrimmed.substring(0, lastIdx));
+        } else {
+          setText(valueTrimmed);
+        }
+      } else {
+        setText(removeTagHTML(e.target.value));
+        checkTriggerMention(e.target.value);
+      }
+    },
+    [checkTriggerMention, setText, text]
+  );
+  const renderAttachment = useCallback(
+    (att, index) => {
+      return (
+        <AttachmentItem
+          att={att}
+          key={att.randomId || att.id || index}
+          onRemove={onRemoveFile}
+          teamId={currentTeam.team_id}
+        />
+      );
+    },
+    [currentTeam?.team_id, onRemoveFile]
+  );
+  const renderMentionItem = useCallback(
+    (el: UserData, index: number) => (
+      <MentionItem
+        key={el.user_id}
+        item={el}
+        index={index}
+        selectedMentionIndex={selectedMentionIndex}
+        onEnter={handleMentionEnter}
+        enterMention={enterMention}
+      />
+    ),
+    [enterMention, handleMentionEnter, selectedMentionIndex]
+  );
 
   return (
     <div className="message-input__container">
@@ -309,39 +391,10 @@ const MessageInput = ({
           id="message-input"
           innerRef={inputRef}
           html={text}
-          onFocus={() => {
-            GlobalVariable.isInputFocus = true;
-          }}
-          onBlur={() => {
-            GlobalVariable.isInputFocus = false;
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.metaKey && !e.shiftKey)
-              e.preventDefault();
-          }}
-          onChange={(e) => {
-            const valueTrimmed = e.target.value.trim();
-            if (
-              extractContent(text) === extractContent(e.target.value) &&
-              valueTrimmed[0] === '<' &&
-              valueTrimmed[valueTrimmed.length - 1] === '>' &&
-              valueTrimmed.substring(valueTrimmed.length - 4) !== '<br>'
-            ) {
-              setText('');
-            } else if (
-              valueTrimmed.substring(valueTrimmed.length - 4) === '</a>'
-            ) {
-              const lastIdx = getLastIndexOfMention(valueTrimmed);
-              if (lastIdx > 0) {
-                setText(valueTrimmed.substring(0, lastIdx));
-              } else {
-                setText(valueTrimmed);
-              }
-            } else {
-              setText(removeTagHTML(e.target.value));
-              checkTriggerMention(e.target.value);
-            }
-          }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          onChange={handleChangeText}
           placeholder={placeholder}
           className="message-input__input hide-scroll-bar"
           onPaste={onPaste}
@@ -349,52 +402,21 @@ const MessageInput = ({
       </div>
       {attachments.length > 0 && (
         <div className="attachment-container">
-          {attachments.map((att, index) => {
-            return (
-              <AttachmentItem
-                att={att}
-                key={att.randomId || att.id || index}
-                onRemove={() => onRemoveFile(att)}
-                teamId={currentTeam.team_id}
-              />
-            );
-          })}
+          {attachments.map(renderAttachment)}
         </div>
       )}
       <Popper
         id="popup-mention"
-        open={openPopupMention}
+        open={!!anchorPopup}
         anchorEl={anchorPopup}
         style={{ zIndex: 1000 }}
       >
         <div className="popup-mention__container">
-          {dataMention.map((el: any, index: number) => (
-            <div
-              className={`mention-item ${
-                index === selectedMentionIndex && 'active'
-              }`}
-              onMouseEnter={() => setSelectedMentionIndex(index)}
-              key={el.user_id}
-              onClick={enterMention}
-            >
-              <AvatarView user={el} size={25} />
-              <span className="mention-name">
-                {normalizeUserName(el.user_name)}
-              </span>
-            </div>
-          ))}
+          {dataMention.map(renderMentionItem)}
         </div>
       </Popper>
     </div>
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    teamUserData: state.user.teamUserData,
-    currentTeam: state.user.currentTeam,
-    currentChannel: state.user.currentChannel,
-  };
-};
-
-export default connect(mapStateToProps)(MessageInput);
+export default MessageInput;

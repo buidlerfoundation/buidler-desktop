@@ -404,11 +404,7 @@ const TaskItem = ({
           </div>
           <div className="task-item__reacts">
             <ReactView
-              reacts={reacts.map((r: any) => ({
-                name: r.reactName,
-                count: r.count,
-                isReacted: r.isReacted,
-              }))}
+              reacts={reacts}
               onClick={onReactPress}
               teamUserData={teamUserData}
               parentId={task.task_id}

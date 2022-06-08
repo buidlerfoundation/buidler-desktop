@@ -1,15 +1,26 @@
-import { Popover, CircularProgress } from '@material-ui/core';
-import React, { useState, useEffect, useRef } from 'react';
+import { Popover } from '@material-ui/core';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
+import { debounce } from 'lodash';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import moment from 'moment';
+import ContentEditable from 'react-contenteditable';
+import TextareaAutosize from 'react-textarea-autosize';
+import Dropzone from 'react-dropzone';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { ProgressStatus } from '../../common/AppConfig';
 import images from '../../common/images';
 import { fromNow, isOverDate } from '../../utils/DateUtils';
 import StatusSelectionPopup from '../StatusSelectionPopup';
 import './index.scss';
-import TextareaAutosize from 'react-textarea-autosize';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
 import PopupChannel from '../PopupChannel';
 import MessageInput from '../MessageInput';
-import Dropzone from 'react-dropzone';
 import { getUniqueId } from '../../helpers/GenerateUUID';
 import api from '../../api';
 import SocketUtils from '../../utils/SocketUtils';
@@ -20,17 +31,12 @@ import {
   normalizeMessage,
   normalizeUserName,
 } from '../../helpers/MessageHelper';
-import { debounce } from 'lodash';
 import AssignPopup from '../AssignPopup';
 import GlobalVariable from '../../services/GlobalVariable';
 import TaskAttachmentItem from './TaskAttachmentItem';
 import ActivityBody from './ActivityBody';
 import DatePickerV2 from '../DatePickerV2';
-import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
-import moment from 'moment';
 import AvatarView from '../AvatarView';
-import { connect } from 'react-redux';
-import ContentEditable from 'react-contenteditable';
 
 type TaskViewProps = {
   task?: any;
@@ -46,7 +52,6 @@ type TaskViewProps = {
   conversations: Array<any>;
   getActivities: (taskId: string) => any;
   activities: Array<any>;
-  teamUserData: Array<any>;
   onDeleteTask: (task: any) => void;
 };
 
@@ -68,25 +73,25 @@ const TaskView = ({
   conversations,
   getActivities,
   activities,
-  teamUserData,
   onDeleteTask,
 }: TaskViewProps) => {
+  const teamUserData = useAppSelector((state) => state.user.teamUserData);
   const popupMenuRef = useRef<any>();
   const [activeIndex, setActiveIndex] = useState(0);
-  const bottomBodyRef = useRef<any>();
+  const bottomBodyRef = useRef<HTMLDivElement>();
   const popupChannelRef = useRef<any>();
   const popupDatePickerRef = useRef<any>();
   const inputTitleRef = useRef<any>();
   const inputDesRef = useRef<any>();
-  const inputRef = useRef<any>();
+  const inputRef = useRef<HTMLInputElement>();
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<Array<any>>([]);
   const [hoverChannel, setHoverChannel] = useState(false);
   const [anchorPopupStatus, setPopupStatus] = useState(null);
   const generateId = useRef<string>('');
   const popupAssigneeRef = useRef<any>();
-  const inputFileRef = useRef<any>();
-  const addFileRef = useRef<any>();
+  const inputFileRef = useRef<HTMLInputElement>();
+  const addFileRef = useRef<HTMLInputElement>();
   const [taskData, setTaskData] = useState({
     currentStatus:
       ProgressStatus.find((st) => st.id === task.status) || ProgressStatus[0],
@@ -126,123 +131,132 @@ const TaskView = ({
     return () => window.removeEventListener('keydown', keyDownListener);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const onAddAttachment = async (files: any) => {
-    if (files == null) return;
-    if (generateId.current === '') {
-      generateId.current = getUniqueId();
-    }
-    const data = [...files];
-    const preAtt = data.map((el) => ({
-      file: URL.createObjectURL(el),
-      randomId: Math.random(),
-      loading: true,
-      mimetype: el.type,
-      original_name: el.name,
-    }));
-    setTaskData((current) => ({
-      ...current,
-      attachments: [...current.attachments, ...preAtt],
-    }));
-    const res = await Promise.all(
-      data.map(async (el, idx) => {
-        const r = await api.uploadFile(teamId, task.task_id, el);
-        if (r.statusCode === 200) {
-          return {
-            ...r.file,
-            file_url: r.file_url,
-            randomId: preAtt[idx].randomId,
-            id: r.file.file_id,
-          };
-        }
-        return {
-          ...r.file,
-          file_url: null,
-        };
-      })
-    );
-    const task_attachment = [
-      ...taskData.attachments,
-      ...res.filter((el) => !!el.file_url),
-    ];
-    updateTask(task.task_id, channelId, {
-      task_attachment,
-      file_ids: task_attachment.map((el: any) => el.file_id),
-      team_id: teamId,
-    });
-    setTaskData((current) => {
-      return {
-        ...current,
-        attachments: current.attachments.map((el: any) => {
-          if (el.randomId) {
-            return {
-              ...el,
-              loading: false,
-              ...res.find((item) => item.randomId === el.randomId),
-            };
-          }
-          return el;
-        }),
-      };
-    });
-  };
-  const onAddFiles = (fs: any) => {
-    if (fs == null) return;
-    if (generateId.current === '') {
-      generateId.current = getUniqueId();
-    }
-    const data = [...fs];
-    data.forEach((f) => {
-      const attachment = {
-        file: URL.createObjectURL(f),
+  const onAddAttachment = useCallback(
+    async (files: any) => {
+      if (files == null) return;
+      if (generateId.current === '') {
+        generateId.current = getUniqueId();
+      }
+      const data = [...files];
+      const preAtt = data.map((el) => ({
+        file: URL.createObjectURL(el),
         randomId: Math.random(),
         loading: true,
-        type: f.type,
-      };
-      setAttachments((current) => [...current, attachment]);
-      api.uploadFile(teamId, generateId.current, f).then((res) => {
-        setAttachments((current) => {
-          let newAttachments = [...current];
-          if (res.statusCode === 200) {
-            const index = newAttachments.findIndex(
-              (a: any) => a.randomId === attachment.randomId
-            );
-            newAttachments[index] = {
-              ...newAttachments[index],
-              loading: false,
-              url: res.file_url,
-              id: res.file.file_id,
+        mimetype: el.type,
+        original_name: el.name,
+      }));
+      setTaskData((current) => ({
+        ...current,
+        attachments: [...current.attachments, ...preAtt],
+      }));
+      const res = await Promise.all(
+        data.map(async (el, idx) => {
+          const r = await api.uploadFile(teamId, task.task_id, el);
+          if (r.statusCode === 200) {
+            return {
+              ...r.file,
+              file_url: r.file_url,
+              randomId: preAtt[idx].randomId,
+              id: r.file.file_id,
             };
-          } else {
-            newAttachments = newAttachments.filter(
-              (el) => el.randomId !== attachment.randomId
-            );
           }
-
-          return newAttachments;
-        });
-        return null;
+          return {
+            ...r.file,
+            file_url: null,
+          };
+        })
+      );
+      const task_attachment = [
+        ...taskData.attachments,
+        ...res.filter((el) => !!el.file_url),
+      ];
+      updateTask(task.task_id, channelId, {
+        task_attachment,
+        file_ids: task_attachment.map((el: any) => el.file_id),
+        team_id: teamId,
       });
-    });
-  };
-  const openFile = () => {
+      setTaskData((current) => {
+        return {
+          ...current,
+          attachments: current.attachments.map((el: any) => {
+            if (el.randomId) {
+              return {
+                ...el,
+                loading: false,
+                ...res.find((item) => item.randomId === el.randomId),
+              };
+            }
+            return el;
+          }),
+        };
+      });
+    },
+    [channelId, task?.task_id, taskData.attachments, teamId, updateTask]
+  );
+  const onAddFiles = useCallback(
+    (fs: any) => {
+      if (fs == null) return;
+      if (generateId.current === '') {
+        generateId.current = getUniqueId();
+      }
+      const data = [...fs];
+      data.forEach((f) => {
+        const attachment = {
+          file: URL.createObjectURL(f),
+          randomId: Math.random(),
+          loading: true,
+          type: f.type,
+        };
+        setAttachments((current) => [...current, attachment]);
+        api
+          .uploadFile(teamId, generateId.current, f)
+          .then((res) => {
+            setAttachments((current) => {
+              let newAttachments = [...current];
+              if (res.statusCode === 200) {
+                const index = newAttachments.findIndex(
+                  (a: any) => a.randomId === attachment.randomId
+                );
+                newAttachments[index] = {
+                  ...newAttachments[index],
+                  loading: false,
+                  url: res.file_url,
+                  id: res.file.file_id,
+                };
+              } else {
+                newAttachments = newAttachments.filter(
+                  (el) => el.randomId !== attachment.randomId
+                );
+              }
+
+              return newAttachments;
+            });
+            return null;
+          })
+          .catch((err) => console.log(err));
+      });
+    },
+    [teamId]
+  );
+  const openFile = useCallback(() => {
     inputFileRef.current?.click();
-  };
-  const onCircleClick = () => {
-    openFile();
-  };
-  const _onPaste = (e: any) => {
-    const { files } = e.clipboardData;
-    if (files?.length > 0) {
-      onAddFiles(files);
-    }
-  };
+  }, []);
+  const _onPaste = useCallback(
+    (e: React.ClipboardEvent<HTMLDivElement>) => {
+      const { files } = e.clipboardData;
+      if (files?.length > 0) {
+        onAddFiles(files);
+      }
+    },
+    [onAddFiles]
+  );
   const _onPasteAttachmentTask = (e: any) => {
     const { files } = e.clipboardData;
     if (files?.length > 0) {
       onAddAttachment(files);
     }
   };
-  const submitMessage = debounce(async () => {
+  const submitMessage = useCallback(async () => {
     const loadingAttachment = attachments.find((att: any) => att.loading);
     if (loadingAttachment != null) return;
     if (extractContent(text).trim() !== '' || attachments.length > 0) {
@@ -263,16 +277,19 @@ const TaskView = ({
       setAttachments([]);
       generateId.current = '';
     }
-  }, 100);
-  const onKeyDown = (e: any) => {
-    if (e.code === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      submitMessage();
-      setTimeout(() => {
-        bottomBodyRef.current?.scrollIntoView?.({ behavior: 'smooth' });
-      }, 300);
-    }
-  };
+  }, [attachments, channelId, task?.task_id, text]);
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.code === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitMessage();
+        setTimeout(() => {
+          bottomBodyRef.current?.scrollIntoView?.({ behavior: 'smooth' });
+        }, 300);
+      }
+    },
+    [submitMessage]
+  );
   const handleDateChange = async (date: MaterialUiPickersDate) => {
     popupDatePickerRef.current?.hide();
     if (!date) return;
@@ -296,7 +313,35 @@ const TaskView = ({
       team_id: teamId,
     });
   };
-  const date: any = taskData?.dueDate;
+  const date = useMemo(() => taskData?.dueDate, [taskData?.dueDate]);
+  const handleRemoveAttachment = useCallback((file) => {
+    setAttachments((current) => current.filter((f) => f.id !== file.id));
+  }, []);
+  const handleClosePopupStatus = useCallback(() => setPopupStatus(null), []);
+  const handleSelectStatus = useCallback(
+    async (status) => {
+      setPopupStatus(null);
+      const res = await updateTask(task.task_id, channelId, {
+        status: status.id,
+        team_id: teamId,
+      });
+      if (res) setTaskData((data) => ({ ...data, currentStatus: status }));
+    },
+    [channelId, task?.task_id, teamId, updateTask]
+  );
+  const handleChangeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onAddFiles(e.target.files);
+    },
+    [onAddFiles]
+  );
+  const handleChangeFileAttachment = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onAddAttachment(e.target.files);
+      e.target.value = null;
+    },
+    [onAddAttachment]
+  );
   return (
     <Dropzone onDrop={onAddFiles}>
       {({ getRootProps, getInputProps }) => (
@@ -599,18 +644,14 @@ const TaskView = ({
           {activeIndex === 0 && (
             <MessageInput
               placeholder="Add comment"
-              onCircleClick={onCircleClick}
-              onKeyDown={onKeyDown}
+              onCircleClick={openFile}
+              onKeyDown={debounce(onKeyDown, 100)}
               text={text}
               inputRef={inputRef}
               setText={setText}
               onPaste={_onPaste}
               attachments={attachments}
-              onRemoveFile={(file) => {
-                setAttachments((current) =>
-                  current.filter((f) => f.id !== file.id)
-                );
-              }}
+              onRemoveFile={handleRemoveAttachment}
             />
           )}
           <Popover
@@ -618,7 +659,7 @@ const TaskView = ({
             id={idPopupStatus}
             open={openStatus}
             anchorEl={anchorPopupStatus}
-            onClose={() => setPopupStatus(null)}
+            onClose={handleClosePopupStatus}
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'left',
@@ -628,35 +669,20 @@ const TaskView = ({
               horizontal: 'left',
             }}
           >
-            <StatusSelectionPopup
-              onSelectedStatus={async (status) => {
-                setPopupStatus(null);
-                const res = await updateTask(task.task_id, channelId, {
-                  status: status.id,
-                  team_id: teamId,
-                });
-                if (res)
-                  setTaskData((data) => ({ ...data, currentStatus: status }));
-              }}
-            />
+            <StatusSelectionPopup onSelectedStatus={handleSelectStatus} />
           </Popover>
           <input
             {...getInputProps()}
             ref={inputFileRef}
             accept="image/*,video/*"
-            onChange={(e: any) => {
-              onAddFiles(e.target.files);
-            }}
+            onChange={handleChangeFile}
           />
           <input
             {...getInputProps()}
             ref={addFileRef}
             accept="image/*,video/*"
             multiple
-            onChange={(e: any) => {
-              onAddAttachment(e.target.files);
-              e.target.value = null;
-            }}
+            onChange={handleChangeFileAttachment}
           />
         </div>
       )}
@@ -664,10 +690,4 @@ const TaskView = ({
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    teamUserData: state.user.teamUserData,
-  };
-};
-
-export default connect(mapStateToProps)(TaskView);
+export default TaskView;

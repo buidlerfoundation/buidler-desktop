@@ -1,4 +1,4 @@
-import { Reducer } from 'redux';
+import { AnyAction, Reducer } from 'redux';
 import { Channel, Community, Space, UserData } from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 import { AsyncKey } from '../common/AppConfig';
@@ -33,7 +33,7 @@ const initialState: UserReducerState = {
   spaceMembers: [],
 };
 
-const userReducers: Reducer<UserReducerState, any> = (
+const userReducers: Reducer<UserReducerState, AnyAction> = (
   state = initialState,
   action
 ) => {

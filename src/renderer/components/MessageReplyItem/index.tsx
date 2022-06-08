@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { connect } from 'react-redux';
+import React, { useRef, useCallback, useMemo, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import useAppSelector from 'renderer/hooks/useAppSelector';
+import { MessageData } from 'renderer/models';
 import images from '../../common/images';
 import {
   normalizeMessageText,
@@ -9,25 +11,18 @@ import { dateFormatted, messageFromNow } from '../../utils/DateUtils';
 import AvatarView from '../AvatarView';
 import EmojiPicker from '../EmojiPicker';
 import MessagePhotoItem from '../MessagePhotoItem';
-import MessageReactItem from '../MessageReactItem';
-import MessageReply from '../MessageReply';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
 import ReactView from '../ReactView';
 import './index.scss';
-import { useHistory } from 'react-router-dom';
 
 type MessageReplyItemProps = {
-  message: any;
-  teamUserData?: Array<any>;
-  teamId?: string;
+  message: MessageData;
   onCreateTask: () => void;
   onClick?: () => void;
   onReplyPress?: () => void;
   disableHover?: boolean;
   disableMenu?: boolean;
   zIndex?: number;
-  reactReducer?: any;
-  userData: any;
   onAddReact?: (id: string, name: string, userId: string) => void;
   onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected: (menu: PopoverItem) => void;
@@ -36,57 +31,75 @@ type MessageReplyItemProps = {
 
 const MessageReplyItem = ({
   message,
-  teamUserData = [],
-  teamId,
   onCreateTask,
   onClick,
   disableHover,
   disableMenu = false,
   zIndex,
   onReplyPress,
-  reactReducer,
-  userData,
   onAddReact,
   onRemoveReact,
   onMenuSelected,
   onSelectTask,
 }: MessageReplyItemProps) => {
+  const [isPopoverOpen, setPopoverOpen] = useState(false);
+  const reactData = useAppSelector((state) => state.reactReducer.reactData);
+  const { userData, teamUserData, currentTeam } = useAppSelector(
+    (state) => state.user
+  );
   const history = useHistory();
-  const messageMenu: Array<PopoverItem> = [];
-  const popupMenuRef = useRef<any>();
-  const { isConversationHead, isHead, task, isSending } = message;
-  const head = isConversationHead || isHead;
-  const popupEmojiRef = useRef<any>();
-  const [isHover, setHover] = useState(false);
-  const sender = teamUserData.find((u) => u.user_id === message.sender_id);
-  if (!sender) return null;
-  if (userData?.user_id === sender.user_id) {
-    messageMenu.push({
-      label: 'Edit',
-      value: 'Edit',
-    });
-    messageMenu.push({
-      label: 'Delete',
-      value: 'Delete',
-      type: 'destructive',
-    });
-  }
-  if (!sender) return null;
-  const msgStyle = zIndex ? { zIndex } : {};
-  const reacts = reactReducer?.reactData?.[message.message_id] || [];
-  const onReactPress = (name: string) => {
-    const isExisted = !!reacts.find(
-      (react: any) => react.reactName === name && react?.isReacted
-    );
-    if (isExisted) {
-      onRemoveReact?.(message.message_id, name, userData.user_id);
-    } else {
-      onAddReact?.(message.message_id, name, userData.user_id);
+  const sender = useMemo(
+    () => teamUserData.find((u) => u.user_id === message.sender_id),
+    [message.sender_id, teamUserData]
+  );
+  const reacts = useMemo(
+    () => reactData?.[message.message_id] || [],
+    [message.message_id, reactData]
+  );
+  const messageMenu = useMemo<Array<PopoverItem>>(() => {
+    const menu = [];
+    if (userData?.user_id === sender.user_id) {
+      menu.push({
+        label: 'Edit',
+        value: 'Edit',
+      });
+      menu.push({
+        label: 'Delete',
+        value: 'Delete',
+        type: 'destructive',
+      });
     }
-  };
-  const renderSpaceLeft = () => {
+    return menu;
+  }, [sender?.user_id, userData?.user_id]);
+  const popupMenuRef = useRef<any>();
+  const head = useMemo(
+    () => message.isHead || message.isConversationHead,
+    [message.isConversationHead, message.isHead]
+  );
+  const popupEmojiRef = useRef<any>();
+  const handleHeadClick = useCallback(() => {
+    if (message.task) {
+      onSelectTask?.(message.task);
+    } else {
+      onClick?.();
+    }
+  }, [message.task, onClick, onSelectTask]);
+  const onReactPress = useCallback(
+    (name: string) => {
+      const isExisted = !!reacts.find(
+        (react: any) => react.reactName === name && react?.isReacted
+      );
+      if (isExisted) {
+        onRemoveReact?.(message.message_id, name, userData.user_id);
+      } else {
+        onAddReact?.(message.message_id, name, userData.user_id);
+      }
+    },
+    [message.message_id, onAddReact, onRemoveReact, reacts, userData.user_id]
+  );
+  const renderSpaceLeft = useCallback(() => {
     if (head) return null;
-    if (isHover && !disableHover) {
+    if (!disableHover) {
       return (
         <div className="message-reply-item__space-left">
           <span className="message-reply-item__time">
@@ -96,18 +109,32 @@ const MessageReplyItem = ({
       );
     }
     return <div className="message-reply-item__space-left" />;
-  };
-  const onUserClick = () => {
+  }, [disableHover, head, message.createdAt]);
+  const onUserClick = useCallback(() => {
     history.replace(`/home?user_id=${sender.user_id}`);
-  };
+  }, [history, sender.user_id]);
+  const handleEmojiClick = useCallback(
+    (emoji: EmojiData) => {
+      onReactPress(emoji.id);
+      setPopoverOpen(false);
+      popupEmojiRef.current?.hide();
+    },
+    [onReactPress]
+  );
+  const handleSelectedMenu = useCallback(
+    (menu: PopoverItem) => {
+      onMenuSelected(menu);
+      setPopoverOpen(false);
+    },
+    [onMenuSelected]
+  );
+  const handlePopoverButtonClose = useCallback(() => setPopoverOpen(false), []);
+  const handlePopoverButtonOpen = useCallback(() => setPopoverOpen(true), []);
+  if (!sender) return null;
   return (
     <div className="message-reply-item-wrapper">
       {head && <div style={{ height: 15 }} />}
-      <div
-        className="message-reply-item-container"
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
+      <div className="message-reply-item-container">
         {head && (
           <div
             className="message-reply-item__avatar-view"
@@ -137,17 +164,11 @@ const MessageReplyItem = ({
               <div className="message-root__content">
                 <span
                   className="message-reply-item__reply"
-                  onClick={() => {
-                    if (task) {
-                      onSelectTask?.(task);
-                    } else {
-                      onClick?.();
-                    }
-                  }}
+                  onClick={handleHeadClick}
                 >
-                  {task && <span className="view-task">View task</span>}
-                  {task?.comment_count > 0
-                    ? `${task?.comment_count} Replies`
+                  {message.task && <span className="view-task">View task</span>}
+                  {message.task?.comment_count > 0
+                    ? `${message.task?.comment_count} Replies`
                     : message?.conversation_data?.length - 1 > 0 && (
                         <span className="mention">
                           {message?.conversation_data?.length - 1} Replies
@@ -160,14 +181,16 @@ const MessageReplyItem = ({
           <div
             className={`message-reply-item__message ${
               head ? 'message-head__message' : ''
-            } ${isSending ? 'message-reply-sending' : ''} enable-user-select`}
+            } ${
+              message.isSending ? 'message-reply-sending' : ''
+            } enable-user-select`}
             dangerouslySetInnerHTML={{
               __html: normalizeMessageText(message.content),
             }}
           />
           <MessagePhotoItem
             photos={message?.message_attachment || []}
-            teamId={teamId}
+            teamId={currentTeam.team_id}
             isHead={head}
           />
           {reacts.length > 0 && (
@@ -177,11 +200,7 @@ const MessageReplyItem = ({
               }`}
             >
               <ReactView
-                reacts={reacts.map((r: any) => ({
-                  name: r.reactName,
-                  count: r.count,
-                  isReacted: r.isReacted,
-                }))}
+                reacts={reacts}
                 onClick={onReactPress}
                 teamUserData={teamUserData}
                 parentId={message.message_id}
@@ -189,30 +208,31 @@ const MessageReplyItem = ({
             </div>
           )}
         </div>
-        {isHover && !disableHover && !disableMenu && (
-          <div className="message-reply-item__menu" style={msgStyle}>
+        {!disableHover && !disableMenu && (
+          <div
+            className={`message-reply-item__menu ${
+              isPopoverOpen ? 'popover-open' : ''
+            }`}
+            style={zIndex ? { zIndex } : {}}
+          >
             <PopoverButton
               ref={popupEmojiRef}
-              onClose={() => setHover(false)}
               componentButton={
                 <div className="message-reply-item__menu-item">
                   <img alt="" src={images.icReact} />
                 </div>
               }
+              onClose={handlePopoverButtonClose}
+              onOpen={handlePopoverButtonOpen}
               componentPopup={
                 <div className="emoji-picker__container">
-                  <EmojiPicker
-                    onClick={(emoji) => {
-                      onReactPress(emoji.id);
-                      popupEmojiRef.current?.hide();
-                    }}
-                  />
+                  <EmojiPicker onClick={handleEmojiClick} />
                 </div>
               }
             />
             <div
               className="message-reply-item__menu-item"
-              onClick={() => onReplyPress?.()}
+              onClick={onReplyPress}
             >
               <img alt="" src={images.icReply} />
             </div>
@@ -226,11 +246,9 @@ const MessageReplyItem = ({
               <PopoverButton
                 ref={popupMenuRef}
                 data={messageMenu}
-                onSelected={(menu) => {
-                  setHover(false);
-                  onMenuSelected(menu);
-                }}
-                onClose={() => setHover(false)}
+                onSelected={handleSelectedMenu}
+                onClose={handlePopoverButtonClose}
+                onOpen={handlePopoverButtonOpen}
                 componentButton={
                   <div className="message-reply-item__menu-item">
                     <img alt="" src={images.icMoreWhite} />
@@ -245,13 +263,4 @@ const MessageReplyItem = ({
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    reactReducer: state.reactReducer,
-    userData: state.user.userData,
-    teamUserData: state.user.teamUserData,
-    teamId: state.user.currentTeam?.team_id,
-  };
-};
-
-export default connect(mapStateToProps)(MessageReplyItem);
+export default MessageReplyItem;
