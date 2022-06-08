@@ -20,6 +20,7 @@ import {
   encryptMessage,
 } from 'renderer/helpers/ChannelHelper';
 import toast from 'react-hot-toast';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { titleMessageFromNow } from '../../../../utils/DateUtils';
 import images from '../../../../common/images';
 import MessageItem from '../../../../components/MessageItem';
@@ -108,6 +109,7 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
+    const reactData = useAppSelector((state) => state.reactReducer.reactData);
     const messagesGroup = useMemo<Array<MessageGroup>>(() => {
       return normalizeMessages(messages);
     }, [messages]);
@@ -531,7 +533,7 @@ const ChannelView = forwardRef(
     );
 
     const renderMessage = useCallback(
-      (msg: MessageData, index: number) => {
+      (msg: MessageData) => {
         if (msg.conversation_data?.length > 0) {
           return (
             <MessageReplyItem
@@ -539,14 +541,13 @@ const ChannelView = forwardRef(
               message={msg}
               onCreateTask={onCreateTaskFromMessage}
               onClick={openConversation}
-              disableHover={isScrolling}
-              zIndex={messages.length - index}
               onReplyPress={onReplyPress}
               onAddReact={onAddReact}
               onRemoveReact={onRemoveReact}
               onMenuSelected={onMenuMessage}
               onSelectTask={onSelectTask}
               content={msg.content}
+              reacts={reactData?.[msg.message_id]}
             />
           );
         }
@@ -555,20 +556,17 @@ const ChannelView = forwardRef(
             key={msg.message_id}
             message={msg}
             onCreateTask={onCreateTaskFromMessage}
-            disableHover={isScrolling}
-            zIndex={messages.length - index}
             onReplyPress={onReplyPress}
             onAddReact={onAddReact}
             onRemoveReact={onRemoveReact}
             onMenuSelected={onMenuMessage}
             onSelectTask={onSelectTask}
             content={msg.content}
+            reacts={reactData?.[msg.message_id]}
           />
         );
       },
       [
-        isScrolling,
-        messages.length,
         onAddReact,
         onCreateTaskFromMessage,
         onMenuMessage,
@@ -576,6 +574,7 @@ const ChannelView = forwardRef(
         onReplyPress,
         onSelectTask,
         openConversation,
+        reactData,
       ]
     );
 
@@ -626,7 +625,12 @@ const ChannelView = forwardRef(
               onScroll={onMessageScroll}
             >
               <div style={{ marginTop: 15 }} />
-              {messagesGroup.map(renderMessageGroup)}
+              <div
+                className="channel-view-message-list"
+                style={{ pointerEvents: isScrolling ? 'none' : 'initial' }}
+              >
+                {messagesGroup.map(renderMessageGroup)}
+              </div>
             </div>
             {loadMoreMessage && (
               <div className="message-load-more">

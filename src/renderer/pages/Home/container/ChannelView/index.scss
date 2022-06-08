@@ -139,6 +139,12 @@
       }
     }
   }
+  .channel-view-message-list {
+    display: flex;
+    flex-direction: column-reverse;
+    flex: 1;
+    position: relative;
+  }
   .message-bottom {
     display: flex;
     flex-direction: column;

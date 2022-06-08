@@ -22,12 +22,12 @@ type MessageReplyItemProps = {
   onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
-  zIndex?: number;
   onAddReact?: (id: string, name: string, userId: string) => void;
   onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask: (task: any) => void;
   content: string;
+  reacts: Array<ReactReducerData>;
 };
 
 const MessageReplyItem = ({
@@ -36,16 +36,15 @@ const MessageReplyItem = ({
   onClick,
   disableHover,
   disableMenu = false,
-  zIndex,
   onReplyPress,
   onAddReact,
   onRemoveReact,
   onMenuSelected,
   onSelectTask,
   content,
+  reacts,
 }: MessageReplyItemProps) => {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
-  const reactData = useAppSelector((state) => state.reactReducer.reactData);
   const { userData, teamUserData, currentTeam } = useAppSelector(
     (state) => state.user
   );
@@ -53,10 +52,6 @@ const MessageReplyItem = ({
   const sender = useMemo(
     () => teamUserData.find((u) => u.user_id === message.sender_id),
     [message.sender_id, teamUserData]
-  );
-  const reacts = useMemo(
-    () => reactData?.[message.message_id] || [],
-    [message.message_id, reactData]
   );
   const messageMenu = useMemo<Array<PopoverItem>>(() => {
     const menu = [];
@@ -88,7 +83,7 @@ const MessageReplyItem = ({
   }, [message, onClick, onSelectTask]);
   const onReactPress = useCallback(
     (name: string) => {
-      const isExisted = !!reacts.find(
+      const isExisted = !!reacts?.find(
         (react: any) => react.reactName === name && react?.isReacted
       );
       if (isExisted) {
@@ -203,7 +198,7 @@ const MessageReplyItem = ({
             teamId={currentTeam.team_id}
             isHead={head}
           />
-          {reacts.length > 0 && (
+          {reacts?.length > 0 && (
             <div
               className={`message-reply-item__reacts ${
                 head && 'message-reply-item__reacts-head'
@@ -223,7 +218,6 @@ const MessageReplyItem = ({
             className={`message-reply-item__menu ${
               isPopoverOpen ? 'popover-open' : ''
             }`}
-            style={zIndex ? { zIndex } : {}}
           >
             <PopoverButton
               ref={popupEmojiRef}

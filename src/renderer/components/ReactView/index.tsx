@@ -107,17 +107,24 @@ const ReactView = ({
     () => !!anchorEl && reactDetail.length > 0,
     [anchorEl, reactDetail.length]
   );
+  const handleClick = useCallback(
+    (name: string) => {
+      setAnchorEl(null);
+      onClick(name);
+    },
+    [onClick]
+  );
   const renderReactItem = useCallback(
     (emj: ReactReducerData) => (
       <ReactItem
         key={emj.reactName}
         emoji={emj}
-        onClick={onClick}
+        onClick={handleClick}
         onMouseLeave={handlePopoverClose}
         onMouseEnter={handlePopoverOpen}
       />
     ),
-    [handlePopoverClose, handlePopoverOpen, onClick]
+    [handleClick, handlePopoverClose, handlePopoverOpen]
   );
   const renderReactDetail = useCallback(
     (el: ReactUserApiData) => {

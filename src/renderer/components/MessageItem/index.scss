@@ -116,6 +116,7 @@
   }
   &:hover {
     background-color: var(--color-highlight);
+    z-index: 100;
     .message-item__menu {
       display: flex;
     }

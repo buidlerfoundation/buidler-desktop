@@ -2,7 +2,7 @@ import { EmojiData } from 'emoji-mart';
 import React, { useRef, useMemo, useCallback, useState, memo } from 'react';
 import { useHistory } from 'react-router-dom';
 import useAppSelector from 'renderer/hooks/useAppSelector';
-import { MessageData, TaskData } from 'renderer/models';
+import { MessageData, ReactReducerData, TaskData } from 'renderer/models';
 import images from '../../common/images';
 import {
   normalizeMessageText,
@@ -22,12 +22,12 @@ type MessageItemProps = {
   onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
-  zIndex?: number;
   onAddReact?: (id: string, name: string, userId: string) => void;
   onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected?: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask?: (task: TaskData) => void;
   content: string;
+  reacts: Array<ReactReducerData>;
 };
 
 const MessageItem = ({
@@ -35,19 +35,19 @@ const MessageItem = ({
   onCreateTask,
   disableHover,
   disableMenu = false,
-  zIndex,
   onReplyPress,
   onAddReact,
   onRemoveReact,
   onMenuSelected,
   onSelectTask,
   content,
+  reacts,
 }: MessageItemProps) => {
+  console.log('Render Message');
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { teamUserData, currentTeam, userData } = useAppSelector(
     (state) => state.user
   );
-  const reactData = useAppSelector((state) => state.reactReducer.reactData);
   const history = useHistory();
   const popupMenuRef = useRef<any>();
   const popupEmojiRef = useRef<any>();
@@ -70,13 +70,9 @@ const MessageItem = ({
     }
     return menu;
   }, [sender?.user_id, userData?.user_id]);
-  const reacts = useMemo(
-    () => reactData?.[message.message_id] || [],
-    [message.message_id, reactData]
-  );
   const onReactPress = useCallback(
     (name: string) => {
-      const isExisted = !!reacts.find(
+      const isExisted = !!reacts?.find(
         (react: any) => react.reactName === name && react?.isReacted
       );
       if (isExisted) {
@@ -181,7 +177,7 @@ const MessageItem = ({
             teamId={currentTeam.team_id}
             isHead={message.isHead}
           />
-          {reacts.length > 0 && (
+          {reacts?.length > 0 && (
             <div
               className={`message-item__reacts ${
                 message.isHead && 'message-item__reacts-head'
@@ -201,7 +197,6 @@ const MessageItem = ({
             className={`message-item__menu ${
               isPopoverOpen ? 'popover-open' : ''
             }`}
-            style={zIndex ? { zIndex } : {}}
           >
             <PopoverButton
               ref={popupEmojiRef}
