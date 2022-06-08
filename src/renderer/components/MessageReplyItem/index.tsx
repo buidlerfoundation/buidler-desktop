@@ -17,15 +17,15 @@ import './index.scss';
 
 type MessageReplyItemProps = {
   message: MessageData;
-  onCreateTask: () => void;
-  onClick?: () => void;
-  onReplyPress?: () => void;
+  onCreateTask: (message: MessageData) => void;
+  onClick?: (message: MessageData) => void;
+  onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
   zIndex?: number;
   onAddReact?: (id: string, name: string, userId: string) => void;
   onRemoveReact?: (id: string, name: string, userId: string) => void;
-  onMenuSelected: (menu: PopoverItem) => void;
+  onMenuSelected: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask: (task: any) => void;
 };
 
@@ -81,9 +81,9 @@ const MessageReplyItem = ({
     if (message.task) {
       onSelectTask?.(message.task);
     } else {
-      onClick?.();
+      onClick?.(message);
     }
-  }, [message.task, onClick, onSelectTask]);
+  }, [message, onClick, onSelectTask]);
   const onReactPress = useCallback(
     (name: string) => {
       const isExisted = !!reacts.find(
@@ -121,12 +121,20 @@ const MessageReplyItem = ({
     },
     [onReactPress]
   );
+  const handleReplyPress = useCallback(
+    () => onReplyPress(message),
+    [message, onReplyPress]
+  );
+  const onPinned = useCallback(
+    () => onCreateTask(message),
+    [message, onCreateTask]
+  );
   const handleSelectedMenu = useCallback(
     (menu: PopoverItem) => {
-      onMenuSelected(menu);
+      onMenuSelected(menu, message);
       setPopoverOpen(false);
     },
-    [onMenuSelected]
+    [message, onMenuSelected]
   );
   const handlePopoverButtonClose = useCallback(() => setPopoverOpen(false), []);
   const handlePopoverButtonOpen = useCallback(() => setPopoverOpen(true), []);
@@ -232,14 +240,11 @@ const MessageReplyItem = ({
             />
             <div
               className="message-reply-item__menu-item"
-              onClick={onReplyPress}
+              onClick={handleReplyPress}
             >
               <img alt="" src={images.icReply} />
             </div>
-            <div
-              className="message-reply-item__menu-item"
-              onClick={onCreateTask}
-            >
+            <div className="message-reply-item__menu-item" onClick={onPinned}>
               <img alt="" src={images.icPinned} />
             </div>
             {messageMenu.length > 0 && (

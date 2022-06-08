@@ -5,8 +5,11 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useCallback,
+  useMemo,
 } from 'react';
 import Dropzone from 'react-dropzone';
+import { AttachmentData, MessageData, MessageGroup } from 'renderer/models';
+import { PopoverItem } from 'renderer/components/PopoverButton';
 import { debounce } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
@@ -104,13 +107,17 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
+    const messagesGroup = useMemo<Array<MessageGroup>>(
+      () => normalizeMessages(messages),
+      [messages]
+    );
     const userData = useSelector((state: any) => state.user.userData);
     const channelPrivateKey = useSelector(
       (state: any) => state.configs.channelPrivateKey
     );
     const location = useLocation();
-    const [messageReply, setMessageReply] = useState<any>(null);
-    const [messageEdit, setMessageEdit] = useState<any>(null);
+    const [messageReply, setMessageReply] = useState<MessageData>(null);
+    const [messageEdit, setMessageEdit] = useState<MessageData>(null);
     const [isScrolling, setScrolling] = useState(false);
     const [files, setFiles] = useState<Array<any>>([]);
     const timeoutScrollRef = useRef<any>(null);
@@ -211,7 +218,7 @@ const ChannelView = forwardRef(
       ]
     );
     const onCreateTaskFromMessage = useCallback(
-      (msg: any) => () => {
+      (msg: MessageData) => {
         const body: any = {
           title: msg?.content,
           status: 'pinned',
@@ -219,7 +226,9 @@ const ChannelView = forwardRef(
             currentChannel.channel_type === 'Direct'
               ? currentChannel?.user?.user_channels
               : [currentChannel?.channel_id],
-          file_ids: msg?.message_attachment?.map?.((a: any) => a.file_id),
+          file_ids: msg?.message_attachment?.map?.(
+            (a: AttachmentData) => a.file_id
+          ),
           task_id: msg.message_id,
           team_id: currentTeam.team_id,
           assignee_id:
@@ -236,12 +245,8 @@ const ChannelView = forwardRef(
         currentTeam.team_id,
       ]
     );
-    const handleOpenConversation = useCallback(
-      (msg) => () => openConversation(msg),
-      [openConversation]
-    );
     const onReplyPress = useCallback(
-      (msg: any) => () => {
+      (msg: MessageData) => {
         setMessageReply(msg);
         setReplyTask(null);
         setMessageEdit(null);
@@ -250,7 +255,7 @@ const ChannelView = forwardRef(
       [inputRef, setReplyTask]
     );
     const onMenuMessage = useCallback(
-      (msg: any) => (menu: any) => {
+      (menu: PopoverItem, msg: MessageData) => {
         if (menu.value === 'Delete') {
           deleteMessage(
             msg.message_id,
@@ -411,12 +416,13 @@ const ChannelView = forwardRef(
         scrollDown();
       }
     }, [
-      channelPrivateKey,
-      currentChannel?.channel_id,
-      currentChannel?.channel_type,
-      messageEdit?.message_id,
       files,
       text,
+      currentChannel?.channel_type,
+      currentChannel?.channel_id,
+      messageEdit?.message_id,
+      scrollDown,
+      channelPrivateKey,
     ]);
     const submitMessage = useCallback(async () => {
       const loadingAttachment = files.find((att: any) => att.loading);
@@ -524,6 +530,72 @@ const ChannelView = forwardRef(
       [editMessage, messageEdit, submitMessage]
     );
 
+    const renderMessage = useCallback(
+      (msg: MessageData, index: number) => {
+        if (msg.conversation_data?.length > 0) {
+          return (
+            <MessageReplyItem
+              key={msg.message_id}
+              message={msg}
+              onCreateTask={onCreateTaskFromMessage}
+              onClick={openConversation}
+              disableHover={isScrolling}
+              zIndex={messages.length - index}
+              onReplyPress={onReplyPress}
+              onAddReact={onAddReact}
+              onRemoveReact={onRemoveReact}
+              onMenuSelected={onMenuMessage}
+              onSelectTask={onSelectTask}
+            />
+          );
+        }
+        return (
+          <MessageItem
+            key={msg.message_id}
+            message={msg}
+            onCreateTask={onCreateTaskFromMessage}
+            disableHover={isScrolling}
+            zIndex={messages.length - index}
+            onReplyPress={onReplyPress}
+            onAddReact={onAddReact}
+            onRemoveReact={onRemoveReact}
+            onMenuSelected={onMenuMessage}
+            onSelectTask={onSelectTask}
+          />
+        );
+      },
+      [
+        isScrolling,
+        messages.length,
+        onAddReact,
+        onCreateTaskFromMessage,
+        onMenuMessage,
+        onRemoveReact,
+        onReplyPress,
+        onSelectTask,
+        openConversation,
+      ]
+    );
+
+    const renderMessageGroup = useCallback(
+      (el: MessageGroup) => {
+        return (
+          <div className="column-reverse" key={el.date}>
+            <div className="column-reverse">
+              {normalizeMessage(el.messages).map(renderMessage)}
+            </div>
+            <div className="date-title">
+              <div className="separate-line" />
+              <span>{titleMessageFromNow(el.date)}</span>
+              <div className="separate-line" />
+              <div />
+            </div>
+          </div>
+        );
+      },
+      [renderMessage]
+    );
+
     if (!currentChannel?.channel_name && !currentChannel?.user)
       return <div className="channel-view-container" />;
     return (
@@ -552,53 +624,7 @@ const ChannelView = forwardRef(
               onScroll={onMessageScroll}
             >
               <div style={{ marginTop: 15 }} />
-              {normalizeMessages(messages).map((el) => {
-                return (
-                  <div className="column-reverse" key={el.date}>
-                    <div className="column-reverse">
-                      {normalizeMessage(el.messages).map((msg, index) => {
-                        if (msg.conversation_data?.length > 0) {
-                          return (
-                            <MessageReplyItem
-                              key={msg.message_id}
-                              message={msg}
-                              onCreateTask={onCreateTaskFromMessage(msg)}
-                              onClick={handleOpenConversation(msg)}
-                              disableHover={isScrolling}
-                              zIndex={messages.length - index}
-                              onReplyPress={onReplyPress(msg)}
-                              onAddReact={onAddReact}
-                              onRemoveReact={onRemoveReact}
-                              onMenuSelected={onMenuMessage(msg)}
-                              onSelectTask={onSelectTask}
-                            />
-                          );
-                        }
-                        return (
-                          <MessageItem
-                            key={msg.message_id}
-                            message={msg}
-                            onCreateTask={onCreateTaskFromMessage(msg)}
-                            disableHover={isScrolling}
-                            zIndex={messages.length - index}
-                            onReplyPress={onReplyPress(msg)}
-                            onAddReact={onAddReact}
-                            onRemoveReact={onRemoveReact}
-                            onMenuSelected={onMenuMessage(msg)}
-                            onSelectTask={onSelectTask}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="date-title">
-                      <div className="separate-line" />
-                      <span>{titleMessageFromNow(el.date)}</span>
-                      <div className="separate-line" />
-                      <div />
-                    </div>
-                  </div>
-                );
-              })}
+              {messagesGroup.map(renderMessageGroup)}
             </div>
             {loadMoreMessage && (
               <div className="message-load-more">

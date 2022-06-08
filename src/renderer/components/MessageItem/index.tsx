@@ -18,14 +18,14 @@ import './index.scss';
 
 type MessageItemProps = {
   message: MessageData;
-  onCreateTask: () => void;
-  onReplyPress?: () => void;
+  onCreateTask?: (message: MessageData) => void;
+  onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
   zIndex?: number;
   onAddReact?: (id: string, name: string, userId: string) => void;
   onRemoveReact?: (id: string, name: string, userId: string) => void;
-  onMenuSelected?: (menu: PopoverItem) => void;
+  onMenuSelected?: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask?: (task: TaskData) => void;
 };
 
@@ -41,6 +41,7 @@ const MessageItem = ({
   onMenuSelected,
   onSelectTask,
 }: MessageItemProps) => {
+  // console.log('XXX: Render Message');
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { teamUserData, currentTeam, userData } = useAppSelector(
     (state) => state.user
@@ -97,12 +98,20 @@ const MessageItem = ({
     },
     [onReactPress]
   );
+  const handleReplyPress = useCallback(
+    () => onReplyPress(message),
+    [message, onReplyPress]
+  );
+  const onPinned = useCallback(
+    () => onCreateTask?.(message),
+    [message, onCreateTask]
+  );
   const handleSelectedMenu = useCallback(
     (menu: PopoverItem) => {
-      onMenuSelected?.(menu);
+      onMenuSelected?.(menu, message);
       setPopoverOpen(false);
     },
-    [onMenuSelected]
+    [message, onMenuSelected]
   );
   const handlePopoverButtonClose = useCallback(() => setPopoverOpen(false), []);
   const handlePopoverButtonOpen = useCallback(() => setPopoverOpen(true), []);
@@ -208,10 +217,10 @@ const MessageItem = ({
                 </div>
               }
             />
-            <div className="message-item__menu-item" onClick={onReplyPress}>
+            <div className="message-item__menu-item" onClick={handleReplyPress}>
               <img alt="" src={images.icReply} />
             </div>
-            <div className="message-item__menu-item" onClick={onCreateTask}>
+            <div className="message-item__menu-item" onClick={onPinned}>
               <img alt="" src={images.icPinned} />
             </div>
             {messageMenu.length > 0 && (

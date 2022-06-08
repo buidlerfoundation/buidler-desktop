@@ -195,3 +195,5 @@ export interface ReactUserApiData {
   skin: number;
   user_id: string;
 }
+
+export type MessageGroup = { date: string; messages: Array<MessageData> };
