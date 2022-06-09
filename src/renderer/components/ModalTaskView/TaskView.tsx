@@ -632,6 +632,7 @@ const TaskView = ({
                     message={cvs}
                     onCreateTask={() => {}}
                     disableMenu
+                    content={cvs.content}
                   />
                 ))}
               </div>

@@ -1,11 +1,27 @@
+import { AnyAction, Reducer } from 'redux';
+import { MessageData } from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 
-const initialState = {
+type MessageReducerState = {
+  conversationData: { [key: string]: Array<MessageData> };
+  messageData: {
+    [key: string]: {
+      canMore: boolean;
+      data: Array<MessageData>;
+      scrollData: { showScrollDown: boolean; unreadCount?: number };
+    };
+  };
+};
+
+const initialState: MessageReducerState = {
   messageData: {},
   conversationData: {},
 };
 
-const messageReducers = (state = initialState, action) => {
+const messageReducers: Reducer<MessageReducerState, AnyAction> = (
+  state = initialState,
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case actionTypes.CONVERSATION_SUCCESS: {

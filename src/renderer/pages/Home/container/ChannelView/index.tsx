@@ -42,12 +42,12 @@ import DirectDescription from './DirectDescription';
 
 type ChannelViewProps = {
   currentChannel: any;
-  messages: Array<any>;
+  messages: Array<MessageData>;
   inputRef: any;
   currentTeam: any;
   createTask: (channelId: string, body: any) => any;
-  openConversation: (message: any) => void;
-  onMoreMessage: () => void;
+  openConversation: (message: MessageData) => void;
+  onMoreMessage: (lastCreatedAt: string) => void;
   loadMoreMessage: boolean;
   messageCanMore: boolean;
   scrollData?: any;
@@ -183,16 +183,17 @@ const ChannelView = forwardRef(
       [onAddFiles]
     );
     const onMessageScroll = useCallback(
-      (e: any) => {
-        if (!isScrolling) {
-          setScrolling(true);
-        }
+      (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
+        setScrolling((current) => {
+          if (!current) return true;
+          return current;
+        });
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         const showScrollDown = scrollTop < -80;
         if (showScrollDown !== scrollData?.showScrollDown) {
           setScrollData(currentChannel?.channel_id, {
             showScrollDown,
-            unreadCount: showScrollDown ? scrollData.unreadCount : 0,
+            unreadCount: showScrollDown ? scrollData?.unreadCount : 0,
           });
         }
         if (
@@ -200,7 +201,7 @@ const ChannelView = forwardRef(
             scrollTop + scrollHeight === clientHeight) &&
           messageCanMore
         ) {
-          onMoreMessage();
+          onMoreMessage(messages?.[messages?.length - 1].createdAt);
         }
         if (timeoutScrollRef.current) {
           clearTimeout(timeoutScrollRef.current);
@@ -211,8 +212,8 @@ const ChannelView = forwardRef(
       },
       [
         currentChannel?.channel_id,
-        isScrolling,
         messageCanMore,
+        messages,
         onMoreMessage,
         scrollData?.showScrollDown,
         scrollData?.unreadCount,
@@ -644,9 +645,9 @@ const ChannelView = forwardRef(
                     !openTaskView &&
                     !isOpenConversation && (
                       <div className="message-scroll-down__wrapper">
-                        {scrollData.unreadCount > 0 && (
+                        {scrollData?.unreadCount > 0 && (
                           <div className="unread-count">
-                            <span>{scrollData.unreadCount}</span>
+                            <span>{scrollData?.unreadCount}</span>
                           </div>
                         )}
                         <div

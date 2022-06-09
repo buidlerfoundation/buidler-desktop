@@ -1,12 +1,27 @@
+import moment from 'moment';
+import { AnyAction, Reducer } from 'redux';
+import { TaskData } from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 import { isFilterStatus } from '../helpers/TaskHelper';
-import moment from 'moment';
 
-const initialState = {
+type TaskReducerState = {
+  taskData: {
+    [key: string]: {
+      archivedCount: number;
+      tasks: Array<TaskData>;
+      archivedTasks: Array<TaskData>;
+    };
+  };
+};
+
+const initialState: TaskReducerState = {
   taskData: {},
 };
 
-const taskReducers = (state = initialState, action) => {
+const taskReducers: Reducer<TaskReducerState, AnyAction> = (
+  state = initialState,
+  action
+) => {
   const { type, payload } = action;
   switch (type) {
     case actionTypes.LOGOUT: {

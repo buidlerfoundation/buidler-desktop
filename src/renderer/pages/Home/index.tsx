@@ -1,5 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
@@ -13,11 +19,12 @@ import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils'
 import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
 import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
-import { CreateSpaceData, Space } from 'renderer/models';
+import { CreateSpaceData, MessageData, Space } from 'renderer/models';
 import ModalSpaceSetting from 'renderer/components/ModalSpaceSetting';
 import ModalSpaceDetail from 'renderer/components/ModalSpaceDetail';
 import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
 import ImageHelper from 'renderer/common/ImageHelper';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import actions from '../../actions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
@@ -42,12 +49,16 @@ import ModalInviteMember from '../../components/ModalInviteMember';
 import api from '../../api';
 import EmptyView from './container/EmptyView';
 
+const loadingSelector = createLoadingSelector([
+  actionTypes.TEAM_PREFIX,
+  actionTypes.CHANNEL_PREFIX,
+]);
+
+const loadMoreMessageSelector = createLoadMoreSelector([
+  actionTypes.MESSAGE_PREFIX,
+]);
+
 type HomeProps = {
-  team?: any;
-  currentChannel: any;
-  space: Array<any>;
-  currentTeam: any;
-  loading: boolean;
   createNewChannel: (teamId: string, body: any, groupName: string) => any;
   dragChannel: (channelId: string, groupId: string) => any;
   getTasks: (channelId: string) => any;
@@ -64,11 +75,8 @@ type HomeProps = {
     teamId: string
   ) => any;
   updateTask: (taskId: string, channelId: string, data: any) => any;
-  tasks: Array<any>;
-  archivedTasks: Array<any>;
   deleteTask: (taskId: string, channelId: string) => any;
   createTask: (channelId: string, body: any) => any;
-  archivedCount?: number;
   addReact: (id: string, name: string, userId: string) => any;
   removeReact: (id: string, name: string, userId: string) => any;
   getMessages: (
@@ -84,13 +92,6 @@ type HomeProps = {
   ) => any;
   getActivities: (taskId: string) => any;
   setScrollData: (channelId: string, data: any) => any;
-  messages: Array<any>;
-  conversationData: any;
-  activityData: any;
-  loadMoreMessage: boolean;
-  messageCanMore: boolean;
-  scrollData?: any;
-  channels: Array<any>;
   onRemoveAttachment: (
     channelId: string,
     messageId: string,
@@ -110,7 +111,6 @@ type HomeProps = {
   uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
   deleteSpaceChannel: (group: any) => any;
   removeTeamMember: (teamId: string, userId: string) => any;
-  teamUserData: Array<any>;
   createTeam?: (body: any) => any;
   updateTeam: (teamId: string, body: any) => any;
   deleteTeam: (teamId: string) => any;
@@ -130,15 +130,8 @@ const filterTask: Array<PopoverItem> = [
 ];
 
 const Home = ({
-  team,
-  currentChannel,
   dragChannel,
-  currentTeam,
-  space,
-  loading,
   createNewChannel,
-  tasks,
-  archivedTasks,
   getTasks,
   getTaskFromUser,
   dropTask,
@@ -146,20 +139,12 @@ const Home = ({
   deleteTask,
   createTask,
   getArchivedTasks,
-  archivedCount,
   addReact,
   removeReact,
   getMessages,
-  messages,
   getConversations,
   setScrollData,
-  conversationData,
-  loadMoreMessage,
-  messageCanMore,
-  scrollData,
-  channels,
   getActivities,
-  activityData,
   onRemoveAttachment,
   setCurrentChannel,
   deleteMessage,
@@ -167,7 +152,6 @@ const Home = ({
   updateChannel,
   createSpaceChannel,
   deleteSpaceChannel,
-  teamUserData,
   createTeam,
   updateSpaceChannel,
   removeTeamMember,
@@ -179,9 +163,24 @@ const Home = ({
   uploadChannelAvatar,
   getSpaceMembers,
 }: HomeProps) => {
-  const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
+  const loadMoreMessage = useAppSelector((state) =>
+    loadMoreMessageSelector(state)
+  );
+  const loading = useAppSelector((state) => loadingSelector(state));
+  const channels = useAppSelector((state) => state.user.channel);
+  const { team, teamUserData, currentChannel, currentTeam, spaceChannel } =
+    useAppSelector((state) => state.user);
+  const currentChannelId = useMemo(
+    () => currentChannel?.channel_id || currentChannel?.user?.user_id || '',
+    [currentChannel?.channel_id, currentChannel?.user?.user_id]
+  );
+  const { messageData, conversationData } = useAppSelector(
+    (state) => state.message
+  );
+  const { taskData } = useAppSelector((state) => state.task);
+  const { activityData } = useAppSelector((state) => state.activity);
+  const { dataFromUrl, privateKey } = useAppSelector((state) => state.configs);
   const dispatch = useDispatch();
-  const privateKey = useSelector((state: any) => state.configs.privateKey);
   const history = useHistory();
   const inputRef = useRef<any>();
   const channelViewRef = useRef<any>();
@@ -211,7 +210,7 @@ const Home = ({
   const [openEditSpaceChannel, setOpenEditSpaceChannel] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [openTaskView, setOpenTask] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState<any>(null);
+  const [currentMessage, setCurrentMessage] = useState<MessageData>(null);
   const [openConversation, setOpenConversation] = useState(false);
   const handleDragChannel = useCallback(
     (result: any) => {
@@ -248,6 +247,7 @@ const Home = ({
       if (!currentChannel?.channel_id || !result) return;
       const { draggableId, source, destination } = result;
       if (!destination) return;
+      const tasks = taskData?.[currentChannelId]?.tasks || [];
       const task = tasks.find((t) => t.task_id === draggableId);
       if (destination.droppableId.includes('group-channel')) {
         if (source.droppableId.includes('group-channel')) {
@@ -290,12 +290,13 @@ const Home = ({
     },
     [
       currentChannel?.channel_id,
+      currentChannelId,
       currentTeam?.team_id,
       dropTask,
       filter.value,
       handleDragChannel,
       handleDragTaskToChannel,
-      tasks,
+      taskData,
     ]
   );
   const handleOpenCreateChannel = useCallback((initSpace) => {
@@ -341,24 +342,22 @@ const Home = ({
     setSelectedSpace(s);
     setOpenSpaceDetail(true);
   }, []);
-  const handleOpenConversation = useCallback((message) => {
+  const handleOpenConversation = useCallback((message: MessageData) => {
     setCurrentMessage(message);
     setOpenConversation(true);
   }, []);
-  const onMoreMessage = useCallback(() => {
-    if (messages.length === 0) return;
-    const lastMsg = messages[messages.length - 1];
-    getMessages(
-      currentChannel.channel_id,
-      currentChannel.channel_type,
-      lastMsg.createdAt
-    );
-  }, [
-    currentChannel?.channel_id,
-    currentChannel?.channel_type,
-    getMessages,
-    messages,
-  ]);
+  const onMoreMessage = useCallback(
+    (createdAt?: string) => {
+      if (!createdAt) return;
+
+      getMessages(
+        currentChannel.channel_id,
+        currentChannel.channel_type,
+        createdAt
+      );
+    },
+    [currentChannel?.channel_id, currentChannel?.channel_type, getMessages]
+  );
   const onDeleteTask = useCallback(
     (task: any) => {
       if (!currentChannel?.channel_id) return;
@@ -408,14 +407,14 @@ const Home = ({
     setCurrentTask(null);
   }, []);
   const onCreateTask = useCallback(
-    (taskData: any, id: string) => {
-      const loadingAttachment = taskData.attachments.find(
+    (taskCreateData: any, id: string) => {
+      const loadingAttachment = taskCreateData.attachments.find(
         (att: any) => att.loading
       );
       if (loadingAttachment != null) {
         return;
       }
-      const channel_ids = taskData.channels
+      const channel_ids = taskCreateData.channels
         .filter((c: any) => c.channel_id !== currentChannel.channel_id)
         .map((c: any) => c.channel_id);
       if (
@@ -428,22 +427,22 @@ const Home = ({
         toast.error('Channels can not be empty');
         return;
       }
-      if (!taskData?.title) {
+      if (!taskCreateData?.title) {
         toast.error('Title can not be empty');
         return;
       }
       const body: any = {
-        title: taskData?.title,
-        notes: taskData?.notes,
-        status: taskData?.currentStatus?.id,
-        due_date: taskData?.dueDate
-          ? moment(taskData?.dueDate || new Date()).format(
+        title: taskCreateData?.title,
+        notes: taskCreateData?.notes,
+        status: taskCreateData?.currentStatus?.id,
+        due_date: taskCreateData?.dueDate
+          ? moment(taskCreateData?.dueDate || new Date()).format(
               'YYYY-MM-DD HH:mm:ss.SSSZ'
             )
           : null,
         channel_ids,
-        assignee_id: taskData?.assignee?.user_id,
-        attachments: taskData.attachments.map((att: any) => att.url),
+        assignee_id: taskCreateData?.assignee?.user_id,
+        attachments: taskCreateData.attachments.map((att: any) => att.url),
         team_id: currentTeam.team_id,
       };
       if (id !== '') {
@@ -590,6 +589,7 @@ const Home = ({
     if (dataFromUrl) handleDataFromUrl();
   }, [dataFromUrl, handleDataFromUrl]);
   useEffect(() => {
+    setOpenConversation(false);
     inputRef.current?.focus();
     if (currentChannel?.channel_id || currentChannel?.user) {
       setOpenTask(false);
@@ -629,14 +629,8 @@ const Home = ({
   }, [currentChannel?.space_id, getSpaceMembers]);
 
   useEffect(() => {
-    if (currentMessage) {
-      setCurrentMessage(
-        messages.find((msg) => msg.message_id === currentMessage.message_id)
-      );
-    }
-  }, [messages, currentMessage]);
-
-  useEffect(() => {
+    const tasks = taskData?.[currentChannelId]?.tasks || [];
+    const archivedTasks = taskData?.[currentChannelId]?.archivedTasks || [];
     const taskGrouped: any = groupTaskByFiltered(filter.value, tasks);
     let res: any = null;
     if (hoverInfo.key != null && hoverInfo.index != null) {
@@ -646,7 +640,13 @@ const Home = ({
           : taskGrouped?.[hoverInfo?.key]?.[hoverInfo?.index];
     }
     setHoverTask(res);
-  }, [hoverInfo.key, hoverInfo.index, filter.value, tasks, archivedTasks]);
+  }, [
+    hoverInfo.key,
+    hoverInfo.index,
+    filter.value,
+    taskData,
+    currentChannelId,
+  ]);
 
   useEffect(() => {
     // if (hoverTask) {
@@ -763,14 +763,17 @@ const Home = ({
                   ref={channelViewRef}
                   inputRef={inputRef}
                   currentChannel={currentChannel}
-                  messages={uniqBy(messages, 'message_id')}
+                  messages={uniqBy(
+                    messageData?.[currentChannelId]?.data || [],
+                    'message_id'
+                  )}
                   currentTeam={currentTeam}
                   createTask={createTask}
                   openConversation={handleOpenConversation}
                   onMoreMessage={onMoreMessage}
                   loadMoreMessage={loadMoreMessage}
-                  messageCanMore={messageCanMore}
-                  scrollData={scrollData}
+                  messageCanMore={messageData?.[currentChannelId]?.canMore}
+                  scrollData={messageData?.[currentChannelId]?.scrollData}
                   setScrollData={setScrollData}
                   replyTask={replyTask}
                   setReplyTask={setReplyTask}
@@ -792,10 +795,12 @@ const Home = ({
                   <TaskListView
                     channelId={currentChannel?.channel_id}
                     getArchivedTasks={getArchivedTasks}
-                    archivedCount={archivedCount}
+                    archivedCount={taskData?.[currentChannelId]?.archivedCount}
                     teamId={currentTeam?.team_id}
-                    tasks={tasks || []}
-                    archivedTasks={archivedTasks || []}
+                    tasks={taskData?.[currentChannelId]?.tasks || []}
+                    archivedTasks={
+                      taskData?.[currentChannelId]?.archivedTasks || []
+                    }
                     onAddTask={handleAddTask}
                     onUpdateStatus={onUpdateStatus}
                     onHoverChange={handleTaskHoverChange}
@@ -827,11 +832,11 @@ const Home = ({
             handleClose={handleCloseModalSpaceDetail}
           />
           <ModalConversation
-            message={currentMessage}
             open={openConversation}
             handleClose={handleCloseModalConversation}
             onAddReact={addReact}
             onRemoveReact={removeReact}
+            messageId={currentMessage?.message_id}
           />
           <ModalTaskView
             task={currentTask}
@@ -868,7 +873,7 @@ const Home = ({
             updateSpaceChannel={updateSpaceChannel}
           />
           <ModalCreateChannel
-            space={space}
+            space={spaceChannel}
             onCreateChannel={onCreateChannel}
             open={openCreateChannel}
             handleClose={handleCloseModalCreateChannel}
@@ -897,51 +902,7 @@ const Home = ({
   );
 };
 
-const loadingSelector = createLoadingSelector([
-  actionTypes.TEAM_PREFIX,
-  actionTypes.CHANNEL_PREFIX,
-]);
-
-const loadMoreMessageSelector = createLoadMoreSelector([
-  actionTypes.MESSAGE_PREFIX,
-]);
-
-const mapStateToProps = (state: any) => {
-  const channelId =
-    state.user?.currentChannel?.channel_id ||
-    state.user?.currentChannel?.user?.user_id;
-  return {
-    team: state.user.team,
-    userData: state.user.userData,
-    teamUserData: state.user.teamUserData,
-    currentChannel: state.user.currentChannel,
-    currentTeam: state.user.currentTeam,
-    space: state.user.spaceChannel,
-    loading: loadingSelector(state),
-    tasks: channelId ? state.task.taskData?.[channelId]?.tasks || [] : [],
-    channels: state.user.channel,
-    messages: channelId
-      ? state.message.messageData?.[channelId]?.data || []
-      : [],
-    messageCanMore: channelId
-      ? state.message.messageData?.[channelId]?.canMore || false
-      : false,
-    scrollData: channelId
-      ? state.message.messageData?.[channelId]?.scrollData || {}
-      : {},
-    loadMoreMessage: loadMoreMessageSelector(state),
-    conversationData: state.message.conversationData,
-    activityData: state.activity.activityData,
-    archivedTasks: channelId
-      ? state.task.taskData?.[channelId]?.archivedTasks || []
-      : [],
-    archivedCount: channelId
-      ? state.task.taskData?.[channelId]?.archivedCount
-      : null,
-  };
-};
-
 const mapActionsToProps = (dispatch: any) =>
   bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapActionsToProps)(Home);
+export default connect(undefined, mapActionsToProps)(Home);

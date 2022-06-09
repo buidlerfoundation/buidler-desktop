@@ -25,7 +25,7 @@ const MessageHead = ({ message, sender, teamId }: MessageHeadProps) => {
         </div>
         <div
           className="message-head__message enable-user-select"
-          dangerouslySetInnerHTML={{ __html: message.content }}
+          dangerouslySetInnerHTML={{ __html: message?.content }}
         />
         <MessagePhotoItem
           photos={message?.message_attachment || []}

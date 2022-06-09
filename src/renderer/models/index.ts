@@ -56,6 +56,7 @@ export interface Channel {
   seen: boolean;
   space?: Space;
   space_id?: string;
+  user?: UserData;
 }
 
 export interface Space {
@@ -197,3 +198,17 @@ export interface ReactUserApiData {
 }
 
 export type MessageGroup = { date: string; messages: Array<MessageData> };
+
+export interface TaskActivityData {
+  action: string;
+  createdAt: string;
+  previous_value: string;
+  task_activity_id: string;
+  task_id: string;
+  team_id: string;
+  updatedAt: string;
+  updated_key: string;
+  updated_value: string;
+  user_data: Array<UserData>;
+  user_id: string;
+}

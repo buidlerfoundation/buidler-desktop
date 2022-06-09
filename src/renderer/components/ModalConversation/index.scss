@@ -41,5 +41,11 @@
         display: none;
       }
     }
+    .conversation-message-list {
+      display: flex;
+      flex-direction: column-reverse;
+      flex: 1;
+      position: relative;
+    }
   }
 }
