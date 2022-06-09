@@ -19,7 +19,7 @@ import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils'
 import ModalCreateSpace from 'renderer/components/ModalCreateSpace';
 import toast from 'react-hot-toast';
 import { uniqBy } from 'lodash';
-import { CreateSpaceData, MessageData, Space } from 'renderer/models';
+import { CreateSpaceData, MessageData, Space, TaskData } from 'renderer/models';
 import ModalSpaceSetting from 'renderer/components/ModalSpaceSetting';
 import ModalSpaceDetail from 'renderer/components/ModalSpaceDetail';
 import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
@@ -186,14 +186,6 @@ const Home = ({
   const channelViewRef = useRef<any>();
   const sideBarRef = useRef<any>();
   const [replyTask, setReplyTask] = useState<any>(null);
-  const [hoverInfo, setHoverInfo] = useState<{
-    key: string | null;
-    index: number | null;
-  }>({
-    key: null,
-    index: null,
-  });
-  const [hoverTask, setHoverTask] = useState<any>(null);
   const [initialSpace, setInitialSpace] = useState(null);
   const [isOpenSpaceDetail, setOpenSpaceDetail] = useState(false);
   const [selectedSpace, setSelectedSpace] = useState<Space>(null);
@@ -375,13 +367,6 @@ const Home = ({
     },
     [currentChannel?.channel_id, updateTask, currentTeam?.team_id]
   );
-  const handleTaskHoverChange = useCallback(
-    (key, index) => setHoverInfo({ key, index }),
-    []
-  );
-  const handleTaskHoverLeave = useCallback(() => {
-    setHoverInfo({ key: null, index: null });
-  }, []);
   const handleTaskUpdateFilter = useCallback((st) => setFilter(st), []);
   const openTaskDetail = useCallback((task: any) => {
     setOpenTask(true);
@@ -629,83 +614,12 @@ const Home = ({
   }, [currentChannel?.space_id, getSpaceMembers]);
 
   useEffect(() => {
-    const tasks = taskData?.[currentChannelId]?.tasks || [];
-    const archivedTasks = taskData?.[currentChannelId]?.archivedTasks || [];
-    const taskGrouped: any = groupTaskByFiltered(filter.value, tasks);
-    let res: any = null;
-    if (hoverInfo.key != null && hoverInfo.index != null) {
-      res =
-        hoverInfo?.key === 'archived'
-          ? archivedTasks?.[hoverInfo.index]
-          : taskGrouped?.[hoverInfo?.key]?.[hoverInfo?.index];
-    }
-    setHoverTask(res);
-  }, [
-    hoverInfo.key,
-    hoverInfo.index,
-    filter.value,
-    taskData,
-    currentChannelId,
-  ]);
-
-  useEffect(() => {
-    // if (hoverTask) {
-    //   inputRef.current?.blur();
-    // }
     const keyDownListener = (e: any) => {
       if (e.key === 'Escape') {
         setOpenCreateTask(false);
         setOpenCreateChannel(false);
       } else if (e.metaKey && e.key === 't') {
         setOpenCreateTask(true);
-      } else if (e.key === 'a') {
-        if (GlobalVariable.isInputFocus) return;
-        if (hoverTask) {
-          if (!currentChannel?.channel_id) return;
-          if (hoverTask?.status === 'archived') {
-            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-              status: 'todo',
-              team_id: currentTeam.team_id,
-            });
-            setHoverInfo((current) => ({
-              ...current,
-              index: current.index ? current.index - 1 : null,
-            }));
-          } else {
-            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-              status: 'archived',
-              team_id: currentTeam.team_id,
-            });
-          }
-        }
-      } else if (e.key === 'd') {
-        if (GlobalVariable.isInputFocus) return;
-        if (hoverTask?.status === 'todo') {
-          if (!currentChannel?.channel_id) return;
-          updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-            status: 'doing',
-            team_id: currentTeam.team_id,
-          });
-        } else if (hoverTask?.status === 'doing') {
-          if (!currentChannel?.channel_id) return;
-          updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-            status: 'done',
-            team_id: currentTeam.team_id,
-          });
-        } else if (
-          hoverTask?.status === 'done' ||
-          hoverTask?.status === 'archived'
-        ) {
-          if (!currentChannel?.channel_id) return;
-          updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-            status: 'doing',
-            team_id: currentTeam.team_id,
-          });
-          setHoverInfo((current) => ({
-            ...current,
-            index: current.index ? current.index - 1 : null,
-          }));
-        }
       } else if (
         e.metaKey &&
         e.key === 'l' &&
@@ -713,6 +627,57 @@ const Home = ({
       ) {
         dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
         history.replace('/unlock');
+      } else {
+        const taskElement = document.getElementById('task-list');
+        const taskHoverElement = taskElement?.querySelector(
+          '.task-item__wrap:hover'
+        );
+        const tasks = taskData?.[currentChannelId]?.tasks || [];
+        const archivedTasks = taskData?.[currentChannelId]?.archivedTasks || [];
+        const hoverTask = [...tasks, ...archivedTasks].find(
+          (t) => t.task_id === taskHoverElement?.id
+        );
+        if (e.key === 'a') {
+          if (GlobalVariable.isInputFocus) return;
+          if (hoverTask) {
+            if (!currentChannel?.channel_id) return;
+            if (hoverTask?.status === 'archived') {
+              updateTask(hoverTask.task_id, currentChannel?.channel_id, {
+                status: 'todo',
+                team_id: currentTeam.team_id,
+              });
+            } else {
+              updateTask(hoverTask.task_id, currentChannel?.channel_id, {
+                status: 'archived',
+                team_id: currentTeam.team_id,
+              });
+            }
+          }
+        } else if (e.key === 'd') {
+          if (GlobalVariable.isInputFocus) return;
+          if (hoverTask?.status === 'todo') {
+            if (!currentChannel?.channel_id) return;
+            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
+              status: 'doing',
+              team_id: currentTeam.team_id,
+            });
+          } else if (hoverTask?.status === 'doing') {
+            if (!currentChannel?.channel_id) return;
+            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
+              status: 'done',
+              team_id: currentTeam.team_id,
+            });
+          } else if (
+            hoverTask?.status === 'done' ||
+            hoverTask?.status === 'archived'
+          ) {
+            if (!currentChannel?.channel_id) return;
+            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
+              status: 'doing',
+              team_id: currentTeam.team_id,
+            });
+          }
+        }
       }
     };
     window.addEventListener('keydown', keyDownListener);
@@ -724,8 +689,9 @@ const Home = ({
     history,
     currentTeam?.team_id,
     currentChannel?.channel_id,
-    hoverTask,
     dispatch,
+    taskData,
+    currentChannelId,
   ]);
   if (loading) {
     return <HomeLoading />;
@@ -803,8 +769,6 @@ const Home = ({
                     }
                     onAddTask={handleAddTask}
                     onUpdateStatus={onUpdateStatus}
-                    onHoverChange={handleTaskHoverChange}
-                    onHoverLeave={handleTaskHoverLeave}
                     filter={filter}
                     filterData={filterTask}
                     onUpdateFilter={handleTaskUpdateFilter}
@@ -814,7 +778,6 @@ const Home = ({
                     onAddReact={addReact}
                     onRemoveReact={removeReact}
                     onReplyTask={onReplyTask}
-                    hoverTask={hoverTask}
                     directUserId={currentChannel?.user?.user_id}
                   />
                 )}

@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { TaskData } from 'renderer/models';
 import images from '../../../../common/images';
 import PopoverButton, {
   PopoverItem,
 } from '../../../../components/PopoverButton';
-import TaskHeader from '../../../../components/TaskHeader';
-import TaskItem from '../../../../components/TaskItem';
 import {
   getGroupTask,
   getToggleState,
   groupTaskByFiltered,
 } from '../../../../helpers/TaskHelper';
 import './index.scss';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import TaskGroupItem from './TaskGroupItem';
 
 type TaskListViewProps = {
   onAddTask: (title: string) => void;
-  tasks: Array<any>;
-  archivedTasks: Array<any>;
-  onUpdateStatus: (task: any, status: string) => void;
+  tasks: Array<TaskData>;
+  archivedTasks: Array<TaskData>;
+  onUpdateStatus: (task: TaskData, status: string) => void;
   filter: PopoverItem;
   filterData: Array<PopoverItem>;
   onUpdateFilter: (filter: PopoverItem) => void;
-  onDeleteTask: (task: any) => void;
-  onSelectTask: (task: any) => void;
+  onDeleteTask: (task: TaskData) => void;
+  onSelectTask: (task: TaskData) => void;
   teamId: string;
   archivedCount?: number;
   getArchivedTasks: (
@@ -31,13 +30,10 @@ type TaskListViewProps = {
     teamId?: string
   ) => any;
   channelId?: string;
-  onHoverChange: (key: string, index: number) => void;
-  onHoverLeave: () => void;
   updateTask: (taskId: string, channelId: string, data: any) => any;
   onAddReact: (id: string, name: string, userId: string) => void;
   onRemoveReact: (id: string, name: string, userId: string) => void;
-  onReplyTask: (task: any) => void;
-  hoverTask?: any;
+  onReplyTask: (task: TaskData) => void;
   directUserId?: string;
 };
 
@@ -55,17 +51,17 @@ const TaskListView = ({
   archivedCount,
   getArchivedTasks,
   channelId,
-  onHoverChange,
   updateTask,
   onAddReact,
   onRemoveReact,
   onReplyTask,
-  onHoverLeave,
-  hoverTask,
   directUserId,
 }: TaskListViewProps) => {
   const [showArchived, setShowArchived] = useState(false);
-  const taskGrouped = groupTaskByFiltered(filter.value, tasks);
+  const taskGrouped = useMemo(
+    () => groupTaskByFiltered(filter.value, tasks),
+    [filter.value, tasks]
+  );
   const [toggleState, setToggleState] = useState<any>({});
   useEffect(() => {
     const grouped = groupTaskByFiltered(filter.value, tasks);
@@ -77,29 +73,74 @@ const TaskListView = ({
   useEffect(() => {
     setShowArchived(false);
   }, [channelId]);
-  const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
-    // some basic styles to make the items look a bit nicer
-    userSelect: 'none',
-
-    // change background colour if dragging
-    // background: isDragging ? 'var(--color-highlight-action)' : 'none',
-
-    // styles we need to apply on draggables
-    ...draggableStyle,
-  });
-  const getListStyle = (isDraggingOver: boolean) => ({
-    // background: isDraggingOver ? 'var(--color-highlight-action)' : 'none',
-  });
-  const toggleArchived = () => {
+  const toggleArchived = useCallback(() => {
     if (archivedCount !== null && channelId) {
       getArchivedTasks(channelId, directUserId, teamId);
     }
-    setShowArchived(!showArchived);
-  };
-  const shouldArchived =
-    (archivedCount || 0) > 0 || (archivedTasks?.length || 0) > 0;
+    setShowArchived((current) => !current);
+  }, [archivedCount, channelId, directUserId, getArchivedTasks, teamId]);
+  const shouldArchived = useMemo(
+    () => (archivedCount || 0) > 0 || (archivedTasks?.length || 0) > 0,
+    [archivedCount, archivedTasks?.length]
+  );
+  const handleToggleGroupTask = useCallback((key: string) => {
+    setToggleState((current) => ({
+      ...current,
+      [key]: !current[key],
+    }));
+  }, []);
+  const handleMenuSelected = useCallback(
+    (menu: PopoverItem, task: TaskData) => {
+      if (menu.value === 'Delete') {
+        onDeleteTask(task);
+      }
+    },
+    [onDeleteTask]
+  );
+  const renderTaskGroup = useCallback(
+    (key) => {
+      return (
+        <TaskGroupItem
+          key={key}
+          keyProp={key}
+          title={getGroupTask(filter.value, key)}
+          filterValue={filter.value}
+          onAddTask={onAddTask}
+          count={toggleState[key] ? null : taskGrouped[key].length}
+          toggle={handleToggleGroupTask}
+          tasks={taskGrouped[key]}
+          isShow={toggleState[key]}
+          updateTask={updateTask}
+          channelId={channelId}
+          teamId={teamId}
+          onSelectTask={onSelectTask}
+          onUpdateStatus={onUpdateStatus}
+          onMenuSelected={handleMenuSelected}
+          onAddReact={onAddReact}
+          onRemoveReact={onRemoveReact}
+          onReplyTask={onReplyTask}
+        />
+      );
+    },
+    [
+      channelId,
+      filter.value,
+      handleMenuSelected,
+      handleToggleGroupTask,
+      onAddReact,
+      onAddTask,
+      onRemoveReact,
+      onReplyTask,
+      onSelectTask,
+      onUpdateStatus,
+      taskGrouped,
+      teamId,
+      toggleState,
+      updateTask,
+    ]
+  );
   return (
-    <div className="task-list-container">
+    <div className="task-list-container" id="task-list">
       <div className="task-list__header">
         <div style={{ width: 20 }} />
         <span className="task-list__title">All tasks: {tasks.length}</span>
@@ -116,169 +157,30 @@ const TaskListView = ({
       <div className="task-list__body">
         {Object.keys(taskGrouped)
           .filter((key) => taskGrouped[key].length > 0 || key === 'pinned')
-          .map((key) => {
-            const title = getGroupTask(filter.value, key);
-            return (
-              <div key={key}>
-                <TaskHeader
-                  onCreate={
-                    filter.value === 'Status'
-                      ? () => {
-                          onAddTask(title);
-                        }
-                      : undefined
-                  }
-                  title={title}
-                  count={toggleState[key] ? null : taskGrouped[key].length}
-                  toggle={() => {
-                    setToggleState((state: any) => ({
-                      ...state,
-                      [key]: !state[key],
-                    }));
-                  }}
-                  filterValue={filter.value}
-                />
-                <Droppable droppableId={`${key}`} isCombineEnabled>
-                  {(provided, snapshot) => {
-                    return (
-                      <div
-                        ref={provided.innerRef}
-                        style={getListStyle(snapshot.isDraggingOver)}
-                        {...provided.droppableProps}
-                      >
-                        <div style={{ height: 0.1, marginTop: 19.9 }} />
-                        {toggleState[key] &&
-                          taskGrouped[key].map((task: any, index: number) => (
-                            <Draggable
-                              key={task.task_id}
-                              draggableId={task.task_id}
-                              index={index}
-                              isDragDisabled={filter.value === 'Channel'}
-                            >
-                              {(dragProvided, dragSnapshot) => (
-                                <div
-                                  ref={dragProvided.innerRef}
-                                  {...dragProvided.draggableProps}
-                                  {...dragProvided.dragHandleProps}
-                                  style={getItemStyle(
-                                    dragSnapshot.isDragging,
-                                    dragProvided.draggableProps.style
-                                  )}
-                                >
-                                  <TaskItem
-                                    isSelected={
-                                      hoverTask?.task_id === task.task_id
-                                    }
-                                    updateTask={updateTask}
-                                    channelId={channelId}
-                                    onHover={() => {
-                                      onHoverChange(key, index);
-                                    }}
-                                    onLeave={onHoverLeave}
-                                    teamId={teamId}
-                                    onClick={() => {
-                                      onSelectTask(task);
-                                    }}
-                                    task={task}
-                                    onUpdateStatus={(status) => {
-                                      onUpdateStatus(task, status);
-                                    }}
-                                    onMenuSelected={(menu) => {
-                                      if (menu.value === 'Delete') {
-                                        onDeleteTask(task);
-                                      }
-                                    }}
-                                    onAddReact={onAddReact}
-                                    onRemoveReact={onRemoveReact}
-                                    onReplyTask={onReplyTask}
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                        {provided.placeholder}
-                      </div>
-                    );
-                  }}
-                </Droppable>
-              </div>
-            );
-          })}
+          .map(renderTaskGroup)}
         {shouldArchived && (
-          <div>
-            <TaskHeader
-              title="Archived"
-              count={
-                showArchived ? null : archivedCount || archivedTasks?.length
-              }
-              toggle={toggleArchived}
-            />
-            <Droppable droppableId="archived">
-              {(provided, snapshot) => {
-                return (
-                  <div
-                    ref={provided.innerRef}
-                    style={getListStyle(snapshot.isDraggingOver)}
-                    {...provided.droppableProps}
-                  >
-                    <div style={{ height: 0.1, marginTop: 19.9 }} />
-                    {showArchived &&
-                      archivedTasks.map((task: any, index: number) => (
-                        <Draggable
-                          key={task.task_id}
-                          draggableId={task.task_id}
-                          index={index}
-                        >
-                          {(dragProvided, dragSnapshot) => (
-                            <div
-                              ref={dragProvided.innerRef}
-                              {...dragProvided.draggableProps}
-                              {...dragProvided.dragHandleProps}
-                              style={getItemStyle(
-                                dragSnapshot.isDragging,
-                                dragProvided.draggableProps.style
-                              )}
-                            >
-                              <TaskItem
-                                isSelected={hoverTask?.task_id === task.task_id}
-                                updateTask={updateTask}
-                                channelId={channelId}
-                                teamId={teamId}
-                                onClick={() => {
-                                  onSelectTask(task);
-                                }}
-                                task={task}
-                                onUpdateStatus={(status) => {
-                                  onUpdateStatus(task, status);
-                                }}
-                                onMenuSelected={(menu) => {
-                                  if (menu.value === 'Delete') {
-                                    onDeleteTask(task);
-                                  }
-                                }}
-                                onAddReact={onAddReact}
-                                onRemoveReact={onRemoveReact}
-                                onReplyTask={onReplyTask}
-                                onHover={() => {
-                                  onHoverChange('archived', index);
-                                }}
-                                onLeave={onHoverLeave}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    {provided.placeholder}
-                  </div>
-                );
-              }}
-            </Droppable>
-            <div style={{ height: 60 }} />
-          </div>
+          <TaskGroupItem
+            keyProp="archived"
+            title="Archived"
+            filterValue={filter.value}
+            count={showArchived ? null : archivedCount || archivedTasks?.length}
+            toggle={toggleArchived}
+            tasks={archivedTasks}
+            isShow={showArchived}
+            updateTask={updateTask}
+            channelId={channelId}
+            teamId={teamId}
+            onSelectTask={onSelectTask}
+            onUpdateStatus={onUpdateStatus}
+            onMenuSelected={handleMenuSelected}
+            onAddReact={onAddReact}
+            onRemoveReact={onRemoveReact}
+            onReplyTask={onReplyTask}
+          />
         )}
       </div>
     </div>
   );
 };
 
-export default TaskListView;
+export default memo(TaskListView);

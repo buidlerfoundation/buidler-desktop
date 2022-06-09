@@ -1,4 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+  memo,
+} from 'react';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import { ProgressStatus } from 'renderer/common/AppConfig';
+import GlobalVariable from 'renderer/services/GlobalVariable';
+import { ReactReducerData, TaskData } from 'renderer/models';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
 import { getIconByStatus } from '../../helpers/TaskHelper';
@@ -6,36 +18,27 @@ import EmojiPicker from '../EmojiPicker';
 import ImgLightBox from '../ImgLightBox';
 import PopoverButton, { PopoverItem } from '../PopoverButton';
 import './index.scss';
-import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import ReactView from '../ReactView';
-import { connect } from 'react-redux';
 import { taskFromNow } from '../../utils/DateUtils';
 import AssignPopup from '../AssignPopup';
 import PopupChannel from '../PopupChannel';
 import DatePickerV2 from '../DatePickerV2';
-import GlobalVariable from '../../services/GlobalVariable';
 import AvatarView from '../AvatarView';
 import { normalizeMessageText } from '../../helpers/MessageHelper';
 import StatusSelectionPopup from '../StatusSelectionPopup';
-import { ProgressStatus } from 'renderer/common/AppConfig';
 
 type TaskItemProps = {
-  reactReducer?: any;
-  task: any;
-  onUpdateStatus: (status: string) => void;
-  onMenuSelected: (menu: PopoverItem) => void;
-  onClick: () => void;
+  task: TaskData;
+  onUpdateStatus: (task: TaskData, status: string) => void;
+  onMenuSelected: (menu: PopoverItem, task: TaskData) => void;
+  onClick: (task: TaskData) => void;
   teamId: string;
-  onHover?: () => void;
-  onLeave?: () => void;
   updateTask: (taskId: string, channelId: string, data: any) => any;
   channelId?: string;
   onAddReact: (id: string, name: string, userId: string) => void;
   onRemoveReact: (id: string, name: string, userId: string) => void;
-  userData: any;
-  onReplyTask: (task: any) => void;
-  teamUserData?: Array<any>;
-  isSelected?: boolean;
+  onReplyTask: (task: TaskData) => void;
+  reacts: Array<ReactReducerData>;
 };
 
 const taskMenu: Array<PopoverItem> = [
@@ -46,43 +49,21 @@ const taskMenu: Array<PopoverItem> = [
   },
 ];
 
-const pinnedMenu: Array<PopoverItem> = [
-  {
-    label: 'Todo',
-    value: 'todo',
-  },
-  {
-    label: 'Doing',
-    value: 'doing',
-  },
-  {
-    label: 'Done',
-    value: 'done',
-  },
-  {
-    label: 'Archived',
-    value: 'archived',
-  },
-];
-
 const TaskItem = ({
-  reactReducer,
+  reacts,
   task,
   onUpdateStatus,
   onMenuSelected,
   onClick,
   teamId,
-  onHover,
-  onLeave,
   updateTask,
   channelId,
   onAddReact,
   onRemoveReact,
-  userData,
   onReplyTask,
-  teamUserData = [],
-  isSelected,
 }: TaskItemProps) => {
+  console.log('Render Task');
+  const { userData, teamUserData } = useAppSelector((state) => state.user);
   const popupMenuRef = useRef<any>();
   const addChannelRef = useRef<any>();
   const popupEmojiRef = useRef<any>();
@@ -94,29 +75,33 @@ const TaskItem = ({
   const popupPinnedMenuRef = useRef<any>();
   const statusRef = useRef<any>();
   const [isHighLight, setHighLight] = useState(task.isHighLight);
-  const otherChannels = task?.channel?.filter?.(
-    (c: any) => c.channel_id !== channelId
+  const otherChannels = useMemo(
+    () => task?.channel?.filter?.((c: any) => c.channel_id !== channelId),
+    [channelId, task?.channel]
   );
-  const sender = teamUserData.find(
-    (u) => u.user_id === task?.assignee?.user_id
+  const assignee = useMemo(
+    () => teamUserData.find((u) => u.user_id === task?.assignee?.user_id),
+    [task?.assignee?.user_id, teamUserData]
   );
   useEffect(() => {
-    if (isHighLight) {
+    if (task.isHighLight) {
       setTimeout(() => {
         setHighLight(false);
       }, 1000);
     }
-  }, []);
+  }, [task.isHighLight]);
   useEffect(() => {
     const keyDownListener = (e: any) => {
       if (e.key === 'c' && !e.metaKey) {
         if (GlobalVariable.isInputFocus) return;
-        if (isSelected) {
-          if (popupChannelRef.current?.isOpen) {
-            popupChannelRef.current?.hide();
-          } else {
-            popupChannelRef.current?.show(statusRef.current);
-          }
+        const taskElement = document.getElementById('task-list');
+        const taskHoverElement = taskElement?.querySelector(
+          '.task-item__wrap:hover'
+        );
+        if (taskHoverElement?.id === task.task_id) {
+          popupChannelRef.current?.show(statusRef.current);
+        } else {
+          popupChannelRef.current?.hide();
         }
       }
     };
@@ -124,33 +109,184 @@ const TaskItem = ({
     return () => {
       window.removeEventListener('keydown', keyDownListener);
     };
-  }, [isSelected]);
-  const handleDateChange = (date: MaterialUiPickersDate) => {
-    popupDatePickerRef.current?.hide();
-    if (!channelId) return;
-    updateTask(task.task_id, channelId, { due_date: date, team_id: teamId });
-  };
-  const reacts = reactReducer?.reactData?.[task.task_id] || [];
-  const onReactPress = (name: string) => {
-    const isExisted = !!reacts.find(
-      (react: any) => react.reactName === name && react?.isReacted
+  }, [task.task_id]);
+  const onReactPress = useCallback(
+    (name: string) => {
+      const isExisted = !!reacts?.find(
+        (react: any) => react.reactName === name && react?.isReacted
+      );
+      if (isExisted) {
+        onRemoveReact(task.task_id, name, userData.user_id);
+      } else {
+        onAddReact(task.task_id, name, userData.user_id);
+      }
+    },
+    [onAddReact, onRemoveReact, reacts, task.task_id, userData.user_id]
+  );
+  const handleClickTask = useCallback(() => {
+    onClick(task);
+  }, [onClick, task]);
+  const handleClickStatus = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      if (task.status === 'pinned') {
+        popupPinnedMenuRef.current?.show(e.currentTarget, {
+          x: e.pageX,
+          y: e.pageY,
+        });
+      } else {
+        onUpdateStatus(
+          task,
+          task.status !== 'done' && task.status !== 'archived' ? 'done' : 'todo'
+        );
+      }
+    },
+    [onUpdateStatus, task]
+  );
+  const handleUpdateEmoji = useCallback(
+    (emoji) => {
+      onReactPress(emoji.id);
+      popupEmojiRef.current?.hide();
+    },
+    [onReactPress]
+  );
+  const handleUpdateAssignee = useCallback(
+    (u) => {
+      popupAssigneeRef.current?.hide();
+      if (!channelId) return;
+      updateTask(task.task_id, channelId, {
+        assignee_id: u?.user_id || null,
+        assignee: u,
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleReply = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      onReplyTask(task);
+    },
+    [onReplyTask, task]
+  );
+  const handleDateChange = useCallback(
+    (date: MaterialUiPickersDate) => {
+      popupDatePickerRef.current?.hide();
+      if (!channelId) return;
+      updateTask(task.task_id, channelId, { due_date: date, team_id: teamId });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleClearDate = useCallback(
+    () => handleDateChange(null),
+    [handleDateChange]
+  );
+  const handleSelectMenu = useCallback(
+    (menu: PopoverItem) => {
+      onMenuSelected(menu, task);
+    },
+    [onMenuSelected, task]
+  );
+  const handleUpdateChannel = useCallback(
+    async (channels) => {
+      if (!channelId) return;
+      await updateTask(task.task_id, channelId, {
+        channel: channels.map((c: any) => ({
+          channel_id: c.channel_id,
+          channel_name: c.channel_name,
+        })),
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleOpenDate = useCallback(
+    (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+      e.stopPropagation();
+      popupDatePickerRef.current?.show(dueDateRef.current);
+    },
+    []
+  );
+  const handleOpenAssignee = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      popupAssigneeRef.current?.show(assigneeRef.current);
+    },
+    []
+  );
+  const handleSelectStatus = useCallback(
+    async (status) => {
+      onUpdateStatus(task, status.id);
+    },
+    [onUpdateStatus, task]
+  );
+  const handleOpenFile = useCallback(() => {
+    window.open(
+      ImageHelper.normalizeImage(att.file_url, teamId, {}, true),
+      '_blank'
     );
-    if (isExisted) {
-      onRemoveReact(task.task_id, name, userData.user_id);
-    } else {
-      onAddReact(task.task_id, name, userData.user_id);
-    }
-  };
+  }, [teamId]);
+  const renderOtherChannel = useCallback(
+    (c: any) => (
+      <div
+        className={`task-channel-item ${
+          task.status === 'archived' ? 'archived' : ''
+        }`}
+        key={c.channel_id}
+      >
+        <span># {c.channel_name}</span>
+      </div>
+    ),
+    [task.status]
+  );
+  const renderAttachment = useCallback(
+    (att: any) => {
+      if (att.mimetype.includes('application')) {
+        return (
+          <div
+            className="file-item"
+            onClick={handleOpenFile}
+            key={`${att?.file_id}`}
+          >
+            <img alt="" src={images.icFile} />
+            <span className="file-name">{att.original_name}</span>
+            <img alt="" src={images.icDownload} />
+          </div>
+        );
+      }
+      if (att.mimetype?.includes?.('video')) {
+        return (
+          <video className="task-attachment" controls key={att.file_id}>
+            <source
+              src={ImageHelper.normalizeImage(att.file_url, teamId)}
+              type="video/mp4"
+            />
+          </video>
+        );
+      }
+      return (
+        <ImgLightBox
+          originalSrc={ImageHelper.normalizeImage(att.file_url, teamId)}
+          key={att.file_id}
+        >
+          <img
+            className="task-attachment"
+            alt=""
+            src={ImageHelper.normalizeImage(att.file_url, teamId, {
+              h: 120,
+            })}
+          />
+        </ImgLightBox>
+      );
+    },
+    [handleOpenFile, teamId]
+  );
   return (
     <div
-      className={`normal-button ${isHighLight ? 'task__high-light' : ''}`}
+      className={`normal-button task-item__wrap ${
+        isHighLight ? 'task__high-light' : ''
+      }`}
       style={{ borderRadius: 0 }}
-      onMouseEnter={() => {
-        onHover?.();
-      }}
-      onMouseLeave={(e) => {
-        onLeave?.();
-      }}
       onContextMenu={(e) => {
         if (process.env.NODE_ENV === 'development') {
           return;
@@ -160,40 +296,13 @@ const TaskItem = ({
           y: e.pageY,
         });
       }}
-      onClick={() => {
-        if (
-          popupMenuRef.current?.isOpen ||
-          popupEmojiRef.current?.isOpen ||
-          popupAssigneeRef.current?.isOpen ||
-          popupChannelRef.current?.isOpen ||
-          popupDatePickerRef.current?.isOpen
-        ) {
-          return;
-        }
-        onClick();
-        setTimeout(() => {
-          onHover?.();
-        }, 200);
-      }}
+      onClick={handleClickTask}
+      id={task.task_id}
     >
       <div className="task-item-container">
         <div
           className="task-item__check-box"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (task.status === 'pinned') {
-              popupPinnedMenuRef.current?.show(e.currentTarget, {
-                x: e.pageX,
-                y: e.pageY,
-              });
-            } else {
-              onUpdateStatus(
-                task.status !== 'done' && task.status !== 'archived'
-                  ? 'done'
-                  : 'todo'
-              );
-            }
-          }}
+          onClick={handleClickStatus}
           ref={statusRef}
         >
           <img alt="" src={getIconByStatus(task.status)} />
@@ -206,101 +315,63 @@ const TaskItem = ({
             __html: normalizeMessageText(task.title, !!task.notes),
           }}
         />
-
-        {isSelected && (
-          <div className="task-item__menu">
-            <PopoverButton
-              ref={popupEmojiRef}
-              onClose={() => {
-                // setHover(false);
-              }}
-              componentButton={
-                <div className="task-item__menu-item">
-                  <img alt="" src={images.icReact} />
-                </div>
-              }
-              componentPopup={
-                <div className="emoji-picker__container">
-                  <EmojiPicker
-                    onClick={(emoji) => {
-                      onReactPress(emoji.id);
-                      popupEmojiRef.current?.hide();
-                    }}
-                  />
-                </div>
-              }
-            />
-            <PopoverButton
-              ref={popupAssigneeRef}
-              onClose={() => {
-                // setHover(false)
-              }}
-              componentButton={
-                <div className="task-item__menu-item">
-                  <img alt="" src={images.icAddFriend} />
-                </div>
-              }
-              componentPopup={
-                <AssignPopup
-                  selected={task?.assignee}
-                  onChanged={(u) => {
-                    popupAssigneeRef.current?.hide();
-                    // setHover(false);
-                    if (!channelId) return;
-                    updateTask(task.task_id, channelId, {
-                      assignee_id: u?.user_id || null,
-                      assignee: u,
-                      team_id: teamId,
-                    });
-                  }}
-                />
-              }
-            />
-            <div
-              className="task-item__menu-item"
-              onClick={(e) => {
-                e.stopPropagation();
-                onReplyTask(task);
-              }}
-            >
-              <img alt="" src={images.icReply} />
-            </div>
-            <PopoverButton
-              ref={popupDatePickerRef}
-              onClose={() => {
-                // setHover(false);
-              }}
-              componentButton={
-                <div className="task-item__menu-item">
-                  <img alt="" src={images.icCalendar} />
-                </div>
-              }
-              componentPopup={
-                <DatePickerV2
-                  selectedDate={task?.due_date}
-                  handleDateChange={handleDateChange}
-                  onClear={() => handleDateChange(null)}
-                />
-              }
-            />
-            <PopoverButton
-              ref={popupMenuRef}
-              data={taskMenu}
-              onSelected={(menu) => {
-                // setHover(false);
-                onMenuSelected(menu);
-              }}
-              onClose={() => {
-                // setHover(false)
-              }}
-              componentButton={
-                <div className="task-item__menu-item">
-                  <img alt="" src={images.icMoreWhite} />
-                </div>
-              }
-            />
+        <div className="task-item__menu">
+          <PopoverButton
+            ref={popupEmojiRef}
+            componentButton={
+              <div className="task-item__menu-item">
+                <img alt="" src={images.icReact} />
+              </div>
+            }
+            componentPopup={
+              <div className="emoji-picker__container">
+                <EmojiPicker onClick={handleUpdateEmoji} />
+              </div>
+            }
+          />
+          <PopoverButton
+            ref={popupAssigneeRef}
+            componentButton={
+              <div className="task-item__menu-item">
+                <img alt="" src={images.icAddFriend} />
+              </div>
+            }
+            componentPopup={
+              <AssignPopup
+                selected={task?.assignee}
+                onChanged={handleUpdateAssignee}
+              />
+            }
+          />
+          <div className="task-item__menu-item" onClick={handleReply}>
+            <img alt="" src={images.icReply} />
           </div>
-        )}
+          <PopoverButton
+            ref={popupDatePickerRef}
+            componentButton={
+              <div className="task-item__menu-item">
+                <img alt="" src={images.icCalendar} />
+              </div>
+            }
+            componentPopup={
+              <DatePickerV2
+                selectedDate={task?.due_date}
+                handleDateChange={handleDateChange}
+                onClear={handleClearDate}
+              />
+            }
+          />
+          <PopoverButton
+            ref={popupMenuRef}
+            data={taskMenu}
+            onSelected={handleSelectMenu}
+            componentButton={
+              <div className="task-item__menu-item">
+                <img alt="" src={images.icMoreWhite} />
+              </div>
+            }
+          />
+        </div>
       </div>
       <div className="task-item__bottom">
         <div className="task-item__bottom-left">
@@ -308,22 +379,10 @@ const TaskItem = ({
             className="task-channel"
             style={{ padding: otherChannels.length > 0 ? '4px 0 14px 0' : 0 }}
           >
-            {otherChannels.map((c: any) => (
-              <div
-                className={`task-channel-item ${
-                  task.status === 'archived' ? 'archived' : ''
-                }`}
-                key={c.channel_id}
-              >
-                <span># {c.channel_name}</span>
-              </div>
-            ))}
-            {isSelected && task.status !== 'archived' && (
+            {otherChannels.map(renderOtherChannel)}
+            {task.status !== 'archived' && (
               <PopoverButton
                 ref={popupChannelRef}
-                onClose={() => {
-                  // setHover(false)
-                }}
                 componentButton={
                   otherChannels.length > 0 ? (
                     <div className="button-add-channel" ref={addChannelRef}>
@@ -336,71 +395,14 @@ const TaskItem = ({
                 componentPopup={
                   <PopupChannel
                     selected={task.channel}
-                    onChange={async (channels) => {
-                      if (!channelId) return;
-                      await updateTask(task.task_id, channelId, {
-                        channel: channels.map((c: any) => ({
-                          channel_id: c.channel_id,
-                          channel_name: c.channel_name,
-                        })),
-                        team_id: teamId,
-                      });
-                    }}
+                    onChange={handleUpdateChannel}
                   />
                 }
               />
             )}
           </div>
           <div className="task-attachment__container">
-            {task.task_attachment.map((att: any) => {
-              if (att.mimetype.includes('application')) {
-                return (
-                  <div
-                    className="file-item"
-                    onClick={() => {
-                      window.open(
-                        ImageHelper.normalizeImage(
-                          att.file_url,
-                          teamId,
-                          {},
-                          true
-                        ),
-                        '_blank'
-                      );
-                    }}
-                    key={`${att?.file_id}`}
-                  >
-                    <img alt="" src={images.icFile} />
-                    <span className="file-name">{att.original_name}</span>
-                    <img alt="" src={images.icDownload} />
-                  </div>
-                );
-              }
-              if (att.mimetype?.includes?.('video')) {
-                return (
-                  <video className="task-attachment" controls key={att.file_id}>
-                    <source
-                      src={ImageHelper.normalizeImage(att.file_url, teamId)}
-                      type="video/mp4"
-                    />
-                  </video>
-                );
-              }
-              return (
-                <ImgLightBox
-                  originalSrc={ImageHelper.normalizeImage(att.file_url, teamId)}
-                  key={att.file_id}
-                >
-                  <img
-                    className="task-attachment"
-                    alt=""
-                    src={ImageHelper.normalizeImage(att.file_url, teamId, {
-                      h: 120,
-                    })}
-                  />
-                </ImgLightBox>
-              );
-            })}
+            {task.task_attachment.map(renderAttachment)}
           </div>
           <div className="task-item__reacts">
             <ReactView
@@ -425,25 +427,19 @@ const TaskItem = ({
           {task.due_date && (
             <span
               className="task-item__date"
-              onClick={(e) => {
-                e.stopPropagation();
-                popupDatePickerRef.current?.show(dueDateRef.current);
-              }}
+              onClick={handleOpenDate}
               ref={dueDateRef}
             >
               {taskFromNow(task.due_date)}
             </span>
           )}
-          {sender && (
+          {assignee && (
             <div
-              onClick={(e) => {
-                e.stopPropagation();
-                popupAssigneeRef.current?.show(assigneeRef.current);
-              }}
+              onClick={handleOpenAssignee}
               ref={assigneeRef}
               style={{ paddingRight: 10 }}
             >
-              <AvatarView user={sender} />
+              <AvatarView user={assignee} />
             </div>
           )}
         </div>
@@ -451,12 +447,9 @@ const TaskItem = ({
       <PopoverButton
         popupOnly
         ref={popupPinnedMenuRef}
-        onClose={() => {}}
         componentPopup={
           <StatusSelectionPopup
-            onSelectedStatus={async (status) => {
-              onUpdateStatus(status.id);
-            }}
+            onSelectedStatus={handleSelectStatus}
             data={ProgressStatus.filter((el) => el.id !== 'pinned')}
           />
         }
@@ -465,12 +458,4 @@ const TaskItem = ({
   );
 };
 
-const mapStateToProps = (state: any) => {
-  return {
-    reactReducer: state.reactReducer,
-    userData: state.user.userData,
-    teamUserData: state.user.teamUserData,
-  };
-};
-
-export default connect(mapStateToProps)(TaskItem);
+export default memo(TaskItem);

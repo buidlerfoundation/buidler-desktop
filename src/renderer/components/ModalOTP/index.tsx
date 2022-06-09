@@ -1,42 +1,55 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal } from '@material-ui/core';
 import './index.scss';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import actionTypes from 'renderer/actions/ActionTypes';
-import NormalButton from '../NormalButton';
 import api from 'renderer/api';
 import { getDeviceCode } from 'renderer/common/Cookie';
 import toast from 'react-hot-toast';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import NormalButton from '../NormalButton';
 
 const ModalOTP = () => {
   const dispatch = useDispatch();
-  const openOTP = useSelector(
-    (state: any) =>
-      state.configs.openOTP && !WalletConnectUtils.connector?.connected
+  const openOTP = useAppSelector(
+    (state) => state.configs.openOTP && !WalletConnectUtils.connector?.connected
   );
-  const requestOtpCode = useSelector(
-    (state: any) => state.configs.requestOtpCode
+  const requestOtpCode = useAppSelector(
+    (state) => state.configs.requestOtpCode
   );
-  const handleClose = () => {
-    dispatch({ type: actionTypes.TOGGLE_OTP });
-  };
   const [otp, setOtp] = useState('');
+  const verifyOtp = useCallback(
+    async (str: string) => {
+      const deviceCode = await getDeviceCode();
+      const body = {
+        device_code: deviceCode,
+        otp_code: str,
+      };
+      const res = await api.verifyOtp(body);
+      if (res.statusCode === 200) {
+        dispatch({ type: actionTypes.TOGGLE_OTP });
+        toast.success('Your account was verified.');
+      }
+    },
+    [dispatch]
+  );
+  const onInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      if (value.length === 4) {
+        verifyOtp(value);
+      }
+      setOtp(value);
+    },
+    [verifyOtp]
+  );
+  const handleClose = useCallback(() => {
+    dispatch({ type: actionTypes.TOGGLE_OTP });
+  }, [dispatch]);
   useEffect(() => {
     setOtp(requestOtpCode || '');
   }, [requestOtpCode]);
-  const verifyOtp = async (str: string) => {
-    const deviceCode = await getDeviceCode();
-    const body = {
-      device_code: deviceCode,
-      otp_code: str,
-    };
-    const res = await api.verifyOtp(body);
-    if (res.statusCode === 200) {
-      dispatch({ type: actionTypes.TOGGLE_OTP });
-      toast.success('Your account was verified.');
-    }
-  };
   return (
     <Modal className="modal-otp" open={openOTP} onClose={handleClose}>
       <div className="otp-view__container">
@@ -64,13 +77,7 @@ const ModalOTP = () => {
           <input
             className="otp-input"
             value={otp}
-            onChange={(e) => {
-              const { value } = e.target;
-              if (value.length === 4) {
-                verifyOtp(value);
-              }
-              setOtp(value);
-            }}
+            onChange={onInputChange}
             maxLength={4}
             autoFocus
             disabled={requestOtpCode}

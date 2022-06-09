@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import ModalTeam from '../../../../components/ModalTeam';
 import NormalButton from '../../../../components/NormalButton';
 import './index.scss';
@@ -10,6 +10,25 @@ type EmptyViewProps = {
 
 const EmptyView = ({ createTeam, findTeamAndChannel }: EmptyViewProps) => {
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
+  const toggleModalTeam = useCallback(
+    () => setOpenModalTeam((current) => !current),
+    []
+  );
+  const handleCreateTeam = useCallback(
+    async (body) => {
+      await createTeam?.({
+        team_id: body.teamId,
+        team_display_name: body.name,
+        team_icon: body.teamIcon?.url,
+      });
+      setOpenModalTeam(false);
+    },
+    [createTeam]
+  );
+  const handleAcceptTeam = useCallback(() => {
+    findTeamAndChannel();
+    setOpenModalTeam(false);
+  }, [findTeamAndChannel]);
   return (
     <div className="empty-view__container">
       <span className="empty-text">
@@ -19,24 +38,14 @@ const EmptyView = ({ createTeam, findTeamAndChannel }: EmptyViewProps) => {
       </span>
       <NormalButton
         title="New Community"
-        onPress={() => setOpenModalTeam(true)}
+        onPress={toggleModalTeam}
         type="main"
       />
       <ModalTeam
         open={isOpenModalTeam}
-        handleClose={() => setOpenModalTeam(false)}
-        onCreateTeam={async (body) => {
-          await createTeam?.({
-            team_id: body.teamId,
-            team_display_name: body.name,
-            team_icon: body.teamIcon?.url,
-          });
-          setOpenModalTeam(false);
-        }}
-        onAcceptTeam={() => {
-          findTeamAndChannel();
-          setOpenModalTeam(false);
-        }}
+        handleClose={toggleModalTeam}
+        onCreateTeam={handleCreateTeam}
+        onAcceptTeam={handleAcceptTeam}
       />
     </div>
   );

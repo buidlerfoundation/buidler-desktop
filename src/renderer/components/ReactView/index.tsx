@@ -93,7 +93,7 @@ const ReactView = ({
   }, []);
 
   const currentReact = useMemo(
-    () => reacts.find((el) => el.reactName === currentId.current),
+    () => reacts?.find((el) => el.reactName === currentId.current),
     [reacts]
   );
 
@@ -148,7 +148,7 @@ const ReactView = ({
         className="react-view__container"
         aria-describedby={open ? 'react-detail-popover' : undefined}
       >
-        {reacts.map(renderReactItem)}
+        {reacts?.map(renderReactItem)}
       </div>
       <Popper
         id="react-detail-popover"
