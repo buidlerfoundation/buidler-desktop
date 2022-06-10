@@ -28,6 +28,7 @@ type MessageReplyItemProps = {
   onSelectTask: (task: any) => void;
   content: string;
   reacts: Array<ReactReducerData>;
+  replyCount: number;
 };
 
 const MessageReplyItem = ({
@@ -43,6 +44,7 @@ const MessageReplyItem = ({
   onSelectTask,
   content,
   reacts,
+  replyCount,
 }: MessageReplyItemProps) => {
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { userData, teamUserData, currentTeam } = useAppSelector(
@@ -174,10 +176,8 @@ const MessageReplyItem = ({
                   {message.task && <span className="view-task">View task</span>}
                   {message.task?.comment_count > 0
                     ? `${message.task?.comment_count} Replies`
-                    : message?.conversation_data?.length - 1 > 0 && (
-                        <span className="mention">
-                          {message?.conversation_data?.length - 1} Replies
-                        </span>
+                    : replyCount > 0 && (
+                        <span className="mention">{replyCount} Replies</span>
                       )}
                 </span>
               </div>

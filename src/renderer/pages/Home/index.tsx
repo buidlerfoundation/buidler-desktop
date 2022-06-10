@@ -202,7 +202,7 @@ const Home = ({
   const [openEditSpaceChannel, setOpenEditSpaceChannel] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [openTaskView, setOpenTask] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState<MessageData>(null);
+  const [currentMessageId, setCurrentMessageId] = useState<string>(null);
   const [openConversation, setOpenConversation] = useState(false);
   const handleDragChannel = useCallback(
     (result: any) => {
@@ -335,7 +335,7 @@ const Home = ({
     setOpenSpaceDetail(true);
   }, []);
   const handleOpenConversation = useCallback((message: MessageData) => {
-    setCurrentMessage(message);
+    setCurrentMessageId(message.message_id);
     setOpenConversation(true);
   }, []);
   const onMoreMessage = useCallback(
@@ -385,7 +385,7 @@ const Home = ({
   }, []);
   const handleCloseModalConversation = useCallback(() => {
     setOpenConversation(false);
-    setCurrentMessage(null);
+    setCurrentMessageId(null);
   }, []);
   const handleCloseModalTaskView = useCallback(() => {
     setOpenTask(false);
@@ -799,7 +799,12 @@ const Home = ({
             handleClose={handleCloseModalConversation}
             onAddReact={addReact}
             onRemoveReact={removeReact}
-            messageId={currentMessage?.message_id}
+            deleteMessage={deleteMessage}
+            conversations={
+              messageData?.[currentChannelId]?.data?.find(
+                (el) => el.message_id === currentMessageId
+              )?.conversation_data
+            }
           />
           <ModalTaskView
             task={currentTask}

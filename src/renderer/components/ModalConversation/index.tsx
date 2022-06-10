@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import './index.scss';
+import { ConversationData } from 'renderer/models';
 import ModalFullScreen from '../ModalFullScreen';
 import ConversationView from './ConversationView';
 
@@ -8,7 +9,12 @@ type ModalConversationProps = {
   handleClose: () => void;
   onAddReact: (id: string, name: string, userId: string) => void;
   onRemoveReact: (id: string, name: string, userId: string) => void;
-  messageId: string;
+  deleteMessage: (
+    messageId: string,
+    parentId: string,
+    channelId: string
+  ) => any;
+  conversations: Array<ConversationData>;
 };
 
 const ModalConversation = ({
@@ -16,7 +22,8 @@ const ModalConversation = ({
   open,
   onAddReact,
   onRemoveReact,
-  messageId,
+  deleteMessage,
+  conversations,
 }: ModalConversationProps) => {
   if (!open) return null;
   return (
@@ -25,7 +32,8 @@ const ModalConversation = ({
         onEsc={handleClose}
         onAddReact={onAddReact}
         onRemoveReact={onRemoveReact}
-        messageId={messageId}
+        deleteMessage={deleteMessage}
+        conversations={conversations}
       />
     </ModalFullScreen>
   );

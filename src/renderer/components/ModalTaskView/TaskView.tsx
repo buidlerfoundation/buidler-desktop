@@ -77,6 +77,7 @@ const TaskView = ({
 }: TaskViewProps) => {
   const teamUserData = useAppSelector((state) => state.user.teamUserData);
   const popupMenuRef = useRef<any>();
+  const reactData = useAppSelector((state) => state.reactReducer.reactData);
   const [activeIndex, setActiveIndex] = useState(0);
   const bottomBodyRef = useRef<HTMLDivElement>();
   const popupChannelRef = useRef<any>();
@@ -633,6 +634,7 @@ const TaskView = ({
                     onCreateTask={() => {}}
                     disableMenu
                     content={cvs.content}
+                    reacts={reactData?.[cvs.message_id]}
                   />
                 ))}
               </div>

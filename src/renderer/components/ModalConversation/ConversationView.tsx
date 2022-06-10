@@ -9,7 +9,7 @@ import React, {
 import './index.scss';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import Dropzone from 'react-dropzone';
-import { MessageData } from 'renderer/models';
+import { ConversationData } from 'renderer/models';
 import { debounce } from 'lodash';
 import { encryptMessage } from 'renderer/helpers/ChannelHelper';
 import {
@@ -29,14 +29,20 @@ type ConversationViewProps = {
   onEsc: () => void;
   onAddReact: (id: string, name: string, userId: string) => void;
   onRemoveReact: (id: string, name: string, userId: string) => void;
-  messageId: string;
+  deleteMessage: (
+    messageId: string,
+    parentId: string,
+    channelId: string
+  ) => any;
+  conversations: Array<ConversationData>;
 };
 
 const ConversationView = ({
   onEsc,
   onAddReact,
   onRemoveReact,
-  messageId,
+  deleteMessage,
+  conversations,
 }: ConversationViewProps) => {
   const inputRef = useRef<any>();
   const { currentChannel, currentTeam, teamUserData } = useAppSelector(
@@ -45,18 +51,7 @@ const ConversationView = ({
   const channelPrivateKey = useAppSelector(
     (state) => state.configs.channelPrivateKey
   );
-  const messageData = useAppSelector((state) => state.message.messageData);
-  const message = useMemo<MessageData>(() => {
-    const key = currentChannel?.channel_id || currentChannel?.user?.user_id;
-    return messageData?.[key]?.data?.find(
-      (msg) => msg.message_id === messageId
-    );
-  }, [
-    currentChannel?.channel_id,
-    currentChannel?.user?.user_id,
-    messageData,
-    messageId,
-  ]);
+  const reactData = useAppSelector((state) => state.reactReducer.reactData);
   const [isScrolling, setScrolling] = useState(false);
   const [messageEdit, setMessageEdit] = useState<any>(null);
   const timeoutScrollRef = useRef<any>(null);
@@ -65,8 +60,8 @@ const ConversationView = ({
   const inputFileRef = useRef<any>();
   const [text, setText] = useState('');
   const messageHead = useMemo(
-    () => message?.conversation_data?.[message?.conversation_data?.length - 1],
-    [message?.conversation_data]
+    () => conversations?.[conversations?.length - 1],
+    [conversations]
   );
   const senderHead = useMemo(
     () => teamUserData.find((u) => u.user_id === messageHead?.sender_id),
@@ -119,7 +114,7 @@ const ConversationView = ({
         channel_id: currentChannel.channel_id,
         content: text.trim(),
         plain_text: extractContent(text.trim()),
-        parent_id: message.parent_id,
+        parent_id: messageHead.parent_id,
         mentions: getMentionData(text.trim()),
       };
       if (currentChannel.channel_type === 'Private') {
@@ -147,7 +142,7 @@ const ConversationView = ({
     currentChannel?.channel_id,
     currentChannel?.channel_type,
     files,
-    message?.parent_id,
+    messageHead?.parent_id,
     text,
   ]);
   const onKeyDown = useCallback(
@@ -233,15 +228,21 @@ const ConversationView = ({
     },
     [onAddFiles]
   );
-  const onMenuMessage = useCallback((menu: PopoverItem, msg: MessageData) => {
-    if (menu.value === 'Edit') {
-      setMessageEdit(msg);
-      setText(msg.content);
-      setTimeout(() => {
-        inputRef.current?.focus?.();
-      }, 0);
-    }
-  }, []);
+  const onMenuMessage = useCallback(
+    (menu: PopoverItem, msg: ConversationData) => {
+      if (menu.value === 'Delete') {
+        deleteMessage(msg.message_id, msg.parent_id, currentChannel.channel_id);
+      }
+      if (menu.value === 'Edit') {
+        setMessageEdit(msg);
+        setText(msg.content);
+        setTimeout(() => {
+          inputRef.current?.focus?.();
+        }, 0);
+      }
+    },
+    [currentChannel?.channel_id, deleteMessage]
+  );
   const handleRemoveFile = useCallback((file) => {
     setFiles((current) => current.filter((f) => f.id !== file.id));
   }, []);
@@ -253,7 +254,7 @@ const ConversationView = ({
     [onAddFiles]
   );
   const renderMessage = useCallback(
-    (msg: MessageData) => (
+    (msg: ConversationData) => (
       <MessageItem
         key={msg.message_id}
         message={msg}
@@ -261,9 +262,10 @@ const ConversationView = ({
         onAddReact={onAddReact}
         onMenuSelected={onMenuMessage}
         content={msg.content}
+        reacts={reactData?.[msg.message_id]}
       />
     ),
-    [onAddReact, onMenuMessage, onRemoveReact]
+    [onAddReact, onMenuMessage, onRemoveReact, reactData]
   );
   return (
     <Dropzone onDrop={onAddFiles}>
@@ -284,10 +286,9 @@ const ConversationView = ({
                 className="conversation-message-list"
                 style={{ pointerEvents: isScrolling ? 'none' : 'initial' }}
               >
-                {message &&
-                  normalizeMessage(message.conversation_data.slice(0, -1)).map(
-                    renderMessage
-                  )}
+                {normalizeMessage(conversations.slice(0, -1)).map(
+                  renderMessage
+                )}
               </div>
             </div>
           </div>
