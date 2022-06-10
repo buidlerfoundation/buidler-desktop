@@ -339,19 +339,32 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
           ...state.lastChannel,
           [state?.currentTeam?.team_id]: payload.channel,
         },
-        spaceChannel: state.spaceChannel.map((el) => {
-          if (el.space_id === payload?.channel?.space_id) {
-            el.channels = el.channels?.map((c) => {
-              if (c.channel_id === payload?.channel?.channel_id) {
-                c.seen = true;
-                return { ...c };
-              }
-              return c;
-            });
-            return { ...el };
-          }
-          return el;
-        }),
+        channel:
+          payload.channel.channel_type === 'Direct'
+            ? state.channel.map((c) => {
+                if (c.channel_id === payload.channel.channel_id) {
+                  c.seen = true;
+                  return { ...c };
+                }
+                return c;
+              })
+            : state.channel,
+        spaceChannel:
+          payload.channel.channel_type !== 'Direct'
+            ? state.spaceChannel.map((el) => {
+                if (el.space_id === payload?.channel?.space_id) {
+                  el.channels = el.channels?.map((c) => {
+                    if (c.channel_id === payload?.channel?.channel_id) {
+                      c.seen = true;
+                      return { ...c };
+                    }
+                    return c;
+                  });
+                  return { ...el };
+                }
+                return el;
+              })
+            : state.spaceChannel,
       };
     }
     case actionTypes.UPDATE_GROUP_CHANNEL: {
@@ -376,19 +389,30 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       )?.space_id;
       return {
         ...state,
-        spaceChannel: state.spaceChannel.map((el) => {
-          if (el.space_id === spaceId) {
-            el.channels = el.channels?.map((c) => {
-              if (c.channel_id === channelId) {
-                c.seen = false;
-                return { ...c };
+        channel: !spaceId
+          ? state.channel.map((el) => {
+              if (el.channel_id === channelId) {
+                el.seen = false;
+                return { ...el };
               }
-              return c;
-            });
-            return { ...el };
-          }
-          return el;
-        }),
+              return el;
+            })
+          : state.channel,
+        spaceChannel: spaceId
+          ? state.spaceChannel.map((el) => {
+              if (el.space_id === spaceId) {
+                el.channels = el.channels?.map((c) => {
+                  if (c.channel_id === channelId) {
+                    c.seen = false;
+                    return { ...c };
+                  }
+                  return c;
+                });
+                return { ...el };
+              }
+              return el;
+            })
+          : state.spaceChannel,
       };
     }
     case actionTypes.TEAM_SUCCESS: {
