@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect, useSelector } from 'react-redux';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Switch, Route, useHistory } from 'react-router-dom';
 import AppListener from 'renderer/components/AppListener';
+import { useDispatch } from 'react-redux';
+import { getInitial } from 'renderer/actions/UserActions';
 import MainWrapper from './Layout';
 import Home from '../Home';
 import { AsyncKey } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
 import Splash from '../Splash';
-import actions from '../../actions';
 import AppTitleBar from '../../components/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
@@ -36,15 +36,12 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
-type MainProps = {
-  getInitial?: () => () => void;
-};
-
-const Main = ({ getInitial }: MainProps) => {
-  const imgDomain = useSelector((state: any) => state.user.imgDomain);
+const Main = () => {
+  const imgDomain = useAppSelector((state) => state.user.imgDomain);
+  const dispatch = useDispatch();
   useEffect(() => {
-    getInitial?.();
-  }, [getInitial]);
+    dispatch(getInitial?.());
+  }, [dispatch]);
   if (!imgDomain) {
     return <div className="main-load-page" />;
   }
@@ -63,7 +60,4 @@ const Main = ({ getInitial }: MainProps) => {
     </div>
   );
 };
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default connect(null, mapActionsToProps)(Main);
+export default Main;

@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Modal } from '@material-ui/core';
 import api from 'renderer/api';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import { GroupSettingItem, UserData } from 'renderer/models';
+import { useDispatch } from 'react-redux';
+import { updateUser } from 'renderer/actions/UserActions';
 import './index.scss';
 import images from '../../common/images';
 import UpdateUserProfile from './UpdateUserProfile';
@@ -19,7 +20,6 @@ type ModalUserSettingProps = {
   handleClose: () => void;
   user?: UserData;
   onLogout: () => void;
-  updateUser?: (userData: any) => any;
 };
 
 const ModalUserSetting = ({
@@ -27,8 +27,8 @@ const ModalUserSetting = ({
   user,
   handleClose,
   onLogout,
-  updateUser,
 }: ModalUserSettingProps) => {
+  const dispatch = useDispatch();
   const [isOpenConfirmLogout, setOpenConfirmLogout] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -112,10 +112,10 @@ const ModalUserSetting = ({
   const onSave = useCallback(async () => {
     if (uploading) return;
     setLoading(true);
-    await updateUser?.(userData);
+    await dispatch(updateUser?.(userData));
     setLoading(false);
     handleClose();
-  }, [handleClose, updateUser, uploading, userData]);
+  }, [dispatch, handleClose, uploading, userData]);
   const handleChangePage = useCallback((id) => setCurrentPageId(id), []);
   const handleOpenConfirmLogout = useCallback(
     () => setOpenConfirmLogout(true),

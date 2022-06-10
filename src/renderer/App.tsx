@@ -2,48 +2,39 @@ import React, { useCallback, useEffect } from 'react';
 import './App.scss';
 import './styles/spacing.scss';
 import './emoji.scss';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
 import TextareaAutosize from 'react-textarea-autosize';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core';
-import { testSC } from './common/EthereumFunction';
 import Main from './pages/Main';
 import AppToastNotification from './components/AppToastNotification';
 import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
-import actions from './actions';
 import WalletConnectUtils from './services/connectors/WalletConnectUtils';
 import { clearData, getCookie, getDeviceCode } from './common/Cookie';
 import { AsyncKey, LoginType } from './common/AppConfig';
 import actionTypes from './actions/ActionTypes';
 import api from './api';
+import { findUser, getInitial, logout } from './actions/UserActions';
+import useAppSelector from './hooks/useAppSelector';
 
-type AppProps = {
-  findUser: () => any;
-  getInitial: () => () => void;
-  logout: () => any;
-};
-
-function App({ findUser, getInitial, logout }: AppProps) {
-  // console.log('XXX');
-  // testSC();
+function App() {
   window.electron.cookies.setPath();
   const history = useHistory();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.userData);
-  const imgDomain = useSelector((state: any) => state.user.imgDomain);
+  const user = useAppSelector((state) => state.user.userData);
+  const imgDomain = useAppSelector((state: any) => state.user.imgDomain);
   const initApp = useCallback(async () => {
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
     if (accessToken && typeof accessToken === 'string') {
-      await findUser();
+      await dispatch(findUser?.());
       history.replace('/home');
     }
     if (!imgDomain) {
-      await getInitial?.();
+      await dispatch(getInitial?.());
     }
-  }, [findUser, getInitial, imgDomain, history]);
+  }, [imgDomain, dispatch, history]);
   useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,
@@ -99,9 +90,9 @@ function App({ findUser, getInitial, logout }: AppProps) {
     });
     clearData(() => {
       window.location.reload();
-      logout?.();
+      dispatch(logout?.());
     });
-  }, [logout]);
+  }, [dispatch]);
   useEffect(() => {
     getCookie(AsyncKey.loginType)
       .then((res) => {
@@ -151,7 +142,4 @@ function App({ findUser, getInitial, logout }: AppProps) {
   );
 }
 
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default connect(undefined, mapActionsToProps)(App);
+export default App;

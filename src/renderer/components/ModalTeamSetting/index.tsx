@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Modal, CircularProgress } from '@material-ui/core';
 import Dropzone from 'react-dropzone';
 import { Community } from 'renderer/models';
+import { useDispatch } from 'react-redux';
+import { updateTeam } from 'renderer/actions/UserActions';
 import './index.scss';
 import images from '../../common/images';
 import AppInput from '../AppInput';
@@ -15,7 +17,6 @@ type ModalTeamSettingProps = {
   open: boolean;
   handleClose: () => void;
   team: Community;
-  updateTeam: (teamId: string, body: any) => any;
   onDeleteClick: () => void;
 };
 
@@ -23,9 +24,9 @@ const ModalTeamSetting = ({
   open,
   handleClose,
   team,
-  updateTeam,
   onDeleteClick,
 }: ModalTeamSettingProps) => {
+  const dispatch = useDispatch();
   const [file, setFile] = useState<any>(null);
   const inputFileRef = useRef<any>();
   const generateId = useRef<string>('');
@@ -62,7 +63,7 @@ const ModalTeamSetting = ({
               url: res.file_url,
               id: res.file.file_id,
             }));
-            updateTeam(team.team_id, { team_icon: res.file_url });
+            dispatch(updateTeam(team.team_id, { team_icon: res.file_url }));
           } else {
             setFile(null);
           }
@@ -70,7 +71,7 @@ const ModalTeamSetting = ({
         })
         .catch((err) => console.log(err));
     },
-    [team?.team_id, updateTeam]
+    [dispatch, team?.team_id]
   );
   const handleInputFileClick = useCallback(
     () => inputFileRef.current?.click(),
@@ -93,8 +94,8 @@ const ModalTeamSetting = ({
   );
   const handleInputNameBlur = useCallback(() => {
     GlobalVariable.isInputFocus = false;
-    updateTeam(team.team_id, { team_display_name: teamName });
-  }, [team?.team_id, teamName, updateTeam]);
+    dispatch(updateTeam(team.team_id, { team_display_name: teamName }));
+  }, [dispatch, team?.team_id, teamName]);
   const handleChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onAddFile(e.target.files);

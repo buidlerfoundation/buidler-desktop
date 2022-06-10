@@ -503,7 +503,7 @@ const ChannelView = forwardRef(
       messageReply,
       replyTask,
       text,
-      userData.user_id,
+      userData?.user_id,
       scrollDown,
     ]);
     const handleRemoveFile = useCallback(

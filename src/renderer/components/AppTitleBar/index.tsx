@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
-import { Community, UserData } from 'renderer/models';
-import actions from '../../actions';
+import { useDispatch } from 'react-redux';
+import {
+  createTeam,
+  deleteTeam,
+  findTeamAndChannel,
+  leaveTeam,
+  logout,
+  setCurrentTeam,
+} from 'renderer/actions/UserActions';
+import { Community } from 'renderer/models';
 import './index.scss';
 import TeamItem from './TeamItem';
 import images from '../../common/images';
@@ -21,27 +27,8 @@ import ModalTeamSetting from '../ModalTeamSetting';
 import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 import AvatarView from '../AvatarView';
 
-type AppTitleBarProps = {
-  setCurrentTeam?: (team: Community) => any;
-  createTeam?: (body: any) => any;
-  leaveTeam?: (teamId: string) => any;
-  logout?: () => any;
-  updateUser?: (userData: UserData) => any;
-  findTeamAndChannel: () => any;
-  updateTeam: (teamId: string, body: any) => any;
-  deleteTeam: (teamId: string) => any;
-};
-
-const AppTitleBar = ({
-  setCurrentTeam,
-  createTeam,
-  leaveTeam,
-  logout,
-  updateUser,
-  findTeamAndChannel,
-  updateTeam,
-  deleteTeam,
-}: AppTitleBarProps) => {
+const AppTitleBar = () => {
+  const dispatch = useDispatch();
   const { team, userData, currentTeam, imgDomain } = useAppSelector(
     (state) => state.user
   );
@@ -69,9 +56,9 @@ const AppTitleBar = ({
   const [selectedMenuTeam, setSelectedMenuTeam] = useState<Community>(null);
   const setTeam = useCallback(
     (t: Community) => {
-      setCurrentTeam?.(t);
+      dispatch(setCurrentTeam?.(t));
     },
-    [setCurrentTeam]
+    [dispatch]
   );
   const handleCloseTeamSetting = useCallback(() => {
     setSelectedMenuTeam(null);
@@ -109,7 +96,7 @@ const AppTitleBar = ({
       currentTeam.team_id === selectedMenuTeam.team_id
         ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
         : null;
-    const success = await deleteTeam(selectedMenuTeam?.team_id);
+    const success = await dispatch(deleteTeam(selectedMenuTeam?.team_id));
     if (nextTeam && success) {
       setTeam(nextTeam);
     }
@@ -117,7 +104,7 @@ const AppTitleBar = ({
     setOpenTeamSetting(false);
   }, [
     currentTeam?.team_id,
-    deleteTeam,
+    dispatch,
     selectedMenuTeam?.team_id,
     setTeam,
     team,
@@ -131,14 +118,14 @@ const AppTitleBar = ({
       currentTeam.team_id === selectedMenuTeam.team_id
         ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
         : null;
-    const success = await leaveTeam?.(selectedMenuTeam.team_id);
+    const success = await dispatch(leaveTeam?.(selectedMenuTeam.team_id));
     if (nextTeam && success) {
       setTeam(nextTeam);
     }
     setOpenConfirmLeave(false);
   }, [
     currentTeam?.team_id,
-    leaveTeam,
+    dispatch,
     selectedMenuTeam?.team_id,
     setTeam,
     team,
@@ -158,19 +145,21 @@ const AppTitleBar = ({
   const handleCloseModalTeam = useCallback(() => setOpenModalTeam(false), []);
   const handleCreateTeam = useCallback(
     async (body) => {
-      await createTeam?.({
-        team_id: body.teamId,
-        team_display_name: body.name,
-        team_icon: body.teamIcon?.url,
-      });
+      await dispatch(
+        createTeam?.({
+          team_id: body.teamId,
+          team_display_name: body.name,
+          team_icon: body.teamIcon?.url,
+        })
+      );
       setOpenModalTeam(false);
     },
-    [createTeam]
+    [dispatch]
   );
   const handleAcceptTeam = useCallback(() => {
-    findTeamAndChannel();
+    dispatch(findTeamAndChannel());
     setOpenModalTeam(false);
-  }, [findTeamAndChannel]);
+  }, [dispatch]);
   const handleCloseModalUserSetting = useCallback(
     () => setOpenModalUser(false),
     []
@@ -191,10 +180,10 @@ const AppTitleBar = ({
       clearData(() => {
         setOpenModalUser(false);
         history.replace('/started');
-        logout?.();
+        dispatch(logout?.());
       });
     }
-  }, [history, logout]);
+  }, [dispatch, history]);
   const onSelectedMenu = useCallback(async (menu: any) => {
     switch (menu.value) {
       case 'Leave community': {
@@ -261,7 +250,6 @@ const AppTitleBar = ({
           open={isOpenModalUser}
           handleClose={handleCloseModalUserSetting}
           user={userData}
-          updateUser={updateUser}
           onLogout={handleLogout}
         />
         <PopoverButton
@@ -289,7 +277,6 @@ const AppTitleBar = ({
           open={openTeamSetting}
           handleClose={handleCloseTeamSetting}
           team={selectedMenuTeam}
-          updateTeam={updateTeam}
           onDeleteClick={onDeleteClick}
         />
       </div>
@@ -304,7 +291,4 @@ const AppTitleBar = ({
   );
 };
 
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default memo(connect(undefined, mapActionsToProps)(AppTitleBar));
+export default memo(AppTitleBar);
