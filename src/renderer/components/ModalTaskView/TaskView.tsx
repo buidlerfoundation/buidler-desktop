@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  memo,
 } from 'react';
 import { debounce } from 'lodash';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
@@ -87,7 +88,6 @@ const TaskView = ({
   const inputRef = useRef<HTMLInputElement>();
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<Array<any>>([]);
-  const [hoverChannel, setHoverChannel] = useState(false);
   const [anchorPopupStatus, setPopupStatus] = useState(null);
   const generateId = useRef<string>('');
   const popupAssigneeRef = useRef<any>();
@@ -103,11 +103,13 @@ const TaskView = ({
     notes: task.notes,
     attachments: task.task_attachment,
   });
-  const openStatus = Boolean(anchorPopupStatus);
-  const idPopupStatus = openStatus ? 'task-status-popover' : undefined;
-  const openStatusSelection = (event: any) => {
+  const idPopupStatus = useMemo(
+    () => (!!anchorPopupStatus ? 'task-status-popover' : undefined),
+    [anchorPopupStatus]
+  );
+  const openStatusSelection = useCallback((event: any) => {
     setPopupStatus(event.currentTarget);
-  };
+  }, []);
   useEffect(() => {
     const keyDownListener = (e: any) => {
       if (e.key === 'Escape') {
@@ -251,12 +253,40 @@ const TaskView = ({
     },
     [onAddFiles]
   );
-  const _onPasteAttachmentTask = (e: any) => {
-    const { files } = e.clipboardData;
-    if (files?.length > 0) {
-      onAddAttachment(files);
-    }
-  };
+  const handleSelectMenu = useCallback(
+    (menu: PopoverItem) => {
+      if (menu.value === 'Delete') {
+        onDeleteTask(task);
+        onEsc();
+      }
+    },
+    [onDeleteTask, onEsc, task]
+  );
+  const handleFocus = useCallback(() => {
+    GlobalVariable.isInputFocus = true;
+  }, []);
+  const handleBlurTitle = useCallback(
+    (e: React.FocusEvent<HTMLDivElement, Element>) => {
+      GlobalVariable.isInputFocus = false;
+      updateTask(task.task_id, channelId, {
+        title: e.target.innerHTML,
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleChangeTitle = useCallback((e: ContentEditableEvent) => {
+    setTaskData((data) => ({ ...data, title: e.target.value }));
+  }, []);
+  const _onPasteAttachmentTask = useCallback(
+    (e: React.ClipboardEvent<HTMLDivElement>) => {
+      const { files } = e.clipboardData;
+      if (files?.length > 0) {
+        onAddAttachment(files);
+      }
+    },
+    [onAddAttachment]
+  );
   const submitMessage = useCallback(async () => {
     const loadingAttachment = attachments.find((att: any) => att.loading);
     if (loadingAttachment != null) return;
@@ -279,6 +309,14 @@ const TaskView = ({
       generateId.current = '';
     }
   }, [attachments, channelId, task?.task_id, text]);
+  const handleAddFileClick = useCallback(() => {
+    addFileRef.current.click();
+  }, []);
+  const handleConversationClick = useCallback(() => setActiveIndex(0), []);
+  const handleActivitiesClick = useCallback(() => {
+    getActivities(task.task_id);
+    setActiveIndex(1);
+  }, [getActivities, task.task_id]);
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.code === 'Enter' && !e.shiftKey) {
@@ -291,29 +329,92 @@ const TaskView = ({
     },
     [submitMessage]
   );
-  const handleDateChange = async (date: MaterialUiPickersDate) => {
-    popupDatePickerRef.current?.hide();
-    if (!date) return;
-    const res = await updateTask(task.task_id, channelId, {
-      due_date: moment(date).format('YYYY-MM-DD HH:mm:ss.SSSZ'),
-      team_id: teamId,
-    });
-    if (res) {
-      setTaskData((data) => ({ ...data, dueDate: date.toDateString() }));
-    }
-    popupChannelRef.current?.hide();
-  };
-  const onRemoveAttachment = (attachment: any) => {
-    const task_attachment = taskData.attachments.filter(
-      (el: any) => !!el.file_id && el.file_id !== attachment.file_id
-    );
-    setTaskData((data) => ({ ...data, attachments: task_attachment }));
-    updateTask(task.task_id, channelId, {
-      task_attachment,
-      file_ids: task_attachment.map((el: any) => el.file_id),
-      team_id: teamId,
-    });
-  };
+  const handleBlurNote = useCallback(
+    (e) => {
+      GlobalVariable.isInputFocus = false;
+      updateTask(task.task_id, channelId, {
+        notes: e.target.value,
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleChangeNote = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+      setTaskData((data) => ({ ...data, notes: e.target.value })),
+    []
+  );
+  const handleOpenChannel = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      popupChannelRef.current?.show(e.currentTarget, {
+        x: e.pageX,
+        y: e.pageY,
+      });
+    },
+    []
+  );
+  const handleChannelChange = useCallback(
+    async (channels) => {
+      const res = await updateTask(task.task_id, channelId, {
+        channel: channels.map((c: any) => ({
+          channel_id: c.channel_id,
+          channel_name: c.channel_name,
+        })),
+        team_id: teamId,
+      });
+      if (res) {
+        setTaskData((data) => ({ ...data, channels }));
+      }
+      popupChannelRef.current?.hide();
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleAssigneeChange = useCallback(
+    (u) => {
+      popupAssigneeRef.current?.hide();
+      if (!channelId) return;
+      setTaskData((current) => ({ ...current, assignee: u }));
+      updateTask(task.task_id, channelId, {
+        assignee_id: u?.user_id || null,
+        assignee: u,
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleDateChange = useCallback(
+    async (date: MaterialUiPickersDate) => {
+      popupDatePickerRef.current?.hide();
+      if (!date) return;
+      const res = await updateTask(task.task_id, channelId, {
+        due_date: moment(date).format('YYYY-MM-DD HH:mm:ss.SSSZ'),
+        team_id: teamId,
+      });
+      if (res) {
+        setTaskData((data) => ({ ...data, dueDate: date.toDateString() }));
+      }
+      popupChannelRef.current?.hide();
+    },
+    [channelId, task.task_id, teamId, updateTask]
+  );
+  const handleClearDate = useCallback(
+    () => handleDateChange(null),
+    [handleDateChange]
+  );
+  const onRemoveAttachment = useCallback(
+    (attachment: any) => {
+      const task_attachment = taskData.attachments.filter(
+        (el: any) => !!el.file_id && el.file_id !== attachment.file_id
+      );
+      setTaskData((data) => ({ ...data, attachments: task_attachment }));
+      updateTask(task.task_id, channelId, {
+        task_attachment,
+        file_ids: task_attachment.map((el: any) => el.file_id),
+        team_id: teamId,
+      });
+    },
+    [channelId, task.task_id, taskData.attachments, teamId, updateTask]
+  );
   const date = useMemo(() => taskData?.dueDate, [taskData?.dueDate]);
   const handleRemoveAttachment = useCallback((file) => {
     setAttachments((current) => current.filter((f) => f.id !== file.id));
@@ -343,6 +444,18 @@ const TaskView = ({
     },
     [onAddAttachment]
   );
+  const renderMessage = useCallback(
+    (cvs) => (
+      <MessageItem
+        key={cvs.message_id}
+        message={cvs}
+        disableMenu
+        content={cvs.content}
+        reacts={reactData?.[cvs.message_id]}
+      />
+    ),
+    [reactData]
+  );
   return (
     <Dropzone onDrop={onAddFiles}>
       {({ getRootProps, getInputProps }) => (
@@ -369,12 +482,7 @@ const TaskView = ({
             <PopoverButton
               ref={popupMenuRef}
               data={taskMenu}
-              onSelected={(menu) => {
-                if (menu.value === 'Delete') {
-                  onDeleteTask(task);
-                  onEsc();
-                }
-              }}
+              onSelected={handleSelectMenu}
               onClose={() => {}}
               componentButton={
                 <div className="normal-icon">
@@ -389,19 +497,9 @@ const TaskView = ({
               <ContentEditable
                 innerRef={inputTitleRef}
                 html={taskData.title}
-                onFocus={() => {
-                  GlobalVariable.isInputFocus = true;
-                }}
-                onBlur={(e) => {
-                  GlobalVariable.isInputFocus = false;
-                  updateTask(task.task_id, channelId, {
-                    title: e.target.innerHTML,
-                    team_id: teamId,
-                  });
-                }}
-                onChange={(e) => {
-                  setTaskData((data) => ({ ...data, title: e.target.value }));
-                }}
+                onFocus={handleFocus}
+                onBlur={handleBlurTitle}
+                onChange={handleChangeTitle}
                 className="task-title-input hide-scroll-bar"
                 onPaste={_onPasteAttachmentTask}
               />
@@ -414,76 +512,38 @@ const TaskView = ({
                 className="task-note"
                 placeholder="Add note"
                 value={taskData.notes || ''}
-                onBlur={(e) => {
-                  GlobalVariable.isInputFocus = false;
-                  updateTask(task.task_id, channelId, {
-                    notes: e.target.value,
-                    team_id: teamId,
-                  });
-                }}
-                onChange={(e) =>
-                  setTaskData((data) => ({ ...data, notes: e.target.value }))
-                }
+                onBlur={handleBlurNote}
+                onChange={handleChangeNote}
               />
             </div>
             <div className="task-row">
               <div className="label">
                 <span>Channels</span>
               </div>
-              <div
-                className="value"
-                onMouseEnter={() => setHoverChannel(true)}
-                onMouseLeave={() => setHoverChannel(false)}
-              >
+              <div className="value channel__wrap">
                 {taskData.channels?.map?.((c: any) => (
                   <div
                     className="channel-item normal-button"
                     key={c.channel_id}
-                    onClick={(e) => {
-                      popupChannelRef.current?.show(e.currentTarget, {
-                        x: e.pageX,
-                        y: e.pageY,
-                      });
-                    }}
+                    onClick={handleOpenChannel}
                   >
                     <span># {c.channel_name}</span>
                   </div>
                 ))}
-                {hoverChannel && (
-                  <PopoverButton
-                    ref={popupChannelRef}
-                    onClose={() => {
-                      setHoverChannel(false);
-                    }}
-                    componentButton={
-                      <div className="button-add-channel">
-                        <img alt="" src={images.icPlus} />
-                      </div>
-                    }
-                    componentPopup={
-                      <PopupChannel
-                        selected={taskData.channels}
-                        onChange={async (channels) => {
-                          const res = await updateTask(
-                            task.task_id,
-                            channelId,
-                            {
-                              channel: channels.map((c: any) => ({
-                                channel_id: c.channel_id,
-                                channel_name: c.channel_name,
-                              })),
-                              team_id: teamId,
-                            }
-                          );
-                          if (res) {
-                            setTaskData((data) => ({ ...data, channels }));
-                          }
-                          popupChannelRef.current?.hide();
-                        }}
-                      />
-                    }
-                  />
-                )}
+                <PopoverButton
+                  ref={popupChannelRef}
+                  componentButton={
+                    <div className="button-add-channel">
+                      <img alt="" src={images.icPlus} />
+                    </div>
+                  }
+                  componentPopup={
+                    <PopupChannel
+                      selected={taskData.channels}
+                      onChange={handleChannelChange}
+                    />
+                  }
+                />
               </div>
             </div>
             <div className="task-row">
@@ -523,16 +583,7 @@ const TaskView = ({
                   componentPopup={
                     <AssignPopup
                       selected={taskData?.assignee}
-                      onChanged={(u) => {
-                        popupAssigneeRef.current?.hide();
-                        if (!channelId) return;
-                        setTaskData((current) => ({ ...current, assignee: u }));
-                        updateTask(task.task_id, channelId, {
-                          assignee_id: u?.user_id || null,
-                          assignee: u,
-                          team_id: teamId,
-                        });
-                      }}
+                      onChanged={handleAssigneeChange}
                     />
                   }
                 />
@@ -545,7 +596,6 @@ const TaskView = ({
               <div className="value" style={{ position: 'relative' }}>
                 <PopoverButton
                   ref={popupDatePickerRef}
-                  onClose={() => {}}
                   componentButton={
                     <div
                       className={`date-item normal-button ${
@@ -559,7 +609,7 @@ const TaskView = ({
                     <DatePickerV2
                       selectedDate={date || new Date()}
                       handleDateChange={handleDateChange}
-                      onClear={() => handleDateChange(null)}
+                      onClear={handleClearDate}
                     />
                   }
                 />
@@ -590,9 +640,7 @@ const TaskView = ({
                 })}
                 <div
                   className="btn-add-attachment normal-button"
-                  onClick={() => {
-                    addFileRef.current.click();
-                  }}
+                  onClick={handleAddFileClick}
                 >
                   <img
                     src={images.icPlus}
@@ -607,7 +655,7 @@ const TaskView = ({
                 className={`tab-label normal-button ${
                   activeIndex === 0 ? 'active-tab' : ''
                 }`}
-                onClick={() => setActiveIndex(0)}
+                onClick={handleConversationClick}
               >
                 <span>Conversation</span>
               </div>
@@ -615,10 +663,7 @@ const TaskView = ({
                 className={`tab-label normal-button ${
                   activeIndex === 1 ? 'active-tab' : ''
                 }`}
-                onClick={() => {
-                  getActivities(task.task_id);
-                  setActiveIndex(1);
-                }}
+                onClick={handleActivitiesClick}
               >
                 <span>Activities</span>
               </div>
@@ -627,16 +672,9 @@ const TaskView = ({
             {activeIndex === 0 && (
               <div className="conversation-body">
                 <div style={{ height: 15 }} />
-                {normalizeMessage(conversations.slice(0, -1)).map((cvs) => (
-                  <MessageItem
-                    key={cvs.message_id}
-                    message={cvs}
-                    onCreateTask={() => {}}
-                    disableMenu
-                    content={cvs.content}
-                    reacts={reactData?.[cvs.message_id]}
-                  />
-                ))}
+                {normalizeMessage(conversations.slice(0, -1)).map(
+                  renderMessage
+                )}
               </div>
             )}
             {activeIndex === 1 && (
@@ -660,7 +698,7 @@ const TaskView = ({
           <Popover
             elevation={0}
             id={idPopupStatus}
-            open={openStatus}
+            open={!!anchorPopupStatus}
             anchorEl={anchorPopupStatus}
             onClose={handleClosePopupStatus}
             anchorOrigin={{
@@ -693,4 +731,4 @@ const TaskView = ({
   );
 };
 
-export default TaskView;
+export default memo(TaskView);

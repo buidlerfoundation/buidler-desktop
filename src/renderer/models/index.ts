@@ -18,6 +18,8 @@ export type CreateSpaceData = {
     amount?: number;
     amountInput?: string;
     network: string;
+    name: string;
+    image_url: string;
   };
 };
 

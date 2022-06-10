@@ -291,7 +291,7 @@
           }
         }
         .button-add-channel {
-          display: flex;
+          display: none;
           align-items: center;
           justify-content: center;
           border-radius: 5px;
@@ -323,6 +323,13 @@
             font-weight: 600;
             color: var(--color-secondary-text);
             margin-left: 10px;
+          }
+        }
+      }
+      .channel__wrap {
+        &:hover {
+          .button-add-channel {
+            display: flex;
           }
         }
       }

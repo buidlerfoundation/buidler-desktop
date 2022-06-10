@@ -23,10 +23,6 @@ const SpaceConfig = ({
   nftCollections,
 }: SpaceConfigProps) => {
   const [searchAddress, setSearchAddress] = useState('');
-  const selectedNFT = useMemo(() => {
-    const address = spaceData.condition?.address;
-    return nftCollections.find((el) => el.contract_address === address);
-  }, [nftCollections, spaceData.condition]);
   const handleUpdateSpaceType = useCallback(
     (item) => {
       setSpaceData((current) => ({ ...current, spaceType: item }));
@@ -86,6 +82,8 @@ const SpaceConfig = ({
           amount: 0,
           amountInput: '',
           network: selected?.network,
+          name: selected?.name,
+          image_url: selected?.image_url,
         },
       }));
     },
@@ -150,33 +148,33 @@ const SpaceConfig = ({
               <AppInput
                 className="app-input-highlight input-contract"
                 placeholder="contract address"
-                value={selectedNFT ? selectedNFT.name : searchAddress}
+                value={spaceData.condition?.name || searchAddress}
                 onChange={onChangeSearchAddress}
-                disabled={!!selectedNFT}
+                disabled={!!spaceData.condition}
               />
               <div className="logo-contract__wrap">
-                {selectedNFT ? (
+                {!!spaceData.condition ? (
                   <img
                     alt=""
-                    src={selectedNFT.image_url || images.icImageDefault}
+                    src={spaceData.condition.image_url || images.icImageDefault}
                     className="logo-contract"
                   />
                 ) : (
                   <div className="logo-contract" />
                 )}
               </div>
-              {!searchAddress && !selectedNFT && (
+              {!searchAddress && !spaceData.condition && (
                 <div className="button-paste" onClick={handlePaste}>
                   <span>Paste</span>
                 </div>
               )}
-              {(!!searchAddress || selectedNFT) && (
+              {(!!searchAddress || !!spaceData.condition) && (
                 <div className="button-clear" onClick={handleClearCondition}>
                   <img alt="" src={images.icClearText} />
                 </div>
               )}
             </div>
-            {selectedNFT && (
+            {!!spaceData.condition && (
               <div className="amount-input__container">
                 <span className="input-label">NFTs amount</span>
                 <AmountInput

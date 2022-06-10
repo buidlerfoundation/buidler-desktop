@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import './index.scss';
 import ModalFullScreen from '../ModalFullScreen';
 import TaskView from './TaskView';
@@ -53,4 +53,4 @@ const ModalTaskView = ({
   );
 };
 
-export default ModalTaskView;
+export default memo(ModalTaskView);

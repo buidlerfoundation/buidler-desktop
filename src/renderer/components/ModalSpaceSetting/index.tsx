@@ -62,6 +62,8 @@ const ModalSpaceSetting = ({
                 address: res.data?.[0]?.contract_address,
                 amountInput: res.data?.[0]?.amount,
                 amount: 0,
+                name: res.data?.[0]?.nft_collection?.name,
+                image_url: res.data?.[0]?.nft_collection?.image_url,
               }
             : null,
         spaceBadgeId: SpaceBadge.find((el) => el.color === space.icon_color)
