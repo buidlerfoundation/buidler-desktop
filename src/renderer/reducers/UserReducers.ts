@@ -339,12 +339,18 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
           ...state.lastChannel,
           [state?.currentTeam?.team_id]: payload.channel,
         },
-        channel: state.channel.map((c) => {
-          if (c?.channel_id === payload?.channel?.channel_id) {
-            c.seen = true;
-            c.notification_type = payload.channel.notification_type;
+        spaceChannel: state.spaceChannel.map((el) => {
+          if (el.space_id === payload?.channel?.space_id) {
+            el.channels = el.channels?.map((c) => {
+              if (c.channel_id === payload?.channel?.channel_id) {
+                c.seen = true;
+                return { ...c };
+              }
+              return c;
+            });
+            return { ...el };
           }
-          return c;
+          return el;
         }),
       };
     }
@@ -365,13 +371,23 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     }
     case actionTypes.MARK_UN_SEEN_CHANNEL: {
       const { channelId } = payload;
+      const spaceId = state.channel.find(
+        (el) => el.channel_id === channelId
+      )?.space_id;
       return {
         ...state,
-        channel: state.channel.map((c) => {
-          if (c.channel_id === channelId) {
-            c.seen = false;
+        spaceChannel: state.spaceChannel.map((el) => {
+          if (el.space_id === spaceId) {
+            el.channels = el.channels?.map((c) => {
+              if (c.channel_id === channelId) {
+                c.seen = false;
+                return { ...c };
+              }
+              return c;
+            });
+            return { ...el };
           }
-          return c;
+          return el;
         }),
       };
     }

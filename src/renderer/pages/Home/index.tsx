@@ -253,7 +253,7 @@ const Home = () => {
   );
   const handleOpenEditChannelName = useCallback(
     (channel) => {
-      dispatch(setCurrentChannel?.(channel));
+      dispatch(setCurrentChannel(channel));
       channelViewRef.current.showSetting('edit-name');
     },
     [dispatch]

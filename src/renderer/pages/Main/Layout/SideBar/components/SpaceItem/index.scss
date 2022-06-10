@@ -76,8 +76,8 @@
     }
     &.channel-un-seen {
       color: var(--color-primary-text);
-      height: 40px;
-      opacity: 1;
+      height: 40px !important;
+      opacity: 1 !important;
       .img-private {
         filter: brightness(1);
       }

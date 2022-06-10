@@ -10,7 +10,7 @@ import { AsyncKey } from 'renderer/common/AppConfig';
 
 const AppListener = () => {
   const history = useHistory();
-  const { channel } = useAppSelector((state) => state.user);
+  const { spaceChannel } = useAppSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
     const openUrlListener = (data) => {
@@ -65,14 +65,16 @@ const AppListener = () => {
     };
   }, [dispatch, history]);
   useEffect(() => {
-    const unseenChannel = channel?.find?.((el) => !el.seen);
+    const unseenChannel = spaceChannel?.find?.((space) =>
+      space.channels?.find((el) => !el.seen)
+    );
     if (unseenChannel) {
       window.electron.ipcRenderer.sendMessage('show-badge', 'ping');
     } else {
       window.electron.ipcRenderer.sendMessage('hide-badge', 'ping');
     }
     // console.log('unseen channel: ', unseenChannel);
-  }, [channel]);
+  }, [spaceChannel]);
   return null;
 };
 

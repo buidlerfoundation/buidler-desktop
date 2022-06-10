@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteChannel, setCurrentChannel } from 'renderer/actions/UserActions';
-import { updateChannel } from 'renderer/api/Channel';
+import {
+  deleteChannel,
+  setCurrentChannel,
+  updateChannel,
+} from 'renderer/actions/UserActions';
 import { Channel } from 'renderer/models';
 import api from '../../../../api';
 import images from '../../../../common/images';
