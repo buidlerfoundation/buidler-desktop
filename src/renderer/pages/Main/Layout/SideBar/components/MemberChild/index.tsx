@@ -1,37 +1,42 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
+import { UserData } from 'renderer/models';
 import AvatarView from '../../../../../../components/AvatarView';
 import './index.scss';
 
 type MemberChildProps = {
-  user: any;
-  onPress?: () => void;
+  user: UserData;
+  onPress?: (u: UserData) => void;
   isUnSeen?: boolean;
   isSelected?: boolean;
-  onContextChannel?: (e: any, u: any) => void;
-  collapsed: boolean;
+  onContextChannel?: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    u: UserData
+  ) => void;
 };
 
 const MemberChild = ({
   user,
-  onPress = () => {},
+  onPress,
   isUnSeen,
   isSelected,
   onContextChannel,
-  collapsed,
 }: MemberChildProps) => {
   const handleContextMenu = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       onContextChannel?.(e, user);
     },
     [onContextChannel, user]
   );
+  const handleClick = useCallback(() => {
+    onPress?.(user);
+  }, [onPress, user]);
   return (
     <div
-      className={`member-child-container ${collapsed ? 'collapsed' : ''} ${
-        isSelected ? 'active' : ''
-      } ${isUnSeen ? 'un-seen' : ''}`}
-      onClick={onPress}
+      className={`member-child-container ${isSelected ? 'active' : ''} ${
+        isUnSeen ? 'un-seen' : ''
+      }`}
+      onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
       <div style={{ marginLeft: 20 }}>
@@ -44,4 +49,4 @@ const MemberChild = ({
   );
 };
 
-export default MemberChild;
+export default memo(MemberChild);

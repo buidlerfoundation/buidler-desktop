@@ -1,17 +1,21 @@
 import { Emoji } from 'emoji-mart';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import images from 'renderer/common/images';
+import { Channel, UserData } from 'renderer/models';
 import MemberChild from '../MemberChild';
 import './index.scss';
 
 type MemberSpaceProps = {
-  teamUserData?: Array<any>;
-  userData: any;
-  channel: Array<any>;
-  currentChannel: any;
+  teamUserData?: Array<UserData>;
+  userData: UserData;
+  channel: Array<Channel>;
+  currentChannel: Channel;
   onInviteMember: () => void;
-  onContextMenu: (e: any, u: any) => void;
+  onContextMenu: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    u: UserData
+  ) => void;
 };
 
 const MemberSpace = ({
@@ -36,7 +40,7 @@ const MemberSpace = ({
     history.replace(`/home?user_id=${user?.user_id}`);
   }, [history, user?.user_id]);
   const handleClickMember = useCallback(
-    (u) => () => {
+    (u: UserData) => {
       history.replace(`/home?user_id=${u.user_id}`);
     },
     [history]
@@ -46,7 +50,7 @@ const MemberSpace = ({
     [userData?.user_id]
   );
   const renderMember = useCallback(
-    (u) => (
+    (u: UserData) => (
       <MemberChild
         onContextChannel={onContextMenu}
         user={u}
@@ -59,8 +63,7 @@ const MemberSpace = ({
           currentChannel?.channel_id === u.direct_channel ||
           currentChannel?.user?.user_id === u.user_id
         }
-        onPress={handleClickMember(u)}
-        collapsed={isCollapsed}
+        onPress={handleClickMember}
       />
     ),
     [
@@ -68,13 +71,14 @@ const MemberSpace = ({
       currentChannel?.channel_id,
       currentChannel?.user?.user_id,
       handleClickMember,
-      isCollapsed,
       onContextMenu,
     ]
   );
   return (
     <div
-      className={`member-space__container ${isCollapsed ? '' : 'space-open'}`}
+      className={`member-space__container ${
+        isCollapsed ? 'space-collapsed' : ''
+      }`}
     >
       <div className="title-wrapper" onClick={toggleCollapsed}>
         <div className="icon-wrapper">
@@ -94,12 +98,11 @@ const MemberSpace = ({
             currentChannel?.user?.user_id === user.user_id
           }
           onPress={handleClickUser}
-          collapsed={isCollapsed}
         />
       )}
       {teamUserData?.filter?.(handleFilterMember)?.map?.(renderMember)}
       <div
-        className="member-child-container normal-button"
+        className="member-child-invite normal-button"
         onClick={onInviteMember}
       >
         <img alt="" src={images.icEditMember} style={{ marginLeft: 20 }} />
@@ -109,4 +112,4 @@ const MemberSpace = ({
   );
 };
 
-export default MemberSpace;
+export default memo(MemberSpace);

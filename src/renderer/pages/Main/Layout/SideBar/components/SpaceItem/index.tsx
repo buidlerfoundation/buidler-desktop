@@ -1,23 +1,28 @@
 import { CircularProgress } from '@material-ui/core';
 import { Emoji } from 'emoji-mart';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import ImageHelper from 'renderer/common/ImageHelper';
 import DefaultSpaceIcon from 'renderer/components/DefaultSpaceIcon';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
 import SpaceItemBadge from 'renderer/components/SpaceItemBadge';
 import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
-import { Space } from 'renderer/models';
+import useAppSelector from 'renderer/hooks/useAppSelector';
+import { Channel, Space } from 'renderer/models';
 import ChannelItem from './ChannelItem';
 import './index.scss';
 
 type SpaceItemProps = {
   space: Space;
-  channel: Array<any>;
-  currentChannel: any;
-  onContextChannel: (e: any, channel: any) => void;
-  onContextSpaceChannel: (e: any, c: any) => void;
+  channels: Array<Channel>;
+  onContextChannel: (
+    e: MouseEvent<HTMLDivElement, MouseEvent>,
+    channel: Channel
+  ) => void;
+  onContextSpaceChannel: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    s: Space
+  ) => void;
   updateSpaceChannel: (spaceId: string, body: any) => any;
   uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   isOwner: boolean;
@@ -28,8 +33,7 @@ type SpaceItemProps = {
 
 const SpaceItem = ({
   space,
-  channel,
-  currentChannel,
+  channels,
   onContextChannel,
   onContextSpaceChannel,
   updateSpaceChannel,
@@ -41,30 +45,30 @@ const SpaceItem = ({
 }: SpaceItemProps) => {
   const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
-  const currentTeam = useSelector((state) => state.user.currentTeam);
+  const currentTeam = useAppSelector((state) => state.user.currentTeam);
+  const currentChannel = useAppSelector((state) => state.user.currentChannel);
   const toggleCollapsed = useCallback(
     () => setCollapsed((current) => !current),
     []
   );
   const handleContextMenuSpaceChannel = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       onContextSpaceChannel(e, space);
     },
     [onContextSpaceChannel, space]
   );
   const channelSpace = useMemo(() => {
-    return channel
-      ?.filter((c: any) => c?.space_id === space?.space_id)
-      .sort((a1, a2) => {
+    return channels
+      ?.sort((a1, a2) => {
         if (a1.channel_name < a2.channel_name) return 1;
         if (a1.channel_name > a2.channel_name) return -1;
         return 0;
       })
-      .sort((b1, b2) => {
+      ?.sort((b1, b2) => {
         if (b1.channel_type < b2.channel_type) return 1;
         return -1;
       });
-  }, [channel, space?.space_id]);
+  }, [channels]);
   const renderSpaceIcon = useCallback(() => {
     if (space.attachment) {
       return (
@@ -145,21 +149,19 @@ const SpaceItem = ({
     [onSpaceBadgeClick, space]
   );
   const renderChannelItem = useCallback(
-    (c: any) => (
+    (c: Channel) => (
       <ChannelItem
         key={c.channel_id}
         c={c}
-        currentChannel={currentChannel}
         onContextChannel={onContextChannel}
-        collapsed={isCollapsed}
         isOwner={isOwner}
         updateChannel={updateChannel}
         uploadChannelAvatar={uploadChannelAvatar}
+        isSelected={currentChannel?.channel_id === c.channel_id}
       />
     ),
     [
-      currentChannel,
-      isCollapsed,
+      currentChannel?.channel_id,
       isOwner,
       onContextChannel,
       updateChannel,
@@ -167,7 +169,11 @@ const SpaceItem = ({
     ]
   );
   return (
-    <div className={`space-item__container ${isCollapsed ? '' : 'space-open'}`}>
+    <div
+      className={`space-item__container ${
+        isCollapsed ? 'space-collapsed' : ''
+      }`}
+    >
       <div
         className="title-wrapper"
         onClick={toggleCollapsed}
@@ -210,4 +216,4 @@ const SpaceItem = ({
   );
 };
 
-export default SpaceItem;
+export default memo(SpaceItem);

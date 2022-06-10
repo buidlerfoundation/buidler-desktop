@@ -1,40 +1,38 @@
 import { CircularProgress } from '@material-ui/core';
 import { Emoji } from 'emoji-mart';
-import { useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
+import { Channel } from 'renderer/models';
 import './index.scss';
 
 type ChannelItemProps = {
-  c: any;
-  currentChannel: any;
-  onContextChannel: (e: any, channel: any) => void;
-  collapsed: boolean;
+  c: Channel;
+  onContextChannel: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    channel: Channel
+  ) => void;
   isOwner: boolean;
+  isSelected: boolean;
   updateChannel: (channelId: string, body: any) => any;
   uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelItem = ({
   c,
-  currentChannel,
   onContextChannel,
-  collapsed,
   isOwner,
   updateChannel,
   uploadChannelAvatar,
+  isSelected,
 }: ChannelItemProps) => {
   const popupChannelIconRef = useRef<any>();
   const history = useHistory();
   const currentTeam = useSelector((state) => state.user.currentTeam);
-  const isSelected = useMemo(
-    () => c?.channel_id === currentChannel?.channel_id,
-    [c?.channel_id, currentChannel?.channel_id]
-  );
   const isPrivate = useMemo(
     () => c.channel_type === 'Private',
     [c.channel_type]
@@ -92,10 +90,13 @@ const ChannelItem = ({
     [c?.channel_id, history]
   );
   const handleContextMenu = useCallback(
-    (e) => onContextChannel(e, c),
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => onContextChannel(e, c),
     [c, onContextChannel]
   );
-  const handlePopupClick = useCallback((e) => e.stopPropagation(), []);
+  const handlePopupClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation(),
+    []
+  );
   const onAddFiles = useCallback(
     async (fs) => {
       if (fs == null || fs.length === 0) return;
@@ -117,19 +118,19 @@ const ChannelItem = ({
   );
   const onSelectRecentFile = useCallback(
     async (file) => {
-      await updateChannel(currentChannel?.channel_id, {
+      await updateChannel(c?.channel_id, {
         channel_emoji: '',
         channel_image_url: file.file_url,
       });
       popupChannelIconRef.current?.hide();
     },
-    [currentChannel?.channel_id, updateChannel]
+    [c?.channel_id, updateChannel]
   );
   return (
     <div
-      className={`channel-wrapper ${collapsed ? 'collapsed' : ''} ${
-        isSelected ? 'channel-selected' : ''
-      } ${isMuted ? 'channel-muted' : ''} ${isUnSeen ? 'channel-un-seen' : ''}`}
+      className={`channel-wrapper ${isSelected ? 'channel-selected' : ''} ${
+        isMuted ? 'channel-muted' : ''
+      } ${isUnSeen ? 'channel-un-seen' : ''}`}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
@@ -159,4 +160,4 @@ const ChannelItem = ({
   );
 };
 
-export default ChannelItem;
+export default memo(ChannelItem);

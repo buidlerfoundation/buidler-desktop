@@ -75,6 +75,7 @@ export interface Space {
   icon_sub_color?: string;
   attachment?: LocalAttachment;
   space_background_color?: string;
+  channels: Array<Channel>;
 }
 
 export interface Community {

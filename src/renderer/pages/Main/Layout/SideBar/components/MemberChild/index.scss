@@ -8,10 +8,6 @@
   opacity: 1;
   transition: 200ms ease;
   overflow: hidden;
-  &.collapsed {
-    height: 0;
-    opacity: 0;
-  }
   .member-child__username {
     font-weight: 600;
     font-size: 16px;
@@ -29,7 +25,7 @@
   &.active {
     color: var(--color-primary-text);
     background-color: var(--color-highlight-action-high);
-    height: 40px;
-    opacity: 1;
+    height: 40px !important;
+    opacity: 1 !important;
   }
 }

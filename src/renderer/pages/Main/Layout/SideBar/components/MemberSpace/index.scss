@@ -3,12 +3,8 @@
   border-radius: 5px;
   background-color: var(--color-lighter-background);
   padding: 10px 0;
-  border: 1px solid var(--color-lighter-background);
-  color: var(--color-secondary-text);
-  &.space-open {
-    border-color: var(--color-stroke);
-    color: var(--color-primary-text);
-  }
+  border: 1px solid var(--color-stroke);
+  color: var(--color-primary-text);
   .title-wrapper {
     display: flex;
     align-items: center;
@@ -48,5 +44,23 @@
   .fake-member-child-open {
     height: 40px;
     opacity: 1;
+  }
+
+  .member-child-invite {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    margin: 0 10px;
+    border-radius: 5px;
+    color: var(--color-secondary-text);
+  }
+
+  &.space-collapsed {
+    border: 1px solid var(--color-lighter-background);
+    color: var(--color-secondary-text);
+    .member-child-container {
+      height: 0;
+      opacity: 0;
+    }
   }
 }

@@ -6,9 +6,10 @@ import React, {
   useImperativeHandle,
   useCallback,
   useMemo,
+  memo,
 } from 'react';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import './index.scss';
-import { connect } from 'react-redux';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
 import { Space } from 'renderer/models';
@@ -24,14 +25,9 @@ import {
 import SpaceItem from './components/SpaceItem';
 import MemberSpace from './components/MemberSpace';
 
+const errorSelector = createErrorMessageSelector([actionTypes.TEAM_PREFIX]);
+
 type SideBarProps = {
-  team?: any;
-  channel?: any;
-  spaceChannel?: any;
-  currentChannel?: any;
-  errorTeam?: any;
-  userData?: any;
-  teamUserData?: Array<any>;
   onEditGroupChannel: (group: any) => void;
   onEditChannelName: (channel: any) => void;
   onDeleteChannel: (channel: any) => void;
@@ -52,16 +48,9 @@ type SideBarProps = {
 const SideBar = forwardRef(
   (
     {
-      team,
-      channel,
       findTeamAndChannel,
-      teamUserData,
       onCreateChannel,
-      spaceChannel,
-      currentChannel,
-      errorTeam,
       findUser,
-      userData,
       onCreateGroupChannel,
       onEditChannelName,
       onDeleteChannel,
@@ -77,6 +66,15 @@ const SideBar = forwardRef(
     }: SideBarProps,
     ref
   ) => {
+    const {
+      userData,
+      spaceChannel,
+      channel,
+      currentChannel,
+      team,
+      teamUserData,
+    } = useAppSelector((state) => state.user);
+    const errorTeam = useAppSelector((state) => errorSelector(state));
     const [isOpenConfirmRemoveMember, setOpenConfirmRemoveMember] =
       useState(false);
     const [selectedMenuChannel, setSelectedMenuChannel] = useState<any>(null);
@@ -149,13 +147,16 @@ const SideBar = forwardRef(
       },
       [isOwner]
     );
-    const handleContextMenuMemberSpace = useCallback((e, u) => {
-      setSelectedMenuMember(u);
-      menuMemberRef.current?.show(e.currentTarget, {
-        x: e.pageX,
-        y: e.pageY,
-      });
-    }, []);
+    const handleContextMenuMemberSpace = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>, u: UserData) => {
+        setSelectedMenuMember(u);
+        menuMemberRef.current?.show(e.currentTarget, {
+          x: e.pageX,
+          y: e.pageY,
+        });
+      },
+      []
+    );
     const onSelectedMenu = useCallback(
       (menu: any) => {
         switch (menu.value) {
@@ -205,7 +206,7 @@ const SideBar = forwardRef(
       ]
     );
     const renderSpaceItem = useCallback(
-      (space: any, idx: number) => {
+      (space: Space, idx: number) => {
         return (
           <Draggable
             key={space.space_id}
@@ -222,8 +223,6 @@ const SideBar = forwardRef(
                 <SpaceItem
                   isOwner={isOwner}
                   space={space}
-                  channel={channel}
-                  currentChannel={currentChannel}
                   onContextSpaceChannel={handleContextMenuSpace}
                   onContextChannel={handleContextMenuChannel}
                   updateSpaceChannel={updateSpaceChannel}
@@ -231,6 +230,7 @@ const SideBar = forwardRef(
                   updateChannel={updateChannel}
                   uploadChannelAvatar={uploadChannelAvatar}
                   onSpaceBadgeClick={onSpaceBadgeClick}
+                  channels={space.channels}
                 />
               </div>
             )}
@@ -238,8 +238,6 @@ const SideBar = forwardRef(
         );
       },
       [
-        channel,
-        currentChannel,
         handleContextMenuChannel,
         handleContextMenuSpace,
         isOwner,
@@ -315,21 +313,4 @@ const SideBar = forwardRef(
   }
 );
 
-const errorSelector = createErrorMessageSelector([actionTypes.TEAM_PREFIX]);
-
-const mapStateToProps = (state: any) => {
-  return {
-    team: state.user.team,
-    teamUserData: state.user.teamUserData,
-    channel: state.user.channel,
-    currentChannel: state.user.currentChannel,
-    spaceChannel: state.user.spaceChannel,
-    errorTeam: errorSelector(state),
-    userData: state.user.userData,
-    currentTeam: state.user.currentTeam,
-  };
-};
-
-export default connect(mapStateToProps, undefined, null, {
-  forwardRef: true,
-})(SideBar);
+export default memo(SideBar);
