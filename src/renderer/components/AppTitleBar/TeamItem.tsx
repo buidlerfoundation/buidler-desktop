@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Community } from 'renderer/models';
 import ImageHelper from '../../common/ImageHelper';
 import DefaultSpaceIcon from '../DefaultSpaceIcon';
@@ -20,7 +20,9 @@ const TeamItem = ({
   onChangeTeam,
   onContextMenu,
 }: TeamItemProps) => {
-  const handleClick = useCallback(() => onChangeTeam(t), [onChangeTeam, t]);
+  const handleClick = useCallback(() => {
+    if (!isSelected) onChangeTeam(t);
+  }, [isSelected, onChangeTeam, t]);
   const handleContextMenu = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       onContextMenu(e, t);
@@ -58,4 +60,4 @@ const TeamItem = ({
   );
 };
 
-export default TeamItem;
+export default memo(TeamItem);

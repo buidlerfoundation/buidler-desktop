@@ -57,7 +57,7 @@ const MessageItem = ({
   );
   const messageMenu = useMemo<Array<PopoverItem>>(() => {
     const menu = [];
-    if (userData?.user_id === sender.user_id) {
+    if (userData?.user_id === sender?.user_id) {
       menu.push({
         label: 'Edit',
         value: 'Edit',
@@ -126,7 +126,7 @@ const MessageItem = ({
     return <div className="message-item__space-left" />;
   }, [disableHover, message.createdAt, message.isHead]);
   const onUserClick = useCallback(() => {
-    history.replace(`/home?user_id=${sender.user_id}`);
+    history.replace(`/home?user_id=${sender?.user_id}`);
   }, [history, sender?.user_id]);
   if (!sender) return null;
   return (

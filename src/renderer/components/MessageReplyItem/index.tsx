@@ -57,7 +57,7 @@ const MessageReplyItem = ({
   );
   const messageMenu = useMemo<Array<PopoverItem>>(() => {
     const menu = [];
-    if (userData?.user_id === sender.user_id) {
+    if (userData?.user_id === sender?.user_id) {
       menu.push({
         label: 'Edit',
         value: 'Edit',
@@ -110,8 +110,8 @@ const MessageReplyItem = ({
     return <div className="message-reply-item__space-left" />;
   }, [disableHover, head, message.createdAt]);
   const onUserClick = useCallback(() => {
-    history.replace(`/home?user_id=${sender.user_id}`);
-  }, [history, sender.user_id]);
+    history.replace(`/home?user_id=${sender?.user_id}`);
+  }, [history, sender?.user_id]);
   const handleEmojiClick = useCallback(
     (emoji: EmojiData) => {
       onReactPress(emoji.id);

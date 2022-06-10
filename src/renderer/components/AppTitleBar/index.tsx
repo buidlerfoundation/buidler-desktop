@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -7,7 +7,7 @@ import api from 'renderer/api';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
-import { Community } from 'renderer/models';
+import { Community, UserData } from 'renderer/models';
 import actions from '../../actions';
 import './index.scss';
 import TeamItem from './TeamItem';
@@ -22,11 +22,11 @@ import ModalConfirmDeleteTeam from '../ModalConfirmDeleteTeam';
 import AvatarView from '../AvatarView';
 
 type AppTitleBarProps = {
-  setCurrentTeam?: (team: any) => any;
+  setCurrentTeam?: (team: Community) => any;
   createTeam?: (body: any) => any;
   leaveTeam?: (teamId: string) => any;
   logout?: () => any;
-  updateUser?: (userData: any) => any;
+  updateUser?: (userData: UserData) => any;
   findTeamAndChannel: () => any;
   updateTeam: (teamId: string, body: any) => any;
   deleteTeam: (teamId: string) => any;
@@ -66,13 +66,12 @@ const AppTitleBar = ({
   const [isOpenConfirmDeleteTeam, setOpenConfirmDeleteTeam] = useState(false);
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const [isOpenModalUser, setOpenModalUser] = useState(false);
-  const [selectedMenuTeam, setSelectedMenuTeam] = useState<any>(null);
+  const [selectedMenuTeam, setSelectedMenuTeam] = useState<Community>(null);
   const setTeam = useCallback(
-    (t: any) => {
-      history.replace('/home');
+    (t: Community) => {
       setCurrentTeam?.(t);
     },
-    [setCurrentTeam, history]
+    [setCurrentTeam]
   );
   const handleCloseTeamSetting = useCallback(() => {
     setSelectedMenuTeam(null);
@@ -144,12 +143,6 @@ const AppTitleBar = ({
     setTeam,
     team,
   ]);
-  const handleChangeCommunity = useCallback(
-    (t: Community) => {
-      if (currentTeam.team_id !== t.team_id) setTeam(t);
-    },
-    [currentTeam?.team_id, setTeam]
-  );
   const handleCommunityContextMenu = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>, t: Community) => {
       setSelectedMenuTeam(t);
@@ -219,18 +212,17 @@ const AppTitleBar = ({
 
   const renderTeam = useCallback(
     (el: Community) => {
-      const isSelected = el.team_id === currentTeam.team_id;
       return (
         <TeamItem
           key={el.team_id}
-          isSelected={isSelected}
+          isSelected={el.team_id === currentTeam?.team_id}
           t={el}
-          onChangeTeam={handleChangeCommunity}
+          onChangeTeam={setTeam}
           onContextMenu={handleCommunityContextMenu}
         />
       );
     },
-    [currentTeam?.team_id, handleChangeCommunity, handleCommunityContextMenu]
+    [currentTeam?.team_id, handleCommunityContextMenu, setTeam]
   );
 
   if (privateKey || WalletConnectUtils?.connector?.connected) {
@@ -315,4 +307,4 @@ const AppTitleBar = ({
 const mapActionsToProps = (dispatch: any) =>
   bindActionCreators(actions, dispatch);
 
-export default connect(undefined, mapActionsToProps)(AppTitleBar);
+export default memo(connect(undefined, mapActionsToProps)(AppTitleBar));
