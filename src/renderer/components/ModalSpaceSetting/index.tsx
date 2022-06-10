@@ -1,5 +1,5 @@
 import { Modal } from '@material-ui/core';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from 'renderer/api';
 import { SpaceBadge } from 'renderer/common/AppConfig';
@@ -221,4 +221,4 @@ const ModalSpaceSetting = ({
   );
 };
 
-export default ModalSpaceSetting;
+export default memo(ModalSpaceSetting);

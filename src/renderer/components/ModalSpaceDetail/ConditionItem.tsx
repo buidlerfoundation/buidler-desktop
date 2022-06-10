@@ -35,9 +35,6 @@ const ConditionItem = ({ item }: ConditionItemProps) => {
       <span className="condition-description">
         You need to meet the above requirement to have access to the space
       </span>
-      <span className="collection-description">
-        {item.nft_collection.description}
-      </span>
     </div>
   );
 };

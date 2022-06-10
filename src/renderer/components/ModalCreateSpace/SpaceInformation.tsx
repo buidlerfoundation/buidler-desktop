@@ -1,9 +1,11 @@
-import React, { useCallback, useRef } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import AppConfig from 'renderer/common/AppConfig';
 import { CreateSpaceData } from 'renderer/models';
 import api from 'renderer/api';
 import { useSelector } from 'react-redux';
 import { getUniqueId } from 'renderer/helpers/GenerateUUID';
+import ContentEditable from 'react-contenteditable';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 import EmojiAndAvatarPicker from '../EmojiAndAvatarPicker';
 import PopoverButton from '../PopoverButton';
 import './index.scss';
@@ -27,6 +29,12 @@ const SpaceInformation = ({
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation(),
     []
   );
+  const handleFocus = useCallback(() => {
+    GlobalVariable.isInputFocus = true;
+  }, []);
+  const handleBlur = useCallback(() => {
+    GlobalVariable.isInputFocus = false;
+  }, []);
   const onAddFiles = useCallback(
     async (fs) => {
       if (fs == null || fs.length === 0) return;
@@ -126,11 +134,14 @@ const SpaceInformation = ({
         />
       </div>
       <div className="space-description__wrap">
-        <textarea
+        <ContentEditable
+          id="space-description-input"
           style={{ height: 370 }}
-          className="space-description hide-scroll-bar"
+          html={spaceData.description || ''}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           placeholder="Description"
-          value={spaceData.description || ''}
+          className="space-description hide-scroll-bar"
           onChange={handleUpdateDescription}
           maxLength={AppConfig.maxLengthSpaceDescription}
         />
@@ -145,4 +156,4 @@ const SpaceInformation = ({
   );
 };
 
-export default SpaceInformation;
+export default memo(SpaceInformation);

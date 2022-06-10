@@ -4,6 +4,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  memo,
 } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -557,6 +558,7 @@ const Home = ({
     await deleteSpaceChannel(selectedSpace?.space_id);
     setSelectedSpace(null);
     setOpenConfirmDeleteSpace(false);
+    setOpenEditSpaceChannel(false);
   }, [deleteSpaceChannel, selectedSpace?.space_id]);
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.includes('invitation=')) {
@@ -873,4 +875,4 @@ const Home = ({
 const mapActionsToProps = (dispatch: any) =>
   bindActionCreators(actions, dispatch);
 
-export default connect(undefined, mapActionsToProps)(Home);
+export default memo(connect(undefined, mapActionsToProps)(Home));

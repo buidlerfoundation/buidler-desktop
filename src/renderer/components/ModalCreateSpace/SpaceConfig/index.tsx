@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { SpaceBadge } from 'renderer/common/AppConfig';
 import images from 'renderer/common/images';
 import AppInput from 'renderer/components/AppInput';
@@ -196,4 +196,4 @@ const SpaceConfig = ({
   );
 };
 
-export default SpaceConfig;
+export default memo(SpaceConfig);

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ImageHelper from 'renderer/common/ImageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Space, SpaceCollectionData, SpaceMember } from 'renderer/models';
+import { normalizeMessageText } from 'renderer/helpers/MessageHelper';
 import { Emoji } from 'emoji-mart';
 import api from 'renderer/api';
 import { formatNumber } from 'renderer/helpers/StringHelper';
@@ -143,6 +144,14 @@ const ModalSpaceDetail = ({
             {spaceCondition.map(renderNFTCondition)}
           </div>
         )}
+        <div className="space-description__wrap">
+          <div
+            className="space-description"
+            dangerouslySetInnerHTML={{
+              __html: normalizeMessageText(space?.space_description),
+            }}
+          />
+        </div>
         {spaceMembers.length > 0 && (
           <div className="space-member__wrap">
             {spaceMembers.map(renderSpaceMember)}
