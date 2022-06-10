@@ -15,14 +15,11 @@ type TaskGroupItemProps = {
   toggle: (keyProp: string) => void;
   tasks: Array<TaskData>;
   isShow: boolean;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
   channelId: string;
   teamId: string;
   onSelectTask: (task: TaskData) => void;
   onUpdateStatus: (task: TaskData, status: string) => void;
   onMenuSelected: (menu: PopoverItem, task: TaskData) => void;
-  onAddReact: (id: string, name: string, userId: string) => void;
-  onRemoveReact: (id: string, name: string, userId: string) => void;
   onReplyTask: (task: TaskData) => void;
 };
 
@@ -35,14 +32,11 @@ const TaskGroupItem = ({
   toggle,
   tasks,
   isShow,
-  updateTask,
   channelId,
   teamId,
   onSelectTask,
   onUpdateStatus,
   onMenuSelected,
-  onAddReact,
-  onRemoveReact,
   onReplyTask,
 }: TaskGroupItemProps) => {
   const reactData = useAppSelector((state) => state.reactReducer.reactData);
@@ -69,15 +63,12 @@ const TaskGroupItem = ({
             }}
           >
             <TaskItem
-              updateTask={updateTask}
               channelId={channelId}
               teamId={teamId}
               onClick={onSelectTask}
               task={task}
               onUpdateStatus={onUpdateStatus}
               onMenuSelected={onMenuSelected}
-              onAddReact={onAddReact}
-              onRemoveReact={onRemoveReact}
               onReplyTask={onReplyTask}
               reacts={reactData?.[task.task_id]}
             />
@@ -88,15 +79,12 @@ const TaskGroupItem = ({
     [
       channelId,
       filterValue,
-      onAddReact,
       onMenuSelected,
-      onRemoveReact,
       onReplyTask,
       onSelectTask,
       onUpdateStatus,
       reactData,
       teamId,
-      updateTask,
     ]
   );
   return (

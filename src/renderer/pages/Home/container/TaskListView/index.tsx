@@ -1,4 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { getArchivedTasks } from 'renderer/actions/TaskActions';
 import { TaskData } from 'renderer/models';
 import images from '../../../../common/images';
 import PopoverButton, {
@@ -24,15 +26,7 @@ type TaskListViewProps = {
   onSelectTask: (task: TaskData) => void;
   teamId: string;
   archivedCount?: number;
-  getArchivedTasks: (
-    channelId: string,
-    userId?: string,
-    teamId?: string
-  ) => any;
   channelId?: string;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
-  onAddReact: (id: string, name: string, userId: string) => void;
-  onRemoveReact: (id: string, name: string, userId: string) => void;
   onReplyTask: (task: TaskData) => void;
   directUserId?: string;
 };
@@ -49,14 +43,11 @@ const TaskListView = ({
   teamId,
   archivedTasks,
   archivedCount,
-  getArchivedTasks,
   channelId,
-  updateTask,
-  onAddReact,
-  onRemoveReact,
   onReplyTask,
   directUserId,
 }: TaskListViewProps) => {
+  const dispatch = useDispatch();
   const [showArchived, setShowArchived] = useState(false);
   const taskGrouped = useMemo(
     () => groupTaskByFiltered(filter.value, tasks),
@@ -75,10 +66,10 @@ const TaskListView = ({
   }, [channelId]);
   const toggleArchived = useCallback(() => {
     if (archivedCount !== null && channelId) {
-      getArchivedTasks(channelId, directUserId, teamId);
+      dispatch(getArchivedTasks(channelId, directUserId, teamId));
     }
     setShowArchived((current) => !current);
-  }, [archivedCount, channelId, directUserId, getArchivedTasks, teamId]);
+  }, [archivedCount, channelId, directUserId, dispatch, teamId]);
   const shouldArchived = useMemo(
     () => (archivedCount || 0) > 0 || (archivedTasks?.length || 0) > 0,
     [archivedCount, archivedTasks?.length]
@@ -110,14 +101,11 @@ const TaskListView = ({
           toggle={handleToggleGroupTask}
           tasks={taskGrouped[key]}
           isShow={toggleState[key]}
-          updateTask={updateTask}
           channelId={channelId}
           teamId={teamId}
           onSelectTask={onSelectTask}
           onUpdateStatus={onUpdateStatus}
           onMenuSelected={handleMenuSelected}
-          onAddReact={onAddReact}
-          onRemoveReact={onRemoveReact}
           onReplyTask={onReplyTask}
         />
       );
@@ -127,16 +115,13 @@ const TaskListView = ({
       filter.value,
       handleMenuSelected,
       handleToggleGroupTask,
-      onAddReact,
       onAddTask,
-      onRemoveReact,
       onReplyTask,
       onSelectTask,
       onUpdateStatus,
       taskGrouped,
       teamId,
       toggleState,
-      updateTask,
     ]
   );
   return (
@@ -167,14 +152,11 @@ const TaskListView = ({
             toggle={toggleArchived}
             tasks={archivedTasks}
             isShow={showArchived}
-            updateTask={updateTask}
             channelId={channelId}
             teamId={teamId}
             onSelectTask={onSelectTask}
             onUpdateStatus={onUpdateStatus}
             onMenuSelected={handleMenuSelected}
-            onAddReact={onAddReact}
-            onRemoveReact={onRemoveReact}
             onReplyTask={onReplyTask}
           />
         )}

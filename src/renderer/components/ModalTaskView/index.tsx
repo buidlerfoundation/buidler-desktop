@@ -8,15 +8,8 @@ type ModalTaskViewProps = {
   open: boolean;
   handleClose: () => void;
   teamId: string;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
   channelId: string;
-  getConversations: (
-    parentId: string,
-    before?: string,
-    isFresh?: boolean
-  ) => any;
   conversations: Array<any>;
-  getActivities: (taskId: string) => any;
   activities: Array<any>;
   onDeleteTask: (task: any) => void;
 };
@@ -26,11 +19,8 @@ const ModalTaskView = ({
   handleClose,
   task,
   teamId,
-  updateTask,
   channelId,
-  getConversations,
   conversations,
-  getActivities,
   activities,
   onDeleteTask,
 }: ModalTaskViewProps) => {
@@ -42,10 +32,7 @@ const ModalTaskView = ({
         task={task}
         teamId={teamId}
         channelId={channelId}
-        updateTask={updateTask}
-        getConversations={getConversations}
         conversations={conversations}
-        getActivities={getActivities}
         activities={activities}
         onDeleteTask={onDeleteTask}
       />

@@ -6,8 +6,13 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useCallback,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  updateChannel,
+  uploadChannelAvatar,
+} from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
@@ -20,26 +25,12 @@ import './index.scss';
 type ChannelHeaderProps = {
   currentChannel?: any;
   teamUserData: Array<any>;
-  setCurrentChannel?: (channel: any) => any;
-  deleteChannel: (channelId: string) => any;
-  updateChannel: (channelId: string, body: any) => any;
   teamId: string;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelHeader = forwardRef(
-  (
-    {
-      currentChannel,
-      teamUserData,
-      setCurrentChannel,
-      deleteChannel,
-      updateChannel,
-      teamId,
-      uploadChannelAvatar,
-    }: ChannelHeaderProps,
-    ref
-  ) => {
+  ({ currentChannel, teamUserData, teamId }: ChannelHeaderProps, ref) => {
+    const dispatch = useDispatch();
     const userData = useSelector((state) => state.user.userData);
     const popupChannelIconRef = useRef<any>();
     const [isActiveMember, setActiveMember] = useState(false);
@@ -78,7 +69,7 @@ const ChannelHeader = forwardRef(
         },
       };
     });
-    const renderChannelIcon = () => {
+    const renderChannelIcon = useCallback(() => {
       if (currentChannel?.user) {
         return (
           <AvatarView
@@ -123,27 +114,96 @@ const ChannelHeader = forwardRef(
         );
       }
       return <img src={images.icCirclePublicChannel} alt="" />;
-    };
-    const onAddFiles = async (fs) => {
-      if (fs == null || fs.length === 0) return;
-      const file = [...fs][0];
-      uploadChannelAvatar(teamId, currentChannel.channel_id, file);
-      popupChannelIconRef.current?.hide();
-    };
-    const onSelectRecentFile = async (file) => {
-      await updateChannel(currentChannel.channel_id, {
-        channel_emoji: '',
-        channel_image_url: file.file_url,
-      });
-      popupChannelIconRef.current?.hide();
-    };
-    const onAddEmoji = async (emoji) => {
-      await updateChannel(currentChannel.channel_id, {
-        channel_emoji: emoji.id,
-        channel_image_url: '',
-      });
-      popupChannelIconRef.current?.hide();
-    };
+    }, [
+      currentChannel?.attachment,
+      currentChannel?.channel_emoji,
+      currentChannel?.channel_image_url,
+      currentChannel?.user,
+      teamId,
+      teamUserData,
+    ]);
+    const handleEmojiClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation(),
+      []
+    );
+    const onAddFiles = useCallback(
+      async (fs) => {
+        if (fs == null || fs.length === 0) return;
+        const file = [...fs][0];
+        dispatch(uploadChannelAvatar(teamId, currentChannel.channel_id, file));
+        popupChannelIconRef.current?.hide();
+      },
+      [currentChannel?.channel_id, dispatch, teamId]
+    );
+    const onSelectRecentFile = useCallback(
+      async (file) => {
+        await dispatch(
+          updateChannel(currentChannel.channel_id, {
+            channel_emoji: '',
+            channel_image_url: file.file_url,
+          })
+        );
+        popupChannelIconRef.current?.hide();
+      },
+      [currentChannel?.channel_id, dispatch]
+    );
+    const onAddEmoji = useCallback(
+      async (emoji) => {
+        await dispatch(
+          updateChannel(currentChannel.channel_id, {
+            channel_emoji: emoji.id,
+            channel_image_url: '',
+          })
+        );
+        popupChannelIconRef.current?.hide();
+      },
+      [currentChannel?.channel_id, dispatch]
+    );
+    const handleChannelClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (!currentChannel?.user) {
+          settingRef.current?.show(e.currentTarget, {
+            x: 385,
+            y: 110,
+          });
+        }
+      },
+      [currentChannel?.user]
+    );
+    const handleMemberClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        setActiveMember(true);
+        settingRef.current?.show(e.currentTarget, {
+          x: e.pageX,
+          y: e.pageY,
+        });
+      },
+      []
+    );
+    const onCloseChannelSetting = useCallback(() => {
+      setActiveMember(false);
+      setActiveName(false);
+    }, []);
+    const handleCloseChannelSetting = useCallback(() => {
+      settingRef.current?.hide?.();
+    }, []);
+    const renderUser = useCallback(
+      (el: any, index: number) => (
+        <div
+          key={el.user_id}
+          className="avatar__wrapper"
+          style={{ right: 15 * (users.slice(0, 10).length - index) }}
+        >
+          <img
+            className="avatar"
+            src={ImageHelper.normalizeImage(el.avatar_url, el.user_id)}
+            alt=""
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      ),
+      [users]
+    );
     return (
       <>
         <div className="channel-view__header">
@@ -165,7 +225,7 @@ const ChannelHeader = forwardRef(
                 componentPopup={
                   <div
                     className="emoji-picker__container"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={handleEmojiClick}
                   >
                     <EmojiAndAvatarPicker
                       onAddFiles={onAddFiles}
@@ -181,14 +241,7 @@ const ChannelHeader = forwardRef(
             )}
             <div
               ref={settingButtonRef}
-              onClick={(e) => {
-                if (!currentChannel?.user) {
-                  settingRef.current?.show(e.currentTarget, {
-                    x: 385,
-                    y: 110,
-                  });
-                }
-              }}
+              onClick={handleChannelClick}
               style={{ display: 'flex', width: 0, flex: 1 }}
             >
               <span className="channel-view__title text-ellipsis">
@@ -209,31 +262,9 @@ const ChannelHeader = forwardRef(
             <div className="channel-view__members-wrapper">
               <div
                 className="channel-view__members"
-                onClick={(e) => {
-                  setActiveMember(true);
-                  settingRef.current?.show(e.currentTarget, {
-                    x: e.pageX,
-                    y: e.pageY,
-                  });
-                }}
+                onClick={handleMemberClick}
               >
-                {users.slice(0, 10).map((el: any, index: number) => (
-                  <div
-                    key={el.user_id}
-                    className="avatar__wrapper"
-                    style={{ right: 15 * (users.slice(0, 10).length - index) }}
-                  >
-                    <img
-                      className="avatar"
-                      src={ImageHelper.normalizeImage(
-                        el.avatar_url,
-                        el.user_id
-                      )}
-                      alt=""
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                ))}
+                {users.slice(0, 10).map(renderUser)}
                 {users.length - 10 > 0 && (
                   <div
                     className="avatar-more__wrapper"
@@ -250,22 +281,14 @@ const ChannelHeader = forwardRef(
           <PopoverButton
             popupOnly
             ref={settingRef}
-            onClose={() => {
-              setActiveMember(false);
-              setActiveName(false);
-            }}
+            onClose={onCloseChannelSetting}
             componentPopup={
               <ChannelSettings
                 currentChannel={currentChannel}
-                setCurrentChannel={setCurrentChannel}
                 teamUserData={teamUserData}
                 isActiveMember={isActiveMember}
                 isActiveName={isActiveName}
-                deleteChannel={deleteChannel}
-                updateChannel={updateChannel}
-                onClose={() => {
-                  settingRef.current?.hide?.();
-                }}
+                onClose={handleCloseChannelSetting}
               />
             }
           />

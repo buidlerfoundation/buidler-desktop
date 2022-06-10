@@ -13,6 +13,8 @@ import './index.scss';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ModalConfirmDelete from 'renderer/components/ModalConfirmDelete';
 import { Space } from 'renderer/models';
+import { useDispatch } from 'react-redux';
+import { findTeamAndChannel, findUser } from 'renderer/actions/UserActions';
 import { createErrorMessageSelector } from '../../../../reducers/selectors';
 import actionTypes from '../../../../actions/ActionTypes';
 import PopoverButton from '../../../../components/PopoverButton';
@@ -34,23 +36,15 @@ type SideBarProps = {
   onEditChannelMember: (channel: any) => void;
   onInviteMember: () => void;
   onRemoveTeamMember: (user: any) => void;
-  findUser: () => any;
-  findTeamAndChannel: () => any;
   onCreateChannel: (initSpace?: any) => void;
   onCreateGroupChannel: () => void;
-  updateSpaceChannel: (spaceId: string, body: any) => any;
-  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
-  updateChannel: (channelId: string, body: any) => any;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
   onSpaceBadgeClick: (space: Space) => void;
 };
 
 const SideBar = forwardRef(
   (
     {
-      findTeamAndChannel,
       onCreateChannel,
-      findUser,
       onCreateGroupChannel,
       onEditChannelName,
       onDeleteChannel,
@@ -58,14 +52,11 @@ const SideBar = forwardRef(
       onInviteMember,
       onEditGroupChannel,
       onRemoveTeamMember,
-      updateSpaceChannel,
-      uploadSpaceAvatar,
-      updateChannel,
-      uploadChannelAvatar,
       onSpaceBadgeClick,
     }: SideBarProps,
     ref
   ) => {
+    const dispatch = useDispatch();
     const {
       userData,
       spaceChannel,
@@ -94,14 +85,14 @@ const SideBar = forwardRef(
     }, [teamUserData, userData?.user_id]);
     useEffect(() => {
       if (team == null && errorTeam === '') {
-        findTeamAndChannel?.();
+        dispatch(findTeamAndChannel());
       }
-    }, [team, errorTeam, findTeamAndChannel]);
+    }, [team, errorTeam, dispatch]);
     useEffect(() => {
       if (!userData) {
-        findUser();
+        dispatch(findUser());
       }
-    }, [userData, findUser]);
+    }, [userData, dispatch]);
     useImperativeHandle(ref, () => {
       return {
         scrollToBottom: () => {
@@ -225,10 +216,6 @@ const SideBar = forwardRef(
                   space={space}
                   onContextSpaceChannel={handleContextMenuSpace}
                   onContextChannel={handleContextMenuChannel}
-                  updateSpaceChannel={updateSpaceChannel}
-                  uploadSpaceAvatar={uploadSpaceAvatar}
-                  updateChannel={updateChannel}
-                  uploadChannelAvatar={uploadChannelAvatar}
                   onSpaceBadgeClick={onSpaceBadgeClick}
                   channels={space.channels}
                 />
@@ -241,10 +228,6 @@ const SideBar = forwardRef(
         handleContextMenuChannel,
         handleContextMenuSpace,
         isOwner,
-        updateChannel,
-        updateSpaceChannel,
-        uploadChannelAvatar,
-        uploadSpaceAvatar,
         onSpaceBadgeClick,
       ]
     );

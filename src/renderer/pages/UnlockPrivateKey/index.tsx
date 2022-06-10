@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import actions from 'renderer/actions';
 import actionTypes from 'renderer/actions/ActionTypes';
+import {
+  findTeamAndChannel,
+  findUser,
+  logout,
+} from 'renderer/actions/UserActions';
 import { AsyncKey } from 'renderer/common/AppConfig';
-import { getCookie } from 'renderer/common/Cookie';
+import { clearData, getCookie } from 'renderer/common/Cookie';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
 import {
@@ -17,15 +20,7 @@ import useAppSelector from 'renderer/hooks/useAppSelector';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
 
-type UnlockPrivateKeyProps = {
-  findUser: () => any;
-  findTeamAndChannel: () => any;
-};
-
-const UnlockPrivateKey = ({
-  findUser,
-  findTeamAndChannel,
-}: UnlockPrivateKeyProps) => {
+const UnlockPrivateKey = () => {
   const userData = useAppSelector((state) => state.user.userData);
   const history = useHistory();
   const [pass, setPass] = useState('');
@@ -34,9 +29,9 @@ const UnlockPrivateKey = ({
     await uniqChannelPrivateKey();
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
     if (accessToken && typeof accessToken === 'string') {
-      await findUser();
+      await dispatch(findUser());
     }
-  }, [findUser]);
+  }, [dispatch]);
   useEffect(() => {
     if (!userData) {
       initApp();
@@ -83,7 +78,7 @@ const UnlockPrivateKey = ({
               type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
               payload: privateKeyChannel,
             });
-            await findTeamAndChannel?.();
+            await dispatch(findTeamAndChannel());
             history.replace('/home');
           }
         } catch (error) {
@@ -91,8 +86,14 @@ const UnlockPrivateKey = ({
         }
       }
     },
-    [dispatch, findTeamAndChannel, history, pass, userData?.user_id]
+    [dispatch, history, pass, userData?.user_id]
   );
+  const handleLogout = useCallback(() => {
+    clearData(() => {
+      history.replace('/started');
+      dispatch(logout());
+    });
+  }, [dispatch, history]);
   if (!userData) return <div className="unlock-private-key__container" />;
   return (
     <div className="unlock-private-key__container">
@@ -124,19 +125,11 @@ const UnlockPrivateKey = ({
           onKeyDown={handlePasswordKeyDown}
         />
       </div>
-      <div
-        className="add-other-button normal-button"
-        onClick={() => {
-          // clearData();
-        }}
-      >
-        <span>Add other account</span>
+      <div className="add-other-button normal-button" onClick={handleLogout}>
+        <span>Logout</span>
       </div>
     </div>
   );
 };
 
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default connect(undefined, mapActionsToProps)(UnlockPrivateKey);
+export default UnlockPrivateKey;

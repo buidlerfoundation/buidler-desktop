@@ -1,6 +1,11 @@
 import { CircularProgress } from '@material-ui/core';
 import { Emoji } from 'emoji-mart';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import {
+  updateSpaceChannel,
+  uploadSpaceAvatar,
+} from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
 import DefaultSpaceIcon from 'renderer/components/DefaultSpaceIcon';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
@@ -23,11 +28,7 @@ type SpaceItemProps = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     s: Space
   ) => void;
-  updateSpaceChannel: (spaceId: string, body: any) => any;
-  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
   isOwner: boolean;
-  updateChannel: (channelId: string, body: any) => any;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
   onSpaceBadgeClick: (space: Space) => void;
 };
 
@@ -36,13 +37,10 @@ const SpaceItem = ({
   channels,
   onContextChannel,
   onContextSpaceChannel,
-  updateSpaceChannel,
-  uploadSpaceAvatar,
   isOwner,
-  updateChannel,
-  uploadChannelAvatar,
   onSpaceBadgeClick,
 }: SpaceItemProps) => {
+  const dispatch = useDispatch();
   const popupSpaceIconRef = useRef<any>();
   const [isCollapsed, setCollapsed] = useState(true);
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
@@ -110,20 +108,22 @@ const SpaceItem = ({
     async (fs) => {
       if (fs == null || fs.length === 0) return;
       const file = [...fs][0];
-      uploadSpaceAvatar(currentTeam.team_id, space.space_id, file);
+      dispatch(uploadSpaceAvatar(currentTeam.team_id, space.space_id, file));
       popupSpaceIconRef.current?.hide();
     },
-    [currentTeam?.team_id, space?.space_id, uploadSpaceAvatar]
+    [currentTeam?.team_id, space?.space_id, dispatch]
   );
   const onAddEmoji = useCallback(
     async (emoji) => {
-      await updateSpaceChannel(space.space_id, {
-        space_emoji: emoji.id,
-        space_image_url: '',
-      });
+      await dispatch(
+        updateSpaceChannel(space.space_id, {
+          space_emoji: emoji.id,
+          space_image_url: '',
+        })
+      );
       popupSpaceIconRef.current?.hide();
     },
-    [space?.space_id, updateSpaceChannel]
+    [space?.space_id, dispatch]
   );
   const onSelectRecentFile = useCallback(
     async (file) => {
@@ -132,14 +132,16 @@ const SpaceItem = ({
         currentTeam.team_id
       );
       const colorAverage = await getSpaceBackgroundColor(url);
-      await updateSpaceChannel(space.space_id, {
-        space_emoji: '',
-        space_image_url: file.file_url,
-        space_background_color: colorAverage,
-      });
+      await dispatch(
+        updateSpaceChannel(space.space_id, {
+          space_emoji: '',
+          space_image_url: file.file_url,
+          space_background_color: colorAverage,
+        })
+      );
       popupSpaceIconRef.current?.hide();
     },
-    [currentTeam?.team_id, space.space_id, updateSpaceChannel]
+    [currentTeam?.team_id, space.space_id, dispatch]
   );
   const handleBadgeClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -155,18 +157,10 @@ const SpaceItem = ({
         c={c}
         onContextChannel={onContextChannel}
         isOwner={isOwner}
-        updateChannel={updateChannel}
-        uploadChannelAvatar={uploadChannelAvatar}
         isSelected={currentChannel?.channel_id === c.channel_id}
       />
     ),
-    [
-      currentChannel?.channel_id,
-      isOwner,
-      onContextChannel,
-      updateChannel,
-      uploadChannelAvatar,
-    ]
+    [currentChannel?.channel_id, isOwner, onContextChannel]
   );
   return (
     <div

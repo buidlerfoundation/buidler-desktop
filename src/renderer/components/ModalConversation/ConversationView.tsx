@@ -12,6 +12,8 @@ import Dropzone from 'react-dropzone';
 import { ConversationData } from 'renderer/models';
 import { debounce } from 'lodash';
 import { encryptMessage } from 'renderer/helpers/ChannelHelper';
+import { useDispatch } from 'react-redux';
+import { deleteMessage } from 'renderer/actions/MessageActions';
 import {
   extractContent,
   getMentionData,
@@ -27,23 +29,11 @@ import { PopoverItem } from '../PopoverButton';
 
 type ConversationViewProps = {
   onEsc: () => void;
-  onAddReact: (id: string, name: string, userId: string) => void;
-  onRemoveReact: (id: string, name: string, userId: string) => void;
-  deleteMessage: (
-    messageId: string,
-    parentId: string,
-    channelId: string
-  ) => any;
   conversations: Array<ConversationData>;
 };
 
-const ConversationView = ({
-  onEsc,
-  onAddReact,
-  onRemoveReact,
-  deleteMessage,
-  conversations,
-}: ConversationViewProps) => {
+const ConversationView = ({ onEsc, conversations }: ConversationViewProps) => {
+  const dispatch = useDispatch();
   const inputRef = useRef<any>();
   const { currentChannel, currentTeam, teamUserData } = useAppSelector(
     (state) => state.user
@@ -231,7 +221,13 @@ const ConversationView = ({
   const onMenuMessage = useCallback(
     (menu: PopoverItem, msg: ConversationData) => {
       if (menu.value === 'Delete') {
-        deleteMessage(msg.message_id, msg.parent_id, currentChannel.channel_id);
+        dispatch(
+          deleteMessage(
+            msg.message_id,
+            msg.parent_id,
+            currentChannel.channel_id
+          )
+        );
       }
       if (menu.value === 'Edit') {
         setMessageEdit(msg);
@@ -241,7 +237,7 @@ const ConversationView = ({
         }, 0);
       }
     },
-    [currentChannel?.channel_id, deleteMessage]
+    [currentChannel?.channel_id, dispatch]
   );
   const handleRemoveFile = useCallback((file) => {
     setFiles((current) => current.filter((f) => f.id !== file.id));
@@ -258,14 +254,12 @@ const ConversationView = ({
       <MessageItem
         key={msg.message_id}
         message={msg}
-        onRemoveReact={onRemoveReact}
-        onAddReact={onAddReact}
         onMenuSelected={onMenuMessage}
         content={msg.content}
         reacts={reactData?.[msg.message_id]}
       />
     ),
-    [onAddReact, onMenuMessage, onRemoveReact, reactData]
+    [onMenuMessage, reactData]
   );
   return (
     <Dropzone onDrop={onAddFiles}>

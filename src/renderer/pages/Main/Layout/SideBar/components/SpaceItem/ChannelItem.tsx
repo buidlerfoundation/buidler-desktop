@@ -1,12 +1,17 @@
 import { CircularProgress } from '@material-ui/core';
 import { Emoji } from 'emoji-mart';
 import React, { memo, useCallback, useMemo, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import {
+  updateChannel,
+  uploadChannelAvatar,
+} from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
 import images from 'renderer/common/images';
 import EmojiAndAvatarPicker from 'renderer/components/EmojiAndAvatarPicker';
 import PopoverButton from 'renderer/components/PopoverButton';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Channel } from 'renderer/models';
 import './index.scss';
 
@@ -18,21 +23,18 @@ type ChannelItemProps = {
   ) => void;
   isOwner: boolean;
   isSelected: boolean;
-  updateChannel: (channelId: string, body: any) => any;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelItem = ({
   c,
   onContextChannel,
   isOwner,
-  updateChannel,
-  uploadChannelAvatar,
   isSelected,
 }: ChannelItemProps) => {
+  const dispatch = useDispatch();
   const popupChannelIconRef = useRef<any>();
   const history = useHistory();
-  const currentTeam = useSelector((state) => state.user.currentTeam);
+  const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const isPrivate = useMemo(
     () => c.channel_type === 'Private',
     [c.channel_type]
@@ -101,30 +103,34 @@ const ChannelItem = ({
     async (fs) => {
       if (fs == null || fs.length === 0) return;
       const file = [...fs][0];
-      uploadChannelAvatar(currentTeam.team_id, c?.channel_id, file);
+      dispatch(uploadChannelAvatar(currentTeam.team_id, c?.channel_id, file));
       popupChannelIconRef.current?.hide();
     },
-    [c?.channel_id, currentTeam?.team_id, uploadChannelAvatar]
+    [c?.channel_id, currentTeam?.team_id, dispatch]
   );
   const onAddEmoji = useCallback(
     async (emoji) => {
-      await updateChannel(c?.channel_id, {
-        channel_emoji: emoji.id,
-        channel_image_url: '',
-      });
+      await dispatch(
+        updateChannel(c?.channel_id, {
+          channel_emoji: emoji.id,
+          channel_image_url: '',
+        })
+      );
       popupChannelIconRef.current?.hide();
     },
-    [c?.channel_id, updateChannel]
+    [c?.channel_id, dispatch]
   );
   const onSelectRecentFile = useCallback(
     async (file) => {
-      await updateChannel(c?.channel_id, {
-        channel_emoji: '',
-        channel_image_url: file.file_url,
-      });
+      await dispatch(
+        updateChannel(c?.channel_id, {
+          channel_emoji: '',
+          channel_image_url: file.file_url,
+        })
+      );
       popupChannelIconRef.current?.hide();
     },
-    [c?.channel_id, updateChannel]
+    [c?.channel_id, dispatch]
   );
   return (
     <div

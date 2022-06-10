@@ -1,6 +1,8 @@
 import { EmojiData } from 'emoji-mart';
 import React, { useRef, useMemo, useCallback, useState, memo } from 'react';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { addReact, removeReact } from 'renderer/actions/ReactActions';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { MessageData, ReactReducerData, TaskData } from 'renderer/models';
 import images from '../../common/images';
@@ -22,8 +24,6 @@ type MessageItemProps = {
   onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
-  onAddReact?: (id: string, name: string, userId: string) => void;
-  onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected?: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask?: (task: TaskData) => void;
   content: string;
@@ -36,14 +36,13 @@ const MessageItem = ({
   disableHover,
   disableMenu = false,
   onReplyPress,
-  onAddReact,
-  onRemoveReact,
   onMenuSelected,
   onSelectTask,
   content,
   reacts,
 }: MessageItemProps) => {
   console.log('Render Message');
+  const dispatch = useDispatch();
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { teamUserData, currentTeam, userData } = useAppSelector(
     (state) => state.user
@@ -76,12 +75,12 @@ const MessageItem = ({
         (react: any) => react.reactName === name && react?.isReacted
       );
       if (isExisted) {
-        onRemoveReact?.(message.message_id, name, userData.user_id);
+        dispatch(removeReact(message.message_id, name, userData.user_id));
       } else {
-        onAddReact?.(message.message_id, name, userData.user_id);
+        dispatch(addReact(message.message_id, name, userData.user_id));
       }
     },
-    [message.message_id, onAddReact, onRemoveReact, reacts, userData?.user_id]
+    [dispatch, message.message_id, reacts, userData?.user_id]
   );
   const handleViewTask = useCallback(
     () => onSelectTask?.(message.task),

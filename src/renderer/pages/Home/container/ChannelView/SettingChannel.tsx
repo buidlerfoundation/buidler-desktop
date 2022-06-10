@@ -1,32 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { deleteChannel, setCurrentChannel } from 'renderer/actions/UserActions';
+import { updateChannel } from 'renderer/api/Channel';
+import { Channel } from 'renderer/models';
 import api from '../../../../api';
 import images from '../../../../common/images';
 import AppInput from '../../../../components/AppInput';
 import ModalConfirmDeleteChannel from '../../../../components/ModalConfirmDeleteChannel';
 import NormalButton from '../../../../components/NormalButton';
-import PopoverButton from '../../../../components/PopoverButton';
+import PopoverButton, {
+  PopoverItem,
+} from '../../../../components/PopoverButton';
 
 type SettingChannelProps = {
-  currentChannel?: any;
-  setCurrentChannel?: (channel: any) => any;
-  deleteChannel: (channelId: string) => any;
-  updateChannel: (channelId: string, body: any) => any;
+  currentChannel?: Channel;
   onClose: () => void;
   isActiveName: boolean;
 };
 
 const SettingChannel = ({
   currentChannel,
-  setCurrentChannel,
-  deleteChannel,
-  updateChannel,
   onClose,
   isActiveName,
 }: SettingChannelProps) => {
+  const dispatch = useDispatch();
   const [isOpenConfirm, setOpenConfirm] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [isOpenEditName, setOpenEditName] = useState(false);
-  const toggleEditName = () => setOpenEditName(!isOpenEditName);
+  const handleSelectChannelType = useCallback(
+    (item: PopoverItem) => {
+      dispatch(
+        updateChannel(currentChannel.channel_id, {
+          channel_type: item.value,
+        })
+      );
+    },
+    [currentChannel?.channel_id, dispatch]
+  );
+  const handleChangeName = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setCurrentName(e.target.value.toLowerCase().replaceAll(' ', '-')),
+    []
+  );
+  const toggleEditName = useCallback(
+    () => setOpenEditName((current) => !current),
+    []
+  );
   useEffect(() => {
     if (isActiveName) {
       setOpenEditName(true);
@@ -35,6 +54,38 @@ const SettingChannel = ({
   useEffect(() => {
     setCurrentName(currentChannel.channel_name);
   }, [currentChannel.channel_name, isOpenEditName]);
+  const handleSave = useCallback(async () => {
+    await dispatch(
+      updateChannel(currentChannel.channel_id, {
+        channel_name: currentName,
+      })
+    );
+    toggleEditName();
+  }, [currentChannel?.channel_id, currentName, toggleEditName, dispatch]);
+  const handleSelectMenu = useCallback(
+    async (item: PopoverItem) => {
+      await api.updateChannelNotification(
+        currentChannel.channel_id,
+        item.value
+      );
+      dispatch(
+        setCurrentChannel?.({
+          ...currentChannel,
+          notification_type: item.value,
+        })
+      );
+    },
+    [currentChannel, dispatch]
+  );
+  const handleToggleModalDelete = useCallback(
+    () => setOpenConfirm((current) => !current),
+    []
+  );
+  const handleDeleteChannel = useCallback(async () => {
+    await dispatch(deleteChannel(currentChannel.channel_id));
+    setOpenConfirm(false);
+    onClose();
+  }, [currentChannel?.channel_id, dispatch, onClose]);
   return (
     <div className="setting-body">
       {currentChannel?.channel_type !== 'Direct' && false && (
@@ -60,11 +111,7 @@ const SettingChannel = ({
               { value: 'Public', label: 'Public' },
               { value: 'Private', label: 'Private' },
             ]}
-            onSelected={(item) => {
-              updateChannel(currentChannel.channel_id, {
-                channel_type: item.value,
-              });
-            }}
+            onSelected={handleSelectChannelType}
           />
         </div>
       )}
@@ -78,23 +125,12 @@ const SettingChannel = ({
             className="edit-name-input"
             value={currentName}
             placeholder="Channel name"
-            onChange={(e) =>
-              setCurrentName(e.target.value.toLowerCase().replaceAll(' ', '-'))
-            }
+            onChange={handleChangeName}
             autoFocus
           />
           <NormalButton title="Cancel" onPress={toggleEditName} type="normal" />
           <div style={{ width: 10 }} />
-          <NormalButton
-            title="Save"
-            onPress={async () => {
-              await updateChannel(currentChannel.channel_id, {
-                channel_name: currentName,
-              });
-              toggleEditName();
-            }}
-            type="main"
-          />
+          <NormalButton title="Save" onPress={handleSave} type="main" />
         </div>
       )}
       {currentChannel?.notification_type && (
@@ -109,35 +145,22 @@ const SettingChannel = ({
               { value: 'Alert', label: 'Alert' },
               { value: 'Muted', label: 'Muted' },
             ]}
-            onSelected={async (item) => {
-              await api.updateChannelNotification(
-                currentChannel.channel_id,
-                item.value
-              );
-              setCurrentChannel?.({
-                ...currentChannel,
-                notification_type: item.value,
-              });
-            }}
+            onSelected={handleSelectMenu}
           />
         </div>
       )}
       <div
         className="setting-item normal-button"
-        onClick={() => setOpenConfirm(true)}
+        onClick={handleToggleModalDelete}
       >
         <img src={images.icSettingChannelDelete} alt="" />
         <span className="setting-label">Delete channel</span>
       </div>
       <ModalConfirmDeleteChannel
         open={isOpenConfirm}
-        handleClose={() => setOpenConfirm(false)}
+        handleClose={handleToggleModalDelete}
         channelName={currentChannel.channel_name}
-        onDelete={async () => {
-          await deleteChannel(currentChannel.channel_id);
-          setOpenConfirm(false);
-          onClose();
-        }}
+        onDelete={handleDeleteChannel}
       />
     </div>
   );

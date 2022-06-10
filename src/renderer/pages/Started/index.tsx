@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import './index.scss';
 import { useHistory } from 'react-router-dom';
 import { ethers, utils } from 'ethers';
@@ -7,9 +7,8 @@ import { clearData, getDeviceCode, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
 import api from 'renderer/api';
 import { isValidPrivateKey } from 'renderer/helpers/SeedHelper';
-import { connect, useDispatch, useSelector } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import actions from 'renderer/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from 'renderer/actions/UserActions';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
@@ -18,11 +17,7 @@ import images from '../../common/images';
 import ModalCreatePassword from '../../components/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
 
-type StartedProps = {
-  logout: () => any;
-};
-
-const Started = ({ logout }: StartedProps) => {
+const Started = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
@@ -73,9 +68,9 @@ const Started = ({ logout }: StartedProps) => {
       if (!window.location.href.includes('started')) {
         window.location.reload();
       }
-      logout?.();
+      dispatch(logout());
     });
-  }, [logout]);
+  }, [dispatch]);
   const handleWalletConnect = useCallback(() => {
     WalletConnectUtils.connect(onWCConnected, onWCDisconnected);
   }, [onWCConnected, onWCDisconnected]);
@@ -200,7 +195,4 @@ const Started = ({ logout }: StartedProps) => {
   );
 };
 
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default connect(undefined, mapActionsToProps)(Started);
+export default Started;

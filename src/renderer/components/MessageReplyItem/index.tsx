@@ -1,5 +1,7 @@
 import React, { useRef, useCallback, useMemo, useState, memo } from 'react';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { addReact, removeReact } from 'renderer/actions/ReactActions';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { MessageData } from 'renderer/models';
 import images from '../../common/images';
@@ -22,8 +24,6 @@ type MessageReplyItemProps = {
   onReplyPress?: (message: MessageData) => void;
   disableHover?: boolean;
   disableMenu?: boolean;
-  onAddReact?: (id: string, name: string, userId: string) => void;
-  onRemoveReact?: (id: string, name: string, userId: string) => void;
   onMenuSelected: (menu: PopoverItem, message: MessageData) => void;
   onSelectTask: (task: any) => void;
   content: string;
@@ -38,14 +38,13 @@ const MessageReplyItem = ({
   disableHover,
   disableMenu = false,
   onReplyPress,
-  onAddReact,
-  onRemoveReact,
   onMenuSelected,
   onSelectTask,
   content,
   reacts,
   replyCount,
 }: MessageReplyItemProps) => {
+  const dispatch = useDispatch();
   const [isPopoverOpen, setPopoverOpen] = useState(false);
   const { userData, teamUserData, currentTeam } = useAppSelector(
     (state) => state.user
@@ -89,12 +88,12 @@ const MessageReplyItem = ({
         (react: any) => react.reactName === name && react?.isReacted
       );
       if (isExisted) {
-        onRemoveReact?.(message.message_id, name, userData.user_id);
+        dispatch(removeReact(message.message_id, name, userData.user_id));
       } else {
-        onAddReact?.(message.message_id, name, userData.user_id);
+        dispatch(addReact(message.message_id, name, userData.user_id));
       }
     },
-    [message.message_id, onAddReact, onRemoveReact, reacts, userData.user_id]
+    [dispatch, message.message_id, reacts, userData.user_id]
   );
   const renderSpaceLeft = useCallback(() => {
     if (head) return null;

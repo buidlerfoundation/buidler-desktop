@@ -6,8 +6,7 @@ import React, {
   useMemo,
   memo,
 } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { useDispatch } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
@@ -26,7 +25,26 @@ import ModalSpaceDetail from 'renderer/components/ModalSpaceDetail';
 import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
 import ImageHelper from 'renderer/common/ImageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
-import actions from '../../actions';
+import {
+  createNewChannel,
+  createSpaceChannel,
+  deleteChannel,
+  deleteSpaceChannel,
+  dragChannel,
+  findTeamAndChannel,
+  getSpaceMembers,
+  removeTeamMember,
+  setCurrentChannel,
+} from 'renderer/actions/UserActions';
+import {
+  createTask,
+  deleteTask,
+  dropTask,
+  getTaskFromUser,
+  getTasks,
+  updateTask,
+} from 'renderer/actions/TaskActions';
+import { getMessages } from 'renderer/actions/MessageActions';
 import ModalCreateTask from '../../components/ModalCreateTask';
 import SideBar from '../Main/Layout/SideBar';
 import ChannelView from './container/ChannelView';
@@ -59,67 +77,6 @@ const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
 ]);
 
-type HomeProps = {
-  createNewChannel: (teamId: string, body: any, groupName: string) => any;
-  dragChannel: (channelId: string, groupId: string) => any;
-  getTasks: (channelId: string) => any;
-  getTaskFromUser: (userId: string, channelId: string, teamId: string) => any;
-  getArchivedTasks: (
-    channelId: string,
-    userId?: string,
-    teamId?: string
-  ) => any;
-  dropTask: (
-    result: any,
-    channelId: string,
-    upVote: number,
-    teamId: string
-  ) => any;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
-  deleteTask: (taskId: string, channelId: string) => any;
-  createTask: (channelId: string, body: any) => any;
-  addReact: (id: string, name: string, userId: string) => any;
-  removeReact: (id: string, name: string, userId: string) => any;
-  getMessages: (
-    channelId: string,
-    channelType: string,
-    before?: string,
-    isFresh?: boolean
-  ) => any;
-  getConversations: (
-    parentId: string,
-    before?: string,
-    isFresh?: boolean
-  ) => any;
-  getActivities: (taskId: string) => any;
-  setScrollData: (channelId: string, data: any) => any;
-  onRemoveAttachment: (
-    channelId: string,
-    messageId: string,
-    fileId: string
-  ) => any;
-  setCurrentChannel?: (channel: any) => any;
-  deleteMessage: (
-    messageId: string,
-    parentId: string,
-    channelId: string
-  ) => any;
-  deleteChannel: (channelId: string) => any;
-  updateChannel: (channelId: string, body: any) => any;
-  createSpaceChannel: (teamId: string, body: any) => any;
-  updateSpaceChannel: (spaceId: string, body: any) => any;
-  uploadSpaceAvatar: (teamId: string, spaceId: string, file: any) => any;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
-  deleteSpaceChannel: (group: any) => any;
-  removeTeamMember: (teamId: string, userId: string) => any;
-  createTeam?: (body: any) => any;
-  updateTeam: (teamId: string, body: any) => any;
-  deleteTeam: (teamId: string) => any;
-  findUser: () => any;
-  findTeamAndChannel: () => any;
-  getSpaceMembers: (spaceId: string) => any;
-};
-
 const filterTask: Array<PopoverItem> = [
   {
     label: 'Status',
@@ -130,40 +87,8 @@ const filterTask: Array<PopoverItem> = [
   { label: 'Assignee', value: 'Assignee' },
 ];
 
-const Home = ({
-  dragChannel,
-  createNewChannel,
-  getTasks,
-  getTaskFromUser,
-  dropTask,
-  updateTask,
-  deleteTask,
-  createTask,
-  getArchivedTasks,
-  addReact,
-  removeReact,
-  getMessages,
-  getConversations,
-  setScrollData,
-  getActivities,
-  onRemoveAttachment,
-  setCurrentChannel,
-  deleteMessage,
-  deleteChannel,
-  updateChannel,
-  createSpaceChannel,
-  deleteSpaceChannel,
-  createTeam,
-  updateSpaceChannel,
-  removeTeamMember,
-  updateTeam,
-  deleteTeam,
-  findUser,
-  findTeamAndChannel,
-  uploadSpaceAvatar,
-  uploadChannelAvatar,
-  getSpaceMembers,
-}: HomeProps) => {
+const Home = () => {
+  const dispatch = useDispatch();
   const loadMoreMessage = useAppSelector((state) =>
     loadMoreMessageSelector(state)
   );
@@ -181,7 +106,6 @@ const Home = ({
   const { taskData } = useAppSelector((state) => state.task);
   const { activityData } = useAppSelector((state) => state.activity);
   const { dataFromUrl, privateKey } = useAppSelector((state) => state.configs);
-  const dispatch = useDispatch();
   const history = useHistory();
   const inputRef = useRef<any>();
   const channelViewRef = useRef<any>();
@@ -211,9 +135,9 @@ const Home = ({
       const groupId = destination.droppableId.split('group-channel-')[1];
       const sourceGroupId = source.droppableId.split('group-channel-')[1];
       if (groupId === sourceGroupId) return;
-      dragChannel(draggableId, groupId);
+      dispatch(dragChannel(draggableId, groupId));
     },
-    [dragChannel]
+    [dispatch]
   );
   const handleDragTaskToChannel = useCallback(
     (result: any, task: any) => {
@@ -228,12 +152,14 @@ const Home = ({
       ) {
         return;
       }
-      updateTask(draggableId, currentChannel?.channel_id, {
-        channel: [...task.channel, channel],
-        team_id: currentTeam.team_id,
-      });
+      dispatch(
+        updateTask(draggableId, currentChannel?.channel_id, {
+          channel: [...task.channel, channel],
+          team_id: currentTeam.team_id,
+        })
+      );
     },
-    [channels, currentChannel?.channel_id, currentTeam?.team_id, updateTask]
+    [channels, currentChannel?.channel_id, currentTeam?.team_id, dispatch]
   );
   const onDragEnd = useCallback(
     (result: any) => {
@@ -274,18 +200,20 @@ const Home = ({
           }
         }
       }
-      dropTask(
-        result,
-        currentChannel.channel_id,
-        currentVote,
-        currentTeam.team_id
+      dispatch(
+        dropTask(
+          result,
+          currentChannel.channel_id,
+          currentVote,
+          currentTeam.team_id
+        )
       );
     },
     [
       currentChannel?.channel_id,
       currentChannelId,
       currentTeam?.team_id,
-      dropTask,
+      dispatch,
       filter.value,
       handleDragChannel,
       handleDragTaskToChannel,
@@ -312,23 +240,23 @@ const Home = ({
   }, []);
   const handleRemoveTeamMember = useCallback(
     (u) => {
-      removeTeamMember(currentTeam.team_id, u.user_id);
+      dispatch(removeTeamMember(currentTeam.team_id, u.user_id));
     },
-    [removeTeamMember, currentTeam?.team_id]
+    [dispatch, currentTeam?.team_id]
   );
   const handleOpenEditChannelMember = useCallback(
     (channel) => {
-      setCurrentChannel?.(channel);
+      dispatch(setCurrentChannel?.(channel));
       channelViewRef.current.showSetting('edit-member');
     },
-    [setCurrentChannel]
+    [dispatch]
   );
   const handleOpenEditChannelName = useCallback(
     (channel) => {
-      setCurrentChannel?.(channel);
+      dispatch(setCurrentChannel?.(channel));
       channelViewRef.current.showSetting('edit-name');
     },
-    [setCurrentChannel]
+    [dispatch]
   );
   const handleOpenInviteMember = useCallback(() => setOpenInvite(true), []);
   const handleSpaceBadgeClick = useCallback((s: Space) => {
@@ -343,30 +271,34 @@ const Home = ({
     (createdAt?: string) => {
       if (!createdAt) return;
 
-      getMessages(
-        currentChannel.channel_id,
-        currentChannel.channel_type,
-        createdAt
+      dispatch(
+        getMessages(
+          currentChannel.channel_id,
+          currentChannel.channel_type,
+          createdAt
+        )
       );
     },
-    [currentChannel?.channel_id, currentChannel?.channel_type, getMessages]
+    [currentChannel?.channel_id, currentChannel?.channel_type, dispatch]
   );
   const onDeleteTask = useCallback(
     (task: any) => {
       if (!currentChannel?.channel_id) return;
-      deleteTask(task.task_id, currentChannel?.channel_id);
+      dispatch(deleteTask(task.task_id, currentChannel?.channel_id));
     },
-    [deleteTask, currentChannel?.channel_id]
+    [dispatch, currentChannel?.channel_id]
   );
   const onUpdateStatus = useCallback(
     (task: any, status: string) => {
       if (!currentChannel?.channel_id) return;
-      updateTask(task.task_id, currentChannel?.channel_id, {
-        status,
-        team_id: currentTeam.team_id,
-      });
+      dispatch(
+        updateTask(task.task_id, currentChannel?.channel_id, {
+          status,
+          team_id: currentTeam.team_id,
+        })
+      );
     },
-    [currentChannel?.channel_id, updateTask, currentTeam?.team_id]
+    [currentChannel?.channel_id, dispatch, currentTeam?.team_id]
   );
   const handleTaskUpdateFilter = useCallback((st) => setFilter(st), []);
   const openTaskDetail = useCallback((task: any) => {
@@ -434,11 +366,11 @@ const Home = ({
       if (id !== '') {
         body.task_id = id;
       }
-      createTask(currentChannel?.channel_id, body);
+      dispatch(createTask(currentChannel?.channel_id, body));
       setOpenCreateTask(false);
     },
     [
-      createTask,
+      dispatch,
       currentChannel?.channel_id,
       currentChannel?.channel_type,
       currentTeam?.team_id,
@@ -501,12 +433,12 @@ const Home = ({
           icon_sub_color: badge?.backgroundColor,
         };
       }
-      await createSpaceChannel(currentTeam.team_id, body);
+      await dispatch(createSpaceChannel(currentTeam.team_id, body));
       setOpenCreateSpace(false);
       sideBarRef.current?.scrollToBottom?.();
       return null;
     },
-    [createSpaceChannel, currentTeam?.team_id]
+    [dispatch, currentTeam?.team_id]
   );
   const handleCloseModalEditSpace = useCallback(
     () => setOpenEditSpaceChannel(false),
@@ -523,14 +455,16 @@ const Home = ({
         const { res } = await createMemberChannelData(channelData.members);
         body.channel_member_data = res;
       }
-      const success = await createNewChannel(
-        currentTeam.team_id,
-        body,
-        channelData.space?.space_name
+      const success = await dispatch(
+        createNewChannel(
+          currentTeam.team_id,
+          body,
+          channelData.space?.space_name
+        )
       );
       if (success) setOpenCreateChannel(false);
     },
-    [createNewChannel, currentTeam?.team_id]
+    [currentTeam?.team_id, dispatch]
   );
   const handleCloseModalCreateChannel = useCallback(
     () => setOpenCreateChannel(false),
@@ -546,20 +480,20 @@ const Home = ({
   );
   const handleDeleteChannel = useCallback(async () => {
     if (!channelDelete?.channel_id) return;
-    await deleteChannel(channelDelete?.channel_id);
+    await dispatch(deleteChannel(channelDelete?.channel_id));
     setChannelDelete(null);
     setOpenConfirmDeleteChannel(false);
-  }, [channelDelete?.channel_id, deleteChannel]);
+  }, [channelDelete?.channel_id, dispatch]);
   const handleCloseModalConfirmDeleteSpace = useCallback(() => {
     setOpenConfirmDeleteSpace(false);
   }, []);
   const handleDeleteSpace = useCallback(async () => {
     if (!selectedSpace?.space_id) return;
-    await deleteSpaceChannel(selectedSpace?.space_id);
+    await dispatch(deleteSpaceChannel(selectedSpace?.space_id));
     setSelectedSpace(null);
     setOpenConfirmDeleteSpace(false);
     setOpenEditSpaceChannel(false);
-  }, [deleteSpaceChannel, selectedSpace?.space_id]);
+  }, [dispatch, selectedSpace?.space_id]);
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.includes('invitation=')) {
       const invitationId = dataFromUrl.split('=')[1];
@@ -568,10 +502,10 @@ const Home = ({
         toast.success('You have successfully joined new team.');
         dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
         setCookie(AsyncKey.lastTeamId, res.team_id);
-        findTeamAndChannel();
+        dispatch(findTeamAndChannel());
       }
     }
-  }, [dataFromUrl, dispatch, findTeamAndChannel]);
+  }, [dataFromUrl, dispatch]);
   useEffect(() => {
     if (dataFromUrl) handleDataFromUrl();
   }, [dataFromUrl, handleDataFromUrl]);
@@ -581,20 +515,24 @@ const Home = ({
     if (currentChannel?.channel_id || currentChannel?.user) {
       setOpenTask(false);
       if (currentChannel?.user) {
-        getTaskFromUser(
-          currentChannel.user.user_id,
-          currentChannel.channel_id || currentChannel.user.user_id,
-          currentTeam?.team_id
+        dispatch(
+          getTaskFromUser(
+            currentChannel.user.user_id,
+            currentChannel.channel_id || currentChannel.user.user_id,
+            currentTeam?.team_id
+          )
         );
       } else {
-        getTasks(currentChannel.channel_id);
+        dispatch(getTasks(currentChannel.channel_id));
       }
       if (currentChannel.channel_id && privateKey) {
-        getMessages(
-          currentChannel.channel_id,
-          currentChannel.channel_type,
-          undefined,
-          true
+        dispatch(
+          getMessages(
+            currentChannel.channel_id,
+            currentChannel.channel_type,
+            undefined,
+            true
+          )
         );
       }
     }
@@ -602,18 +540,16 @@ const Home = ({
     currentChannel?.user,
     currentChannel?.channel_id,
     currentChannel?.channel_type,
-    getTasks,
-    getTaskFromUser,
-    getMessages,
+    dispatch,
     currentTeam?.team_id,
     privateKey,
   ]);
 
   useEffect(() => {
     if (currentChannel?.space_id) {
-      getSpaceMembers?.(currentChannel?.space_id);
+      dispatch(getSpaceMembers(currentChannel?.space_id));
     }
-  }, [currentChannel?.space_id, getSpaceMembers]);
+  }, [currentChannel?.space_id, dispatch]);
 
   useEffect(() => {
     const keyDownListener = (e: any) => {
@@ -639,46 +575,24 @@ const Home = ({
         const hoverTask = [...tasks, ...archivedTasks].find(
           (t) => t.task_id === taskHoverElement?.id
         );
+        if (
+          GlobalVariable.isInputFocus ||
+          !currentChannel?.channel_id ||
+          !hoverTask
+        )
+          return;
+        const body = {
+          team_id: currentTeam.team_id,
+        };
         if (e.key === 'a') {
-          if (GlobalVariable.isInputFocus) return;
-          if (hoverTask) {
-            if (!currentChannel?.channel_id) return;
-            if (hoverTask?.status === 'archived') {
-              updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-                status: 'todo',
-                team_id: currentTeam.team_id,
-              });
-            } else {
-              updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-                status: 'archived',
-                team_id: currentTeam.team_id,
-              });
-            }
-          }
+          body.status = hoverTask?.status === 'archived' ? 'todo' : 'archived';
         } else if (e.key === 'd') {
-          if (GlobalVariable.isInputFocus) return;
-          if (hoverTask?.status === 'todo') {
-            if (!currentChannel?.channel_id) return;
-            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-              status: 'doing',
-              team_id: currentTeam.team_id,
-            });
-          } else if (hoverTask?.status === 'doing') {
-            if (!currentChannel?.channel_id) return;
-            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-              status: 'done',
-              team_id: currentTeam.team_id,
-            });
-          } else if (
-            hoverTask?.status === 'done' ||
-            hoverTask?.status === 'archived'
-          ) {
-            if (!currentChannel?.channel_id) return;
-            updateTask(hoverTask.task_id, currentChannel?.channel_id, {
-              status: 'doing',
-              team_id: currentTeam.team_id,
-            });
-          }
+          body.status = hoverTask?.status === 'doing' ? 'done' : 'doing';
+        }
+        if (body.status) {
+          dispatch(
+            updateTask(hoverTask.task_id, currentChannel?.channel_id, body)
+          );
         }
       }
     };
@@ -687,7 +601,6 @@ const Home = ({
       window.removeEventListener('keydown', keyDownListener);
     };
   }, [
-    updateTask,
     history,
     currentTeam?.team_id,
     currentChannel?.channel_id,
@@ -713,14 +626,6 @@ const Home = ({
             onEditChannelMember={handleOpenEditChannelMember}
             onEditChannelName={handleOpenEditChannelName}
             onInviteMember={handleOpenInviteMember}
-            deleteTeam={deleteTeam}
-            updateTeam={updateTeam}
-            findTeamAndChannel={findTeamAndChannel}
-            findUser={findUser}
-            updateSpaceChannel={updateSpaceChannel}
-            uploadSpaceAvatar={uploadSpaceAvatar}
-            updateChannel={updateChannel}
-            uploadChannelAvatar={uploadChannelAvatar}
             onSpaceBadgeClick={handleSpaceBadgeClick}
           />
 
@@ -736,33 +641,22 @@ const Home = ({
                     'message_id'
                   )}
                   currentTeam={currentTeam}
-                  createTask={createTask}
                   openConversation={handleOpenConversation}
                   onMoreMessage={onMoreMessage}
                   loadMoreMessage={loadMoreMessage}
                   messageCanMore={messageData?.[currentChannelId]?.canMore}
                   scrollData={messageData?.[currentChannelId]?.scrollData}
-                  setScrollData={setScrollData}
                   replyTask={replyTask}
                   setReplyTask={setReplyTask}
-                  onAddReact={addReact}
-                  onRemoveReact={removeReact}
                   openTaskView={openTaskView}
                   onSelectTask={openTaskDetail}
-                  onRemoveAttachment={onRemoveAttachment}
-                  setCurrentChannel={setCurrentChannel}
                   isOpenConversation={openConversation}
-                  deleteMessage={deleteMessage}
-                  deleteChannel={deleteChannel}
-                  updateChannel={updateChannel}
                   channel={channels}
                   teamUserData={teamUserData}
-                  uploadChannelAvatar={uploadChannelAvatar}
                 />
                 {currentChannel.channel_type !== 'Direct' && (
                   <TaskListView
                     channelId={currentChannel?.channel_id}
-                    getArchivedTasks={getArchivedTasks}
                     archivedCount={taskData?.[currentChannelId]?.archivedCount}
                     teamId={currentTeam?.team_id}
                     tasks={taskData?.[currentChannelId]?.tasks || []}
@@ -776,19 +670,13 @@ const Home = ({
                     onUpdateFilter={handleTaskUpdateFilter}
                     onDeleteTask={onDeleteTask}
                     onSelectTask={openTaskDetail}
-                    updateTask={updateTask}
-                    onAddReact={addReact}
-                    onRemoveReact={removeReact}
                     onReplyTask={onReplyTask}
                     directUserId={currentChannel?.user?.user_id}
                   />
                 )}
               </>
             ) : (
-              <EmptyView
-                createTeam={createTeam}
-                findTeamAndChannel={findTeamAndChannel}
-              />
+              <EmptyView />
             )}
           </div>
           <ModalSpaceDetail
@@ -799,9 +687,6 @@ const Home = ({
           <ModalConversation
             open={openConversation}
             handleClose={handleCloseModalConversation}
-            onAddReact={addReact}
-            onRemoveReact={removeReact}
-            deleteMessage={deleteMessage}
             conversations={
               messageData?.[currentChannelId]?.data?.find(
                 (el) => el.message_id === currentMessageId
@@ -815,9 +700,6 @@ const Home = ({
             handleClose={handleCloseModalTaskView}
             teamId={currentTeam?.team_id}
             channelId={currentChannel?.channel_id}
-            updateTask={updateTask}
-            getConversations={getConversations}
-            getActivities={getActivities}
             activities={activityData?.[currentTask?.task_id]?.data || []}
             onDeleteTask={onDeleteTask}
           />
@@ -840,7 +722,6 @@ const Home = ({
             handleClose={handleCloseModalEditSpace}
             onDeleteClick={handleOpenDeleteSpace}
             space={selectedSpace}
-            updateSpaceChannel={updateSpaceChannel}
           />
           <ModalCreateChannel
             space={spaceChannel}
@@ -872,7 +753,4 @@ const Home = ({
   );
 };
 
-const mapActionsToProps = (dispatch: any) =>
-  bindActionCreators(actions, dispatch);
-
-export default memo(connect(undefined, mapActionsToProps)(Home));
+export default memo(Home);

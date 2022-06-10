@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import NormalButton from 'renderer/components/NormalButton';
 import TeamUserItem from 'renderer/components/TeamUserItem';
@@ -6,23 +6,19 @@ import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import api from '../../../../api';
 import images from '../../../../common/images';
 import AvatarView from '../../../../components/AvatarView';
-import PopoverButton from '../../../../components/PopoverButton';
-import TeamUserPopup from '../../../../components/TeamUserPopup';
 
 type SettingMemberProps = {
   currentChannel?: any;
-  setCurrentChannel?: (channel: any) => any;
   teamUserData: Array<any>;
 };
 
 const SettingMember = ({
   currentChannel,
-  setCurrentChannel,
   teamUserData,
 }: SettingMemberProps) => {
   const user = useSelector((state: any) => state.user.userData);
   const [isOpenUser, setOpenUser] = useState(false);
-  const toggleUser = () => setOpenUser(!isOpenUser);
+  const toggleUser = useCallback(() => setOpenUser((current) => !current), []);
   const [members, setMembers] = useState(currentChannel.channel_member);
   const users = useMemo(() => {
     if (!currentChannel) return [];
@@ -35,7 +31,7 @@ const SettingMember = ({
       .filter((id: string) => !!teamUserData.find((el) => el.user_id === id))
       .map((id: any) => teamUserData.find((el) => el.user_id === id));
   }, [currentChannel, teamUserData]);
-  const onSave = async () => {
+  const onSave = useCallback(async () => {
     const { res } = await createMemberChannelData(
       members.map((el: string) => ({ user_id: el }))
     );
@@ -44,18 +40,46 @@ const SettingMember = ({
       channel_member_data,
     });
     toggleUser();
-  };
+  }, [currentChannel?.channel_id, members, toggleUser]);
+  const handleSelectUser = useCallback(
+    (el) => {
+      const newMembers = isSelected
+        ? members.filter((u: string) => u !== el.user_id)
+        : [...members, el.user_id];
+      setMembers(newMembers);
+    },
+    [members]
+  );
+  const renderUser = useCallback(
+    (el: any) => (
+      <div key={el.user_id} className="setting-member-item">
+        <AvatarView user={el} />
+        <span className="member-name">{el.user_name}</span>
+      </div>
+    ),
+    []
+  );
+  const renderTeamUser = useCallback(
+    (el) => {
+      const isSelected = members.find((u: string) => u === el.user_id);
+      return (
+        <TeamUserItem
+          key={el.user_id}
+          user={el}
+          disabled={el.user_id === user.user_id}
+          isSelected={isSelected}
+          onClick={handleSelectUser}
+        />
+      );
+    },
+    [handleSelectUser, members, user.user_id]
+  );
   return (
     <div className="setting-body">
       <div style={{ height: 7.5 }} />
       {!isOpenUser && (
         <>
-          {users.map((el: any) => (
-            <div key={el.user_id} className="setting-member-item">
-              <AvatarView user={el} />
-              <span className="member-name">{el.user_name}</span>
-            </div>
-          ))}
+          {users.map(renderUser)}
           <div
             className="setting-member-item normal-button"
             onClick={toggleUser}
@@ -77,23 +101,7 @@ const SettingMember = ({
       )}
       {isOpenUser && (
         <div className="team-user-container">
-          {teamUserData.map((el) => {
-            const isSelected = members.find((u: string) => u === el.user_id);
-            return (
-              <TeamUserItem
-                key={el.user_id}
-                user={el}
-                disabled={el.user_id === user.user_id}
-                isSelected={isSelected}
-                onClick={() => {
-                  const newMembers = isSelected
-                    ? members.filter((u: string) => u !== el.user_id)
-                    : [...members, el.user_id];
-                  setMembers(newMembers);
-                }}
-              />
-            );
-          })}
+          {teamUserData.map(renderTeamUser)}
           <div style={{ flex: 1 }} />
           <div className="user-bottom">
             <NormalButton title="Cancel" type="normal" onPress={toggleUser} />

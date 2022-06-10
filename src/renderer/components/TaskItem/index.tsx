@@ -11,6 +11,9 @@ import { ProgressStatus } from 'renderer/common/AppConfig';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import { ReactReducerData, TaskData } from 'renderer/models';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import { updateTask } from 'renderer/actions/TaskActions';
+import { useDispatch } from 'react-redux';
+import { addReact, removeReact } from 'renderer/actions/ReactActions';
 import ImageHelper from '../../common/ImageHelper';
 import images from '../../common/images';
 import { getIconByStatus } from '../../helpers/TaskHelper';
@@ -33,10 +36,7 @@ type TaskItemProps = {
   onMenuSelected: (menu: PopoverItem, task: TaskData) => void;
   onClick: (task: TaskData) => void;
   teamId: string;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
   channelId?: string;
-  onAddReact: (id: string, name: string, userId: string) => void;
-  onRemoveReact: (id: string, name: string, userId: string) => void;
   onReplyTask: (task: TaskData) => void;
   reacts: Array<ReactReducerData>;
 };
@@ -56,13 +56,11 @@ const TaskItem = ({
   onMenuSelected,
   onClick,
   teamId,
-  updateTask,
   channelId,
-  onAddReact,
-  onRemoveReact,
   onReplyTask,
 }: TaskItemProps) => {
   console.log('Render Task');
+  const dispatch = useDispatch();
   const { userData, teamUserData } = useAppSelector((state) => state.user);
   const popupMenuRef = useRef<any>();
   const addChannelRef = useRef<any>();
@@ -116,12 +114,12 @@ const TaskItem = ({
         (react: any) => react.reactName === name && react?.isReacted
       );
       if (isExisted) {
-        onRemoveReact(task.task_id, name, userData.user_id);
+        dispatch(removeReact(task.task_id, name, userData.user_id));
       } else {
-        onAddReact(task.task_id, name, userData.user_id);
+        dispatch(addReact(task.task_id, name, userData.user_id));
       }
     },
-    [onAddReact, onRemoveReact, reacts, task.task_id, userData.user_id]
+    [dispatch, reacts, task.task_id, userData?.user_id]
   );
   const handleClickTask = useCallback(() => {
     onClick(task);
@@ -154,13 +152,15 @@ const TaskItem = ({
     (u) => {
       popupAssigneeRef.current?.hide();
       if (!channelId) return;
-      updateTask(task.task_id, channelId, {
-        assignee_id: u?.user_id || null,
-        assignee: u,
-        team_id: teamId,
-      });
+      dispatch(
+        updateTask(task.task_id, channelId, {
+          assignee_id: u?.user_id || null,
+          assignee: u,
+          team_id: teamId,
+        })
+      );
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [channelId, dispatch, task.task_id, teamId]
   );
   const handleReply = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -173,9 +173,11 @@ const TaskItem = ({
     (date: MaterialUiPickersDate) => {
       popupDatePickerRef.current?.hide();
       if (!channelId) return;
-      updateTask(task.task_id, channelId, { due_date: date, team_id: teamId });
+      dispatch(
+        updateTask(task.task_id, channelId, { due_date: date, team_id: teamId })
+      );
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [channelId, dispatch, task.task_id, teamId]
   );
   const handleClearDate = useCallback(
     () => handleDateChange(null),
@@ -190,15 +192,17 @@ const TaskItem = ({
   const handleUpdateChannel = useCallback(
     async (channels) => {
       if (!channelId) return;
-      await updateTask(task.task_id, channelId, {
-        channel: channels.map((c: any) => ({
-          channel_id: c.channel_id,
-          channel_name: c.channel_name,
-        })),
-        team_id: teamId,
-      });
+      await dispatch(
+        updateTask(task.task_id, channelId, {
+          channel: channels.map((c: any) => ({
+            channel_id: c.channel_id,
+            channel_name: c.channel_name,
+          })),
+          team_id: teamId,
+        })
+      );
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [channelId, dispatch, task.task_id, teamId]
   );
   const handleOpenDate = useCallback(
     (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {

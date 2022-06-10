@@ -14,6 +14,11 @@ import ContentEditable from 'react-contenteditable';
 import TextareaAutosize from 'react-textarea-autosize';
 import Dropzone from 'react-dropzone';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import { useDispatch } from 'react-redux';
+import { updateTask } from 'renderer/actions/TaskActions';
+import { getConversations } from 'renderer/actions/MessageActions';
+import { getActivities } from 'renderer/actions/ActivityActions';
+import { TaskData } from 'renderer/models';
 import { ProgressStatus } from '../../common/AppConfig';
 import images from '../../common/images';
 import { fromNow, isOverDate } from '../../utils/DateUtils';
@@ -40,18 +45,11 @@ import DatePickerV2 from '../DatePickerV2';
 import AvatarView from '../AvatarView';
 
 type TaskViewProps = {
-  task?: any;
+  task?: TaskData;
   teamId: string;
-  updateTask: (taskId: string, channelId: string, data: any) => any;
-  getConversations: (
-    parentId: string,
-    before?: string,
-    isFresh?: boolean
-  ) => any;
   channelId: string;
   onEsc: () => void;
   conversations: Array<any>;
-  getActivities: (taskId: string) => any;
   activities: Array<any>;
   onDeleteTask: (task: any) => void;
 };
@@ -67,15 +65,13 @@ const taskMenu: Array<PopoverItem> = [
 const TaskView = ({
   task,
   teamId,
-  updateTask,
   channelId,
   onEsc,
-  getConversations,
   conversations,
-  getActivities,
   activities,
   onDeleteTask,
 }: TaskViewProps) => {
+  const dispatch = useDispatch();
   const teamUserData = useAppSelector((state) => state.user.teamUserData);
   const popupMenuRef = useRef<any>();
   const reactData = useAppSelector((state) => state.reactReducer.reactData);
@@ -107,6 +103,12 @@ const TaskView = ({
     () => (!!anchorPopupStatus ? 'task-status-popover' : undefined),
     [anchorPopupStatus]
   );
+  const dispatchUpdateTask = useCallback(
+    (body) => {
+      dispatch(updateTask(task?.task_id, channelId, body));
+    },
+    [channelId, dispatch, task?.task_id]
+  );
   const openStatusSelection = useCallback((event: any) => {
     setPopupStatus(event.currentTarget);
   }, []);
@@ -130,10 +132,9 @@ const TaskView = ({
       }
     };
     window.addEventListener('keydown', keyDownListener);
-    getConversations(task.task_id);
+    dispatch(getConversations(task.task_id));
     return () => window.removeEventListener('keydown', keyDownListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch, onEsc, task.task_id]);
   const onAddAttachment = useCallback(
     async (files: any) => {
       if (files == null) return;
@@ -173,7 +174,7 @@ const TaskView = ({
         ...taskData.attachments,
         ...res.filter((el) => !!el.file_url),
       ];
-      updateTask(task.task_id, channelId, {
+      dispatchUpdateTask({
         task_attachment,
         file_ids: task_attachment.map((el: any) => el.file_id),
         team_id: teamId,
@@ -194,7 +195,7 @@ const TaskView = ({
         };
       });
     },
-    [channelId, task?.task_id, taskData.attachments, teamId, updateTask]
+    [taskData.attachments, dispatchUpdateTask, teamId, task.task_id]
   );
   const onAddFiles = useCallback(
     (fs: any) => {
@@ -268,12 +269,12 @@ const TaskView = ({
   const handleBlurTitle = useCallback(
     (e: React.FocusEvent<HTMLDivElement, Element>) => {
       GlobalVariable.isInputFocus = false;
-      updateTask(task.task_id, channelId, {
+      dispatchUpdateTask({
         title: e.target.innerHTML,
         team_id: teamId,
       });
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [dispatchUpdateTask, teamId]
   );
   const handleChangeTitle = useCallback((e: ContentEditableEvent) => {
     setTaskData((data) => ({ ...data, title: e.target.value }));
@@ -314,9 +315,9 @@ const TaskView = ({
   }, []);
   const handleConversationClick = useCallback(() => setActiveIndex(0), []);
   const handleActivitiesClick = useCallback(() => {
-    getActivities(task.task_id);
+    dispatch(getActivities(task.task_id));
     setActiveIndex(1);
-  }, [getActivities, task.task_id]);
+  }, [dispatch, task.task_id]);
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.code === 'Enter' && !e.shiftKey) {
@@ -332,12 +333,12 @@ const TaskView = ({
   const handleBlurNote = useCallback(
     (e) => {
       GlobalVariable.isInputFocus = false;
-      updateTask(task.task_id, channelId, {
+      dispatchUpdateTask({
         notes: e.target.value,
         team_id: teamId,
       });
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [dispatchUpdateTask, teamId]
   );
   const handleChangeNote = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -355,7 +356,7 @@ const TaskView = ({
   );
   const handleChannelChange = useCallback(
     async (channels) => {
-      const res = await updateTask(task.task_id, channelId, {
+      const res = await dispatchUpdateTask({
         channel: channels.map((c: any) => ({
           channel_id: c.channel_id,
           channel_name: c.channel_name,
@@ -367,26 +368,26 @@ const TaskView = ({
       }
       popupChannelRef.current?.hide();
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [dispatchUpdateTask, teamId]
   );
   const handleAssigneeChange = useCallback(
     (u) => {
       popupAssigneeRef.current?.hide();
       if (!channelId) return;
       setTaskData((current) => ({ ...current, assignee: u }));
-      updateTask(task.task_id, channelId, {
+      dispatchUpdateTask({
         assignee_id: u?.user_id || null,
         assignee: u,
         team_id: teamId,
       });
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [channelId, dispatchUpdateTask, teamId]
   );
   const handleDateChange = useCallback(
     async (date: MaterialUiPickersDate) => {
       popupDatePickerRef.current?.hide();
       if (!date) return;
-      const res = await updateTask(task.task_id, channelId, {
+      const res = await dispatchUpdateTask({
         due_date: moment(date).format('YYYY-MM-DD HH:mm:ss.SSSZ'),
         team_id: teamId,
       });
@@ -395,7 +396,7 @@ const TaskView = ({
       }
       popupChannelRef.current?.hide();
     },
-    [channelId, task.task_id, teamId, updateTask]
+    [dispatchUpdateTask, teamId]
   );
   const handleClearDate = useCallback(
     () => handleDateChange(null),
@@ -407,13 +408,13 @@ const TaskView = ({
         (el: any) => !!el.file_id && el.file_id !== attachment.file_id
       );
       setTaskData((data) => ({ ...data, attachments: task_attachment }));
-      updateTask(task.task_id, channelId, {
+      dispatchUpdateTask({
         task_attachment,
         file_ids: task_attachment.map((el: any) => el.file_id),
         team_id: teamId,
       });
     },
-    [channelId, task.task_id, taskData.attachments, teamId, updateTask]
+    [dispatchUpdateTask, taskData.attachments, teamId]
   );
   const date = useMemo(() => taskData?.dueDate, [taskData?.dueDate]);
   const handleRemoveAttachment = useCallback((file) => {
@@ -423,13 +424,13 @@ const TaskView = ({
   const handleSelectStatus = useCallback(
     async (status) => {
       setPopupStatus(null);
-      const res = await updateTask(task.task_id, channelId, {
+      const res = await dispatchUpdateTask({
         status: status.id,
         team_id: teamId,
       });
       if (res) setTaskData((data) => ({ ...data, currentStatus: status }));
     },
-    [channelId, task?.task_id, teamId, updateTask]
+    [dispatchUpdateTask, teamId]
   );
   const handleChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

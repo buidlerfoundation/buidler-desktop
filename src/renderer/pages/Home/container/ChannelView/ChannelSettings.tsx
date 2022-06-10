@@ -5,22 +5,16 @@ import SettingMember from './SettingMember';
 
 type ChannelSettingsProps = {
   currentChannel?: any;
-  setCurrentChannel?: (channel: any) => any;
   teamUserData: Array<any>;
   isActiveMember: boolean;
   isActiveName: boolean;
-  deleteChannel: (channelId: string) => any;
-  updateChannel: (channelId: string, body: any) => any;
   onClose: () => void;
 };
 
 const ChannelSettings = ({
   currentChannel,
-  setCurrentChannel,
   teamUserData,
   isActiveMember,
-  deleteChannel,
-  updateChannel,
   onClose,
   isActiveName,
 }: ChannelSettingsProps) => {
@@ -56,9 +50,6 @@ const ChannelSettings = ({
       {page === 1 && (
         <SettingChannel
           currentChannel={currentChannel}
-          setCurrentChannel={setCurrentChannel}
-          deleteChannel={deleteChannel}
-          updateChannel={updateChannel}
           onClose={onClose}
           isActiveName={isActiveName}
         />
@@ -66,7 +57,6 @@ const ChannelSettings = ({
       {page === 0 && (
         <SettingMember
           currentChannel={currentChannel}
-          setCurrentChannel={setCurrentChannel}
           teamUserData={isChannelPrivate ? spaceMembers : teamUserData}
         />
       )}

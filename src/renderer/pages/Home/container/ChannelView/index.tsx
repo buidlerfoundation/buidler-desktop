@@ -9,12 +9,25 @@ import React, {
   memo,
 } from 'react';
 import Dropzone from 'react-dropzone';
-import { AttachmentData, MessageData, MessageGroup } from 'renderer/models';
+import {
+  AttachmentData,
+  Channel,
+  Community,
+  MessageData,
+  MessageGroup,
+} from 'renderer/models';
 import { PopoverItem } from 'renderer/components/PopoverButton';
 import { debounce } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { createTask } from 'renderer/actions/TaskActions';
+import {
+  deleteMessage,
+  onRemoveAttachment,
+  setScrollData,
+} from 'renderer/actions/MessageActions';
+import { setCurrentChannel } from 'renderer/actions/UserActions';
 import {
   createMemberChannelData,
   encryptMessage,
@@ -41,40 +54,22 @@ import ChannelHeader from './ChannelHeader';
 import DirectDescription from './DirectDescription';
 
 type ChannelViewProps = {
-  currentChannel: any;
+  currentChannel: Channel;
   messages: Array<MessageData>;
   inputRef: any;
-  currentTeam: any;
-  createTask: (channelId: string, body: any) => any;
+  currentTeam: Community;
   openConversation: (message: MessageData) => void;
   onMoreMessage: (lastCreatedAt: string) => void;
   loadMoreMessage: boolean;
   messageCanMore: boolean;
   scrollData?: any;
-  setScrollData: (channelId: string, data: any) => any;
   replyTask?: any;
   setReplyTask: (task?: any) => void;
-  onAddReact: (id: string, name: string, userId: string) => void;
-  onRemoveReact: (id: string, name: string, userId: string) => void;
-  deleteMessage: (
-    messageId: string,
-    parentId: string,
-    channelId: string
-  ) => any;
   openTaskView: boolean;
   isOpenConversation: boolean;
   onSelectTask: (task: any) => void;
   teamUserData: Array<any>;
-  onRemoveAttachment: (
-    channelId: string,
-    messageId: string,
-    fileId: string
-  ) => any;
-  setCurrentChannel?: (channel: any) => any;
   channel?: any;
-  deleteChannel: (channelId: string) => any;
-  updateChannel: (channelId: string, body: any) => any;
-  uploadChannelAvatar: (teamId: string, channelId: string, file: any) => any;
 };
 
 const ChannelView = forwardRef(
@@ -84,38 +79,29 @@ const ChannelView = forwardRef(
       messages,
       inputRef,
       currentTeam,
-      createTask,
       openConversation,
       onMoreMessage,
       loadMoreMessage,
       messageCanMore,
-      setScrollData,
       scrollData,
       replyTask,
       setReplyTask,
-      onAddReact,
-      onRemoveReact,
       openTaskView,
       onSelectTask,
       teamUserData,
-      onRemoveAttachment,
-      setCurrentChannel,
       channel,
       isOpenConversation,
-      deleteMessage,
-      deleteChannel,
-      updateChannel,
-      uploadChannelAvatar,
     }: ChannelViewProps,
     ref
   ) => {
+    const dispatch = useDispatch();
     const reactData = useAppSelector((state) => state.reactReducer.reactData);
     const messagesGroup = useMemo<Array<MessageGroup>>(() => {
       return normalizeMessages(messages);
     }, [messages]);
-    const userData = useSelector((state: any) => state.user.userData);
-    const channelPrivateKey = useSelector(
-      (state: any) => state.configs.channelPrivateKey
+    const userData = useAppSelector((state) => state.user.userData);
+    const channelPrivateKey = useAppSelector(
+      (state) => state.configs.channelPrivateKey
     );
     const location = useLocation();
     const [messageReply, setMessageReply] = useState<MessageData>(null);
@@ -191,10 +177,12 @@ const ChannelView = forwardRef(
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         const showScrollDown = scrollTop < -80;
         if (showScrollDown !== scrollData?.showScrollDown) {
-          setScrollData(currentChannel?.channel_id, {
-            showScrollDown,
-            unreadCount: showScrollDown ? scrollData?.unreadCount : 0,
-          });
+          dispatch(
+            setScrollData(currentChannel?.channel_id, {
+              showScrollDown,
+              unreadCount: showScrollDown ? scrollData?.unreadCount : 0,
+            })
+          );
         }
         if (
           (scrollTop + scrollHeight === clientHeight + 1 ||
@@ -217,7 +205,7 @@ const ChannelView = forwardRef(
         onMoreMessage,
         scrollData?.showScrollDown,
         scrollData?.unreadCount,
-        setScrollData,
+        dispatch,
       ]
     );
     const onCreateTaskFromMessage = useCallback(
@@ -237,10 +225,10 @@ const ChannelView = forwardRef(
           assignee_id:
             msg.message_tag?.[0]?.mention_id || currentChannel?.user?.user_id,
         };
-        createTask(currentChannel?.channel_id, body);
+        dispatch(createTask(currentChannel?.channel_id, body));
       },
       [
-        createTask,
+        dispatch,
         currentChannel?.channel_id,
         currentChannel.channel_type,
         currentChannel?.user?.user_channels,
@@ -260,10 +248,12 @@ const ChannelView = forwardRef(
     const onMenuMessage = useCallback(
       (menu: PopoverItem, msg: MessageData) => {
         if (menu.value === 'Delete') {
-          deleteMessage(
-            msg.message_id,
-            msg.parent_id,
-            currentChannel.channel_id
+          dispatch(
+            deleteMessage(
+              msg.message_id,
+              msg.parent_id,
+              currentChannel.channel_id
+            )
           );
         }
         if (menu.value === 'Edit') {
@@ -291,7 +281,7 @@ const ChannelView = forwardRef(
           }, 0);
         }
       },
-      [currentChannel?.channel_id, deleteMessage, inputRef, setReplyTask]
+      [currentChannel?.channel_id, dispatch, inputRef, setReplyTask]
     );
     const scrollDown = useCallback(() => {
       msgListRef.current?.scrollTo?.(0, 0);
@@ -346,24 +336,27 @@ const ChannelView = forwardRef(
           const directChannel = channel.find(
             (c: any) => c?.channel_id === u.direct_channel
           );
-          setCurrentChannel?.({
-            channel_id: u.direct_channel || '',
-            channel_name: '',
-            channel_type: 'Direct',
-            user: u,
-            notification_type: directChannel?.notification_type || 'Alert',
-            channel_member: directChannel?.channel_member || [],
-          });
+          dispatch(
+            setCurrentChannel?.({
+              channel_id: u.direct_channel || '',
+              channel_name: '',
+              channel_type: 'Direct',
+              user: u,
+              notification_type: directChannel?.notification_type || 'Alert',
+              channel_member: directChannel?.channel_member || [],
+            })
+          );
         }
       } else if (
         channelId &&
         !!channel.find((c: any) => c?.channel_id === channelId)
       ) {
-        setCurrentChannel?.(
-          channel.find((c: any) => c?.channel_id === channelId)
+        dispatch(
+          setCurrentChannel?.(
+            channel.find((c: any) => c?.channel_id === channelId)
+          )
         );
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
     useEffect(() => {
       const keyDownListener = (e: any) => {
@@ -509,15 +502,17 @@ const ChannelView = forwardRef(
     const handleRemoveFile = useCallback(
       (file) => {
         if (messageEdit) {
-          onRemoveAttachment(
-            currentChannel.channel_id,
-            messageEdit.message_id,
-            file.id
+          dispatch(
+            onRemoveAttachment(
+              currentChannel.channel_id,
+              messageEdit.message_id,
+              file.id
+            )
           );
         }
         setFiles((current) => current.filter((f) => f.id !== file.id));
       },
-      [currentChannel?.channel_id, messageEdit, onRemoveAttachment]
+      [currentChannel?.channel_id, messageEdit, dispatch]
     );
     const onKeyDown = useCallback(
       (e: any) => {
@@ -543,8 +538,6 @@ const ChannelView = forwardRef(
               onCreateTask={onCreateTaskFromMessage}
               onClick={openConversation}
               onReplyPress={onReplyPress}
-              onAddReact={onAddReact}
-              onRemoveReact={onRemoveReact}
               onMenuSelected={onMenuMessage}
               onSelectTask={onSelectTask}
               content={msg.content}
@@ -559,8 +552,6 @@ const ChannelView = forwardRef(
             message={msg}
             onCreateTask={onCreateTaskFromMessage}
             onReplyPress={onReplyPress}
-            onAddReact={onAddReact}
-            onRemoveReact={onRemoveReact}
             onMenuSelected={onMenuMessage}
             onSelectTask={onSelectTask}
             content={msg.content}
@@ -569,10 +560,8 @@ const ChannelView = forwardRef(
         );
       },
       [
-        onAddReact,
         onCreateTaskFromMessage,
         onMenuMessage,
-        onRemoveReact,
         onReplyPress,
         onSelectTask,
         openConversation,
@@ -609,11 +598,7 @@ const ChannelView = forwardRef(
               ref={headerRef}
               currentChannel={currentChannel}
               teamUserData={teamUserData}
-              setCurrentChannel={setCurrentChannel}
-              deleteChannel={deleteChannel}
-              updateChannel={updateChannel}
               teamId={currentTeam.team_id}
-              uploadChannelAvatar={uploadChannelAvatar}
             />
             {!currentChannel.channel_id && (
               <DirectDescription

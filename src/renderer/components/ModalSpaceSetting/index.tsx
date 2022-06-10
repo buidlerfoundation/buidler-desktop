@@ -1,6 +1,8 @@
 import { Modal } from '@material-ui/core';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { updateSpaceChannel } from 'renderer/actions/UserActions';
 import api from 'renderer/api';
 import { SpaceBadge } from 'renderer/common/AppConfig';
 import ImageHelper from 'renderer/common/ImageHelper';
@@ -18,7 +20,6 @@ type ModalSpaceSettingProps = {
   handleClose: () => void;
   onDeleteClick: () => void;
   space?: Space;
-  updateSpaceChannel: (spaceId: string, body: any) => any;
 };
 
 const ModalSpaceSetting = ({
@@ -26,8 +27,8 @@ const ModalSpaceSetting = ({
   handleClose,
   onDeleteClick,
   space,
-  updateSpaceChannel,
 }: ModalSpaceSettingProps) => {
+  const dispatch = useDispatch();
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const [loading, setLoading] = useState(false);
   const [spaceData, setSpaceData] = useState<CreateSpaceData>({
@@ -134,7 +135,7 @@ const ModalSpaceSetting = ({
           ];
         }
       }
-      await updateSpaceChannel(space?.space_id, body);
+      await dispatch(updateSpaceChannel(space?.space_id, body));
       setLoading(false);
       handleClose();
     }
@@ -150,7 +151,7 @@ const ModalSpaceSetting = ({
     spaceData.spaceBadgeId,
     spaceData.spaceType,
     spaceData.url,
-    updateSpaceChannel,
+    dispatch,
   ]);
   return (
     <Modal
