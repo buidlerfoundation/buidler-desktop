@@ -184,9 +184,9 @@ const ChannelView = forwardRef(
             })
           );
         }
+        const compare = Math.round(scrollTop + scrollHeight);
         if (
-          (scrollTop + scrollHeight === clientHeight + 1 ||
-            scrollTop + scrollHeight === clientHeight) &&
+          (compare === clientHeight + 1 || compare === clientHeight) &&
           messageCanMore
         ) {
           onMoreMessage(messages?.[messages?.length - 1].createdAt);
