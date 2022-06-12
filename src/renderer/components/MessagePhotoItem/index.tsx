@@ -17,11 +17,7 @@ const PhotoItem = ({ photo, handleFileClick, teamId }: PhotoItemProps) => {
   );
   if (photo.mimetype.includes('application')) {
     return (
-      <div
-        className="file-item"
-        onClick={handleClick}
-        key={`${photo?.file_id}`}
-      >
+      <div className="file-item" onClick={handleClick}>
         <img alt="" src={images.icFile} />
         <span className="file-name">{photo.original_name}</span>
         <img alt="" src={images.icDownload} />
@@ -30,7 +26,7 @@ const PhotoItem = ({ photo, handleFileClick, teamId }: PhotoItemProps) => {
   }
   if (photo.mimetype.includes('video')) {
     return (
-      <video className="photo-item video" controls key={`${photo?.file_id}`}>
+      <video className="photo-item video" controls>
         <source
           src={ImageHelper.normalizeImage(photo.file_url, teamId)}
           type="video/mp4"
@@ -40,7 +36,6 @@ const PhotoItem = ({ photo, handleFileClick, teamId }: PhotoItemProps) => {
   }
   return (
     <ImgLightBox
-      key={`${photo?.file_id}`}
       originalSrc={ImageHelper.normalizeImage(photo.file_url, teamId)}
     >
       <img
@@ -80,6 +75,7 @@ const MessagePhotoItem = ({
         photo={photo}
         handleFileClick={handleFileClick}
         teamId={teamId}
+        key={`${photo?.file_id}`}
       />
     ),
     [handleFileClick, teamId]
