@@ -247,8 +247,6 @@ const SideBar = forwardRef(
             </Droppable>
             <div ref={bottomBodyRef} />
             <MemberSpace
-              userData={userData}
-              teamUserData={teamUserData}
               channel={channel}
               currentChannel={currentChannel}
               onContextMenu={handleContextMenuMemberSpace}

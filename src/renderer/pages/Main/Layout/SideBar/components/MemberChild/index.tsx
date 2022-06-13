@@ -49,4 +49,4 @@ const MemberChild = ({
   );
 };
 
-export default memo(MemberChild);
+export default MemberChild;

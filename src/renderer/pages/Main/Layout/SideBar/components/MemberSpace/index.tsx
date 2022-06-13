@@ -2,13 +2,12 @@ import { Emoji } from 'emoji-mart';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import images from 'renderer/common/images';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Channel, UserData } from 'renderer/models';
 import MemberChild from '../MemberChild';
 import './index.scss';
 
 type MemberSpaceProps = {
-  teamUserData?: Array<UserData>;
-  userData: UserData;
   channel: Array<Channel>;
   currentChannel: Channel;
   onInviteMember: () => void;
@@ -19,13 +18,12 @@ type MemberSpaceProps = {
 };
 
 const MemberSpace = ({
-  teamUserData,
-  userData,
   channel,
   currentChannel,
   onInviteMember,
   onContextMenu,
 }: MemberSpaceProps) => {
+  const { teamUserData, userData } = useAppSelector((state) => state.user);
   const history = useHistory();
   const [isCollapsed, setCollapsed] = useState(true);
   const toggleCollapsed = useCallback(

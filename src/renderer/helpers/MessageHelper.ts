@@ -1,5 +1,5 @@
-import images from '../common/images';
 import moment from 'moment';
+import images from '../common/images';
 
 export const normalizeMessage = (messages: Array<any>) => {
   return messages.map((msg, index) => {

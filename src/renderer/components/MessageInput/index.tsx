@@ -339,7 +339,9 @@ const MessageInput = ({
         setText('');
       } else if (valueTrimmed.substring(valueTrimmed.length - 4) === '</a>') {
         const lastIdx = getLastIndexOfMention(valueTrimmed);
-        if (lastIdx > 0) {
+        if (lastIdx === 0) {
+          setText('');
+        } else if (lastIdx > 0) {
           setText(valueTrimmed.substring(0, lastIdx));
         } else {
           setText(valueTrimmed);
