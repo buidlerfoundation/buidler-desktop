@@ -131,6 +131,7 @@ const ModalSpaceSetting = ({
               contract_address: spaceData.condition?.address,
               amount:
                 spaceData.condition?.amount || spaceData.condition?.amountInput,
+              token_type: spaceData.condition?.token_type,
             },
           ];
         }

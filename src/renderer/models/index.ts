@@ -20,6 +20,7 @@ export type CreateSpaceData = {
     network: string;
     name: string;
     image_url: string;
+    token_type: string;
   };
 };
 

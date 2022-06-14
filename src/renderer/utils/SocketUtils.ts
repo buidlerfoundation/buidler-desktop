@@ -489,19 +489,19 @@ class SocketUtil {
         payload: {
           id: attachment_id,
           reactName: emoji_id,
-          userId: user_id,
-          isReacted: userData.user_id === user_id,
+          mine: userData.user_id === user_id,
         },
       });
     });
     this.socket.on('ON_REACTION_REMOVED', (data: any) => {
       const { attachment_id, emoji_id, user_id } = data.reaction_data;
+      const userData = store.getState()?.user?.userData;
       store.dispatch({
         type: actionTypes.REMOVE_REACT,
         payload: {
           id: attachment_id,
           reactName: emoji_id,
-          userId: user_id,
+          mine: userData.user_id === user_id,
         },
       });
     });

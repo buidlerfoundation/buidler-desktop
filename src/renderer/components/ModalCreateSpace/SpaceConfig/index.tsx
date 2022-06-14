@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { SpaceBadge } from 'renderer/common/AppConfig';
 import images from 'renderer/common/images';
 import AppInput from 'renderer/components/AppInput';
@@ -84,6 +84,7 @@ const SpaceConfig = ({
           network: selected?.network,
           name: selected?.name,
           image_url: selected?.image_url,
+          token_type: selected?.token_type,
         },
       }));
     },

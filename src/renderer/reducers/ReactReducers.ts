@@ -63,7 +63,7 @@ const reactReducers: Reducer<ReactReducerState, AnyAction> = (
       };
     }
     case actionTypes.ADD_REACT: {
-      const { id, reactName, userId, isReacted } = payload;
+      const { id, reactName, mine } = payload;
       const currentReact = state.reactData[id] || [];
       const currentIndex = currentReact.findIndex(
         (react) => react.reactName === reactName
@@ -73,14 +73,14 @@ const reactReducers: Reducer<ReactReducerState, AnyAction> = (
           reactName,
           count: currentReact[currentIndex].count + 1,
           skin: 1,
-          isReacted,
+          isReacted: currentReact[currentIndex].isReacted || mine,
         };
       } else {
         currentReact.push({
           reactName,
           count: 1,
           skin: 1,
-          isReacted,
+          isReacted: mine,
         });
       }
       return {
@@ -91,7 +91,7 @@ const reactReducers: Reducer<ReactReducerState, AnyAction> = (
       };
     }
     case actionTypes.REMOVE_REACT: {
-      const { id, reactName, userId } = payload;
+      const { id, reactName, mine } = payload;
       const currentReact = state.reactData[id] || [];
       const currentIndex = currentReact.findIndex(
         (react) => react.reactName === reactName
@@ -101,7 +101,7 @@ const reactReducers: Reducer<ReactReducerState, AnyAction> = (
           reactName,
           count: currentReact[currentIndex].count - 1,
           skin: 1,
-          isReacted: false,
+          isReacted: mine ? false : currentReact[currentIndex].isReacted,
         };
       }
       return {
