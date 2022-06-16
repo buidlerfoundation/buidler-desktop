@@ -144,14 +144,16 @@ const ModalSpaceDetail = ({
             {spaceCondition.map(renderNFTCondition)}
           </div>
         )}
-        <div className="space-description__wrap">
-          <div
-            className="space-description"
-            dangerouslySetInnerHTML={{
-              __html: normalizeMessageText(space?.space_description),
-            }}
-          />
-        </div>
+        {space?.space_description && (
+          <div className="space-description__wrap">
+            <div
+              className="space-description"
+              dangerouslySetInnerHTML={{
+                __html: normalizeMessageText(space?.space_description),
+              }}
+            />
+          </div>
+        )}
         {spaceMembers.length > 0 && (
           <div className="space-member__wrap">
             {spaceMembers.map(renderSpaceMember)}

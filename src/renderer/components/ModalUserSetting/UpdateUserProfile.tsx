@@ -1,14 +1,47 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import api from 'renderer/api';
 import images from 'renderer/common/images';
-import AppInput from '../AppInput';
 import Dropzone from 'react-dropzone';
 import { getUniqueId } from 'renderer/helpers/GenerateUUID';
 import { CircularProgress } from '@material-ui/core';
 import ImageHelper from 'renderer/common/ImageHelper';
+import { UserData } from 'renderer/models';
+import AppInput from '../AppInput';
+
+type NFTItemProps = {
+  item: any;
+  onUpdateNFT: (item: any) => void;
+};
+
+const NFTItem = ({ item, onUpdateNFT }: NFTItemProps) => {
+  const handleClick = useCallback(() => {
+    onUpdateNFT(item);
+  }, [item, onUpdateNFT]);
+  return (
+    <div className="normal-button" onClick={handleClick}>
+      <img src={item.image_thumbnail_url} alt="" className="ntf-avatar" />
+    </div>
+  );
+};
+
+type ENSItemProps = {
+  item: any;
+  onUpdateENS: (item: any) => void;
+};
+
+const ENSItem = ({ item, onUpdateENS }: ENSItemProps) => {
+  const handleClick = useCallback(() => {
+    onUpdateENS(item.name);
+  }, [item.name, onUpdateENS]);
+  return (
+    <div className="ens-item normal-button" onClick={handleClick}>
+      <span>{item.name}</span>
+    </div>
+  );
+};
 
 type UpdateUserProfileProps = {
-  user?: any;
+  user?: UserData;
   userData?: any;
   onUpdateNFT: (nft: any) => void;
   onUpdateENS: (ens: any) => void;
@@ -28,52 +61,89 @@ const UpdateUserProfile = ({
   collectibleData,
   setUploading,
 }: UpdateUserProfileProps) => {
-  const inputRef = useRef<any>();
+  const inputRef = useRef<HTMLInputElement>();
   const generateId = useRef<string>('');
   const [file, setFile] = useState<any>(null);
-  const avatar =
-    file?.attachment?.file ||
-    ImageHelper.normalizeImage(
-      userData?.nftAsset?.image_url || userData?.avatarUrl,
-      user?.user_id
-    );
-  const onAddFiles = (files: any) => {
-    if (files == null) return;
-    if (generateId.current === '') {
-      generateId.current = getUniqueId();
-    }
-    const data = [...files];
-    if (data.length === 0) return;
-    const f = data[0];
-    const attachment = {
-      file: URL.createObjectURL(f),
-      randomId: Math.random(),
-      loading: true,
-      type: f.type,
-    };
-    setUploading(true);
-    setFile({ attachment, loading: true });
-    api.uploadFile(undefined, user?.user_id, f).then((res) => {
-      if (res.statusCode === 200) {
-        onUpdateAvatar(res.file_url);
-        setFile({ attachment, loading: false, url: res.file_url });
-      } else {
-        setFile(null);
+  const avatar = useMemo(
+    () =>
+      file?.attachment?.file ||
+      ImageHelper.normalizeImage(
+        userData?.nftAsset?.image_url || userData?.avatarUrl,
+        user?.user_id
+      ),
+    [
+      file?.attachment?.file,
+      user?.user_id,
+      userData?.avatarUrl,
+      userData?.nftAsset?.image_url,
+    ]
+  );
+  const handleAvatarClick = useCallback(() => inputRef.current?.click(), []);
+  const handleUpdateNFT = useCallback(
+    (item) => {
+      setFile(null);
+      onUpdateAvatar('');
+      onUpdateNFT(item);
+    },
+    [onUpdateAvatar, onUpdateNFT]
+  );
+  const handleClearENS = useCallback(() => onUpdateENS(null), [onUpdateENS]);
+  const handleChangeName = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (userData.ensAsset) {
+        onUpdateENS(null);
       }
-      setUploading(false);
-      return null;
-    });
-  };
+      onUpdateUserName(e.target.value);
+    },
+    [onUpdateENS, onUpdateUserName, userData.ensAsset]
+  );
+  const onAddFiles = useCallback(
+    (files: any) => {
+      if (files == null) return;
+      if (generateId.current === '') {
+        generateId.current = getUniqueId();
+      }
+      const data = [...files];
+      if (data.length === 0) return;
+      const f = data[0];
+      const attachment = {
+        file: URL.createObjectURL(f),
+        randomId: Math.random(),
+        loading: true,
+        type: f.type,
+      };
+      setUploading(true);
+      setFile({ attachment, loading: true });
+      api
+        .uploadFile(undefined, user?.user_id, f)
+        .then((res) => {
+          if (res.statusCode === 200) {
+            onUpdateAvatar(res.file_url);
+            setFile({ attachment, loading: false, url: res.file_url });
+          } else {
+            setFile(null);
+          }
+          setUploading(false);
+          return null;
+        })
+        .catch((err) => console.log(err));
+    },
+    [onUpdateAvatar, setUploading, user?.user_id]
+  );
+  const handleChangeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onAddFiles(e.target.files);
+      e.target.value = null;
+    },
+    [onAddFiles]
+  );
   return (
     <Dropzone onDrop={onAddFiles} multiple={false}>
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
           <span className="modal-label">User Profile</span>
           <div className="setting-avatar-view">
-            <div
-              className="user-avatar__wrapper"
-              onClick={() => inputRef.current?.click()}
-            >
+            <div className="user-avatar__wrapper" onClick={handleAvatarClick}>
               {avatar ? (
                 <img className="user-avatar" src={avatar} alt="" />
               ) : (
@@ -93,21 +163,11 @@ const UpdateUserProfile = ({
                 </span>
                 <div className="nft-view">
                   {collectibleData.nft.map((el: any) => (
-                    <div
-                      className="normal-button"
-                      onClick={() => {
-                        setFile(null);
-                        onUpdateAvatar('');
-                        onUpdateNFT(el);
-                      }}
+                    <NFTItem
+                      item={el}
                       key={el.token_id}
-                    >
-                      <img
-                        src={el.image_thumbnail_url}
-                        alt=""
-                        className="ntf-avatar"
-                      />
-                    </div>
+                      onUpdateNFT={handleUpdateNFT}
+                    />
                   ))}
                 </div>
               </div>
@@ -122,7 +182,7 @@ const UpdateUserProfile = ({
                 <span className="ens-user-name">{userData.ensAsset}</span>
                 <div
                   className="normal-button icon-clear"
-                  onClick={() => onUpdateENS(null)}
+                  onClick={handleClearENS}
                 >
                   <img src={images.icCircleClose} alt="" />
                 </div>
@@ -131,12 +191,7 @@ const UpdateUserProfile = ({
               <AppInput
                 className="app-input-highlight"
                 placeholder="Enter your name"
-                onChange={(e) => {
-                  if (userData.ensAsset) {
-                    onUpdateENS(null);
-                  }
-                  onUpdateUserName(e.target.value);
-                }}
+                onChange={handleChangeName}
                 value={userData?.userName}
               />
             )}
@@ -144,15 +199,11 @@ const UpdateUserProfile = ({
               <>
                 <div className="ens-view">
                   {collectibleData.ens.map((el: any) => (
-                    <div
-                      className="ens-item normal-button"
-                      onClick={() => {
-                        onUpdateENS(el.name);
-                      }}
-                      key={el.token_id}
-                    >
-                      <span>{el.name}</span>
-                    </div>
+                    <ENSItem
+                      item={el}
+                      key={el.name}
+                      onUpdateENS={onUpdateENS}
+                    />
                   ))}
                 </div>
                 <span className="ens-description">
@@ -165,10 +216,7 @@ const UpdateUserProfile = ({
             {...getInputProps()}
             ref={inputRef}
             accept="image/*"
-            onChange={(e: any) => {
-              onAddFiles(e.target.files);
-              e.target.value = null;
-            }}
+            onChange={handleChangeFile}
           />
         </div>
       )}

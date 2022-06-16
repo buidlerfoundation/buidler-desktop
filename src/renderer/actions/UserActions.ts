@@ -496,9 +496,7 @@ export const updateUser = (userData: any) => async (dispatch: Dispatch) => {
   };
   try {
     const res = await api.updateUser(dataUpdate);
-    if (res.statusCode === 200) {
-      dispatch({ type: ActionTypes.UPDATE_USER_SUCCESS, payload: res });
-    } else {
+    if (res.statusCode !== 200) {
       dispatch({ type: ActionTypes.UPDATE_USER_FAIL, message: res.message });
     }
   } catch (error) {

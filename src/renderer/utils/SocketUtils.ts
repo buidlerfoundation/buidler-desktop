@@ -12,6 +12,7 @@ import {
 } from 'renderer/helpers/ChannelHelper';
 import { io } from 'socket.io-client';
 import { uniqBy } from 'lodash';
+import { UserData } from 'renderer/models';
 import { ethers, utils } from 'ethers';
 import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey, LoginType } from '../common/AppConfig';
@@ -232,6 +233,7 @@ class SocketUtil {
         this.socket.off('ON_DELETE_CHANNEL');
         this.socket.off('ON_UPDATE_SPACE');
         this.socket.off('ON_DELETE_SPACE');
+        this.socket.off('ON_USER_UPDATE_PROFILE');
         this.socket.off('disconnect');
       });
       const user: any = store.getState()?.user;
@@ -289,6 +291,12 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_USER_UPDATE_PROFILE', (data: UserData) => {
+      store.dispatch({
+        type: actionTypes.UPDATE_USER_SUCCESS,
+        payload: data,
+      });
+    });
     this.socket.on('ON_DELETE_SPACE', (data: any) => {
       store.dispatch({
         type: actionTypes.DELETE_GROUP_CHANNEL_SUCCESS,
