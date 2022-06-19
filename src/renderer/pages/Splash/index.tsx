@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import './index.scss';
 import { getCookie } from '../../common/Cookie';
 import { AsyncKey } from '../../common/AppConfig';
-import HomeLoading from '../../components/HomeLoading';
+import HomeLoading from '../../shared/HomeLoading';
 
 const Splash = () => {
   const history = useHistory();

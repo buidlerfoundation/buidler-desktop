@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createTeam, findTeamAndChannel } from 'renderer/actions/UserActions';
-import ModalTeam from '../../../../components/ModalTeam';
-import NormalButton from '../../../../components/NormalButton';
+import ModalTeam from '../../../../shared/ModalTeam';
+import NormalButton from '../../../../shared/NormalButton';
 import './index.scss';
 
 const EmptyView = () => {

@@ -9,7 +9,7 @@ import Home from '../Home';
 import { AsyncKey } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
 import Splash from '../Splash';
-import AppTitleBar from '../../components/AppTitleBar';
+import AppTitleBar from '../../shared/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
 

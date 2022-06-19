@@ -23,6 +23,7 @@ module.exports = {
     'jsx-a11y/no-autofocus': 'off',
     'no-cond-assign': 'off',
     'react/no-danger': 'off',
+    'prettier/prettier': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

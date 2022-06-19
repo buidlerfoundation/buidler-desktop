@@ -8,7 +8,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core';
 import Main from './pages/Main';
-import AppToastNotification from './components/AppToastNotification';
+import AppToastNotification from './shared/AppToastNotification';
 import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
 import WalletConnectUtils from './services/connectors/WalletConnectUtils';

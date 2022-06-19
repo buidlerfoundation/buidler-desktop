@@ -1,6 +1,6 @@
 import React from 'react';
-import images from '../../../../common/images';
-import TaskDetailField from './components/TaskDetailField';
+import images from 'renderer/common/images';
+import TaskDetailField from 'renderer/shared/TaskDetailField';
 import './index.scss';
 import { TaskDetailUIConfigures } from './UIConfigures';
 

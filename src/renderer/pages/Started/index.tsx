@@ -14,8 +14,8 @@ import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import toast from 'react-hot-toast';
 import images from '../../common/images';
-import ModalCreatePassword from '../../components/ModalCreatePassword';
-import ModalImportSeedPhrase from '../../components/ModalImportSeedPhrase';
+import ModalCreatePassword from '../../shared/ModalCreatePassword';
+import ModalImportSeedPhrase from '../../shared/ModalImportSeedPhrase';
 
 const Started = () => {
   const dispatch = useDispatch();
