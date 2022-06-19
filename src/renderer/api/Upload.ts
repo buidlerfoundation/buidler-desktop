@@ -1,4 +1,6 @@
+import { FileApiData } from 'renderer/models';
 import ApiCaller from './ApiCaller';
+import Caller from './Caller';
 
 export const uploadFile = (
   teamId?: string,
@@ -13,7 +15,7 @@ export const uploadFile = (
     data.append('attachment_id', attachmentId);
   }
   data.append('file', file);
-  return ApiCaller.post(`file`, data);
+  return Caller.post<FileApiData>(`file`, data);
 };
 
 export const removeFile = (fileId: string) =>
