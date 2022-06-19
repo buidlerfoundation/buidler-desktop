@@ -45,7 +45,7 @@ export const verifyNonce = (nonce: string, signature: string) =>
   ApiCaller.post('user', { nonce, signature });
 
 export const getCollectibles = (page = 1, limit = 10) => {
-  return ApiCaller.get(`user/nft?page=${page}&limit=${limit}`);
+  return Caller.get<any>(`user/nft?page=${page}&limit=${limit}`);
 };
 
 export const updateUser = (data: any) => ApiCaller.put('user', data);
@@ -57,7 +57,7 @@ export const syncChannelKey = (data: any) =>
   ApiCaller.post('user/device/sync', data);
 
 export const acceptInvitation = (invitationId: string) =>
-  ApiCaller.post(`team/invitation/${invitationId}/accept`);
+  Caller.post<{ team_id: string }>(`team/invitation/${invitationId}/accept`);
 
 export const removeDevice = (body: any) =>
   ApiCaller.delete('user/device', body);

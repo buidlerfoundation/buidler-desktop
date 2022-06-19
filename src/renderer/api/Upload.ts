@@ -1,4 +1,4 @@
-import { FileApiData } from 'renderer/models';
+import { AttachmentData, FileApiData } from 'renderer/models';
 import ApiCaller from './ApiCaller';
 import Caller from './Caller';
 
@@ -22,7 +22,7 @@ export const removeFile = (fileId: string) =>
   ApiCaller.delete(`file/${fileId}`);
 
 export const getSpaceFile = (spaceId: string) =>
-  ApiCaller.get(`file/space/${spaceId}`);
+  Caller.get<Array<AttachmentData>>(`file/space/${spaceId}`);
 
 export const getChannelFile = (channelId: string) =>
-  ApiCaller.get(`file/channel/${channelId}`);
+  Caller.get<Array<AttachmentData>>(`file/channel/${channelId}`);

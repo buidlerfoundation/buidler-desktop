@@ -1,4 +1,5 @@
 import ApiCaller from './ApiCaller';
+import Caller from './Caller';
 
 // {
 //   "team_display_name": "Today",
@@ -12,7 +13,7 @@ export const getTeamUsers = (teamId: string) =>
   ApiCaller.get(`team/${teamId}/members`);
 
 export const invitation = (teamId: string) =>
-  ApiCaller.post(`team/invitation/${teamId}/members`);
+  Caller.post<{ invitation_url: string }>(`team/invitation/${teamId}/members`);
 
 export const updateTeam = (teamId: string, body: any) =>
   ApiCaller.put(`team/${teamId}`, body);

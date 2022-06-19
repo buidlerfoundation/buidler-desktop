@@ -292,9 +292,9 @@ export const uploadChannelAvatar =
     });
     const fileRes = await api.uploadFile(teamId, channelId, file);
     if (fileRes.statusCode === 200) {
-      const res = await api.updateChannel(channelId, {
+      await api.updateChannel(channelId, {
         channel_emoji: '',
-        channel_image_url: fileRes.file_url,
+        channel_image_url: fileRes.data?.file_url,
       });
     } else {
       dispatch({
@@ -318,11 +318,11 @@ export const uploadSpaceAvatar =
     });
     const fileRes = await api.uploadFile(teamId, spaceId, file);
     if (fileRes.statusCode === 200) {
-      const url = ImageHelper.normalizeImage(fileRes.file_url, teamId);
+      const url = ImageHelper.normalizeImage(fileRes.data?.file_url, teamId);
       const colorAverage = await getSpaceBackgroundColor(url);
       await api.updateSpaceChannel(spaceId, {
         space_emoji: '',
-        space_image_url: fileRes.file_url,
+        space_image_url: fileRes.data?.file_url,
         space_background_color: colorAverage,
       });
     } else {
