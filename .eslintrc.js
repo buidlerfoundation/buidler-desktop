@@ -24,6 +24,7 @@ module.exports = {
     'no-cond-assign': 'off',
     'react/no-danger': 'off',
     'prettier/prettier': 'off',
+    'import/order': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
