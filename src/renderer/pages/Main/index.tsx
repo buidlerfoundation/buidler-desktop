@@ -33,10 +33,10 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
-        if (!res) {
-          history.replace('/started');
-        } else {
+        if (typeof res === 'string' && !!res) {
           initApp();
+        } else {
+          history.replace('/started');
         }
       })
       .catch(() => {

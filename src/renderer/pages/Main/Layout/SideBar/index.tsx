@@ -16,7 +16,7 @@ import { Space } from 'renderer/models';
 import { useDispatch } from 'react-redux';
 import SpaceItem from 'renderer/shared/SpaceItem';
 import MemberSpace from 'renderer/shared/MemberSpace';
-import { findTeamAndChannel, findUser } from 'renderer/actions/UserActions';
+import { findTeamAndChannel } from 'renderer/actions/UserActions';
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import actionTypes from 'renderer/actions/ActionTypes';
 import PopoverButton from 'renderer/shared/PopoverButton';
@@ -88,11 +88,6 @@ const SideBar = forwardRef(
         dispatch(findTeamAndChannel());
       }
     }, [team, errorTeam, dispatch, userData?.user_id]);
-    useEffect(() => {
-      if (!userData) {
-        dispatch(findUser());
-      }
-    }, [userData, dispatch]);
     useImperativeHandle(ref, () => {
       return {
         scrollToBottom: () => {
