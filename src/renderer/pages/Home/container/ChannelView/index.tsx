@@ -143,8 +143,8 @@ const ChannelView = forwardRef(
                   newAttachments[index] = {
                     ...newAttachments[index],
                     loading: false,
-                    url: res.file_url,
-                    id: res.file.file_id,
+                    url: res.data?.file_url,
+                    id: res.data?.file?.file_id,
                   };
                 } else {
                   newAttachments = newAttachments.filter(
