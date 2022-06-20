@@ -83,10 +83,7 @@ const configReducers: Reducer<ConfigReducerState, any> = (
       };
     }
     case actionTypes.LOGOUT: {
-      return {
-        privateKey: '',
-        seed: '',
-      };
+      return initialState;
     }
     default:
       return state;

@@ -84,10 +84,10 @@ const SideBar = forwardRef(
       return role === 'Owner';
     }, [teamUserData, userData?.user_id]);
     useEffect(() => {
-      if (team == null && errorTeam === '') {
+      if (!team && errorTeam === '' && !!userData?.user_id) {
         dispatch(findTeamAndChannel());
       }
-    }, [team, errorTeam, dispatch]);
+    }, [team, errorTeam, dispatch, userData?.user_id]);
     useEffect(() => {
       if (!userData) {
         dispatch(findUser());
