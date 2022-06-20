@@ -17,10 +17,12 @@ import {
   uniqChannelPrivateKey,
 } from 'renderer/helpers/ChannelHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
 
 const UnlockPrivateKey = () => {
+  const [isOpenConfirmLogout, setOpenConfirmLogout] = useState(false);
   const userData = useAppSelector((state) => state.user.userData);
   const history = useHistory();
   const [pass, setPass] = useState('');
@@ -94,6 +96,10 @@ const UnlockPrivateKey = () => {
       dispatch(logout());
     });
   }, [dispatch, history]);
+  const toggleModalLogout = useCallback(
+    () => setOpenConfirmLogout((current) => !current),
+    []
+  );
   if (!userData) return <div className="unlock-private-key__container" />;
   return (
     <div className="unlock-private-key__container">
@@ -125,9 +131,20 @@ const UnlockPrivateKey = () => {
           onKeyDown={handlePasswordKeyDown}
         />
       </div>
-      <div className="add-other-button normal-button" onClick={handleLogout}>
+      <div
+        className="add-other-button normal-button"
+        onClick={toggleModalLogout}
+      >
         <span>Logout</span>
       </div>
+      <ModalConfirmDelete
+        open={isOpenConfirmLogout}
+        handleClose={toggleModalLogout}
+        title="Logout"
+        description="Buidler will automatically remove all your data from this account if you log out. Are you sure you want to log out?"
+        onDelete={handleLogout}
+        contentDelete="Logout"
+      />
     </div>
   );
 };
