@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Switch, Route, useHistory } from 'react-router-dom';
 import AppListener from 'renderer/components/AppListener';
 import { useDispatch } from 'react-redux';
-import { getInitial } from 'renderer/actions/UserActions';
+import { findUser, getInitial } from 'renderer/actions/UserActions';
 import MainWrapper from './Layout';
 import Home from '../Home';
 import { AsyncKey } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
-import Splash from '../Splash';
 import AppTitleBar from '../../shared/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
+import useAppDispatch from 'renderer/hooks/useAppDispatch';
 
 interface PrivateRouteProps {
   component: any;
@@ -20,19 +20,30 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
+  const userData = useAppSelector((state) => state.user.userData);
+  const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(true);
   const history = useHistory();
+  const initApp = useCallback(async () => {
+    if (!userData?.user_id) {
+      await dispatch(findUser());
+    }
+    setLoading(false);
+  }, [dispatch, userData?.user_id]);
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
-        if (Object.keys(res || {}).length === 0) {
+        if (!res) {
           history.replace('/started');
+        } else {
+          initApp();
         }
-        return null;
       })
       .catch(() => {
         history.replace('/started');
       });
-  }, [history]);
+  }, [history, initApp]);
+  if (loading) return <div className="main-load-page" />;
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
@@ -51,8 +62,7 @@ const Main = () => {
       <AppListener />
       <MainWrapper>
         <Switch>
-          <Route exact path="/" component={Splash} />
-          <PrivateRoute exact path="/home" component={Home} />
+          <PrivateRoute exact path="/" component={Home} />
           <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
           <Route exact path="/started" component={Started} />
         </Switch>

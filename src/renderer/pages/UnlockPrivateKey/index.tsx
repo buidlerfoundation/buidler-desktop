@@ -79,7 +79,7 @@ const UnlockPrivateKey = () => {
               payload: privateKeyChannel,
             });
             await dispatch(findTeamAndChannel());
-            history.replace('/home');
+            history.replace('/');
           }
         } catch (error) {
           toast.error('Invalid Password');

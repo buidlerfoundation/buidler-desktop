@@ -43,7 +43,7 @@ const Started = () => {
       const res = await api.verifyNonce(nonce, signature);
       await setCookie(AsyncKey.accessTokenKey, res.token);
       await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
-      history.replace('/home');
+      history.replace('/');
     } catch (err) {
       console.log(err);
       WalletConnectUtils.connector.killSession();
@@ -130,7 +130,7 @@ const Started = () => {
             }
           }
           await setCookie(AsyncKey.loginType, LoginType.WalletImport);
-          history.replace('/home');
+          history.replace('/');
         }
       }
     },
