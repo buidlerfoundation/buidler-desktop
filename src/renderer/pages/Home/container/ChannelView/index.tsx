@@ -329,7 +329,6 @@ const ChannelView = forwardRef(
     useEffect(() => {
       const userId = location.search.split('user_id=')?.[1];
       const channelId = location.search.split('channel_id=')?.[1];
-      console.log('XXXX: ', location);
       onRemoveReply?.();
       if (userId) {
         const u = teamUserData.find((el) => el.user_id === userId);
