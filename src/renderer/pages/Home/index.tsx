@@ -9,7 +9,7 @@ import React, {
 import { useDispatch } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
-import PageWrapper from 'renderer/shared/PageWrapper';
+import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import { setCookie } from 'renderer/common/Cookie';
