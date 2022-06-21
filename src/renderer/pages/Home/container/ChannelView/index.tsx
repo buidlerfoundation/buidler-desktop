@@ -19,7 +19,6 @@ import {
 import { PopoverItem } from 'renderer/shared/PopoverButton';
 import { debounce } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
-import { useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { createTask } from 'renderer/actions/TaskActions';
 import {
@@ -27,7 +26,6 @@ import {
   onRemoveAttachment,
   setScrollData,
 } from 'renderer/actions/MessageActions';
-import { setCurrentChannel } from 'renderer/actions/UserActions';
 import {
   createMemberChannelData,
   encryptMessage,
@@ -69,7 +67,6 @@ type ChannelViewProps = {
   isOpenConversation: boolean;
   onSelectTask: (task: any) => void;
   teamUserData: Array<any>;
-  channel?: any;
 };
 
 const ChannelView = forwardRef(
@@ -89,7 +86,6 @@ const ChannelView = forwardRef(
       openTaskView,
       onSelectTask,
       teamUserData,
-      channel,
       isOpenConversation,
     }: ChannelViewProps,
     ref
@@ -103,7 +99,6 @@ const ChannelView = forwardRef(
     const channelPrivateKey = useAppSelector(
       (state) => state.configs.channelPrivateKey
     );
-    const location = useLocation();
     const [messageReply, setMessageReply] = useState<MessageData>(null);
     const [messageEdit, setMessageEdit] = useState<MessageData>(null);
     const [isScrolling, setScrolling] = useState(false);
@@ -326,38 +321,6 @@ const ChannelView = forwardRef(
     const onCircleClick = useCallback(() => {
       openFile();
     }, [openFile]);
-    useEffect(() => {
-      const userId = location.search.split('user_id=')?.[1];
-      const channelId = location.search.split('channel_id=')?.[1];
-      onRemoveReply?.();
-      if (userId) {
-        const u = teamUserData.find((el) => el.user_id === userId);
-        if (u) {
-          const directChannel = channel.find(
-            (c: any) => c?.channel_id === u.direct_channel
-          );
-          dispatch(
-            setCurrentChannel?.({
-              channel_id: u.direct_channel || '',
-              channel_name: '',
-              channel_type: 'Direct',
-              user: u,
-              notification_type: directChannel?.notification_type || 'Alert',
-              channel_member: directChannel?.channel_member || [],
-            })
-          );
-        }
-      } else if (
-        channelId &&
-        !!channel.find((c: any) => c?.channel_id === channelId)
-      ) {
-        dispatch(
-          setCurrentChannel?.(
-            channel.find((c: any) => c?.channel_id === channelId)
-          )
-        );
-      }
-    }, [location]);
     useEffect(() => {
       const keyDownListener = (e: any) => {
         if (e.key === 'Escape') {

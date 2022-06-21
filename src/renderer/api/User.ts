@@ -1,5 +1,9 @@
 import { getDeviceCode } from 'renderer/common/Cookie';
-import { SpaceCollectionData, UserNFTCollection } from 'renderer/models';
+import {
+  SpaceCollectionData,
+  UserData,
+  UserNFTCollection,
+} from 'renderer/models';
 import ApiCaller from './ApiCaller';
 import Caller from './Caller';
 
@@ -7,7 +11,7 @@ export const loginWithGoogle = (code: string) =>
   ApiCaller.post('user', { code });
 
 export const findUser = async () => {
-  return ApiCaller.get('user');
+  return Caller.get<UserData>('user');
 };
 
 export const findTeam = () => ApiCaller.get('user/team');

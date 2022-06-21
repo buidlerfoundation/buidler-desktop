@@ -47,7 +47,7 @@ export const findUser = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.USER_REQUEST });
   const res = await api.findUser();
   if (res.statusCode === 200) {
-    dispatch({ type: ActionTypes.USER_SUCCESS, payload: { user: res } });
+    dispatch({ type: ActionTypes.USER_SUCCESS, payload: { user: res.data } });
   } else {
     dispatch({ type: ActionTypes.USER_FAIL });
   }
