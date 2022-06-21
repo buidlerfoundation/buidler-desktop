@@ -537,7 +537,7 @@ const Home = () => {
         setCurrentChannel?.(channels.find((c) => c?.channel_id === channelId))
       );
     }
-  }, [channels, dispatch, location.search, teamUserData]);
+  }, [dispatch, location.search, teamUserData]);
   useEffect(() => {
     if (dataFromUrl) handleDataFromUrl();
   }, [dataFromUrl, handleDataFromUrl]);
@@ -683,7 +683,6 @@ const Home = () => {
                   openTaskView={openTaskView}
                   onSelectTask={openTaskDetail}
                   isOpenConversation={openConversation}
-                  channel={channels}
                   teamUserData={teamUserData}
                 />
                 {currentChannel.channel_type !== 'Direct' && (
