@@ -1,5 +1,6 @@
 import { getDeviceCode } from 'renderer/common/Cookie';
 import {
+  Channel,
   SpaceCollectionData,
   UserData,
   UserNFTCollection,
@@ -23,7 +24,7 @@ export const getSpaceChannel = (teamId: string) =>
   ApiCaller.get(`space/${teamId}`);
 
 export const findChannel = (teamId: string) =>
-  ApiCaller.get(`channel/${teamId}`);
+  Caller.get<Array<Channel>>(`channel/${teamId}`);
 
 export const getInitial = () => ApiCaller.get(`initial`);
 

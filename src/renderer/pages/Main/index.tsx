@@ -47,6 +47,14 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
+const RedirectToHome = () => {
+  const history = useHistory();
+  useEffect(() => {
+    history.replace('/channels');
+  }, [history]);
+  return null;
+};
+
 const Main = () => {
   const imgDomain = useAppSelector((state) => state.user.imgDomain);
   const dispatch = useDispatch();
@@ -62,7 +70,9 @@ const Main = () => {
       <AppListener />
       <MainWrapper>
         <Switch>
-          <PrivateRoute exact path="/" component={Home} />
+          <PrivateRoute exact path="/" component={RedirectToHome} />
+          <PrivateRoute exact path="/channels/:match_id" component={Home} />
+          <PrivateRoute exact path="/channels" component={Home} />
           <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
           <Route exact path="/started" component={Started} />
         </Switch>

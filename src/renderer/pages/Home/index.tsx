@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
 import { setCookie } from 'renderer/common/Cookie';
 import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
@@ -88,7 +88,8 @@ const filterTask: Array<PopoverItem> = [
 ];
 
 const Home = () => {
-  const location = useLocation();
+  const match = useRouteMatch<{ match_id?: string }>();
+  const matchId = match.params?.match_id;
   const dispatch = useDispatch();
   const loadMoreMessage = useAppSelector((state) =>
     loadMoreMessageSelector(state)
@@ -509,35 +510,31 @@ const Home = () => {
     }
   }, [dataFromUrl, dispatch]);
   useEffect(() => {
-    const userId = location.search.split('user_id=')?.[1];
-    const channelId = location.search.split('channel_id=')?.[1];
-    channelViewRef.current?.hideReply?.();
-    if (userId) {
-      const u = teamUserData.find((el) => el.user_id === userId);
-      if (u) {
-        const directChannel = channels.find(
-          (c) => c?.channel_id === u.direct_channel
-        );
-        dispatch(
-          setCurrentChannel?.({
-            channel_id: u.direct_channel || '',
-            channel_name: '',
-            channel_type: 'Direct',
-            user: u,
-            notification_type: directChannel?.notification_type || 'Alert',
-            channel_member: directChannel?.channel_member || [],
-          })
-        );
+    if (matchId) {
+      const matchChannel = channels.find((c) => c.channel_id === matchId);
+      channelViewRef.current?.hideReply?.();
+      if (matchChannel) {
+        dispatch(setCurrentChannel?.(matchChannel));
+      } else {
+        const u = teamUserData.find((el) => el.user_id === matchId);
+        if (u) {
+          const directChannel = channels.find(
+            (c) => c?.channel_id === u.direct_channel
+          );
+          dispatch(
+            setCurrentChannel?.({
+              channel_id: u.direct_channel || '',
+              channel_name: '',
+              channel_type: 'Direct',
+              user: u,
+              notification_type: directChannel?.notification_type || 'Alert',
+              channel_member: directChannel?.channel_member || [],
+            })
+          );
+        }
       }
-    } else if (
-      channelId &&
-      !!channels.find((c) => c?.channel_id === channelId)
-    ) {
-      dispatch(
-        setCurrentChannel?.(channels.find((c) => c?.channel_id === channelId))
-      );
     }
-  }, [dispatch, location.search, teamUserData]);
+  }, [dispatch, matchId, teamUserData]);
   useEffect(() => {
     if (dataFromUrl) handleDataFromUrl();
   }, [dataFromUrl, handleDataFromUrl]);
