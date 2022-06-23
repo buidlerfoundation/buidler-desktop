@@ -340,7 +340,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
           [state?.currentTeam?.team_id]: payload.channel,
         },
         channel:
-          payload.channel.channel_type === 'Direct'
+          payload.channel?.channel_type === 'Direct'
             ? state.channel.map((c) => {
                 if (c.channel_id === payload.channel.channel_id) {
                   c.seen = true;

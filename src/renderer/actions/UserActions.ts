@@ -68,13 +68,11 @@ export const dragChannel =
   };
 
 export const findTeamAndChannel =
-  (showLoading = true) =>
-  async (dispatch: Dispatch) => {
-    if (showLoading) {
-      dispatch({ type: ActionTypes.TEAM_REQUEST });
-    }
+  (initCommunityId?: string) => async (dispatch: Dispatch) => {
+    dispatch({ type: ActionTypes.TEAM_REQUEST });
     const res = await api.findTeam();
-    const lastTeamId = await getCookie(AsyncKey.lastTeamId);
+    const lastTeamId =
+      initCommunityId || (await getCookie(AsyncKey.lastTeamId));
     if (res.statusCode === 200) {
       if (res.data.length > 0) {
         const currentTeam =
@@ -90,16 +88,6 @@ export const findTeamAndChannel =
         const resChannel = await api.findChannel(teamId);
         const lastChannelId = await getCookie(AsyncKey.lastChannelId);
         const teamUsersRes = await api.getTeamUsers(currentTeam.team_id);
-        // const teamActivityRes = await api.getTeamActivity(currentTeam.team_id);
-        // if (teamActivityRes.statusCode === 200) {
-        //   dispatch({
-        //     type: ActionTypes.GET_TEAM_ACTIVITY,
-        //     payload: {
-        //       teamId: currentTeam.team_id,
-        //       activity: teamActivityRes.data,
-        //     },
-        //   });
-        // }
         if (teamUsersRes.statusCode === 200) {
           dispatch({
             type: ActionTypes.GET_TEAM_USER,

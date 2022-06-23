@@ -219,6 +219,12 @@ a {
   background-color: var(--color-backdrop);
 }
 
+.normal-modal {
+  display: flex;
+  justify-content: center;
+  padding-top: 200px;
+}
+
 .setting-modal {
   display: flex;
   justify-content: center;

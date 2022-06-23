@@ -6,7 +6,6 @@ import React, {
   useMemo,
   memo,
 } from 'react';
-import { useDispatch } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
@@ -67,6 +66,7 @@ import ModalConfirmDeleteChannel from '../../shared/ModalConfirmDeleteChannel';
 import ModalInviteMember from '../../shared/ModalInviteMember';
 import api from '../../api';
 import EmptyView from './container/EmptyView';
+import useAppDispatch from 'renderer/hooks/useAppDispatch';
 
 const loadingSelector = createLoadingSelector([
   actionTypes.TEAM_PREFIX,
@@ -88,9 +88,12 @@ const filterTask: Array<PopoverItem> = [
 ];
 
 const Home = () => {
-  const match = useRouteMatch<{ match_id?: string }>();
-  const matchId = match.params?.match_id;
-  const dispatch = useDispatch();
+  const match = useRouteMatch<{
+    match_channel_id?: string;
+    match_community_id?: string;
+  }>();
+  const { match_channel_id, match_community_id } = match.params;
+  const dispatch = useAppDispatch();
   const loadMoreMessage = useAppSelector((state) =>
     loadMoreMessageSelector(state)
   );
@@ -510,13 +513,9 @@ const Home = () => {
     }
   }, [dataFromUrl, dispatch]);
   useEffect(() => {
-    if (matchId) {
-      const matchChannel = channels.find((c) => c.channel_id === matchId);
-      channelViewRef.current?.hideReply?.();
-      if (matchChannel) {
-        dispatch(setCurrentChannel?.(matchChannel));
-      } else {
-        const u = teamUserData.find((el) => el.user_id === matchId);
+    if (match_channel_id) {
+      if (match_community_id === 'user') {
+        const u = teamUserData.find((el) => el.user_id === match_channel_id);
         if (u) {
           const directChannel = channels.find(
             (c) => c?.channel_id === u.direct_channel
@@ -532,29 +531,54 @@ const Home = () => {
             })
           );
         }
+      } else {
+        const matchChannel = channels.find(
+          (c) => c.channel_id === match_channel_id
+        );
+        channelViewRef.current?.hideReply?.();
+        if (
+          matchChannel &&
+          matchChannel?.channel_id !== currentChannel?.channel_id
+        ) {
+          dispatch(setCurrentChannel?.(matchChannel));
+        }
       }
     }
-  }, [dispatch, matchId, teamUserData]);
+  }, [
+    currentChannel?.channel_id,
+    dispatch,
+    match_channel_id,
+    match_community_id,
+  ]);
   useEffect(() => {
     if (dataFromUrl) handleDataFromUrl();
   }, [dataFromUrl, handleDataFromUrl]);
   useEffect(() => {
+    setOpenTask(false);
+    if (currentChannel?.user) {
+      dispatch(
+        getTaskFromUser(
+          currentChannel.user.user_id,
+          currentChannel.channel_id || currentChannel.user.user_id,
+          currentTeam?.team_id
+        )
+      );
+    } else if (currentChannel?.channel_id) {
+      console.log('YYY: Load Task');
+      dispatch(getTasks(currentChannel?.channel_id));
+    }
+  }, [
+    currentChannel?.channel_id,
+    currentChannel?.user,
+    currentTeam?.team_id,
+    dispatch,
+  ]);
+  useEffect(() => {
     setOpenConversation(false);
     inputRef.current?.focus();
     if (currentChannel?.channel_id || currentChannel?.user) {
-      setOpenTask(false);
-      if (currentChannel?.user) {
-        dispatch(
-          getTaskFromUser(
-            currentChannel.user.user_id,
-            currentChannel.channel_id || currentChannel.user.user_id,
-            currentTeam?.team_id
-          )
-        );
-      } else {
-        dispatch(getTasks(currentChannel.channel_id));
-      }
       if (currentChannel.channel_id && privateKey) {
+        console.log('XXX: Load Message');
         dispatch(
           getMessages(
             currentChannel.channel_id,
