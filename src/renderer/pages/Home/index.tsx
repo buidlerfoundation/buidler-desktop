@@ -564,7 +564,6 @@ const Home = () => {
         )
       );
     } else if (currentChannel?.channel_id) {
-      console.log('YYY: Load Task');
       dispatch(getTasks(currentChannel?.channel_id));
     }
   }, [
@@ -578,7 +577,6 @@ const Home = () => {
     inputRef.current?.focus();
     if (currentChannel?.channel_id || currentChannel?.user) {
       if (currentChannel.channel_id && privateKey) {
-        console.log('XXX: Load Message');
         dispatch(
           getMessages(
             currentChannel.channel_id,
@@ -683,7 +681,7 @@ const Home = () => {
           />
 
           <div className="home-body">
-            {team?.length > 0 ? (
+            {team?.length > 0 && (
               <>
                 <ChannelView
                   ref={channelViewRef}
@@ -727,8 +725,6 @@ const Home = () => {
                   />
                 )}
               </>
-            ) : (
-              <EmptyView />
             )}
           </div>
           <ModalSpaceDetail

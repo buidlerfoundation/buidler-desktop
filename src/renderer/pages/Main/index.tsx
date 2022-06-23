@@ -31,10 +31,8 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const team = useAppSelector((state) => state.user.team);
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
   const history = useHistory();
   const initApp = useCallback(async () => {
-    setLoading(true);
     if (!userData?.user_id) {
       await dispatch(findUser());
       await dispatch(findTeamAndChannel(match_community_id));
@@ -45,11 +43,10 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       const matchCommunity = team?.find(
         (t) => t.team_id === match_community_id
       );
-      if (matchCommunity) {
+      if (matchCommunity && matchCommunity?.team_id !== currentTeam?.team_id) {
         await dispatch(setCurrentTeam(matchCommunity));
       }
     }
-    setLoading(false);
   }, [
     currentTeam?.team_id,
     dispatch,
@@ -70,7 +67,6 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
         history.replace('/started');
       });
   }, [history, initApp]);
-  if (loading) return <div className="main-load-page" />;
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
