@@ -11,7 +11,7 @@ import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
-import { setCookie } from 'renderer/common/Cookie';
+import { getCookie, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/shared/ModalOTP';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
@@ -65,8 +65,8 @@ import ModalConfirmDeleteGroupChannel from '../../shared/ModalConfirmDeleteGroup
 import ModalConfirmDeleteChannel from '../../shared/ModalConfirmDeleteChannel';
 import ModalInviteMember from '../../shared/ModalInviteMember';
 import api from '../../api';
-import EmptyView from './container/EmptyView';
 import useAppDispatch from 'renderer/hooks/useAppDispatch';
+import ModalUserProfile from 'renderer/shared/ModalUserProfile';
 
 const loadingSelector = createLoadingSelector([
   actionTypes.TEAM_PREFIX,
@@ -93,6 +93,7 @@ const Home = () => {
     match_community_id?: string;
   }>();
   const { match_channel_id, match_community_id } = match.params;
+  const [currentUserId, setCurrentUserId] = useState('');
   const dispatch = useAppDispatch();
   const loadMoreMessage = useAppSelector((state) =>
     loadMoreMessageSelector(state)
@@ -493,6 +494,10 @@ const Home = () => {
   const handleCloseModalConfirmDeleteSpace = useCallback(() => {
     setOpenConfirmDeleteSpace(false);
   }, []);
+  const handleCloseModalUserProfile = useCallback(async () => {
+    const lastChannelId = await getCookie(AsyncKey.lastChannelId);
+    history.replace(`/channels/${currentTeam.team_id}/${lastChannelId}`);
+  }, [currentTeam?.team_id, history]);
   const handleDeleteSpace = useCallback(async () => {
     if (!selectedSpace?.space_id) return;
     await dispatch(deleteSpaceChannel(selectedSpace?.space_id));
@@ -515,36 +520,20 @@ const Home = () => {
   useEffect(() => {
     if (match_channel_id) {
       if (match_community_id === 'user') {
-        const u = teamUserData.find((el) => el.user_id === match_channel_id);
-        if (u) {
-          const directChannel = channels.find(
-            (c) => c?.channel_id === u.direct_channel
-          );
-          dispatch(
-            setCurrentChannel?.({
-              channel_id: u.direct_channel || '',
-              channel_name: '',
-              channel_type: 'Direct',
-              user: u,
-              notification_type: directChannel?.notification_type || 'Alert',
-              channel_member: directChannel?.channel_member || [],
-            })
-          );
-        }
+        setCurrentUserId(match_channel_id);
       } else {
         const matchChannel = channels.find(
           (c) => c.channel_id === match_channel_id
         );
         channelViewRef.current?.hideReply?.();
-        if (
-          matchChannel &&
-          matchChannel?.channel_id !== currentChannel?.channel_id
-        ) {
+        if (matchChannel) {
+          setCurrentUserId('');
           dispatch(setCurrentChannel?.(matchChannel));
         }
       }
     }
   }, [
+    channels,
     currentChannel?.channel_id,
     dispatch,
     match_channel_id,
@@ -793,6 +782,11 @@ const Home = () => {
             spaceName={selectedSpace?.space_name}
             handleClose={handleCloseModalConfirmDeleteSpace}
             onDelete={handleDeleteSpace}
+          />
+          <ModalUserProfile
+            open={!!currentUserId}
+            handleClose={handleCloseModalUserProfile}
+            userId={currentUserId}
           />
         </div>
       </DragDropContext>

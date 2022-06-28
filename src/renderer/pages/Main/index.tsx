@@ -33,7 +33,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const dispatch = useAppDispatch();
   const history = useHistory();
   const initApp = useCallback(async () => {
-    if (!userData?.user_id) {
+    if (!userData.user_id) {
       await dispatch(findUser());
       await dispatch(findTeamAndChannel(match_community_id));
     } else if (
@@ -43,7 +43,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       const matchCommunity = team?.find(
         (t) => t.team_id === match_community_id
       );
-      if (matchCommunity && matchCommunity?.team_id !== currentTeam?.team_id) {
+      if (matchCommunity) {
         await dispatch(setCurrentTeam(matchCommunity));
       }
     }

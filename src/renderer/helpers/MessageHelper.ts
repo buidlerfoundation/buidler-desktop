@@ -59,7 +59,7 @@ export const normalizeMessageText = (text: string, isShowNote = false) => {
   });
   res = res?.replace?.(
     /\$mention_location/g,
-    `${window.location.origin}${window.location.pathname}/channels`
+    `${window.location.origin}/channels/user`
   );
   if (isShowNote) {
     return `<div style='display: flex; align-items: flex-start'><span class='enable-user-select'>${res}</span><img src='${images.icNote}' style='margin-left: 15px; margin-top: 7px' /></div>`;
@@ -69,17 +69,16 @@ export const normalizeMessageText = (text: string, isShowNote = false) => {
 
 export const getMentionData = (s: string) => {
   const mentionRegex =
-    /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/g;
+    /(<a href="\$mention_location\/\?*)(.*?)(" class="mention-string">)/g;
   const mentionMatches = s.match(mentionRegex);
   return mentionMatches?.map((el) => {
     const match =
-      /(<a href="\$mention_location\?)(.*?)(" class="mention-string">)/.exec(
+      /(<a href="\$mention_location\/\?*)(.*?)(" class="mention-string">)/.exec(
         el
       );
-    const split = match?.[2]?.split('=');
     return {
-      mention_id: split?.[1],
-      tag_type: split?.[0]?.includes('user') ? 'User' : 'Channel',
+      mention_id: match?.[2],
+      tag_type: 'User',
     };
   });
 };
