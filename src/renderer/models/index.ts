@@ -4,7 +4,7 @@ export type LocalAttachment = {
   type?: string;
 };
 
-export type SpaceType = "Public" | "Exclusive";
+export type SpaceType = 'Public' | 'Exclusive';
 
 export type CreateSpaceData = {
   spaceId?: string;
@@ -24,6 +24,7 @@ export type CreateSpaceData = {
     image_url?: string;
     token_type?: string;
   } | null;
+  isUpdateCondition?: boolean;
 };
 
 export interface UserNFTCollection {
@@ -36,6 +37,7 @@ export interface UserNFTCollection {
   external_url: string;
   symbol: string;
   network: string;
+  token_id: string;
 }
 
 export interface UserData {
@@ -50,6 +52,8 @@ export interface UserData {
   status?: string;
   direct_channel?: string;
   user_channels?: Array<string>;
+  user_bio?: string;
+  spaces?: Array<Space>;
 }
 
 export interface Channel {
@@ -58,7 +62,7 @@ export interface Channel {
   channel_image_url?: string;
   channel_member: Array<string>;
   channel_name: string;
-  channel_type: "Public" | "Private" | "Direct";
+  channel_type: 'Public' | 'Private' | 'Direct';
   notification_type: string;
   seen: boolean;
   space?: Space;
@@ -75,7 +79,7 @@ export interface Space {
   space_id: string;
   space_image_url?: string;
   space_name: string;
-  space_type: "Public" | "Private";
+  space_type: 'Public' | 'Private';
   team_id?: string;
   space_description?: string;
   icon_color?: string;
@@ -83,6 +87,7 @@ export interface Space {
   attachment?: LocalAttachment;
   space_background_color?: string;
   channels: Array<Channel>;
+  is_space_member: boolean;
 }
 
 export interface Community {
@@ -102,6 +107,7 @@ export interface NFTCollection {
   external_url: string;
   symbol: string;
   network: string;
+  slug: string;
 }
 
 export interface SpaceCollectionData {
@@ -111,7 +117,8 @@ export interface SpaceCollectionData {
   token_type: string;
   network: string;
   amount: number;
-  nft_collection: NFTCollection;
+  nft_collection?: NFTCollection;
+  token_contract?: Contract;
 }
 
 export interface SettingItem {
@@ -183,7 +190,7 @@ export interface TaskData {
   creator_id: string;
   notes: string;
   reaction_data: Array<ReactionData>;
-  status: "pinned" | "todo" | "doing" | "done" | "archived";
+  status: 'pinned' | 'todo' | 'doing' | 'done' | 'archived';
   task_attachment: Array<AttachmentData>;
   task_id: string;
   task_tag: Array<TagData>;
@@ -251,4 +258,77 @@ export interface InitialApiData {
   img_domain: string;
   version: string;
   img_config: ImageConfig;
+}
+
+export interface Contract {
+  contract_address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply: string;
+  owner: string;
+  is_potential: boolean;
+  logo_url: string;
+}
+
+export interface TokenPrice {
+  rate: number;
+  diff: number;
+  diff1h: number;
+  diff7d: number;
+  diff30d: number;
+  diff60d: number;
+  diff90d: number;
+  marketCapUsd: number;
+  volume24h: number;
+  availableSupply: number;
+  ts: string;
+  currency: string;
+}
+
+export interface Token {
+  contract: Contract;
+  balance: number;
+  price: TokenPrice;
+}
+
+export interface BalanceApiData {
+  address: string;
+  ETH: Token;
+  tokens: Array<Token>;
+}
+
+export interface TransactionApiData {
+  block_number: string;
+  time_stamp: string;
+  hash: string;
+  nonce: string;
+  block_hash: string;
+  from: string;
+  contract_address: string;
+  to: string;
+  value: string;
+  token_name: string;
+  token_symbol: string;
+  token_decimal: string;
+  transaction_index: string;
+  gas: string;
+  gas_price: string;
+  gas_used: string;
+  cumulative_gas_used: string;
+  input: string;
+  confirmations: string;
+}
+
+export interface NFTCollectionDataApi {
+  name: string;
+  description: string;
+  contract_address: string;
+  token_type: string;
+  image_url: string;
+  background_image_url: string;
+  external_url: string;
+  symbol: string;
+  network: string;
+  nft: Array<UserNFTCollection>;
 }

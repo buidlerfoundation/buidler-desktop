@@ -1,12 +1,18 @@
 import { AnyAction, Reducer } from 'redux';
-import { Channel, Community, Space, UserData } from 'renderer/models';
+import {
+  BalanceApiData,
+  Channel,
+  Community,
+  Space,
+  UserData,
+} from 'renderer/models';
 import actionTypes from '../actions/ActionTypes';
 import { AsyncKey } from '../common/AppConfig';
 import { setCookie } from '../common/Cookie';
 
 interface UserReducerState {
   userData: UserData;
-  team: Array<Community>;
+  team?: Array<Community>;
   channel: Array<Channel>;
   spaceChannel: Array<Space>;
   currentTeam: Community;
@@ -16,21 +22,38 @@ interface UserReducerState {
   teamUserData: Array<UserData>;
   lastChannel: { [key: string]: Channel };
   spaceMembers: Array<UserData>;
+  walletBalance?: BalanceApiData | null;
 }
 
 const initialState: UserReducerState = {
-  userData: null,
-  team: null,
+  userData: {
+    avatar_url: '',
+    user_id: '',
+    user_name: '',
+  },
+  team: undefined,
   channel: [],
   spaceChannel: [],
-  currentTeam: null,
-  currentChannel: null,
-  imgDomain: null,
-  imgConfig: null,
-  loginGoogleUrl: null,
+  currentTeam: {
+    team_display_name: '',
+    team_icon: '',
+    team_id: '',
+    team_url: '',
+  },
+  currentChannel: {
+    channel_id: '',
+    channel_member: [],
+    channel_name: '',
+    channel_type: 'Public',
+    notification_type: '',
+    seen: true,
+  },
+  imgDomain: '',
+  imgConfig: {},
   teamUserData: [],
   lastChannel: {},
   spaceMembers: [],
+  walletBalance: null,
 };
 
 const userReducers: Reducer<UserReducerState, AnyAction> = (
@@ -39,6 +62,32 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.ADD_USER_TOKEN: {
+      const newWalletBalance = state.walletBalance
+        ? {
+            ...state.walletBalance,
+            tokens: [
+              ...(state.walletBalance.tokens || []).filter(
+                (el) =>
+                  el.contract.contract_address !==
+                  payload.contract.contract_address
+              ),
+              payload,
+            ],
+          }
+        : null;
+
+      return {
+        ...state,
+        walletBalance: newWalletBalance,
+      };
+    }
+    case actionTypes.WALLET_BALANCE_SUCCESS: {
+      return {
+        ...state,
+        walletBalance: payload,
+      };
+    }
     case actionTypes.SPACE_MEMBER_SUCCESS: {
       return {
         ...state,

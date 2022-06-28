@@ -1,7 +1,11 @@
 import { getDeviceCode } from 'renderer/common/Cookie';
 import {
+  BalanceApiData,
   Channel,
+  NFTCollectionDataApi,
   SpaceCollectionData,
+  Token,
+  TransactionApiData,
   UserData,
   UserNFTCollection,
 } from 'renderer/models';
@@ -72,3 +76,22 @@ export const getNFTCollection = () =>
 
 export const getSpaceCondition = (spaceId: string) =>
   Caller.get<Array<SpaceCollectionData>>(`space/${spaceId}/condition`);
+
+export const fetchWalletBalance = () =>
+  Caller.get<BalanceApiData>('user/balance');
+
+export const fetchTransaction = (params: { page?: number; limit?: number }) => {
+  const { page = 1, limit = 10 } = params;
+  return Caller.get<Array<TransactionApiData>>(
+    `user/transaction?page=${page}&limit=${limit}`
+  );
+};
+
+export const fetchNFTCollection = () =>
+  Caller.get<Array<NFTCollectionDataApi>>('user/nft-collection/group');
+
+export const getUserDetail = (userId: string, teamId: string) =>
+  Caller.get<UserData>(`user/${userId}/team/${teamId}`);
+
+export const searchToken = (address: string) =>
+  Caller.get<Token>(`user/balance/${address}`);

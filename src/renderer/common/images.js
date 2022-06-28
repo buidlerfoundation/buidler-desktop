@@ -2,7 +2,7 @@ import notableLogo from '../assets/images/notable_logo.svg';
 import icSound from '../assets/images/ic_sound.png';
 import icGoogle from '../assets/images/logo_google.png';
 import icCollapse from '../assets/images/ic_collapse.svg';
-import icReact from '../assets/images/ic_react.svg';
+import icReact from '../assets/images/ic_react.png';
 import icPhone from '../assets/images/ic_phone.svg';
 import icMore from '../assets/images/ic_more.svg';
 import icReply from '../assets/images/ic_reply.svg';
@@ -88,6 +88,8 @@ import icClearText from '../assets/images/ic_clear_text.svg';
 import icStar from '../assets/images/ic_star.svg';
 import icSettingSpaceDisplay from '../assets/images/ic_setting_space_display.svg';
 import icSettingSpaceAccess from '../assets/images/ic_setting_space_access.svg';
+import icBadgeVerified from "../assets/images/ic_badge_verified.svg";
+import icPlusCircleLight from "../assets/images/ic_plus_circle_light.svg";
 
 const images = {
   icTeamDefault,
@@ -180,6 +182,8 @@ const images = {
   icStar,
   icSettingSpaceDisplay,
   icSettingSpaceAccess,
+  icBadgeVerified,
+  icPlusCircleLight,
 };
 
 export default images;

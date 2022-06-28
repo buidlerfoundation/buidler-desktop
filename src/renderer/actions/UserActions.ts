@@ -44,10 +44,31 @@ export const login: ActionCreator<any> =
     }
   };
 
+const actionFetchWalletBalance = async (dispatch: Dispatch) => {
+  dispatch({ type: ActionTypes.WALLET_BALANCE_REQUEST });
+  try {
+    const res = await api.fetchWalletBalance();
+    if (res.statusCode === 200) {
+      dispatch({ type: ActionTypes.WALLET_BALANCE_SUCCESS, payload: res.data });
+    } else {
+      dispatch({
+        type: ActionTypes.WALLET_BALANCE_FAIL,
+        payload: { message: res.message },
+      });
+    }
+  } catch (error: any) {
+    dispatch({
+      type: ActionTypes.WALLET_BALANCE_FAIL,
+      payload: { message: error.message },
+    });
+  }
+};
+
 export const findUser = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.USER_REQUEST });
   const res = await api.findUser();
   if (res.statusCode === 200) {
+    actionFetchWalletBalance(dispatch);
     dispatch({ type: ActionTypes.USER_SUCCESS, payload: { user: res.data } });
   } else {
     dispatch({ type: ActionTypes.USER_FAIL });
@@ -496,3 +517,6 @@ export const getSpaceMembers =
       dispatch({ type: ActionTypes.SPACE_MEMBER_FAIL, payload: res });
     }
   };
+
+export const fetchWalletBalance = () => async (dispatch: Dispatch) =>
+  actionFetchWalletBalance(dispatch);
