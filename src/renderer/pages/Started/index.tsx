@@ -32,16 +32,21 @@ const Started = () => {
     try {
       const { accounts, peerMeta } = WalletConnectUtils.connector;
       const address = accounts?.[0];
-      const { nonce } = await api.requestNonceWithAddress(address);
+      const nonceRes = await api.requestNonceWithAddress(address);
+      const message = nonceRes.data?.message;
+      if (nonceRes.statusCode !== 200 || !message) {
+        toast.error(nonceRes?.message || '');
+        return;
+      }
       if (peerMeta.name === 'MetaMask') {
         toast.error('Something wrongs, you can try another wallet');
         WalletConnectUtils.connector.killSession();
         return;
       }
-      const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', nonce];
+      const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', message];
       const signature = await WalletConnectUtils.connector.signMessage(params);
-      const res = await api.verifyNonce(nonce, signature);
-      await setCookie(AsyncKey.accessTokenKey, res.token);
+      const res = await api.verifyNonce(message, signature);
+      await setCookie(AsyncKey.accessTokenKey, res?.token);
       await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
       history.replace('/channels');
     } catch (err) {
@@ -109,29 +114,32 @@ const Started = () => {
         dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
       }
       setCookie(AsyncKey.encryptedDataKey, encryptedData);
-      const { nonce } = await api.requestNonceWithAddress(address);
-      if (nonce) {
-        const msgHash = utils.hashMessage(nonce);
-        const msgHashBytes = utils.arrayify(msgHash);
-        const signature = signingKey.signDigest(msgHashBytes);
-        const res = await api.verifyNonce(nonce, signature.compact);
-        if (res.statusCode === 200) {
-          setCookie(AsyncKey.accessTokenKey, res.token);
-          const privateKeyChannel = await getPrivateChannel(privateKey);
-          dispatch({
-            type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
-            payload: privateKeyChannel,
-          });
-          if (dataFromUrl?.includes?.('invitation')) {
-            const invitationId = dataFromUrl.split('=')[1];
-            const acceptRes = await api.acceptInvitation(invitationId);
-            if (acceptRes.statusCode === 200) {
-              dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
-            }
+      const nonceRes = await api.requestNonceWithAddress(address);
+      const message = nonceRes.data?.message;
+      if (nonceRes.statusCode !== 200 || !message) {
+        toast.error(nonceRes?.message || '');
+        return;
+      }
+      const msgHash = utils.hashMessage(message);
+      const msgHashBytes = utils.arrayify(msgHash);
+      const signature = signingKey.signDigest(msgHashBytes);
+      const res = await api.verifyNonce(message, signature.compact);
+      if (res.statusCode === 200) {
+        setCookie(AsyncKey.accessTokenKey, res.token);
+        const privateKeyChannel = await getPrivateChannel(privateKey);
+        dispatch({
+          type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
+          payload: privateKeyChannel,
+        });
+        if (dataFromUrl?.includes?.('invitation')) {
+          const invitationId = dataFromUrl.split('=')[1];
+          const acceptRes = await api.acceptInvitation(invitationId);
+          if (acceptRes.statusCode === 200) {
+            dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
           }
-          await setCookie(AsyncKey.loginType, LoginType.WalletImport);
-          history.replace('/channels');
         }
+        await setCookie(AsyncKey.loginType, LoginType.WalletImport);
+        history.replace('/channels');
       }
     },
     [dataFromUrl, dispatch, history]
