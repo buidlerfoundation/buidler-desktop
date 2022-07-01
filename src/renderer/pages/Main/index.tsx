@@ -88,9 +88,16 @@ const RedirectToHome = () => {
   const history = useHistory();
   const gotoChannel = useCallback(async () => {
     setEmpty(false);
-    const cookieChannelId = await getCookie(AsyncKey.lastChannelId);
+    let cookieChannelId = await getCookie(AsyncKey.lastChannelId);
+    if (typeof cookieChannelId !== 'string') {
+      cookieChannelId = null;
+    }
     let channelId = cookieChannelId;
-    let teamId = match_community_id || (await getCookie(AsyncKey.lastTeamId));
+    let lastTeamId = await getCookie(AsyncKey.lastTeamId)
+    if (typeof lastTeamId !== 'string') {
+      lastTeamId = null;
+    }
+    let teamId = match_community_id || lastTeamId;
     if (match_community_id) {
       const channelByTeam = lastChannel?.[match_community_id];
       channelId = channelByTeam?.channel_id;

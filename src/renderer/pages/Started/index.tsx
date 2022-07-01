@@ -30,7 +30,7 @@ const Started = () => {
     )
       return;
     try {
-      const { accounts, peerMeta } = WalletConnectUtils.connector;
+      const { accounts } = WalletConnectUtils.connector;
       const address = accounts?.[0];
       const nonceRes = await api.requestNonceWithAddress(address);
       const message = nonceRes.data?.message;
@@ -38,13 +38,11 @@ const Started = () => {
         toast.error(nonceRes?.message || '');
         return;
       }
-      if (peerMeta.name === 'MetaMask') {
-        toast.error('Something wrongs, you can try another wallet');
-        WalletConnectUtils.connector.killSession();
-        return;
-      }
-      const params = ['0xd6302729c18fE9be641B00eC70A6c01654C8b507', message];
-      const signature = await WalletConnectUtils.connector.signMessage(params);
+      const params = [
+        utils.hexlify(ethers.utils.toUtf8Bytes(message)),
+        address,
+      ];
+      const signature = await WalletConnectUtils.connector.signPersonalMessage(params);
       const res = await api.verifyNonce(message, signature);
       await setCookie(AsyncKey.accessTokenKey, res?.token);
       await setCookie(AsyncKey.loginType, LoginType.WalletConnect);

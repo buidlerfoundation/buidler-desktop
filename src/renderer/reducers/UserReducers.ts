@@ -295,15 +295,9 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     }
     case actionTypes.LOGOUT: {
       return {
-        ...state,
-        userData: null,
-        team: null,
-        channel: [],
-        spaceChannel: [],
-        currentTeam: null,
-        currentChannel: null,
-        lastChannel: {},
-        teamUserData: [],
+        ...initialState,
+        imgDomain: state.imgDomain,
+        imgConfig: state.imgConfig,
       };
     }
     case actionTypes.GET_TEAM_USER: {
