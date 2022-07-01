@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import useAppSelector from 'renderer/hooks/useAppSelector';
-import { Switch, Route, useHistory, useRouteMatch } from 'react-router-dom';
+import {
+  Switch,
+  Route,
+  useHistory,
+  useRouteMatch,
+  useLocation,
+} from 'react-router-dom';
 import AppListener from 'renderer/components/AppListener';
 import { useDispatch } from 'react-redux';
 import {
@@ -111,6 +117,7 @@ const RedirectToHome = () => {
 };
 
 const Main = () => {
+  const location = useLocation();
   const imgDomain = useAppSelector((state) => state.user.imgDomain);
   const dispatch = useDispatch();
   useEffect(() => {
@@ -121,7 +128,7 @@ const Main = () => {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <AppTitleBar />
+      {location.pathname !== '/unlock' && <AppTitleBar />}
       <AppListener />
       <MainWrapper>
         <Switch>
