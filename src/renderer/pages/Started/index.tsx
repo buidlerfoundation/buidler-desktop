@@ -157,8 +157,8 @@ const Started = () => {
             to buidl together
           </span>
           <span className="started-description">
-            Buidler helps your community quickly discuss, make transfers, create
-            & airdrop tokens, join exclusive clubs, and more.
+            Web3 application for your community, teams, and supporters to
+            connect, communicate and collaborate.
           </span>
         </div>
         <div
