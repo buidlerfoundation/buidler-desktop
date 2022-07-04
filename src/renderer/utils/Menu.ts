@@ -17,6 +17,28 @@ export const spaceChannelMenu = [
     icon: images.icCommunitySetting,
   },
 ];
+export const spaceExclusiveChannelMenu = [
+  {
+    label: 'Create channel',
+    value: 'Create channel',
+    icon: images.icSettingCreateChannel,
+  },
+  {
+    label: 'Create space',
+    value: 'Create space',
+    icon: images.icSettingCreateGroupChannel,
+  },
+  {
+    label: 'View entry requirement',
+    value: 'View entry requirement',
+    icon: images.icSettingWalletBalance,
+  },
+  {
+    label: 'Space setting',
+    value: 'Space setting',
+    icon: images.icCommunitySetting,
+  },
+];
 export const memberMenu = [
   {
     label: 'Remove member',
