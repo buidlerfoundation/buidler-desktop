@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { createTeam, findTeamAndChannel } from 'renderer/actions/UserActions';
 import ModalTeam from '../../../../shared/ModalTeam';
 import NormalButton from '../../../../shared/NormalButton';
 import './index.scss';
 
 const EmptyView = () => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const [isOpenModalTeam, setOpenModalTeam] = useState(false);
   const toggleModalTeam = useCallback(
@@ -14,16 +16,19 @@ const EmptyView = () => {
   );
   const handleCreateTeam = useCallback(
     async (body) => {
-      await dispatch(
+      const res: any = await dispatch(
         createTeam?.({
           team_id: body.teamId,
           team_display_name: body.name,
           team_icon: body.teamIcon?.url,
         })
       );
-      setOpenModalTeam(false);
+      if (res.statusCode === 200) {
+        history.replace(`/channels/${res.team_id}`);
+        setOpenModalTeam(false);
+      }
     },
-    [dispatch]
+    [dispatch, history]
   );
   const handleAcceptTeam = useCallback(() => {
     dispatch(findTeamAndChannel());
