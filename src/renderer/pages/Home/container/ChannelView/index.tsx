@@ -520,6 +520,7 @@ const ChannelView = forwardRef(
             onSelectTask={onSelectTask}
             content={msg.content}
             reacts={reactData?.[msg.message_id]}
+            task={msg.task}
           />
         );
       },
