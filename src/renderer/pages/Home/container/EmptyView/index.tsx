@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { createTeam } from 'renderer/actions/UserActions';
+import { createTeam, findTeamAndChannel } from 'renderer/actions/UserActions';
 import ModalTeam from '../../../../shared/ModalTeam';
 import NormalButton from '../../../../shared/NormalButton';
 import './index.scss';
@@ -31,11 +31,12 @@ const EmptyView = () => {
     [dispatch, history]
   );
   const handleAcceptTeam = useCallback(
-    (teamId: string) => {
+    async (teamId: string) => {
+      await dispatch(findTeamAndChannel());
       history.replace(`/channels/${teamId}`);
       setOpenModalTeam(false);
     },
-    [history]
+    [dispatch, history]
   );
   return (
     <div className="empty-view__container">
