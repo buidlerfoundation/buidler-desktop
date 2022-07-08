@@ -532,7 +532,7 @@ const Home = () => {
         channelViewRef.current?.hideReply?.();
         if (matchChannel) {
           setCurrentUserId('');
-          dispatch(setCurrentChannel?.(matchChannel));
+          dispatch(setCurrentChannel?.(matchChannel, match_community_id));
         }
       }
     }
