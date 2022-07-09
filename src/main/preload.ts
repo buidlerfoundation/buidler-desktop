@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld('electron', {
     get(key: string, callback: (error: any, data: any) => void) {
       storage.get(key, callback);
     },
+    remove(key: string, callback: (error: any) => void) {
+      storage.remove(key, callback);
+    },
     clear(callback: (error: any) => void) {
       storage.clear(callback);
     },

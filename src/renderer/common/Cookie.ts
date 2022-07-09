@@ -4,6 +4,10 @@ import { AsyncKey } from './AppConfig';
 export const clearData = (callback = () => {}) =>
   window.electron.cookies.clear(callback);
 
+export const removeCookie = (key: string) => {
+  window.electron.cookies.remove(key, (err) => {});
+};
+
 export const setCookie = (key: string, val: any) => {
   return new Promise((resolve, reject) => {
     window.electron.cookies.set(key, val, (err) => {

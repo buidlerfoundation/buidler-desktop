@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   deleteChannel,
@@ -12,6 +13,7 @@ import AppInput from '../../../../shared/AppInput';
 import ModalConfirmDeleteChannel from '../../../../shared/ModalConfirmDeleteChannel';
 import NormalButton from '../../../../shared/NormalButton';
 import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
@@ -24,7 +26,10 @@ const SettingChannel = ({
   onClose,
   isActiveName,
 }: SettingChannelProps) => {
+  const history = useHistory();
   const dispatch = useDispatch();
+  const currentTeam = useAppSelector((state) => state.user.currentTeam);
+  const channels = useAppSelector((state) => state.user.channel);
   const [isOpenConfirm, setOpenConfirm] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [isOpenEditName, setOpenEditName] = useState(false);
@@ -82,11 +87,34 @@ const SettingChannel = ({
     () => setOpenConfirm((current) => !current),
     []
   );
+  const nextChannelId = useMemo(() => {
+    const currentIdx = channels.findIndex(
+      (el) => el.channel_id === currentChannel?.channel_id
+    );
+    const newChannels = channels.filter(
+      (el) => el.channel_id !== currentChannel?.channel_id
+    );
+    return (
+      newChannels?.[currentIdx]?.channel_id ||
+      newChannels?.[0]?.channel_id ||
+      ''
+    );
+  }, [channels, currentChannel?.channel_id]);
   const handleDeleteChannel = useCallback(async () => {
-    await dispatch(deleteChannel(currentChannel.channel_id));
+    await dispatch(
+      deleteChannel(currentChannel.channel_id, currentTeam.team_id)
+    );
+    history.replace(`/channels/${currentTeam.team_id}/${nextChannelId}`);
     setOpenConfirm(false);
     onClose();
-  }, [currentChannel?.channel_id, dispatch, onClose]);
+  }, [
+    currentChannel?.channel_id,
+    currentTeam?.team_id,
+    dispatch,
+    history,
+    nextChannelId,
+    onClose,
+  ]);
   return (
     <div className="setting-body">
       {currentChannel?.channel_type !== 'Direct' && false && (

@@ -489,12 +489,47 @@ const Home = () => {
     () => setOpenConfirmDeleteChannel(false),
     []
   );
+  const nextChannelIdWhenDeleteSpace = useMemo(() => {
+    const currentIdx = channels.findIndex(
+      (el) => el.channel_id === currentChannel.channel_id
+    );
+    const newChannels = channels.filter(
+      (el) => el.space_id !== currentChannel.space_id
+    );
+    return (
+      newChannels?.[currentIdx]?.channel_id ||
+      newChannels?.[0]?.channel_id ||
+      ''
+    );
+  }, [channels, currentChannel?.channel_id, currentChannel?.space_id]);
+  const nextChannelId = useMemo(() => {
+    const currentIdx = channels.findIndex(
+      (el) => el.channel_id === currentChannel.channel_id
+    );
+    const newChannels = channels.filter(
+      (el) => el.channel_id !== currentChannel.channel_id
+    );
+    return (
+      newChannels?.[currentIdx]?.channel_id ||
+      newChannels?.[0]?.channel_id ||
+      ''
+    );
+  }, [channels, currentChannel?.channel_id]);
   const handleDeleteChannel = useCallback(async () => {
     if (!channelDelete?.channel_id) return;
-    await dispatch(deleteChannel(channelDelete?.channel_id));
+    await dispatch(
+      deleteChannel(channelDelete?.channel_id, currentTeam.team_id)
+    );
+    history.replace(`/channels/${currentTeam.team_id}/${nextChannelId}`);
     setChannelDelete(null);
     setOpenConfirmDeleteChannel(false);
-  }, [channelDelete?.channel_id, dispatch]);
+  }, [
+    channelDelete?.channel_id,
+    currentTeam?.team_id,
+    dispatch,
+    history,
+    nextChannelId,
+  ]);
   const handleCloseModalConfirmDeleteSpace = useCallback(() => {
     setOpenConfirmDeleteSpace(false);
   }, []);
@@ -505,10 +540,19 @@ const Home = () => {
   const handleDeleteSpace = useCallback(async () => {
     if (!selectedSpace?.space_id) return;
     await dispatch(deleteSpaceChannel(selectedSpace?.space_id));
+    history.replace(
+      `/channels/${currentTeam.team_id}/${nextChannelIdWhenDeleteSpace}`
+    );
     setSelectedSpace(null);
     setOpenConfirmDeleteSpace(false);
     setOpenEditSpaceChannel(false);
-  }, [dispatch, selectedSpace?.space_id]);
+  }, [
+    currentTeam?.team_id,
+    dispatch,
+    history,
+    nextChannelIdWhenDeleteSpace,
+    selectedSpace?.space_id,
+  ]);
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.includes('invitation=')) {
       const invitationId = dataFromUrl.split('=')[1];
