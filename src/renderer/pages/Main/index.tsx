@@ -24,6 +24,8 @@ import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
 import useAppDispatch from 'renderer/hooks/useAppDispatch';
 import EmptyTeamView from 'renderer/components/EmptyTeamView';
+import { createErrorMessageSelector } from 'renderer/reducers/selectors';
+import actionTypes from 'renderer/actions/ActionTypes';
 
 interface PrivateRouteProps {
   component: any;
@@ -31,15 +33,18 @@ interface PrivateRouteProps {
   path: string;
 }
 
+const errorUserSelector = createErrorMessageSelector([actionTypes.USER_PREFIX]);
+
 const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const match_community_id = rest?.computedMatch?.params?.match_community_id;
   const userData = useAppSelector((state) => state.user.userData);
+  const userError = useAppSelector((state) => errorUserSelector(state));
   const team = useAppSelector((state) => state.user.team);
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const dispatch = useAppDispatch();
   const history = useHistory();
   const initApp = useCallback(async () => {
-    if (!userData.user_id) {
+    if (!userData.user_id && !userError) {
       await dispatch(findUser());
       await dispatch(findTeamAndChannel(match_community_id));
     } else if (
@@ -59,6 +64,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     match_community_id,
     team,
     userData?.user_id,
+    userError,
   ]);
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
@@ -93,7 +99,7 @@ const RedirectToHome = () => {
       cookieChannelId = null;
     }
     let channelId = cookieChannelId;
-    let lastTeamId = await getCookie(AsyncKey.lastTeamId)
+    let lastTeamId = await getCookie(AsyncKey.lastTeamId);
     if (typeof lastTeamId !== 'string') {
       lastTeamId = null;
     }
