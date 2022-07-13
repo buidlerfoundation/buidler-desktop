@@ -191,8 +191,7 @@ class SocketUtil {
     if (this.socket?.connected) return;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
     this.socket = io(
-      // `${AppConfig.baseUrl}`,
-      `${AppConfig.stagingBaseUrl}`,
+      `${AppConfig.apiBaseUrl}`,
       {
         query: { token: accessToken },
         transports: ['websocket'],
