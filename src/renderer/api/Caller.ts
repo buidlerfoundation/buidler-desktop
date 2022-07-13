@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import { BaseDataApi } from 'renderer/models';
 import AppConfig, { AsyncKey } from '../common/AppConfig';
 import { getCookie } from '../common/Cookie';
 
@@ -13,13 +14,7 @@ async function requestAPI<T = any>(
   uri: string,
   body?: any,
   serviceBaseUrl?: string
-): Promise<{
-  success: boolean;
-  data?: T;
-  statusCode: number;
-  message?: string;
-  total?: number;
-}> {
+): Promise<BaseDataApi<T>> {
   // Build API header
   const headers: any = {
     Accept: '*/*',
