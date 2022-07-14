@@ -49,6 +49,7 @@ export const seedExample =
 export const LoginType = {
   WalletConnect: 'WalletConnect',
   WalletImport: 'WalletImport',
+  Metamask: 'Metamask',
 };
 
 export const SpaceBadge = [

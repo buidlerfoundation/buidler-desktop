@@ -1,3 +1,5 @@
+import { ethers } from 'ethers';
+
 export type LocalAttachment = {
   file?: any;
   loading?: boolean;
@@ -361,6 +363,9 @@ export type SendData = {
   recipientAddress?: string;
   asset?: Token | null;
   amount?: number;
+  amountUSD?: number | string;
+  gasPrice?: ethers.BigNumber;
+  gasLimit: ethers.BigNumber;
 };
 
 export interface BaseDataApi<T> {
