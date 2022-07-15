@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { getUniqueId } from 'renderer/helpers/GenerateUUID';
 import { AsyncKey } from './AppConfig';
 
@@ -33,4 +34,14 @@ export const getDeviceCode = async () => {
   const uuid = getUniqueId();
   setCookie(AsyncKey.deviceCode, uuid);
   return uuid;
+};
+
+export const GeneratedPrivateKey = async () => {
+  const current = await getCookie(AsyncKey.generatedPrivateKey);
+  if (typeof current === "string") {
+    return current;
+  }
+  const { privateKey } = ethers.Wallet.createRandom();
+  setCookie(AsyncKey.generatedPrivateKey, privateKey);
+  return privateKey;
 };

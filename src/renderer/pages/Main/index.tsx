@@ -13,6 +13,7 @@ import {
   findTeamAndChannel,
   findUser,
   getInitial,
+  logout,
   setCurrentTeam,
 } from 'renderer/actions/UserActions';
 import MainWrapper from './Layout';
@@ -85,12 +86,14 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
           }
         } else {
           history.replace('/started');
+          dispatch(logout());
         }
       })
       .catch(() => {
         history.replace('/started');
+        dispatch(logout());
       });
-  }, [history, initApp, rest.path]);
+  }, [dispatch, history, initApp, rest.path]);
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 

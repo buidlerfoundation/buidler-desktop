@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import images from '../../common/images';
 import ModalCreatePassword from '../../shared/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../shared/ModalImportSeedPhrase';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 
 const Started = () => {
   const dispatch = useDispatch();
@@ -42,8 +43,11 @@ const Started = () => {
         utils.hexlify(ethers.utils.toUtf8Bytes(message)),
         address,
       ];
-      const signature = await WalletConnectUtils.connector.signPersonalMessage(params);
+      const signature = await WalletConnectUtils.connector.signPersonalMessage(
+        params
+      );
       const res = await api.verifyNonce(message, signature);
+      GlobalVariable.loginType = LoginType.WalletConnect;
       await setCookie(AsyncKey.accessTokenKey, res?.token);
       await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
       history.replace('/channels');

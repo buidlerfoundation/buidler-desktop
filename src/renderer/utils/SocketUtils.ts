@@ -16,7 +16,12 @@ import { UserData } from 'renderer/models';
 import { ethers, utils } from 'ethers';
 import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey, LoginType } from '../common/AppConfig';
-import { getCookie, getDeviceCode, setCookie } from '../common/Cookie';
+import {
+  GeneratedPrivateKey,
+  getCookie,
+  getDeviceCode,
+  setCookie,
+} from '../common/Cookie';
 import store from '../store';
 import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
@@ -190,16 +195,13 @@ class SocketUtil {
     this.firstLoad = false;
     if (this.socket?.connected) return;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
-    this.socket = io(
-      `${AppConfig.apiBaseUrl}`,
-      {
-        query: { token: accessToken },
-        transports: ['websocket'],
-        upgrade: false,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      }
-    );
+    this.socket = io(`${AppConfig.apiBaseUrl}`, {
+      query: { token: accessToken },
+      transports: ['websocket'],
+      upgrade: false,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
     this.socket.on('connect', () => {
       console.log('socket connected');
       if (this.firstLoad) {
@@ -756,18 +758,16 @@ class SocketUtil {
   }
   async emitOnline(teamId: string) {
     const deviceCode = await getDeviceCode();
-    const generatedPrivateKey = await getCookie(AsyncKey.generatedPrivateKey);
+    const generatedPrivateKey = await GeneratedPrivateKey();
     const loginType = await getCookie(AsyncKey.loginType);
     if (
-      Object.keys(generatedPrivateKey || {}).length === 0 &&
-      loginType === LoginType.WalletConnect
+      loginType === LoginType.WalletConnect ||
+      GlobalVariable.loginType === LoginType.WalletConnect
     ) {
-      const { privateKey } = ethers.Wallet.createRandom();
-      const publicKey = utils.computePublicKey(privateKey, true);
-      await setCookie(AsyncKey.generatedPrivateKey, privateKey);
+      const publicKey = utils.computePublicKey(generatedPrivateKey, true);
       store.dispatch({
         type: actionTypes.SET_PRIVATE_KEY,
-        payload: privateKey,
+        payload: generatedPrivateKey,
       });
       this.socket.emit('ONLINE', {
         team_id: teamId,

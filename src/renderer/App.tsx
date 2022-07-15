@@ -12,7 +12,7 @@ import AppToastNotification from './shared/AppToastNotification';
 import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
 import WalletConnectUtils from './services/connectors/WalletConnectUtils';
-import { clearData, getCookie, getDeviceCode } from './common/Cookie';
+import { clearData, GeneratedPrivateKey, getCookie, getDeviceCode } from './common/Cookie';
 import { AsyncKey, LoginType } from './common/AppConfig';
 import actionTypes from './actions/ActionTypes';
 import api from './api';
@@ -81,13 +81,11 @@ function App() {
     };
   }, [user, initApp, history]);
   const initGeneratedPrivateKey = useCallback(async () => {
-    const generatedPrivateKey = await getCookie(AsyncKey.generatedPrivateKey);
-    if (typeof generatedPrivateKey === 'string') {
-      dispatch({
-        type: actionTypes.SET_PRIVATE_KEY,
-        payload: generatedPrivateKey,
-      });
-    }
+    const generatedPrivateKey = await GeneratedPrivateKey();
+    dispatch({
+      type: actionTypes.SET_PRIVATE_KEY,
+      payload: generatedPrivateKey,
+    });
   }, [dispatch]);
   useEffect(() => {
     initGeneratedPrivateKey();

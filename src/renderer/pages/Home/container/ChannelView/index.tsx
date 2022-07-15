@@ -38,7 +38,6 @@ import MessageItem from '../../../../shared/MessageItem';
 import {
   extractContent,
   getMentionData,
-  normalizeMessage,
   normalizeMessages,
   normalizeUserName,
 } from '../../../../helpers/MessageHelper';
@@ -539,7 +538,7 @@ const ChannelView = forwardRef(
         return (
           <div className="column-reverse" key={el.date}>
             <div className="column-reverse">
-              {normalizeMessage(el.messages).map(renderMessage)}
+              {el.messages.map(renderMessage)}
             </div>
             <div className="date-title">
               <div className="separate-line" />
