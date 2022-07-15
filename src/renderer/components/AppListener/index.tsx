@@ -39,11 +39,16 @@ const AppListener = () => {
       setCookie(AsyncKey.lastTimeFocus, new Date().getTime());
       GlobalVariable.isWindowFocus = false;
     };
+    const changeRouteListener = (e) => {
+      const { detail: path } = e;
+      history.replace(path);
+    };
     window.electron.ipcRenderer.on('open-url', openUrlListener);
     window.electron.ipcRenderer.on('enter-fullscreen', enterFullscreenListener);
     window.electron.ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
     window.electron.ipcRenderer.on('window-focus', windowFocusListener);
     window.electron.ipcRenderer.on('window-blur', windowBlurListener);
+    window.addEventListener('change_route', changeRouteListener);
     return () => {
       window.electron.ipcRenderer.removeListener('open-url', openUrlListener);
       window.electron.ipcRenderer.removeListener(
@@ -62,6 +67,7 @@ const AppListener = () => {
         'window-blur',
         windowBlurListener
       );
+      window.removeEventListener('change_route', changeRouteListener);
     };
   }, [dispatch, history]);
   useEffect(() => {

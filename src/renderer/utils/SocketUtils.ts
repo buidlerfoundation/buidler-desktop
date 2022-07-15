@@ -673,18 +673,11 @@ class SocketUtil {
           currentChannel.channel_id !== message_data.channel_id
         ) {
           window.electron.ipcRenderer.on('notification-click', (_) => {
-            if (currentTeam.team_id === notification_data.team_id) {
-              store.dispatch({
-                type: actionTypes.SET_CURRENT_CHANNEL,
-                payload: { channel: channelNotification },
-              });
-            } else {
-              this.setTeamFromNotification(
-                teamNotification,
-                message_data.channel_id,
-                store.dispatch
-              );
-            }
+            const { CustomEvent } = window;
+            const event = new CustomEvent('change_route', {
+              detail: `/channels/${notification_data.team_id}/${message_data.channel_id}`,
+            });
+            window.dispatchEvent(event);
           });
         }
       }
