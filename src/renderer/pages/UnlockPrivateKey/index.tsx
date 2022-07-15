@@ -35,7 +35,7 @@ const UnlockPrivateKey = () => {
     }
   }, [dispatch]);
   useEffect(() => {
-    if (!userData) {
+    if (!userData.user_id) {
       initApp();
     }
   }, [userData, initApp]);

@@ -17,7 +17,7 @@ import {
 } from 'renderer/actions/UserActions';
 import MainWrapper from './Layout';
 import Home from '../Home';
-import { AsyncKey } from '../../common/AppConfig';
+import { AsyncKey, LoginType } from '../../common/AppConfig';
 import { getCookie } from '../../common/Cookie';
 import AppTitleBar from '../../shared/AppTitleBar';
 import Started from '../Started';
@@ -38,12 +38,21 @@ const errorUserSelector = createErrorMessageSelector([actionTypes.USER_PREFIX]);
 const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const match_community_id = rest?.computedMatch?.params?.match_community_id;
   const userData = useAppSelector((state) => state.user.userData);
+  const privateKey = useAppSelector((state) => state.configs.privateKey);
   const userError = useAppSelector((state) => errorUserSelector(state));
   const team = useAppSelector((state) => state.user.team);
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const dispatch = useAppDispatch();
   const history = useHistory();
   const initApp = useCallback(async () => {
+    const loginType = await getCookie(AsyncKey.loginType);
+    if (
+      typeof loginType === 'string' &&
+      loginType === LoginType.WalletImport &&
+      !privateKey
+    ) {
+      return;
+    }
     if (!userData.user_id && !userError) {
       await dispatch(findUser());
       await dispatch(findTeamAndChannel(match_community_id));
@@ -65,12 +74,15 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     team,
     userData?.user_id,
     userError,
+    privateKey,
   ]);
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
         if (typeof res === 'string' && !!res) {
-          initApp();
+          if (rest.path !== '/unlock') {
+            initApp();
+          }
         } else {
           history.replace('/started');
         }
@@ -78,7 +90,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       .catch(() => {
         history.replace('/started');
       });
-  }, [history, initApp]);
+  }, [history, initApp, rest.path]);
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
