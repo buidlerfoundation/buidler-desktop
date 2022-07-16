@@ -1,4 +1,3 @@
-import { getDeviceCode } from 'renderer/common/Cookie';
 import {
   BalanceApiData,
   Channel,
@@ -6,6 +5,7 @@ import {
   NFTCollectionDataApi,
   SpaceCollectionData,
   Token,
+  TokenPrice,
   TransactionApiData,
   UserData,
   UserNFTCollection,
@@ -100,3 +100,9 @@ export const getUserDetail = (userId: string, teamId: string) =>
 
 export const searchToken = (address: string) =>
   Caller.get<Token>(`user/balance/${address}`);
+
+export const findUserByAddress = (address: string) =>
+  Caller.get<UserData>(`user/search?address=${address}`);
+
+export const getTokenPrice = (contractAddress: string) =>
+  Caller.get<TokenPrice>(`price/${contractAddress}`);

@@ -9,6 +9,7 @@ import ReactReducers from './ReactReducers';
 import MessageReducer from './MessageReducer';
 import refreshReducer from './refreshReducer';
 import activityReducer from './ActivityReducers';
+import networkReducer from './NetworkReducer';
 
 const appReducer = combineReducers({
   error: ErrorReducer,
@@ -21,6 +22,7 @@ const appReducer = combineReducers({
   loadMore: LoadMoreReducer,
   refresh: refreshReducer,
   activity: activityReducer,
+  network: networkReducer,
 });
 
 const rootReducer = (state, action) => {
