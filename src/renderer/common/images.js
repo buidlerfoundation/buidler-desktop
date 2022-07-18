@@ -84,13 +84,14 @@ import icArrowDown from '../assets/images/ic_arrow_down.svg';
 import icSwap from '../assets/images/ic_swap.svg';
 import icWalletConnect from '../assets/images/ic_wallet_connect.svg';
 import icCameraSolid from '../assets/images/ic_camera_solid.svg';
-import icClearText from "../assets/images/ic_clear_text.png";
+import icClearText from '../assets/images/ic_clear_text.png';
 import icStar from '../assets/images/ic_star.svg';
 import icSettingSpaceDisplay from '../assets/images/ic_setting_space_display.svg';
 import icSettingSpaceAccess from '../assets/images/ic_setting_space_access.svg';
-import icBadgeVerified from "../assets/images/ic_badge_verified.svg";
-import icPlusCircleLight from "../assets/images/ic_plus_circle_light.svg";
-import icConvert from "../assets/images/ic_convert.svg";
+import icBadgeVerified from '../assets/images/ic_badge_verified.svg';
+import icPlusCircleLight from '../assets/images/ic_plus_circle_light.svg';
+import icConvert from '../assets/images/ic_convert.svg';
+import icEtherscan from '../assets/images/ic_etherscan.png';
 
 const images = {
   icTeamDefault,
@@ -186,6 +187,7 @@ const images = {
   icBadgeVerified,
   icPlusCircleLight,
   icConvert,
+  icEtherscan,
 };
 
 export default images;
