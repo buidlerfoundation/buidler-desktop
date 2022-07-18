@@ -92,6 +92,7 @@ import icBadgeVerified from '../assets/images/ic_badge_verified.svg';
 import icPlusCircleLight from '../assets/images/ic_plus_circle_light.svg';
 import icConvert from '../assets/images/ic_convert.svg';
 import icEtherscan from '../assets/images/ic_etherscan.png';
+import icPlusCircleDark from '../assets/images/ic_plus_circle_dark.svg';
 
 const images = {
   icTeamDefault,
@@ -188,6 +189,7 @@ const images = {
   icPlusCircleLight,
   icConvert,
   icEtherscan,
+  icPlusCircleDark,
 };
 
 export default images;
