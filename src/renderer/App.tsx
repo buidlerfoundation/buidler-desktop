@@ -24,6 +24,7 @@ import api from './api';
 import { getInitial, logout } from './actions/UserActions';
 import useAppSelector from './hooks/useAppSelector';
 import ErrorBoundary from './shared/ErrorBoundary';
+import GoogleAnalytics from './services/analytics/GoogleAnalytics';
 
 function App() {
   window.electron.cookies.setPath();
@@ -40,6 +41,9 @@ function App() {
       history.replace('/channels');
     }
   }, [imgDomain, dispatch, history]);
+  useEffect(() => {
+    GoogleAnalytics.init();
+  }, []);
   useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,

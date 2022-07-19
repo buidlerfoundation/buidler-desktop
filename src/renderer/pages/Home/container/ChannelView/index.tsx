@@ -49,6 +49,8 @@ import MessageInput from '../../../../shared/MessageInput';
 import MessageReplyItem from '../../../../shared/MessageReplyItem';
 import ChannelHeader from './ChannelHeader';
 import DirectDescription from './DirectDescription';
+import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
+import { GAAction, GACategory } from 'renderer/services/analytics/GAEventName';
 
 type ChannelViewProps = {
   currentChannel: Channel;
@@ -220,6 +222,10 @@ const ChannelView = forwardRef(
             msg.message_tag?.[0]?.mention_id || currentChannel?.user?.user_id,
         };
         dispatch(createTask(currentChannel?.channel_id, body));
+        GoogleAnalytics.event({
+          category: GACategory.MESSAGE,
+          action: GAAction.PIN,
+        });
       },
       [
         dispatch,
@@ -236,6 +242,10 @@ const ChannelView = forwardRef(
         setReplyTask(null);
         setMessageEdit(null);
         inputRef.current?.focus?.();
+        GoogleAnalytics.event({
+          category: GACategory.MESSAGE,
+          action: GAAction.REPLY,
+        });
       },
       [inputRef, setReplyTask]
     );
@@ -249,6 +259,10 @@ const ChannelView = forwardRef(
               currentChannel.channel_id
             )
           );
+          GoogleAnalytics.event({
+            category: GACategory.MESSAGE,
+            action: GAAction.DELETE,
+          });
         }
         if (menu.value === 'Edit') {
           setMessageReply(null);
@@ -367,6 +381,10 @@ const ChannelView = forwardRef(
           plain_text,
           files.map((el) => el.id)
         );
+        GoogleAnalytics.event({
+          category: GACategory.MESSAGE,
+          action: GAAction.EDIT,
+        });
         setText('');
         setFiles([]);
         setMessageEdit(null);
@@ -442,6 +460,24 @@ const ChannelView = forwardRef(
         } else {
           message.message_id = getUniqueId();
         }
+        let gaLabel = '';
+        if (message.content) {
+          gaLabel += 'text';
+        }
+        if (files?.find((el) => el.type.includes('image'))) {
+          gaLabel += ', image';
+        }
+        if (files?.find((el) => el.type.includes('video'))) {
+          gaLabel += ', video';
+        }
+        if (files?.find((el) => el.type.includes('application'))) {
+          gaLabel += ', file';
+        }
+        GoogleAnalytics.event({
+          category: GACategory.MESSAGE,
+          action: GAAction.SENT,
+          label: gaLabel,
+        });
         SocketUtils.sendMessage(message);
         setText('');
         setFiles([]);

@@ -14,6 +14,8 @@ import ModalConfirmDeleteChannel from '../../../../shared/ModalConfirmDeleteChan
 import NormalButton from '../../../../shared/NormalButton';
 import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
+import { GAAction, GACategory } from 'renderer/services/analytics/GAEventName';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
@@ -61,12 +63,18 @@ const SettingChannel = ({
     setCurrentName(currentChannel.channel_name);
   }, [currentChannel.channel_name, isOpenEditName]);
   const handleSave = useCallback(async () => {
-    await dispatch(
+    const success = await dispatch(
       updateChannel(currentChannel.channel_id, {
         channel_name: currentName,
       })
     );
-    toggleEditName();
+    if (!!success) {
+      GoogleAnalytics.event({
+        category: GACategory.CHANNEL,
+        action: GAAction.EDIT_CHANNEL_NAME,
+      });
+      toggleEditName();
+    }
   }, [currentChannel?.channel_id, currentName, toggleEditName, dispatch]);
   const handleSelectMenu = useCallback(
     async (item: PopoverItem) => {
@@ -101,12 +109,18 @@ const SettingChannel = ({
     );
   }, [channels, currentChannel?.channel_id]);
   const handleDeleteChannel = useCallback(async () => {
-    await dispatch(
+    const success = await dispatch(
       deleteChannel(currentChannel.channel_id, currentTeam.team_id)
     );
-    history.replace(`/channels/${currentTeam.team_id}/${nextChannelId}`);
-    setOpenConfirm(false);
-    onClose();
+    if (!!success) {
+      GoogleAnalytics.event({
+        category: GACategory.CHANNEL,
+        action: GAAction.DELETE,
+      });
+      history.replace(`/channels/${currentTeam.team_id}/${nextChannelId}`);
+      setOpenConfirm(false);
+      onClose();
+    }
   }, [
     currentChannel?.channel_id,
     currentTeam?.team_id,
