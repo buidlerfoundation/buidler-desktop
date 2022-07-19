@@ -152,7 +152,9 @@ const Main = () => {
   const imgDomain = useAppSelector((state) => state.user.imgDomain);
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getInitial?.());
+    if (navigator.onLine) {
+      dispatch(getInitial?.());
+    }
   }, [dispatch]);
   if (!imgDomain) {
     return <div className="main-load-page" />;

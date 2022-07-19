@@ -12,12 +12,18 @@ import AppToastNotification from './shared/AppToastNotification';
 import GlobalVariable from './services/GlobalVariable';
 import SocketUtils from './utils/SocketUtils';
 import WalletConnectUtils from './services/connectors/WalletConnectUtils';
-import { clearData, GeneratedPrivateKey, getCookie, getDeviceCode } from './common/Cookie';
+import {
+  clearData,
+  GeneratedPrivateKey,
+  getCookie,
+  getDeviceCode,
+} from './common/Cookie';
 import { AsyncKey, LoginType } from './common/AppConfig';
 import actionTypes from './actions/ActionTypes';
 import api from './api';
-import { findUser, getInitial, logout } from './actions/UserActions';
+import { getInitial, logout } from './actions/UserActions';
 import useAppSelector from './hooks/useAppSelector';
+import ErrorBoundary from './shared/ErrorBoundary';
 
 function App() {
   window.electron.cookies.setPath();
@@ -26,13 +32,12 @@ function App() {
   const user = useAppSelector((state) => state.user.userData);
   const imgDomain = useAppSelector((state: any) => state.user.imgDomain);
   const initApp = useCallback(async () => {
-    const accessToken = await getCookie(AsyncKey.accessTokenKey);
-    if (accessToken && typeof accessToken === 'string') {
-      await dispatch(findUser?.());
-      history.replace('/channels');
-    }
     if (!imgDomain) {
       await dispatch(getInitial?.());
+    }
+    const accessToken = await getCookie(AsyncKey.accessTokenKey);
+    if (accessToken && typeof accessToken === 'string') {
+      history.replace('/channels');
     }
   }, [imgDomain, dispatch, history]);
   useEffect(() => {
@@ -49,7 +54,7 @@ function App() {
       SocketUtils.socket?.disconnect?.();
     };
     const eventOnline = () => {
-      if (!user) {
+      if (!user.user_id) {
         initApp();
       } else {
         SocketUtils.reconnectIfNeeded();
@@ -141,10 +146,10 @@ function App() {
 
   return (
     <ThemeProvider theme={materialTheme}>
-      <div>
+      <ErrorBoundary>
         <Main />
         <AppToastNotification />
-      </div>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
