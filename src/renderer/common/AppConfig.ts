@@ -3,7 +3,7 @@ import images from './images';
 const Prefix = 'Buidler';
 
 const AppConfig = {
-  apiBaseUrl: 'https://testnet.buidler.app/',
+  apiBaseUrl: 'https://api.buidler.app/',
   maxLengthSpaceDescription: 450,
   maxLengthCommunityDescription: 1000,
   maximumFileSize: 100000000,
