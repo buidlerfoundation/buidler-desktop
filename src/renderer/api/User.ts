@@ -2,6 +2,7 @@ import {
   BalanceApiData,
   Channel,
   CollectibleDataApi,
+  Contract,
   NFTCollectionDataApi,
   SpaceCollectionData,
   Token,
@@ -98,8 +99,11 @@ export const fetchNFTCollection = () =>
 export const getUserDetail = (userId: string, teamId: string) =>
   Caller.get<UserData>(`user/${userId}/team/${teamId}`);
 
+export const importToken = (address: string) =>
+  Caller.post<Token>(`user/balance/${address}`);
+
 export const searchToken = (address: string) =>
-  Caller.get<Token>(`user/balance/${address}`);
+  Caller.get<Contract>(`contract/${address}`);
 
 export const findUserByAddress = (address: string) =>
   Caller.get<UserData>(`user/search?address=${address}`);
