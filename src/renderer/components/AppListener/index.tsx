@@ -7,6 +7,7 @@ import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils'
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import { useHistory } from 'react-router-dom';
 import { AsyncKey } from 'renderer/common/AppConfig';
+import { CustomEventName } from 'renderer/services/WindowEvent';
 
 const AppListener = () => {
   const history = useHistory();
@@ -48,7 +49,7 @@ const AppListener = () => {
     window.electron.ipcRenderer.on('leave-fullscreen', leaveFullscreenListener);
     window.electron.ipcRenderer.on('window-focus', windowFocusListener);
     window.electron.ipcRenderer.on('window-blur', windowBlurListener);
-    window.addEventListener('change_route', changeRouteListener);
+    window.addEventListener(CustomEventName.CHANGE_ROUTE, changeRouteListener);
     return () => {
       window.electron.ipcRenderer.removeListener('open-url', openUrlListener);
       window.electron.ipcRenderer.removeListener(
@@ -67,7 +68,10 @@ const AppListener = () => {
         'window-blur',
         windowBlurListener
       );
-      window.removeEventListener('change_route', changeRouteListener);
+      window.removeEventListener(
+        CustomEventName.CHANGE_ROUTE,
+        changeRouteListener
+      );
     };
   }, [dispatch, history]);
   useEffect(() => {

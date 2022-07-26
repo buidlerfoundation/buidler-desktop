@@ -26,6 +26,7 @@ import store from '../store';
 import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
 import GlobalVariable from '../services/GlobalVariable';
+import { dispatchChangeRoute } from 'renderer/services/WindowEvent';
 
 const getTasks = async (channelId: string, dispatch: Dispatch) => {
   dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
@@ -313,6 +314,15 @@ class SocketUtil {
     this.socket.on(
       'ON_REMOVE_USER_FROM_SPACE',
       (data: { space_id: string }) => {
+        const { currentChannel, currentTeam, channel } = store.getState().user;
+        if (data.space_id === currentChannel.space_id) {
+          const nextChannelId =
+            channel?.filter((el) => el.channel_type !== 'Direct')?.[0]
+              ?.channel_id || '';
+          dispatchChangeRoute(
+            `/channels/${currentTeam.team_id}/${nextChannelId}`
+          );
+        }
         store.dispatch({
           type: actionTypes.REMOVE_USER_FROM_SPACE,
           payload: {
@@ -732,11 +742,13 @@ class SocketUtil {
       let res = data;
       if (channelNotification?.channel_type === 'Private') {
         const keys = channelPrivateKey[data.channel_id];
-        res = await normalizeMessageItem(
-          data,
-          keys[keys.length - 1].key,
-          data.channel_id
-        );
+        if (keys?.length > 0) {
+          res = await normalizeMessageItem(
+            data,
+            keys[keys.length - 1].key,
+            data.channel_id
+          );
+        }
       }
       store.dispatch({
         type: actionTypes.EDIT_MESSAGE,
