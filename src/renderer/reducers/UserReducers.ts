@@ -20,6 +20,7 @@ interface UserReducerState {
   imgDomain: string;
   imgConfig: any;
   teamUserData: Array<UserData>;
+  totalTeamUser: number;
   lastChannel: { [key: string]: Channel };
   spaceMembers: Array<UserData>;
   walletBalance?: BalanceApiData | null;
@@ -53,6 +54,7 @@ const initialState: UserReducerState = {
   imgDomain: '',
   imgConfig: {},
   teamUserData: [],
+  totalTeamUser: 0,
   lastChannel: {},
   spaceMembers: [],
   walletBalance: null,
@@ -349,6 +351,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       return {
         ...state,
         teamUserData: teamUsers,
+        totalTeamUser: teamUsers?.metadata?.total,
       };
     }
     case actionTypes.USER_SUCCESS: {

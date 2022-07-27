@@ -1,3 +1,4 @@
+import { UserData } from 'renderer/models';
 import ApiCaller from './ApiCaller';
 import Caller from './Caller';
 
@@ -10,7 +11,7 @@ import Caller from './Caller';
 export const createTeam = (body: any) => ApiCaller.post('team', body);
 
 export const getTeamUsers = (teamId: string) =>
-  ApiCaller.get(`team/${teamId}/members`);
+  Caller.get<Array<UserData>>(`team/${teamId}/members`);
 
 export const invitation = (teamId: string) =>
   Caller.post<{ invitation_url: string }>(`team/invitation/${teamId}/members`);
