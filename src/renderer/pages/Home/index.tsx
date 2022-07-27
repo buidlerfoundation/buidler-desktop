@@ -73,6 +73,7 @@ import {
   GACategory,
   GAPageView,
 } from 'renderer/services/analytics/GAEventName';
+import ModalAllMembers from 'renderer/shared/ModalAllMembers';
 
 const loadingSelector = createLoadingSelector([
   actionTypes.TEAM_PREFIX,
@@ -128,6 +129,7 @@ const Home = () => {
   const [selectedSpace, setSelectedSpace] = useState<Space>(null);
   const [channelDelete, setChannelDelete] = useState<any>(null);
   const [isOpenInvite, setOpenInvite] = useState(false);
+  const [isOpenMembers, setOpeMembers] = useState(false);
   const [isOpenConfirmDeleteSpace, setOpenConfirmDeleteSpace] = useState(false);
   const [isOpenConfirmDeleteChannel, setOpenConfirmDeleteChannel] =
     useState(false);
@@ -141,6 +143,10 @@ const Home = () => {
   const [openTaskView, setOpenTask] = useState(false);
   const [currentMessageId, setCurrentMessageId] = useState<string>(null);
   const [openConversation, setOpenConversation] = useState(false);
+  const toggleOpenMembers = useCallback(
+    () => setOpeMembers((current) => !current),
+    []
+  );
   const handleDragChannel = useCallback(
     (result: any) => {
       const { draggableId, source, destination } = result;
@@ -767,6 +773,7 @@ const Home = () => {
             onEditChannelName={handleOpenEditChannelName}
             onInviteMember={handleOpenInviteMember}
             onSpaceBadgeClick={handleSpaceBadgeClick}
+            onViewMembers={toggleOpenMembers}
           />
 
           <div className="home-body">
@@ -887,6 +894,10 @@ const Home = () => {
             open={!!currentUserId}
             handleClose={handleCloseModalUserProfile}
             userId={currentUserId}
+          />
+          <ModalAllMembers
+            open={isOpenMembers}
+            handleClose={toggleOpenMembers}
           />
         </div>
       </DragDropContext>

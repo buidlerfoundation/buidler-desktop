@@ -34,6 +34,7 @@ type SideBarProps = {
   onCreateChannel: (initSpace?: any) => void;
   onCreateGroupChannel: () => void;
   onSpaceBadgeClick: (space: Space) => void;
+  onViewMembers: () => void;
 };
 
 const SideBar = forwardRef(
@@ -48,6 +49,7 @@ const SideBar = forwardRef(
       onEditGroupChannel,
       onRemoveTeamMember,
       onSpaceBadgeClick,
+      onViewMembers,
     }: SideBarProps,
     ref
   ) => {
@@ -238,6 +240,7 @@ const SideBar = forwardRef(
               currentChannel={currentChannel}
               onContextMenu={handleContextMenuMemberSpace}
               onInviteMember={onInviteMember}
+              onViewMembers={onViewMembers}
             />
             {isOwner && (
               <div className="btn-create-space" onClick={onCreateGroupChannel}>

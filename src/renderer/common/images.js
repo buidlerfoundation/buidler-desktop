@@ -94,6 +94,7 @@ import icConvert from '../assets/images/ic_convert.svg';
 import icEtherscan from '../assets/images/ic_etherscan.png';
 import icPlusCircleDark from '../assets/images/ic_plus_circle_dark.svg';
 import icConvertVertical from '../assets/images/ic_convert_vertical.svg';
+import icMembers from '../assets/images/ic_members.svg';
 
 const images = {
   icTeamDefault,
@@ -192,6 +193,7 @@ const images = {
   icEtherscan,
   icPlusCircleDark,
   icConvertVertical,
+  icMembers,
 };
 
 export default images;
