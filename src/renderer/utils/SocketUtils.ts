@@ -13,7 +13,7 @@ import {
 import { io } from 'socket.io-client';
 import { uniqBy } from 'lodash';
 import { UserData } from 'renderer/models';
-import { ethers, utils } from 'ethers';
+import { utils } from 'ethers';
 import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey, LoginType } from '../common/AppConfig';
 import {
@@ -27,6 +27,26 @@ import api from '../api';
 import { createRefreshSelector } from '../reducers/selectors';
 import GlobalVariable from '../services/GlobalVariable';
 import { dispatchChangeRoute } from 'renderer/services/WindowEvent';
+
+const actionFetchWalletBalance = async (dispatch: Dispatch) => {
+  dispatch({ type: actionTypes.WALLET_BALANCE_REQUEST });
+  try {
+    const res = await api.fetchWalletBalance();
+    if (res.statusCode === 200) {
+      dispatch({ type: actionTypes.WALLET_BALANCE_SUCCESS, payload: res.data });
+    } else {
+      dispatch({
+        type: actionTypes.WALLET_BALANCE_FAIL,
+        payload: { message: res.message },
+      });
+    }
+  } catch (error: any) {
+    dispatch({
+      type: actionTypes.WALLET_BALANCE_FAIL,
+      payload: { message: error.message },
+    });
+  }
+};
 
 const getTasks = async (channelId: string, dispatch: Dispatch) => {
   dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
@@ -239,6 +259,7 @@ class SocketUtil {
         this.socket.off('ON_USER_UPDATE_PROFILE');
         this.socket.off('ON_ADD_USER_TO_SPACE');
         this.socket.off('ON_REMOVE_USER_FROM_SPACE');
+        this.socket.off('ON_UPDATE_BALANCE_OF_USER');
         this.socket.off('disconnect');
       });
       const user: any = store.getState()?.user;
@@ -296,6 +317,9 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_UPDATE_BALANCE_OF_USER', async () => {
+      actionFetchWalletBalance(store.dispatch);
+    });
     this.socket.on(
       'ON_ADD_USER_TO_SPACE',
       async (data: { space_id: string }) => {
