@@ -5,9 +5,7 @@ const INFURA_API_KEY = '74de9271d1194b40af956650c6084bb4';
 export const checkGasPrice = async () => {
   const provider = new providers.InfuraProvider('goerli', INFURA_API_KEY);
 
-  const signer = new Wallet(
-    '907fb2aa9ec11be6ab2818c25f755569ec17f7dbe27eb248991eabd548b841f7'
-  );
+  const signer = new Wallet('PK');
   const account = signer.connect(provider);
 
   const gasPrice = await provider.getGasPrice();
@@ -18,9 +16,7 @@ export const checkGasPrice = async () => {
 export const testSC = async () => {
   const provider = new providers.InfuraProvider('goerli', INFURA_API_KEY);
 
-  const signer = new Wallet(
-    '907fb2aa9ec11be6ab2818c25f755569ec17f7dbe27eb248991eabd548b841f7'
-  );
+  const signer = new Wallet('PK');
   const account = signer.connect(provider);
   const router = new Contract(
     '0x32cc13220314180b1c9a373279a736ea6ec27ec4',
