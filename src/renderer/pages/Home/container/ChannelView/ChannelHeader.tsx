@@ -15,7 +15,6 @@ import {
 } from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
 import EmojiAndAvatarPicker from 'renderer/shared/EmojiAndAvatarPicker';
-import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import images from '../../../../common/images';
 import AvatarView from '../../../../shared/AvatarView';
 import PopoverButton from '../../../../shared/PopoverButton';
@@ -246,7 +245,7 @@ const ChannelHeader = forwardRef(
             >
               <span className="channel-view__title text-ellipsis">
                 {currentChannel?.user?.user_name
-                  ? normalizeUserName(currentChannel?.user?.user_name)
+                  ? currentChannel?.user?.user_name
                   : currentChannel?.channel_name}
               </span>
             </div>
