@@ -9,10 +9,6 @@ import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
 import store from 'renderer/store';
 
-export const testActions = () => async (dispatch: Dispatch) => {
-  dispatch({ type: 'TEST_ACTION' });
-};
-
 export const getInitial: ActionCreator<any> =
   () => async (dispatch: Dispatch) => {
     const res = await api.getInitial();

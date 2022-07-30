@@ -7,6 +7,7 @@ const AppConfig = {
   maxLengthSpaceDescription: 450,
   maxLengthCommunityDescription: 1000,
   maximumFileSize: 100000000,
+  etherscanUrl: 'https://etherscan.io',
 };
 
 export default AppConfig;
