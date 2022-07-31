@@ -1,6 +1,6 @@
-import { AnyAction, Reducer } from "redux";
-import actionTypes from "renderer/actions/ActionTypes";
-import { TransactionApiData } from "renderer/models";
+import { AnyAction, Reducer } from 'redux';
+import actionTypes from 'renderer/actions/ActionTypes';
+import { TransactionApiData } from 'renderer/models';
 
 type TransactionReducerState = {
   data: Array<TransactionApiData>;
@@ -8,6 +8,13 @@ type TransactionReducerState = {
     page: number;
     canMore: boolean;
   };
+  toastData: {
+    title: string;
+    message: string;
+    hash: string;
+    type: 'success' | 'error';
+  } | null;
+  toastData: null;
 };
 
 const initialState: TransactionReducerState = {
@@ -24,9 +31,16 @@ const transactionReducers: Reducer<TransactionReducerState, AnyAction> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.UPDATE_TRANSACTION_TOAST: {
+      return {
+        ...state,
+        toastData: payload,
+      };
+    }
     case actionTypes.TRANSACTION_SUCCESS: {
       const { data, page, canMore } = payload;
       return {
+        ...state,
         data: page > 1 ? [...state.data, ...data] : data,
         metadata: {
           page,
