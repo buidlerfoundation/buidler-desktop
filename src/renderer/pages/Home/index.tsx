@@ -116,6 +116,7 @@ const Home = () => {
     spaceChannel,
     userData,
   } = useAppSelector((state) => state.user);
+  const community = useAppSelector((state) => state.user.team);
   const currentChannelId = useMemo(
     () => currentChannel?.channel_id || currentChannel?.user?.user_id || '',
     [currentChannel?.channel_id, currentChannel?.user?.user_id]
@@ -634,7 +635,7 @@ const Home = () => {
     if (currentChannel.channel_id) channelViewRef.current?.hideReply?.();
   }, [currentChannel.channel_id]);
   useEffect(() => {
-    if (match_channel_id) {
+    if (match_channel_id && !!community) {
       if (match_community_id === 'user') {
         setCurrentUserId(match_channel_id);
       } else {
@@ -643,11 +644,17 @@ const Home = () => {
         );
         if (matchChannel) {
           setCurrentUserId('');
-          dispatch(setCurrentChannel?.(matchChannel, match_community_id));
+          if (matchChannel.channel_id !== currentChannel.channel_id) {
+            dispatch(setCurrentChannel?.(matchChannel, match_community_id));
+          }
+        } else {
+          history.replace(`/channels/${match_community_id}`);
         }
       }
     }
   }, [
+    community,
+    history,
     channels,
     currentChannel?.channel_id,
     dispatch,
