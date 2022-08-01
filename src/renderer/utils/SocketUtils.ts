@@ -854,7 +854,7 @@ class SocketUtil {
     }
     this.emitOnline(teamId);
   }
-  async emitOnline(teamId: string) {
+  async emitOnline(teamId?: string) {
     const deviceCode = await getDeviceCode();
     const generatedPrivateKey = await GeneratedPrivateKey();
     const loginType = await getCookie(AsyncKey.loginType);
