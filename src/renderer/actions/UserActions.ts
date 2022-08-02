@@ -24,6 +24,15 @@ export const logout: ActionCreator<any> = () => (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.LOGOUT });
 };
 
+export const clearLastChannel: ActionCreator<any> =
+  (communityId: string) => (dispatch: Dispatch) => {
+    removeCookie(AsyncKey.lastChannelId);
+    dispatch({
+      type: ActionTypes.CLEAR_LAST_CHANNEL,
+      payload: { communityId },
+    });
+  };
+
 export const login: ActionCreator<any> =
   (code, callback: (res: boolean) => void) => async (dispatch: Dispatch) => {
     dispatch({ type: ActionTypes.LOGIN_REQUEST });

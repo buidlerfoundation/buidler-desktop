@@ -19,7 +19,7 @@ import {
 import MainWrapper from './Layout';
 import Home from '../Home';
 import { AsyncKey, LoginType } from '../../common/AppConfig';
-import { getCookie } from '../../common/Cookie';
+import { getCookie, removeCookie } from '../../common/Cookie';
 import AppTitleBar from '../../shared/AppTitleBar';
 import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
@@ -125,6 +125,7 @@ const RedirectToHome = () => {
         (el) => el.team_id === match_community_id
       );
       if (!matchCommunity) {
+        removeCookie(AsyncKey.lastTeamId);
         history.replace('/channels');
         return;
       }
