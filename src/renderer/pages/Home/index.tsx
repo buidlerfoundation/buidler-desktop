@@ -11,7 +11,7 @@ import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
-import { getCookie, setCookie } from 'renderer/common/Cookie';
+import { getCookie, removeCookie, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/shared/ModalOTP';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
@@ -622,7 +622,7 @@ const Home = () => {
       const invitationId = dataFromUrl.split('=')[1];
       const res = await api.acceptInvitation(invitationId);
       if (res.statusCode === 200) {
-        toast.success('You have successfully joined new team.');
+        toast.success('You have successfully joined new community.');
         dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
         setCookie(AsyncKey.lastTeamId, res.team_id);
         dispatch(findTeamAndChannel());
@@ -640,17 +640,25 @@ const Home = () => {
       if (match_community_id === 'user') {
         setCurrentUserId(match_channel_id);
       } else {
-        const matchChannel = channels.find(
-          (c) => c.channel_id === match_channel_id
+        const matchCommunity = community?.find(
+          (c) => c.team_id === match_community_id
         );
-        if (matchChannel) {
-          setCurrentUserId('');
-          if (matchChannel.channel_id !== currentChannel.channel_id) {
-            dispatch(setCurrentChannel?.(matchChannel, match_community_id));
-          }
+        if (!matchCommunity) {
+          removeCookie(AsyncKey.lastTeamId);
+          history.replace('/channels');
         } else {
-          dispatch(clearLastChannel(match_community_id));
-          history.replace(`/channels/${match_community_id}`);
+          const matchChannel = channels.find(
+            (c) => c.channel_id === match_channel_id
+          );
+          if (matchChannel) {
+            setCurrentUserId('');
+            if (matchChannel.channel_id !== currentChannel.channel_id) {
+              dispatch(setCurrentChannel?.(matchChannel, match_community_id));
+            }
+          } else {
+            dispatch(clearLastChannel(match_community_id));
+            history.replace(`/channels/${match_community_id}`);
+          }
         }
       }
     }
