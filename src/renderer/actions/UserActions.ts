@@ -40,7 +40,7 @@ export const getMemberData =
       });
     }
     const roles = role === UserRole.Member ? Object.values(UserRole) : [role];
-    const res = await api.getMembersByRole(teamId, roles);
+    const res = await api.getMembersByRole(teamId, roles, { page });
     if (res.success) {
       dispatch({
         type: ActionTypes.MEMBER_DATA_SUCCESS,
