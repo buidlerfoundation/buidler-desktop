@@ -142,7 +142,8 @@ const RedirectToHome = () => {
       const channelByTeam = lastChannel?.[match_community_id];
       channelId = channelByTeam?.channel_id;
     }
-    if (!channelId && !cookieChannelId) {
+    const matchChannel = channel.find((el) => el.channel_id === channelId);
+    if ((!channelId && !cookieChannelId) || !matchChannel) {
       channelId = channel?.[0]?.channel_id;
     }
     if (!teamId) {
@@ -150,6 +151,8 @@ const RedirectToHome = () => {
     }
     if (channelId && teamId) {
       history.replace(`/channels/${teamId}/${channelId}`);
+    } else if (teamId) {
+      history.replace(`/channels/${teamId}`);
     } else {
       setEmpty(true);
     }

@@ -50,6 +50,7 @@ import ChannelHeader from './ChannelHeader';
 import DirectDescription from './DirectDescription';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import { GAAction, GACategory } from 'renderer/services/analytics/GAEventName';
+import useMatchCommunityId from 'renderer/hooks/useMatchCommunityId';
 
 type ChannelViewProps = {
   currentChannel: Channel;
@@ -91,6 +92,7 @@ const ChannelView = forwardRef(
     ref
   ) => {
     const dispatch = useDispatch();
+    const communityId = useMatchCommunityId();
     const reactData = useAppSelector((state) => state.reactReducer.reactData);
     const messagesGroup = useMemo<Array<MessageGroup>>(() => {
       return normalizeMessages(messages);
@@ -293,6 +295,15 @@ const ChannelView = forwardRef(
     const scrollDown = useCallback(() => {
       msgListRef.current?.scrollTo?.(0, 0);
     }, []);
+    const onClearText = useCallback(() => {
+      inputRef.current?.blur();
+      setText('');
+      setMessageReply(null);
+      setReplyTask(null);
+      setMessageEdit(null);
+      setFiles([]);
+      generateId.current = '';
+    }, [inputRef, setReplyTask]);
     const onRemoveReply = useCallback(() => {
       if (messageReply || replyTask || messageEdit) {
         setText('');
@@ -348,6 +359,7 @@ const ChannelView = forwardRef(
     useImperativeHandle(ref, () => {
       return {
         hideReply: onRemoveReply,
+        clearText: onClearText,
         showSetting: (action: string) => {
           headerRef.current.showSetting(action);
         },
@@ -591,12 +603,12 @@ const ChannelView = forwardRef(
               ref={headerRef}
               currentChannel={currentChannel}
               teamUserData={teamUserData}
-              teamId={currentTeam.team_id}
+              teamId={communityId}
             />
             {!currentChannel.channel_id && (
               <DirectDescription
                 currentChannel={currentChannel}
-                teamId={currentTeam.team_id}
+                teamId={communityId}
               />
             )}
             <div
