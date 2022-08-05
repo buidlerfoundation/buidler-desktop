@@ -16,6 +16,7 @@ import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import { GAAction, GACategory } from 'renderer/services/analytics/GAEventName';
+import useChannel from 'renderer/hooks/useChannel';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
@@ -31,7 +32,7 @@ const SettingChannel = ({
   const history = useHistory();
   const dispatch = useDispatch();
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
-  const channels = useAppSelector((state) => state.user.channel);
+  const channels = useChannel();
   const [isOpenConfirm, setOpenConfirm] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [isOpenEditName, setOpenEditName] = useState(false);
