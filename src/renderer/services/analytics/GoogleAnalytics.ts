@@ -1,11 +1,15 @@
 class GoogleAnalytics {
   init() {}
 
-  pageView(path: string) {}
+  tracking(eventName: string, props: { [key: string]: string }) {}
 
-  modalView(name: string) {}
-
-  event(args: any) {}
+  trackingError(
+    apiUrl: string,
+    method: string,
+    errorMessage: string,
+    statusCode: number,
+    reqBody?: any
+  ) {}
 }
 
 export default new GoogleAnalytics();

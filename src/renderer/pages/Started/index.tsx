@@ -18,50 +18,30 @@ import ModalCreatePassword from '../../shared/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../shared/ModalImportSeedPhrase';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
-import {
-  GAAction,
-  GACategory,
-  GALabel,
-  GAPageView,
-} from 'renderer/services/analytics/GAEventName';
 
 const Started = () => {
   useEffect(() => {
-    GoogleAnalytics.pageView(GAPageView.STARTED);
-    GoogleAnalytics.event({
-      category: GACategory.LOGIN,
-      action: GAAction.VIEW,
-    });
+    GoogleAnalytics.tracking('Login Started', { category: 'Login' });
   }, []);
   const dispatch = useDispatch();
   const history = useHistory();
   const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
-  const gaLoginFailed = useCallback((label: string) => {
-    GoogleAnalytics.event({
-      category: GACategory.LOGIN,
-      action: GAAction.FAILED,
-      label,
-    });
-  }, []);
   const gaLoginSuccess = useCallback((label: string) => {
-    GoogleAnalytics.event({
-      category: GACategory.LOGIN,
-      action: GAAction.SUCCESS,
-      label,
+    GoogleAnalytics.tracking('Login Successful', {
+      category: 'Login',
+      method: label,
     });
   }, []);
   const gaLoginSubmit = useCallback((label: string) => {
-    GoogleAnalytics.event({
-      category: GACategory.LOGIN,
-      action: GAAction.SUBMIT,
-      label,
+    GoogleAnalytics.tracking('Login Submitted', {
+      category: 'Login',
+      method: label,
     });
   }, []);
   const gaLoginClick = useCallback((label: string) => {
-    GoogleAnalytics.event({
-      category: GACategory.LOGIN,
-      action: GAAction.CLICK,
-      label,
+    GoogleAnalytics.tracking('Login Method Selected', {
+      category: 'Login',
+      method: label,
     });
   }, []);
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
@@ -78,8 +58,6 @@ const Started = () => {
       const nonceRes = await api.requestNonceWithAddress(address);
       const message = nonceRes.data?.message;
       if (nonceRes.statusCode !== 200 || !message) {
-        gaLoginFailed(GALabel.WALLET_CONNECT);
-        toast.error(nonceRes?.message || '');
         return;
       }
       const params = [
@@ -94,19 +72,17 @@ const Started = () => {
         GlobalVariable.loginType = LoginType.WalletConnect;
         await setCookie(AsyncKey.accessTokenKey, res?.token);
         await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
-        gaLoginSuccess(GALabel.WALLET_CONNECT);
+        gaLoginSuccess('WalletConnect');
         history.replace('/channels');
       } else {
         toast.error(res.message || '');
-        gaLoginFailed(GALabel.WALLET_CONNECT);
         WalletConnectUtils.connector.killSession();
       }
     } catch (err) {
       console.log(err);
-      gaLoginFailed(GALabel.WALLET_CONNECT);
       WalletConnectUtils.connector.killSession();
     }
-  }, [gaLoginFailed, gaLoginSuccess, history]);
+  }, [gaLoginSuccess, history]);
   const handleOpenModalCreate = useCallback(
     () => setOpenPasswordModal(true),
     []
@@ -130,7 +106,7 @@ const Started = () => {
     });
   }, [dispatch]);
   const handleWalletConnect = useCallback(() => {
-    gaLoginClick(GALabel.WALLET_CONNECT);
+    gaLoginClick('Wallet Connect');
     WalletConnectUtils.connect(onWCConnected, onWCDisconnected);
   }, [gaLoginClick, onWCConnected, onWCDisconnected]);
   const handleCloseModalCreate = useCallback(

@@ -21,6 +21,7 @@ import useAppDispatch from 'renderer/hooks/useAppDispatch';
 import EmptyTeamView from 'renderer/components/EmptyTeamView';
 import { createErrorMessageSelector } from 'renderer/reducers/selectors';
 import actionTypes from 'renderer/actions/ActionTypes';
+import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 
 interface PrivateRouteProps {
   component: any;
@@ -29,6 +30,31 @@ interface PrivateRouteProps {
 }
 
 const errorUserSelector = createErrorMessageSelector([actionTypes.USER_PREFIX]);
+
+const PublicRoute = ({ component: Component, ...rest }: any) => {
+  const history = useHistory();
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    GoogleAnalytics.tracking('Page Viewed', {
+      category: 'Traffic',
+      page_name: 'Login',
+      source: query.get('ref') || '',
+      path: window.location.pathname,
+    });
+  }, []);
+  useEffect(() => {
+    getCookie(AsyncKey.accessTokenKey)
+      .then((res: any) => {
+        if (res) {
+          history.replace('/');
+        }
+      })
+      .catch(() => {
+        history.replace('/started');
+      });
+  }, [history]);
+  return <Route {...rest} render={(props) => <Component {...props} />} />;
+};
 
 const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const [loading, setLoading] = useState(false);
@@ -78,6 +104,17 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     privateKey,
   ]);
   useEffect(() => {
+    if (window.location.pathname !== '/') {
+      const query = new URLSearchParams(window.location.search);
+      GoogleAnalytics.tracking('Page Viewed', {
+        category: 'Traffic',
+        page_name: 'Home',
+        source: query.get('ref') || '',
+        path: window.location.pathname,
+      });
+    }
+  }, []);
+  useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
         if (typeof res === 'string' && !!res) {
@@ -85,12 +122,18 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
             initApp();
           }
         } else {
-          history.replace('/started');
+          history.replace({
+            pathname: '/started',
+            search: window.location.search,
+          });
           dispatch(logout());
         }
       })
       .catch(() => {
-        history.replace('/started');
+        history.replace({
+          pathname: '/started',
+          search: window.location.search,
+        });
         dispatch(logout());
       });
   }, [dispatch, history, initApp, rest.path]);
@@ -204,7 +247,7 @@ const Main = () => {
             component={Home}
           />
           <PrivateRoute exact path="/unlock" component={UnlockPrivateKey} />
-          <Route exact path="/started" component={Started} />
+          <PublicRoute exact path="/started" component={Started} />
         </Switch>
       </MainWrapper>
     </div>
