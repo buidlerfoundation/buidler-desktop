@@ -152,8 +152,15 @@ const actionSetCurrentTeam = async (
     (u: any) => u.direct_channel === lastChannelId
   );
   dispatch({
-    type: actionTypes.SET_CURRENT_TEAM,
-    payload: { team, resChannel, directChannelUser, lastChannelId, resChannel },
+    type: actionTypes.CURRENT_TEAM_SUCCESS,
+    payload: {
+      team,
+      resChannel,
+      directChannelUser,
+      lastChannelId,
+      resChannel,
+      resSpace,
+    },
   });
   setCookie(AsyncKey.lastTeamId, team.team_id);
 };
@@ -303,6 +310,13 @@ class SocketUtil {
       const { currentTeam, userData, team, lastChannel } =
         store.getState().user;
       if (team_id === currentTeam.team_id && user_id === userData.user_id) {
+        store.dispatch({
+          type: actionTypes.LEAVE_TEAM_SUCCESS,
+          payload: {
+            teamId: team_id,
+            userId: user_id,
+          },
+        });
         const nextTeam =
           currentTeam.team_id === team_id
             ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
@@ -993,7 +1007,7 @@ class SocketUtil {
     }
     this.changeTeam(team.team_id);
     dispatch({
-      type: actionTypes.SET_CURRENT_TEAM,
+      type: actionTypes.CURRENT_TEAM_SUCCESS,
       payload: { team, resChannel, lastChannelId, resSpace },
     });
     setCookie(AsyncKey.lastTeamId, team.team_id);

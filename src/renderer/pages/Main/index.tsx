@@ -19,7 +19,10 @@ import Started from '../Started';
 import UnlockPrivateKey from '../UnlockPrivateKey';
 import useAppDispatch from 'renderer/hooks/useAppDispatch';
 import EmptyTeamView from 'renderer/components/EmptyTeamView';
-import { createErrorMessageSelector } from 'renderer/reducers/selectors';
+import {
+  createErrorMessageSelector,
+  createLoadingSelector,
+} from 'renderer/reducers/selectors';
 import actionTypes from 'renderer/actions/ActionTypes';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 
@@ -30,6 +33,9 @@ interface PrivateRouteProps {
 }
 
 const errorUserSelector = createErrorMessageSelector([actionTypes.USER_PREFIX]);
+const currentTeamLoadingSelector = createLoadingSelector([
+  actionTypes.CURRENT_TEAM_PREFIX,
+]);
 
 const PublicRoute = ({ component: Component, ...rest }: any) => {
   const history = useHistory();
@@ -62,6 +68,9 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const userData = useAppSelector((state) => state.user.userData);
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const userError = useAppSelector((state) => errorUserSelector(state));
+  const currentTeamLoading = useAppSelector((state) =>
+    currentTeamLoadingSelector(state)
+  );
   const team = useAppSelector((state) => state.user.team);
   const currentTeam = useAppSelector((state) => state.user.currentTeam);
   const dispatch = useAppDispatch();
@@ -88,12 +97,13 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       const matchCommunity = team?.find(
         (t) => t.team_id === match_community_id
       );
-      if (matchCommunity) {
+      if (matchCommunity && !currentTeamLoading) {
         await dispatch(setCurrentTeam(matchCommunity));
       }
     }
     setLoading(false);
   }, [
+    currentTeamLoading,
     rest.redirect,
     currentTeam?.team_id,
     dispatch,
