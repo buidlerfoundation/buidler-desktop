@@ -1,6 +1,8 @@
 import { getDeviceCode } from 'renderer/common/Cookie';
+import { MessageData } from 'renderer/models';
 import { getMentionData } from '../helpers/MessageHelper';
 import ApiCaller from './ApiCaller';
+import Caller from './Caller';
 
 export const deleteMessage = (messageId: string) =>
   ApiCaller.delete(`message/${messageId}`);
@@ -16,7 +18,7 @@ export const getMessages = async (
   if (after) {
     uri += `&page[after]=${after}`;
   }
-  return ApiCaller.get(uri);
+  return Caller.get<Array<MessageData>>(uri);
 };
 
 export const getConversation = (
