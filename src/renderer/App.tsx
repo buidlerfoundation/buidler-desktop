@@ -45,6 +45,11 @@ function App() {
     GoogleAnalytics.init();
   }, []);
   useEffect(() => {
+    if (user.user_id) {
+      GoogleAnalytics.identify(user);
+    }
+  }, [user]);
+  useEffect(() => {
     TextareaAutosize.defaultProps = {
       ...TextareaAutosize.defaultProps,
       onFocus: () => {
