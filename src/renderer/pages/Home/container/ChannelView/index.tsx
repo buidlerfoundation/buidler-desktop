@@ -13,13 +13,14 @@ import {
   AttachmentData,
   Channel,
   Community,
+  ConversationData,
   MessageData,
   MessageGroup,
+  UserData,
 } from 'renderer/models';
 import { PopoverItem } from 'renderer/shared/PopoverButton';
 import { debounce } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
 import { createTask } from 'renderer/actions/TaskActions';
 import {
   deleteMessage,
@@ -48,6 +49,8 @@ import MessageInput from '../../../../shared/MessageInput';
 import MessageReplyItem from '../../../../shared/MessageReplyItem';
 import ChannelHeader from './ChannelHeader';
 import DirectDescription from './DirectDescription';
+import useAppDispatch from 'renderer/hooks/useAppDispatch';
+import { useLocation } from 'react-router-dom';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import useMatchCommunityId from 'renderer/hooks/useMatchCommunityId';
 import useTotalTeamUserData from 'renderer/hooks/useTotalMemberUser';
@@ -67,7 +70,7 @@ type ChannelViewProps = {
   openTaskView: boolean;
   isOpenConversation: boolean;
   onSelectTask: (task: any) => void;
-  teamUserData: Array<any>;
+  teamUserData: Array<UserData>;
 };
 
 const ChannelView = forwardRef(
@@ -91,9 +94,10 @@ const ChannelView = forwardRef(
     }: ChannelViewProps,
     ref
   ) => {
-    const dispatch = useDispatch();
-    const communityId = useMatchCommunityId();
+    const location = useLocation();
+    const dispatch = useAppDispatch();
     const totalTeamUser = useTotalTeamUserData();
+    const communityId = useMatchCommunityId();
     const reactData = useAppSelector((state) => state.reactReducer.reactData);
     const messagesGroup = useMemo<Array<MessageGroup>>(() => {
       return normalizeMessages(messages);
@@ -102,8 +106,12 @@ const ChannelView = forwardRef(
     const channelPrivateKey = useAppSelector(
       (state) => state.configs.channelPrivateKey
     );
-    const [messageReply, setMessageReply] = useState<MessageData>(null);
-    const [messageEdit, setMessageEdit] = useState<MessageData>(null);
+    const [messageReply, setMessageReply] = useState<
+      MessageData | ConversationData | null
+    >(null);
+    const [messageEdit, setMessageEdit] = useState<
+      MessageData | ConversationData | null
+    >(null);
     const [isScrolling, setScrolling] = useState(false);
     const [files, setFiles] = useState<Array<any>>([]);
     const timeoutScrollRef = useRef<any>(null);
@@ -142,7 +150,7 @@ const ChannelView = forwardRef(
                     ...newAttachments[index],
                     loading: false,
                     url: res.data?.file_url,
-                    id: res.data?.file?.file_id,
+                    id: res.data?.file.file_id,
                   };
                 } else {
                   newAttachments = newAttachments.filter(
@@ -167,7 +175,7 @@ const ChannelView = forwardRef(
       [onAddFiles]
     );
     const onMessageScroll = useCallback(
-      (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
+      (e: any) => {
         setScrolling((current) => {
           if (!current) return true;
           return current;
@@ -207,7 +215,7 @@ const ChannelView = forwardRef(
       ]
     );
     const onCreateTaskFromMessage = useCallback(
-      (msg: MessageData) => {
+      (msg: MessageData | ConversationData) => {
         const body: any = {
           title: msg?.content,
           status: 'pinned',
@@ -238,7 +246,7 @@ const ChannelView = forwardRef(
       ]
     );
     const onReplyPress = useCallback(
-      (msg: MessageData) => {
+      (msg: MessageData | ConversationData) => {
         setMessageReply(msg);
         setReplyTask(null);
         setMessageEdit(null);
@@ -247,7 +255,7 @@ const ChannelView = forwardRef(
       [inputRef, setReplyTask]
     );
     const onMenuMessage = useCallback(
-      (menu: PopoverItem, msg: MessageData) => {
+      (menu: PopoverItem, msg: MessageData | ConversationData) => {
         if (menu.value === 'Delete') {
           dispatch(
             deleteMessage(
@@ -363,7 +371,7 @@ const ChannelView = forwardRef(
     });
     const editMessage = useCallback(async () => {
       const loadingAttachment = files.find((att: any) => att.loading);
-      if (loadingAttachment != null) return;
+      if (loadingAttachment != null || !messageEdit?.message_id) return;
       if (extractContent(text).trim() !== '' || files.length > 0) {
         let content = text.trim();
         let plain_text = extractContent(text.trim());
@@ -547,6 +555,8 @@ const ChannelView = forwardRef(
               reacts={reactData?.[msg.message_id]}
               replyCount={msg.conversation_data?.length - 1}
               task={msg.task}
+              sender={teamUserData.find((el) => el.user_id === msg.sender_id)}
+              communityId={communityId}
             />
           );
         }
@@ -554,13 +564,15 @@ const ChannelView = forwardRef(
           <MessageItem
             key={msg.message_id}
             message={msg}
+            content={msg.content}
+            reacts={reactData?.[msg.message_id]}
+            task={msg.task}
             onCreateTask={onCreateTaskFromMessage}
             onReplyPress={onReplyPress}
             onMenuSelected={onMenuMessage}
             onSelectTask={onSelectTask}
-            content={msg.content}
-            reacts={reactData?.[msg.message_id]}
-            task={msg.task}
+            sender={teamUserData.find((el) => el.user_id === msg.sender_id)}
+            communityId={communityId}
           />
         );
       },
@@ -571,6 +583,8 @@ const ChannelView = forwardRef(
         onSelectTask,
         openConversation,
         reactData,
+        teamUserData,
+        communityId,
       ]
     );
 
@@ -634,7 +648,8 @@ const ChannelView = forwardRef(
                 <div style={{ position: 'relative' }}>
                   {scrollData?.showScrollDown &&
                     !openTaskView &&
-                    !isOpenConversation && (
+                    !isOpenConversation &&
+                    !location.pathname.includes('user') && (
                       <div className="message-scroll-down__wrapper">
                         {scrollData?.unreadCount > 0 && (
                           <div className="unread-count">
