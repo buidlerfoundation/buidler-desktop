@@ -16,9 +16,15 @@ class ImageHelper {
     this.imgDomain = domain;
   }
 
+  normalizeEthImage = (address) => {
+    return blockies.createDataURL({
+      seed: address,
+    });
+  };
+
   normalizeImage = (
-    name: string,
-    id: string,
+    name?: string,
+    id?: string,
     options: imageOptions = {},
     noParams = false
   ) => {

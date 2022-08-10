@@ -557,6 +557,7 @@ const ChannelView = forwardRef(
               task={msg.task}
               sender={teamUserData.find((el) => el.user_id === msg.sender_id)}
               communityId={communityId}
+              userId={userData.user_id}
             />
           );
         }
@@ -573,6 +574,7 @@ const ChannelView = forwardRef(
             onSelectTask={onSelectTask}
             sender={teamUserData.find((el) => el.user_id === msg.sender_id)}
             communityId={communityId}
+            userId={userData.user_id}
           />
         );
       },
@@ -585,6 +587,7 @@ const ChannelView = forwardRef(
         reactData,
         teamUserData,
         communityId,
+        userData.user_id,
       ]
     );
 
