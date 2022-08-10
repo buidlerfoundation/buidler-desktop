@@ -3,6 +3,7 @@ import {
   Channel,
   CollectibleDataApi,
   Contract,
+  InitialApiData,
   NFTCollectionDataApi,
   SpaceCollectionData,
   Token,
@@ -27,13 +28,13 @@ export const findTeam = () => ApiCaller.get('user/team');
 export const getGroupChannel = (teamId: string) =>
   ApiCaller.get(`group/${teamId}`);
 
-export const getSpaceChannel = (teamId: string) =>
-  ApiCaller.get(`space/${teamId}`);
+export const getSpaceChannel = (teamId: string, controller?: AbortController) =>
+  Caller.get<Array<Space>>(`space/${teamId}`, undefined, controller);
 
-export const findChannel = (teamId: string) =>
-  Caller.get<Array<Channel>>(`channel/${teamId}`);
+export const findChannel = (teamId: string, controller?: AbortController) =>
+  Caller.get<Array<Channel>>(`channel/${teamId}`, undefined, controller);
 
-export const getInitial = () => ApiCaller.get(`initial`);
+export const getInitial = () => Caller.get<InitialApiData>(`initial`);
 
 export const updateChannel = (id: string, data: any) =>
   ApiCaller.put(`channel/${id}`, data);

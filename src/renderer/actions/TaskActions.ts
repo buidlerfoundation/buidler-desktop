@@ -36,11 +36,17 @@ export const getTaskFromUser =
   };
 
 export const getTasks = (channelId: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: actionTypes.TASK_REQUEST, payload: { channelId } });
+  const lastController = store.getState().task.apiController;
+  lastController?.abort?.();
+  const controller = new AbortController();
+  dispatch({
+    type: actionTypes.TASK_REQUEST,
+    payload: { channelId, controller },
+  });
   try {
     const [taskRes, archivedCountRes] = await Promise.all([
-      api.getTasks(channelId),
-      api.getArchivedTaskCount(channelId),
+      api.getTasks(channelId, controller),
+      api.getArchivedTaskCount(channelId, controller),
     ]);
     if (taskRes.statusCode === 200 && archivedCountRes.statusCode === 200) {
       dispatch({

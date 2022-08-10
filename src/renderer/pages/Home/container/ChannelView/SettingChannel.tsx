@@ -13,8 +13,8 @@ import AppInput from '../../../../shared/AppInput';
 import ModalConfirmDeleteChannel from '../../../../shared/ModalConfirmDeleteChannel';
 import NormalButton from '../../../../shared/NormalButton';
 import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
-import useAppSelector from 'renderer/hooks/useAppSelector';
 import useChannel from 'renderer/hooks/useChannel';
+import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
@@ -29,7 +29,7 @@ const SettingChannel = ({
 }: SettingChannelProps) => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const currentTeam = useAppSelector((state) => state.user.currentTeam);
+  const currentTeam = useCurrentCommunity();
   const channels = useChannel();
   const [isOpenConfirm, setOpenConfirm] = useState(false);
   const [currentName, setCurrentName] = useState('');

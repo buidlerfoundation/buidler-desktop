@@ -12,10 +12,12 @@ type TaskReducerState = {
       archivedTasks: Array<TaskData>;
     };
   };
+  apiController?: AbortController | null;
 };
 
 const initialState: TaskReducerState = {
   taskData: {},
+  apiController: null,
 };
 
 const taskReducers: Reducer<TaskReducerState, AnyAction> = (
@@ -25,9 +27,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
   const { type, payload } = action;
   switch (type) {
     case actionTypes.LOGOUT: {
-      return {
-        taskData: {},
-      };
+      return initialState;
     }
     case actionTypes.ARCHIVED_TASK_SUCCESS: {
       const { channelId, res } = payload;
@@ -43,6 +43,12 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
         },
       };
     }
+    case actionTypes.TASK_REQUEST: {
+      return {
+        ...state,
+        apiController: payload.controller,
+      };
+    }
     case actionTypes.TASK_SUCCESS: {
       const { channelId, tasks, archivedCount } = payload;
       return {
@@ -55,6 +61,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
             archivedCount,
           },
         },
+        apiController: null,
       };
     }
     case actionTypes.DELETE_TASK_REQUEST: {

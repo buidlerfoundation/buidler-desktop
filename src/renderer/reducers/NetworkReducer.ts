@@ -1,6 +1,6 @@
-import { AnyAction, Reducer } from "redux";
-import ChainId from "renderer/services/connectors/ChainId";
-import actionTypes from "../actions/ActionTypes";
+import { AnyAction, Reducer } from 'redux';
+import ChainId from 'renderer/services/connectors/ChainId';
+import actionTypes from '../actions/ActionTypes';
 
 type NetworkReducerState = {
   chainId: number;
@@ -10,7 +10,7 @@ const initialState: NetworkReducerState = {
   chainId: ChainId.EthereumMainnet,
 };
 
-const messageReducers: Reducer<NetworkReducerState, AnyAction> = (
+const networkReducers: Reducer<NetworkReducerState, AnyAction> = (
   state = initialState,
   action
 ) => {
@@ -27,4 +27,4 @@ const messageReducers: Reducer<NetworkReducerState, AnyAction> = (
   }
 };
 
-export default messageReducers;
+export default networkReducers;

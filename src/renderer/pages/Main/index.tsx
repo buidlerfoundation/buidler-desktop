@@ -25,6 +25,7 @@ import {
 } from 'renderer/reducers/selectors';
 import actionTypes from 'renderer/actions/ActionTypes';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
+import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
 
 interface PrivateRouteProps {
   component: any;
@@ -72,7 +73,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     currentTeamLoadingSelector(state)
   );
   const team = useAppSelector((state) => state.user.team);
-  const currentTeam = useAppSelector((state) => state.user.currentTeam);
+  const currentTeam = useCurrentCommunity();
   const dispatch = useAppDispatch();
   const history = useHistory();
   const initApp = useCallback(async () => {
@@ -206,6 +207,7 @@ const RedirectToHome = () => {
       history.replace(`/channels/${teamId}/${channelId}`);
     } else if (teamId) {
       history.replace(`/channels/${teamId}`);
+      setEmpty(true);
     } else {
       setEmpty(true);
     }

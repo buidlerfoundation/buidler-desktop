@@ -14,6 +14,7 @@ import {
   uploadChannelAvatar,
 } from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
+import { Channel, UserData } from 'renderer/models';
 import EmojiAndAvatarPicker from 'renderer/shared/EmojiAndAvatarPicker';
 import images from '../../../../common/images';
 import AvatarView from '../../../../shared/AvatarView';
@@ -22,8 +23,8 @@ import ChannelSettings from './ChannelSettings';
 import './index.scss';
 
 type ChannelHeaderProps = {
-  currentChannel?: any;
-  teamUserData: Array<any>;
+  currentChannel?: Channel;
+  teamUserData: Array<UserData>;
   teamId: string;
 };
 
@@ -129,7 +130,7 @@ const ChannelHeader = forwardRef(
       async (fs) => {
         if (fs == null || fs.length === 0) return;
         const file = [...fs][0];
-        dispatch(uploadChannelAvatar(teamId, currentChannel.channel_id, file));
+        dispatch(uploadChannelAvatar(teamId, currentChannel?.channel_id, file));
         popupChannelIconRef.current?.hide();
       },
       [currentChannel?.channel_id, dispatch, teamId]
@@ -137,7 +138,7 @@ const ChannelHeader = forwardRef(
     const onSelectRecentFile = useCallback(
       async (file) => {
         await dispatch(
-          updateChannel(currentChannel.channel_id, {
+          updateChannel(currentChannel?.channel_id, {
             channel_emoji: '',
             channel_image_url: file.file_url,
           })
@@ -149,7 +150,7 @@ const ChannelHeader = forwardRef(
     const onAddEmoji = useCallback(
       async (emoji) => {
         await dispatch(
-          updateChannel(currentChannel.channel_id, {
+          updateChannel(currentChannel?.channel_id, {
             channel_emoji: emoji.id,
             channel_image_url: '',
           })
@@ -230,7 +231,7 @@ const ChannelHeader = forwardRef(
                       onAddFiles={onAddFiles}
                       onAddEmoji={onAddEmoji}
                       onSelectRecentFile={onSelectRecentFile}
-                      channelId={currentChannel.channel_id}
+                      channelId={currentChannel?.channel_id}
                     />
                   </div>
                 }

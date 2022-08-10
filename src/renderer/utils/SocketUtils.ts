@@ -30,6 +30,10 @@ import GlobalVariable from '../services/GlobalVariable';
 import { dispatchChangeRoute } from 'renderer/services/WindowEvent';
 import { getTransactions } from 'renderer/actions/TransactionActions';
 import { formatTokenValue } from 'renderer/helpers/TokenHelper';
+import {
+  getCurrentChannel,
+  getCurrentCommunity,
+} from 'renderer/helpers/StoreHelper';
 
 const actionFetchWalletBalance = async (dispatch: Dispatch) => {
   dispatch({ type: actionTypes.WALLET_BALANCE_REQUEST });
@@ -167,8 +171,7 @@ const actionSetCurrentTeam = async (
 
 const loadMessageIfNeeded = async () => {
   const refreshSelector = createRefreshSelector([actionTypes.MESSAGE_PREFIX]);
-  const user: any = store.getState()?.user;
-  const { currentChannel } = user;
+  const currentChannel = getCurrentChannel();
   const refresh = refreshSelector(store.getState());
   if (!currentChannel || refresh || currentChannel.channel_type === 'Public')
     return;
@@ -250,15 +253,13 @@ class SocketUtil {
         this.socket.off('ON_USER_LEAVE_TEAM');
         this.socket.off('disconnect');
       });
-      const user: any = store.getState()?.user;
-      const { currentTeam } = user || {};
-      this.emitOnline(teamId || currentTeam?.team_id);
+      this.emitOnline(teamId || store.getState().user?.currentTeamId);
     });
   }
   reloadData = async () => {
-    const user: any = store.getState()?.user;
-    const { currentTeam, currentChannel } = user;
-    if (currentTeam && currentChannel) {
+    const currentChannel = getCurrentChannel();
+    const currentTeam = getCurrentCommunity();
+    if (!!currentTeam && !!currentChannel) {
       await actionSetCurrentTeam(
         currentTeam,
         store.dispatch,
@@ -307,9 +308,9 @@ class SocketUtil {
   listenSocket() {
     this.socket.on('ON_USER_LEAVE_TEAM', (data) => {
       const { user_id, team_id } = data;
-      const { currentTeam, userData, team, lastChannel } =
+      const { currentTeamId, userData, team, lastChannel } =
         store.getState().user;
-      if (team_id === currentTeam.team_id && user_id === userData.user_id) {
+      if (team_id === currentTeamId && user_id === userData.user_id) {
         store.dispatch({
           type: actionTypes.LEAVE_TEAM_SUCCESS,
           payload: {
@@ -318,8 +319,8 @@ class SocketUtil {
           },
         });
         const nextTeam =
-          currentTeam.team_id === team_id
-            ? team?.filter?.((el) => el.team_id !== currentTeam.team_id)?.[0]
+          currentTeamId === team_id
+            ? team?.filter?.((el) => el.team_id !== currentTeamId)?.[0]
             : null;
         if (nextTeam) {
           const channelId = lastChannel?.[nextTeam.team_id]?.channel_id;
@@ -328,7 +329,7 @@ class SocketUtil {
           } else {
             dispatchChangeRoute(`/channels/${nextTeam.team_id}`);
           }
-        } else if (currentTeam.team_id === team_id) {
+        } else if (currentTeamId === team_id) {
           removeCookie(AsyncKey.lastTeamId);
           removeCookie(AsyncKey.lastChannelId);
           dispatchChangeRoute('/');
@@ -351,8 +352,8 @@ class SocketUtil {
     });
     this.socket.on('ON_REMOVE_USER_FROM_TEAM', (data) => {
       const { user_id, team_id } = data;
-      const { currentTeam, userData } = store.getState().user;
-      if (team_id === currentTeam.team_id && user_id === userData.user_id) {
+      const { currentTeamId, userData } = store.getState().user;
+      if (team_id === currentTeamId && user_id === userData.user_id) {
         window.location.reload();
       } else {
         store.dispatch({
@@ -424,16 +425,15 @@ class SocketUtil {
     this.socket.on(
       'ON_REMOVE_USER_FROM_SPACE',
       (data: { space_id: string }) => {
-        const { currentChannel, currentTeam, channelMap } =
-          store.getState().user;
-        const channel = channelMap[currentTeam.team_id] || [];
+        const { currentTeamId, channelMap } = store.getState().user;
+        const currentChannel = getCurrentChannel();
+        if (!currentChannel) return;
+        const channel = channelMap[currentTeamId] || [];
         if (data.space_id === currentChannel.space_id) {
           const nextChannelId =
             channel?.filter((el) => el.channel_type !== 'Direct')?.[0]
               ?.channel_id || '';
-          dispatchChangeRoute(
-            `/channels/${currentTeam.team_id}/${nextChannelId}`
-          );
+          dispatchChangeRoute(`/channels/${currentTeamId}/${nextChannelId}`);
         }
         store.dispatch({
           type: actionTypes.REMOVE_USER_FROM_SPACE,
@@ -536,10 +536,10 @@ class SocketUtil {
     this.socket.on('ON_UPDATE_MEMBER_IN_PRIVATE_CHANNEL', async (data: any) => {
       const user = store.getState()?.user;
       const { channel, key, timestamp } = data;
-      if (user.currentTeam.team_id === channel.team_id) {
-        const isExistChannel = !!user.channelMap?.[
-          user.currentTeam.team_id
-        ]?.find((el) => el.channel_id === channel.channel_id);
+      if (user.currentTeamId === channel.team_id) {
+        const isExistChannel = !!user.channelMap?.[user.currentTeamId]?.find(
+          (el) => el.channel_id === channel.channel_id
+        );
         if (
           isExistChannel &&
           !channel.channel_member.find(
@@ -570,7 +570,7 @@ class SocketUtil {
     });
     this.socket.on('ON_CREATE_NEW_SPACE', (data: any) => {
       const user = store.getState()?.user;
-      if (user?.currentTeam?.team_id === data?.team_id) {
+      if (user?.currentTeamId === data?.team_id) {
         store.dispatch({
           type: actionTypes.CREATE_GROUP_CHANNEL_SUCCESS,
           payload: data,
@@ -583,8 +583,8 @@ class SocketUtil {
         this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
       }
       const user: any = store.getState()?.user;
-      const { currentTeam } = user;
-      if (currentTeam.team_id === channel.team_id) {
+      const { currentTeamId } = user;
+      if (currentTeamId === channel.team_id) {
         store.dispatch({
           type: actionTypes.NEW_CHANNEL,
           payload: channel,
@@ -593,9 +593,9 @@ class SocketUtil {
     });
     this.socket.on('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL', (data: any) => {
       const user = store.getState()?.user;
-      const { currentTeam, channelMap, userData } = user;
-      const channel = channelMap?.[currentTeam.team_id] || [];
-      if (currentTeam.team_id === data.team_id) {
+      const { currentTeamId, channelMap, userData } = user;
+      const channel = channelMap?.[currentTeamId] || [];
+      if (currentTeamId === data.team_id) {
         const isExistChannel = !!channel.find(
           (el: any) => el.channel_id === data.channel_id
         );
@@ -616,9 +616,9 @@ class SocketUtil {
     });
     this.socket.on('ON_REMOVE_NEW_MEMBER_FROM_PRIVATE_CHANNEL', (data: any) => {
       const user = store.getState()?.user;
-      const { currentTeam, channelMap, userData } = user;
-      const channel = channelMap?.[currentTeam.team_id] || [];
-      if (currentTeam.team_id === data.team_id) {
+      const { currentTeamId, channelMap, userData } = user;
+      const channel = channelMap?.[currentTeamId] || [];
+      if (currentTeamId === data.team_id) {
         const isExistChannel = !!channel.find(
           (el: any) => el.channel_id === data.channel_id
         );
@@ -635,8 +635,8 @@ class SocketUtil {
     });
     this.socket.on('ON_NEW_USER_JOIN_TEAM', (data: any) => {
       const user: any = store.getState()?.user;
-      const { currentTeam } = user;
-      if (currentTeam.team_id === data.team.team_id) {
+      const { currentTeamId } = user;
+      if (currentTeamId === data.team.team_id) {
         store.dispatch({
           type: actionTypes.NEW_USER,
           payload: data.user,
@@ -707,16 +707,11 @@ class SocketUtil {
       const configs: any = store.getState()?.configs;
       const { channelPrivateKey } = configs;
       const user = store.getState()?.user;
-      const {
-        userData,
-        team,
-        currentTeam,
-        teamUserMap,
-        channelMap,
-        currentChannel,
-      } = user;
-      const channel = channelMap?.[currentTeam.team_id] || [];
-      const teamUserData = teamUserMap?.[currentTeam.team_id]?.data || [];
+      const { userData, team, currentTeamId, teamUserMap, channelMap } = user;
+      const currentChannel = getCurrentChannel();
+      if (!currentChannel) return;
+      const channel = channelMap?.[currentTeamId] || [];
+      const teamUserData = teamUserMap?.[currentTeamId]?.data || [];
       const messageData: any = store.getState()?.message.messageData;
       const channelNotification = channel.find(
         (c: any) => c.channel_id === message_data.channel_id
@@ -833,8 +828,8 @@ class SocketUtil {
     });
     this.socket.on('ON_NEW_TASK', (data: any) => {
       if (!data) return;
-      const user: any = store.getState()?.user;
-      const { currentChannel } = user || {};
+      const currentChannel = getCurrentChannel();
+      if (!currentChannel) return;
       store.dispatch({
         type: actionTypes.CREATE_TASK_SUCCESS,
         payload: {
@@ -851,8 +846,8 @@ class SocketUtil {
       const configs: any = store.getState()?.configs;
       const { channelPrivateKey } = configs;
       const user = store.getState()?.user;
-      const { channelMap, currentTeam } = user;
-      const channel = channelMap?.[currentTeam.team_id] || [];
+      const { channelMap, currentTeamId } = user;
+      const channel = channelMap?.[currentTeamId] || [];
       const channelNotification = channel.find(
         (c: any) => c.channel_id === data.channel_id
       );
@@ -874,8 +869,8 @@ class SocketUtil {
     });
     this.socket.on('ON_UPDATE_TASK', (data: any) => {
       if (!data) return;
-      const user: any = store.getState()?.user;
-      const { currentChannel } = user || {};
+      const currentChannel = getCurrentChannel();
+      if (!currentChannel) return;
       store.dispatch({
         type: actionTypes.UPDATE_TASK_REQUEST,
         payload: {
