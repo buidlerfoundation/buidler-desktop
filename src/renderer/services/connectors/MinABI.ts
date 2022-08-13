@@ -4,22 +4,47 @@ const MinABI = [
     constant: false,
     inputs: [
       {
-        name: "_to",
-        type: "address",
+        name: '_to',
+        type: 'address',
       },
       {
-        name: "_value",
-        type: "uint256",
+        name: '_value',
+        type: 'uint256',
       },
     ],
-    name: "transfer",
+    name: 'transfer',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
-    type: "function",
+    type: 'function',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ];
 

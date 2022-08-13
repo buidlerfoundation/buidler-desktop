@@ -119,6 +119,7 @@ const Home = () => {
   const currentTeam = useCurrentCommunity();
   const currentChannel = useCurrentChannel();
   const community = useAppSelector((state) => state.user.team);
+  const storeChannelId = useAppSelector((state) => state.user.currentChannelId);
   const currentChannelId = useMemo(
     () => currentChannel?.channel_id || currentChannel?.user?.user_id || '',
     [currentChannel?.channel_id, currentChannel?.user?.user_id]
@@ -651,7 +652,7 @@ const Home = () => {
           );
           if (matchChannel) {
             setCurrentUserId('');
-            if (matchChannel.channel_id !== currentChannel.channel_id) {
+            if (matchChannel.channel_id !== storeChannelId) {
               dispatch(setCurrentChannel?.(matchChannel, match_community_id));
             }
           } else {
@@ -665,7 +666,7 @@ const Home = () => {
     community,
     history,
     channels,
-    currentChannel?.channel_id,
+    storeChannelId,
     dispatch,
     match_channel_id,
     match_community_id,

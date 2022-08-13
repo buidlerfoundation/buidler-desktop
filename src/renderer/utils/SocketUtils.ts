@@ -34,6 +34,7 @@ import {
   getCurrentChannel,
   getCurrentCommunity,
 } from 'renderer/helpers/StoreHelper';
+import { getCollectibles } from 'renderer/actions/CollectibleActions';
 
 const actionFetchWalletBalance = async (dispatch: Dispatch) => {
   dispatch({ type: actionTypes.WALLET_BALANCE_REQUEST });
@@ -405,6 +406,7 @@ class SocketUtil {
         payload: toastData,
       });
       store.dispatch(getTransactions(1));
+      store.dispatch(getCollectibles());
       actionFetchWalletBalance(store.dispatch);
     });
     this.socket.on(
