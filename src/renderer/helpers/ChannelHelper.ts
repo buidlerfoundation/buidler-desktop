@@ -168,7 +168,7 @@ export const normalizeMessageItem = async (
         channelId
       );
     } else {
-      item.conversation_data = await normalizePublicMessageData(
+      item.conversation_data = normalizePublicMessageData(
         item.conversation_data
       );
     }
@@ -180,7 +180,7 @@ export const normalizeMessageItem = async (
   };
 };
 
-export const normalizePublicMessageData = async (messages: Array<any>) => {
+export const normalizePublicMessageData = (messages: Array<any>) => {
   const configs: any = store.getState()?.configs;
   const { privateKey } = configs;
   const req =
