@@ -308,15 +308,9 @@ const Home = () => {
     (createdAt?: string) => {
       if (!createdAt) return;
 
-      dispatch(
-        getMessages(
-          currentChannel.channel_id,
-          currentChannel.channel_type,
-          createdAt
-        )
-      );
+      dispatch(getMessages(channelId, 'Public', createdAt));
     },
-    [currentChannel?.channel_id, currentChannel?.channel_type, dispatch]
+    [channelId, dispatch]
   );
   const onDeleteTask = useCallback(
     (task: any) => {
@@ -700,25 +694,12 @@ const Home = () => {
   useEffect(() => {
     setOpenConversation(false);
     inputRef.current?.focus();
-    if (currentChannel?.channel_id || currentChannel?.user) {
-      if (currentChannel.channel_id && privateKey) {
-        dispatch(
-          getMessages(
-            currentChannel.channel_id,
-            currentChannel.channel_type,
-            undefined,
-            true
-          )
-        );
+    if (channelId) {
+      if (privateKey) {
+        dispatch(getMessages(channelId, 'Public', undefined, true));
       }
     }
-  }, [
-    currentChannel?.user,
-    currentChannel?.channel_id,
-    currentChannel?.channel_type,
-    dispatch,
-    privateKey,
-  ]);
+  }, [channelId, dispatch, privateKey]);
 
   useEffect(() => {
     if (!!userData.user_id) {

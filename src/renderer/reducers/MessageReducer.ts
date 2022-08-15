@@ -48,6 +48,7 @@ const messageReducers: Reducer<MessageReducerState, AnyAction> = (
         apiController: payload.controller,
       };
     }
+    case actionTypes.MESSAGE_FRESH:
     case actionTypes.MESSAGE_SUCCESS: {
       const { channelId, data, before, reloadSocket } = payload;
       let msg = data || [];

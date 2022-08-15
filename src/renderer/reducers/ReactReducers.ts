@@ -19,7 +19,7 @@ const reactReducers: Reducer<ReactReducerState, AnyAction> = (
     case actionTypes.TASK_SUCCESS: {
       const { tasks } = payload;
       const currentReact = {};
-      tasks.map((task) => {
+      tasks?.map?.((task) => {
         if (task.reaction_data.length > 0) {
           currentReact[task.task_id] = task.reaction_data.map((react) => ({
             reactName: react.emoji_id,
