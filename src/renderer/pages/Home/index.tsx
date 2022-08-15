@@ -10,7 +10,10 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import moment from 'moment';
 import PageWrapper from 'renderer/components/PageWrapper';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { createMemberChannelData } from 'renderer/helpers/ChannelHelper';
+import {
+  createMemberChannelData,
+  validateUUID,
+} from 'renderer/helpers/ChannelHelper';
 import { getCookie, removeCookie, setCookie } from 'renderer/common/Cookie';
 import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/shared/ModalOTP';
@@ -687,14 +690,14 @@ const Home = () => {
   ]);
   useEffect(() => {
     setOpenTask(false);
-    if (channelId) {
+    if (channelId && validateUUID(channelId)) {
       dispatch(getTasks(channelId));
     }
   }, [channelId, dispatch]);
   useEffect(() => {
     setOpenConversation(false);
     inputRef.current?.focus();
-    if (channelId) {
+    if (channelId && validateUUID(channelId)) {
       if (privateKey) {
         dispatch(getMessages(channelId, 'Public', undefined, true));
       }
