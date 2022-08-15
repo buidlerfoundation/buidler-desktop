@@ -631,11 +631,19 @@ const Home = () => {
   useEffect(() => {
     if (currentChannel.channel_id) channelViewRef.current?.clearText?.();
   }, [currentChannel.channel_id]);
+
   useEffect(() => {
+    if (match_community_id === 'user' && match_channel_id) {
+      setCurrentUserId(match_channel_id);
+    } else {
+      setCurrentUserId('');
+    }
+  }, [match_community_id, match_channel_id]);
+
+  useEffect(() => {
+    handleCloseModalSpaceDetail();
     if (match_channel_id && !!community) {
-      if (match_community_id === 'user') {
-        setCurrentUserId(match_channel_id);
-      } else {
+      if (match_community_id !== 'user') {
         const matchCommunity = community?.find(
           (c) => c.team_id === match_community_id
         );
@@ -648,7 +656,6 @@ const Home = () => {
             (c) => c.channel_id === match_channel_id
           );
           if (matchChannel) {
-            setCurrentUserId('');
             if (matchChannel.channel_id !== storeChannelId) {
               dispatch(setCurrentChannel?.(matchChannel, match_community_id));
             }
@@ -667,6 +674,7 @@ const Home = () => {
     dispatch,
     match_channel_id,
     match_community_id,
+    handleCloseModalSpaceDetail,
   ]);
   useEffect(() => {
     if (dataFromUrl) handleDataFromUrl();
