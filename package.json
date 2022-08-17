@@ -143,7 +143,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
-    "socket.io-client": "3.1.2",
+    "socket.io-client": "4.5.1",
     "source-map-support": "^0.5.19",
     "uuid": "^8.3.2"
   },
