@@ -698,10 +698,10 @@ const Home = () => {
   ]);
   useEffect(() => {
     setOpenTask(false);
-    if (channelId && validateUUID(channelId)) {
+    if (channelId && validateUUID(channelId) && !!userData.user_id) {
       dispatch(getTasks(channelId));
     }
-  }, [channelId, dispatch]);
+  }, [channelId, dispatch, userData.user_id]);
   useEffect(() => {
     setOpenConversation(false);
     inputRef.current?.focus();
