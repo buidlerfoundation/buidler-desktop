@@ -486,6 +486,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
             data: teamUserMap[currentTeamId]?.data?.map((el) => {
               if (el.user_id === user_id) {
                 el.status = 'online';
+                return { ...el };
               }
               return el;
             }),
@@ -504,6 +505,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
             data: teamUserMap[currentTeamId]?.data?.map((el) => {
               if (el.user_id === user_id) {
                 el.status = 'offline';
+                return { ...el };
               }
               return el;
             }),
