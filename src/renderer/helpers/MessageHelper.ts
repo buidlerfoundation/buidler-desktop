@@ -1,5 +1,5 @@
 import moment from 'moment';
-import images from '../common/images';
+import { MessageData, MessageDateData } from 'renderer/models';
 
 export const normalizeMessage = (messages: Array<any>) => {
   return messages.map((msg, index) => {
@@ -16,27 +16,28 @@ export const normalizeMessage = (messages: Array<any>) => {
     ) {
       msg.isHead = true;
     }
-    if (msg.parent_id !== messages?.[index + 1]?.parent_id) {
-      msg.isConversationHead = true;
-    }
     return msg;
   });
 };
 
-export const normalizeMessages = (messages: Array<any>) => {
-  return messages.reduce((result: Array<any>, val) => {
-    const date = moment(new Date(val.createdAt)).format('YYYY-MM-DD');
-    const index = result.findIndex((el) => el.date === date);
-    if (index >= 0) {
-      result[index].messages =
-        result[index]?.messages?.length > 0
-          ? [...result[index].messages, val]
-          : [val];
-    } else {
-      result.push({ date, messages: [val] });
-    }
-    return result;
-  }, []);
+export const normalizeMessages = (messages: Array<MessageData>) => {
+  return messages.reduce(
+    (result: Array<MessageData | MessageDateData>, val, idx) => {
+      const previousVal: any = messages?.[idx - 1];
+      const previousDate =
+        previousVal && !previousVal.type
+          ? moment(new Date(previousVal.createdAt)).format('YYYY-MM-DD')
+          : null;
+      const date = moment(new Date(val.createdAt)).format('YYYY-MM-DD');
+      if (previousDate && previousDate !== date) {
+        result.push({ type: 'date', value: previousDate }, val);
+      } else {
+        result.push(val);
+      }
+      return result;
+    },
+    []
+  );
 };
 
 export const removeTagHTML = (s: string) => {
@@ -49,32 +50,54 @@ export const extractContent = (s: string) => {
   return span.textContent || span.innerText;
 };
 
-export const normalizeMessageText = (text: string, isShowNote = false) => {
+export const normalizeMessageTextPlain = (text: string) => {
   if (!text) return '';
-  let res = text?.replaceAll?.('<br>', '\n');
-  const regexLink = /(http|https):\/\/(\S+)\.([a-z]{2,}?)(.*?)( |$)/gim;
-  const linkMatches = res.match(regexLink);
-  linkMatches?.forEach((el) => {
-    const linkMatch = /(http|https):\/\/(\S+)\.([a-z]{2,}?)(.*?)( |$)/.exec(el);
-    if (linkMatch && linkMatch?.length >= 5) {
-      res = res?.replace(
-        el,
-        `<a onclick='event.stopPropagation();' target='_blank' href='${extractContent(
-          `${linkMatch[1]}://${linkMatch[2]}.${linkMatch[3]}${linkMatch[4]}`
-        )}'>${linkMatch[1]}://${linkMatch[2]}.${linkMatch[3]}${
-          linkMatch[4]
-        }</a>${linkMatch[5]}`
-      );
-    }
-  });
-  res = res?.replace?.(
-    /\$mention_location/g,
-    `${window.location.origin}/channels/user`
-  );
-  if (isShowNote) {
-    return `<div style='display: flex; align-items: flex-start'><span class='enable-user-select'>${res}</span><img src='${images.icNote}' style='margin-left: 15px; margin-top: 7px' /></div>`;
+  let res = text
+    .replace(/^#### (.*$)/gim, '$1')
+    .replace(/^### (.*$)/gim, '$1')
+    .replace(/^## (.*$)/gim, '$1')
+    .replace(/^# (.*$)/gim, '$1')
+    .replace(/^\> (.*$)/gim, '$1')
+    .replace(/\*\*(.*)\*\*/gim, '$1')
+    .replace(/\*(.*)\*/gim, '$1')
+    .replace(/!\[(.*?)\]\((.*?)\)/gim, '$1')
+    .replace(/\[(.*?)\]\((.*?)\)/gim, "<a href='$2'>$1</a>")
+    .replace(/\n$/gim, '<br />')
+    .replace(
+      /((https?|ftps?):\/\/[^"<\s]+)(?![^<>]*>|[^"]*?<\/a)/gim,
+      "<a onclick='event.stopPropagation();' target='_blank' href='$1'>$1</a>"
+    )
+    .replace(/\$mention_location/g, `${window.location.origin}/channels/user`);
+  return `<div class='enable-user-select'>${res}</div>`;
+};
+
+export const normalizeMessageText = (text: string, wrapParagraph?: boolean) => {
+  if (!text) return '';
+  let res = text
+    .replace(/<br>/gim, '\n')
+    .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+    .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+    .replace(/\*(.*)\*/gim, '<i>$1</i>')
+    .replace(
+      /!\[(.*?)\]\((.*?)\)/gim,
+      "<p><img class='image-inline' alt='$1' src='$2' /></p>"
+    )
+    .replace(/\[(.*?)\]\((.*?)\)/gim, "<a href='$2'>$1</a>")
+    .replace(/\n$/gim, '<br />')
+    .replace(
+      /((https?|ftps?):\/\/[^"<\s]+)(?![^<>]*>|[^"]*?<\/a)/gim,
+      "<a onclick='event.stopPropagation();' target='_blank' href='$1'>$1</a>"
+    )
+    .replace(/\$mention_location/g, `${window.location.origin}/channels/user`);
+
+  if (wrapParagraph) {
+    res = res.replace(/^([^<]*)([^<]*)$/gim, '<p>$1</p>');
   }
-  return `<span class='enable-user-select'>${res}</span>`;
+  return `<div class='enable-user-select'>${res}</div>`;
 };
 
 export const getMentionData = (s: string) => {

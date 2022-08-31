@@ -22,6 +22,26 @@ export const getInitial: ActionCreator<any> =
     }
   };
 
+export const actionFetchWalletBalance = async (dispatch: Dispatch) => {
+  dispatch({ type: ActionTypes.WALLET_BALANCE_REQUEST });
+  try {
+    const res = await api.fetchWalletBalance();
+    if (res.statusCode === 200) {
+      dispatch({ type: ActionTypes.WALLET_BALANCE_SUCCESS, payload: res.data });
+    } else {
+      dispatch({
+        type: ActionTypes.WALLET_BALANCE_FAIL,
+        payload: { message: res.message },
+      });
+    }
+  } catch (error: any) {
+    dispatch({
+      type: ActionTypes.WALLET_BALANCE_FAIL,
+      payload: { message: error.message },
+    });
+  }
+};
+
 export const logout: ActionCreator<any> = () => (dispatch: Dispatch) => {
   SocketUtils.disconnect();
   dispatch({ type: ActionTypes.LOGOUT });
@@ -119,16 +139,19 @@ export const findTeamAndChannel =
           communities.find((t: Community) => t.team_id === lastTeamId) ||
           communities[0];
         const teamId = currentTeam.team_id;
-        const resSpace = await api.getSpaceChannel(teamId);
-        const resChannel = await api.findChannel(teamId);
         const lastChannelId = await getCookie(AsyncKey.lastChannelId);
-        const teamUsersRes = await api.getTeamUsers(currentTeam.team_id);
+        const [resSpace, resChannel, teamUsersRes] = await Promise.all([
+          api.getSpaceChannel(teamId),
+          api.findChannel(teamId),
+          api.getTeamUsers(teamId),
+        ]);
+
         if (teamUsersRes.statusCode === 200) {
           dispatch({
             type: ActionTypes.GET_TEAM_USER,
             payload: {
               teamUsers: teamUsersRes,
-              teamId: currentTeam.team_id,
+              teamId,
             },
           });
         }
@@ -526,26 +549,6 @@ export const getSpaceMembers =
       dispatch({ type: ActionTypes.SPACE_MEMBER_FAIL, payload: error });
     }
   };
-
-export const actionFetchWalletBalance = async (dispatch: Dispatch) => {
-  dispatch({ type: ActionTypes.WALLET_BALANCE_REQUEST });
-  try {
-    const res = await api.fetchWalletBalance();
-    if (res.statusCode === 200) {
-      dispatch({ type: ActionTypes.WALLET_BALANCE_SUCCESS, payload: res.data });
-    } else {
-      dispatch({
-        type: ActionTypes.WALLET_BALANCE_FAIL,
-        payload: { message: res.message },
-      });
-    }
-  } catch (error: any) {
-    dispatch({
-      type: ActionTypes.WALLET_BALANCE_FAIL,
-      payload: { message: error.message },
-    });
-  }
-};
 
 export const fetchWalletBalance = () => async (dispatch: Dispatch) =>
   actionFetchWalletBalance(dispatch);

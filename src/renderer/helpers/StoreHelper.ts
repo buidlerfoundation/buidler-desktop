@@ -1,26 +1,33 @@
-import { Channel } from "renderer/models";
-import store from "renderer/store";
+import { Channel } from 'renderer/models';
+import store from 'renderer/store';
 
 const defaultChannel: Channel = {
-  channel_id: "",
+  channel_id: '',
   channel_member: [],
-  channel_name: "",
-  channel_type: "Public",
-  notification_type: "",
+  channel_name: '',
+  channel_type: 'Public',
+  notification_type: '',
   seen: true,
 };
 
-export const getCommunityId = () => {
+const getPathNameWithoutPostOrMessage = () => {
   const { pathname } = window.location;
-  const index = pathname.lastIndexOf("channels/") + 8;
-  const lastIndex = pathname.lastIndexOf("/");
+  const idx = Math.max(pathname.indexOf('/post'), pathname.indexOf('/message'));
+  if (idx > 0) return pathname.substring(0, idx);
+  return pathname;
+};
+
+export const getCommunityId = () => {
+  const pathname = getPathNameWithoutPostOrMessage();
+  const index = pathname.lastIndexOf('channels/') + 8;
+  const lastIndex = pathname.lastIndexOf('/');
   if (index === lastIndex) return pathname.substring(index + 1);
   return pathname.substring(index + 1, lastIndex);
 };
 
 export const getChannelId = () => {
-  const { pathname } = window.location;
-  const lastIndex = pathname.lastIndexOf("/");
+  const pathname = getPathNameWithoutPostOrMessage();
+  const lastIndex = pathname.lastIndexOf('/');
   return pathname.substring(lastIndex + 1);
 };
 
@@ -28,7 +35,7 @@ export const getCurrentCommunity = () => {
   if (!store) return null;
   let communityId = getCommunityId();
   const { team, currentTeamId } = store.getState().user;
-  if (communityId === "user" || !communityId) {
+  if (communityId === 'user' || !communityId) {
     communityId = currentTeamId;
   }
   return team?.find((el) => el.team_id === communityId);

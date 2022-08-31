@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { TaskData } from 'renderer/models';
 import images from '../common/images';
 import { dateFormatted } from '../utils/DateUtils';
 
@@ -146,4 +147,12 @@ export const getGroupTask = (filterName: string, title: any) => {
     return `# ${title}`;
   }
   return title;
+};
+
+export const sortPinPost = (v1: TaskData, v2: TaskData) => {
+  if (v1.up_votes > v2.up_votes) return 1;
+  if (v1.up_votes < v2.up_votes) return -1;
+  if ((v1.createdAt || '') > (v2.createdAt || '')) return 1;
+  if ((v1.createdAt || '') < (v2.createdAt || '')) return -1;
+  return 0;
 };

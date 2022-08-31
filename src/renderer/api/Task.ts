@@ -18,11 +18,38 @@ export const updateTask = (body: any, id: string) =>
 
 export const deleteTask = (id: string) => ApiCaller.delete(`task/${id}`);
 
-export const getTasks = (channelId: string, controller?: AbortController) =>
-  Caller.get<Array<TaskData>>(`tasks/${channelId}`, undefined, controller);
+export const getTasks = (
+  channelId: string,
+  before?: number,
+  createdAt?: string,
+  limit?: number,
+  controller?: AbortController
+) => {
+  let uri = `tasks/${channelId}?limit=${limit || 10}`;
+  if (before) {
+    uri += `&before=${before}`;
+  }
+  if (createdAt) {
+    uri += `&createdAt=${createdAt}`;
+  }
+  return Caller.get<Array<TaskData>>(uri, undefined, controller);
+};
 
-export const getArchivedTasks = (channelId: string) =>
-  ApiCaller.get(`tasks/${channelId}?archived=true`);
+export const getArchivedTasks = (
+  channelId: string,
+  before?: number,
+  createdAt?: string,
+  limit?: number
+) => {
+  let uri = `tasks/${channelId}?archived=true&limit=${limit || 10}`;
+  if (before) {
+    uri += `&before=${before}`;
+  }
+  if (createdAt) {
+    uri += `&createdAt=${createdAt}`;
+  }
+  return ApiCaller.get(uri);
+};
 
 export const getArchivedTaskCount = (
   channelId: string,
@@ -47,4 +74,9 @@ export const getArchivedTaskFromUser = (userId: string, teamId?: string) =>
   ApiCaller.get(`tasks/${userId}/user/${teamId}?archived=true`);
 
 export const getArchivedTaskCountFromUser = (userId: string, teamId: string) =>
-  ApiCaller.get(`task/${userId}/user/${teamId}/count?archived=true`);
+  Caller.get<{ total: number }>(
+    `task/${userId}/user/${teamId}/count?archived=true`
+  );
+
+export const getPostById = (postId: string) =>
+  Caller.get<TaskData>(`task/${postId}`);
