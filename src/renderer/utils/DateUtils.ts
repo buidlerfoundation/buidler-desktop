@@ -58,3 +58,13 @@ export const isOverDate = (date: any) => {
   today.setHours(0, 0, 0, 0);
   return moment(date).isBefore(today);
 };
+
+export const lastReplyFromNow = (date: any) => {
+  const time = moment(new Date(date)).calendar(null, {
+    sameDay: '[Today at] HH:mm',
+    lastDay: '[Yesterday]',
+    lastWeek: 'MM-DD-YYYY',
+    sameElse: 'MM-DD-YYYY',
+  });
+  return time;
+};
