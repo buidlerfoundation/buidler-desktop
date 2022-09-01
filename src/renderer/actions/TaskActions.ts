@@ -44,12 +44,12 @@ export const getTasks =
     if (before && createdAt) {
       dispatch({
         type: actionTypes.TASK_MORE,
-        payload: { channelId, before, createdAt, controller },
+        payload: { channelId, before, createdAt, controller: controller },
       });
     } else {
       dispatch({
         type: actionTypes.TASK_REQUEST,
-        payload: { channelId, controller },
+        payload: { channelId, controller: controller },
       });
     }
     try {
@@ -92,32 +92,6 @@ export const dropTask =
     if (!destination) return;
     if (source.droppableId === destination.droppableId) {
       api.updateTask({ up_votes: upVote, team_id: teamId }, draggableId);
-    } else if (!isFilterStatus(destination.droppableId)) {
-      const newDate = moment(destination.droppableId).format(
-        'YYYY-MM-DD HH:mm:ss.SSSZ'
-      );
-      if (source.droppableId === 'archived') {
-        api.updateTask(
-          {
-            due_date: newDate,
-            up_votes: upVote,
-            status: 'todo',
-            team_id: teamId,
-          },
-          draggableId
-        );
-      } else {
-        api.updateTask(
-          { due_date: newDate, up_votes: upVote, team_id: teamId },
-          draggableId
-        );
-      }
-    } else {
-      const newStatus = destination.droppableId;
-      api.updateTask(
-        { status: newStatus, up_votes: upVote, team_id: teamId },
-        draggableId
-      );
     }
   };
 
