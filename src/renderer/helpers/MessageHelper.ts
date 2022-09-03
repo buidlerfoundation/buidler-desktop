@@ -50,6 +50,17 @@ export const extractContent = (s: string) => {
   return span.textContent || span.innerText;
 };
 
+export const extractContentMessage = (s: string) => {
+  const span = document.createElement('span');
+  span.innerHTML = s
+    .replace(
+      /(<a href="\$mention_location\/)(.*?)(" class="mention-string">)(.*?)(<\/a>)/gim,
+      `<$4-$2>`
+    )
+    .replace(/<br>/gim, '\n');
+  return span.textContent || span.innerText;
+};
+
 export const normalizeMessageTextPlain = (text: string) => {
   if (!text) return '';
   let res = text

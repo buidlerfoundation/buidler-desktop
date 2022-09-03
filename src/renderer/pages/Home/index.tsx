@@ -326,7 +326,17 @@ const Home = () => {
     await dispatch(deleteTask(selectedPost?.task_id, channelId));
     toggleConfirmDeletePost();
     setOpenCreatePinPost(false);
-  }, [selectedPost?.task_id, dispatch, channelId, toggleConfirmDeletePost]);
+    const path = history.location.pathname;
+    if (path.includes('/post')) {
+      history.replace(path.split('/post')[0]);
+    }
+  }, [
+    selectedPost?.task_id,
+    dispatch,
+    channelId,
+    toggleConfirmDeletePost,
+    history,
+  ]);
 
   const handleCloseModalSpaceDetail = useCallback(() => {
     setOpenSpaceDetail(false);
@@ -634,6 +644,8 @@ const Home = () => {
         const element = document.getElementById(matchMessageId);
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 600);
+    } else {
+      dispatch(getMessages(channelId, 'Public', undefined));
     }
     setTimeout(() => {
       dispatch({
