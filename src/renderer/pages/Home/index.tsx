@@ -738,18 +738,24 @@ const Home = () => {
   const onMenuPostSelected = useCallback(
     (menu: PopoverItem, post: TaskData) => {
       setSelectedPost(post);
+      const { pathname } = history.location;
       switch (menu.value) {
         case 'Delete':
           toggleConfirmDeletePost();
           break;
         case 'Jump to original message':
-          channelViewRef.current.onJumpToMessage?.(post.task_id);
+          if (pathname.includes('/message')) {
+            history.replace(pathname.split('/message')[0]);
+          }
+          history.push(
+            `/channels/${match_community_id}/${post.root_message_channel_id}/message/${post.task_id}`
+          );
           break;
         default:
           break;
       }
     },
-    [toggleConfirmDeletePost]
+    [history, match_community_id, toggleConfirmDeletePost]
   );
 
   const handleCreatePinPost = useCallback(() => {
