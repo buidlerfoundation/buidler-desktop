@@ -37,10 +37,19 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
     }
     case actionTypes.DELETE_MESSAGE: {
       const { entityType, channelId, currentChannelId } = payload;
+      let pinPostDetail = state.pinPostDetail;
       const newTasks = state.taskData[currentChannelId]?.tasks;
       if (!newTasks || entityType !== 'post') {
         return {
           ...state,
+        };
+      }
+      if (pinPostDetail && pinPostDetail?.task_id === channelId) {
+        pinPostDetail = {
+          ...pinPostDetail,
+          total_messages: `${
+            parseInt(pinPostDetail.total_messages || '0') - 1
+          }`,
         };
       }
       return {
@@ -60,14 +69,31 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
             }),
           },
         },
+        pinPostDetail,
       };
     }
     case actionTypes.RECEIVE_MESSAGE: {
       const { data, currentChannelId } = payload;
       const newTasks = state.taskData[currentChannelId]?.tasks;
+      let pinPostDetail = state.pinPostDetail;
       if (!newTasks || data.entity_type !== 'post') {
         return {
           ...state,
+        };
+      }
+      if (pinPostDetail && pinPostDetail?.task_id === data.entity_id) {
+        pinPostDetail = {
+          ...pinPostDetail,
+          total_messages: `${
+            parseInt(pinPostDetail.total_messages || '0') + 1
+          }`,
+          latest_reply_senders: [
+            data.sender_id,
+            ...(pinPostDetail.latest_reply_senders?.filter(
+              (uId) => uId !== data.sender_id
+            ) || []),
+          ],
+          latest_reply_message_at: data.createdAt,
         };
       }
       return {
@@ -94,20 +120,21 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
             }),
           },
         },
+        pinPostDetail,
       };
     }
     case actionTypes.LOGOUT: {
       return initialState;
     }
     case actionTypes.ARCHIVED_TASK_SUCCESS: {
-      const { channelId, res, before } = payload;
+      const { channelId, res, createdAt } = payload;
       return {
         ...state,
         taskData: {
           ...state.taskData,
           [channelId]: {
             ...(state.taskData[channelId] || {}),
-            archivedTasks: !before
+            archivedTasks: !createdAt
               ? res
               : [...(state.taskData[channelId]?.archivedTasks || []), ...res],
             canMoreArchivedTask: res.length === 10,
@@ -122,14 +149,14 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
       };
     }
     case actionTypes.TASK_SUCCESS: {
-      const { channelId, tasks, before } = payload;
+      const { channelId, tasks, createdAt } = payload;
       return {
         ...state,
         taskData: {
           ...state.taskData,
           [channelId]: {
             ...(state.taskData[channelId] || {}),
-            tasks: !before
+            tasks: !createdAt
               ? tasks
               : [...(state.taskData[channelId]?.tasks || []), ...tasks],
             canMoreTask: tasks.length === 10,
