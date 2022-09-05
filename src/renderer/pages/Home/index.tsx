@@ -744,18 +744,22 @@ const Home = () => {
           toggleConfirmDeletePost();
           break;
         case 'Jump to original message':
-          if (pathname.includes('/message')) {
-            history.replace(pathname.split('/message')[0]);
+          if (post.root_message_channel_id === channelId) {
+            channelViewRef.current.onJumpToMessage?.(post.task_id);
+          } else {
+            if (pathname.includes('/message')) {
+              history.replace(pathname.split('/message')[0]);
+            }
+            history.push(
+              `/channels/${match_community_id}/${post.root_message_channel_id}/message/${post.task_id}`
+            );
           }
-          history.push(
-            `/channels/${match_community_id}/${post.root_message_channel_id}/message/${post.task_id}`
-          );
           break;
         default:
           break;
       }
     },
-    [history, match_community_id, toggleConfirmDeletePost]
+    [channelId, history, match_community_id, toggleConfirmDeletePost]
   );
 
   const handleCreatePinPost = useCallback(() => {
