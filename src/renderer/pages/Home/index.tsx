@@ -897,10 +897,7 @@ const Home = () => {
               onMenuSelected={onMenuPostSelected}
               postId={matchPostId}
               onEdit={onEditPost}
-              messages={uniqBy(
-                messageData[matchPostId]?.data || [],
-                'message_id'
-              )}
+              messages={messageData[matchPostId]?.data}
               loadMoreMessage={loadMorePPMessage}
               messageCanMore={messageData?.[matchPostId]?.canMore}
               onMoreMessage={onMorePinPostMessage}
