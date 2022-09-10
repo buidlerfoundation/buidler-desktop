@@ -9,6 +9,7 @@ interface ConfigReducerState {
   requestOtpCode: string;
   dataFromUrl: string;
   isFullScreen: boolean;
+  somethingWrong?: boolean | null;
 }
 
 const initialState: ConfigReducerState = {
@@ -19,6 +20,7 @@ const initialState: ConfigReducerState = {
   requestOtpCode: '',
   dataFromUrl: '',
   isFullScreen: false,
+  somethingWrong: null,
 };
 
 const configReducers: Reducer<ConfigReducerState, any> = (
@@ -27,6 +29,12 @@ const configReducers: Reducer<ConfigReducerState, any> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.SOMETHING_WRONG: {
+      return {
+        ...state,
+        somethingWrong: true,
+      };
+    }
     case actionTypes.UPDATE_FULL_SCREEN: {
       return {
         ...state,

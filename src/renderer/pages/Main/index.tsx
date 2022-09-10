@@ -26,6 +26,7 @@ import {
 import actionTypes from 'renderer/actions/ActionTypes';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
+import ErrorPage from 'renderer/shared/ErrorBoundary/ErrorPage';
 
 interface PrivateRouteProps {
   component: any;
@@ -238,12 +239,16 @@ const RedirectToHome = () => {
 
 const Main = () => {
   const imgDomain = useAppSelector((state) => state.user.imgDomain);
+  const somethingWrong = useAppSelector(
+    (state) => state.configs.somethingWrong
+  );
   const dispatch = useDispatch();
   useEffect(() => {
     if (navigator.onLine) {
       dispatch(getInitial?.());
     }
   }, [dispatch]);
+  if (somethingWrong) return <ErrorPage />;
   if (!imgDomain) {
     return <div className="main-load-page" />;
   }

@@ -65,7 +65,6 @@ import useAppDispatch from 'renderer/hooks/useAppDispatch';
 import ModalUserProfile from 'renderer/shared/ModalUserProfile';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import ModalAllMembers from 'renderer/shared/ModalAllMembers';
-import { getTransactions } from 'renderer/actions/TransactionActions';
 import useChannel from 'renderer/hooks/useChannel';
 import useSpaceChannel from 'renderer/hooks/useSpaceChannel';
 import useTeamUserData from 'renderer/hooks/useTeamUserData';
@@ -670,12 +669,6 @@ const Home = () => {
       }
     }
   }, [channelId, dispatch, handleMessagesById, matchMessageId, privateKey]);
-
-  useEffect(() => {
-    if (!!userData.user_id) {
-      dispatch(getTransactions(1));
-    }
-  }, [dispatch, userData.user_id]);
 
   useEffect(() => {
     if (currentChannel?.space_id) {
