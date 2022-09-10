@@ -109,8 +109,8 @@ function App() {
     });
   }, [dispatch]);
   useEffect(() => {
-    initGeneratedPrivateKey();
-  }, [initGeneratedPrivateKey]);
+    if (user.user_id) initGeneratedPrivateKey();
+  }, [initGeneratedPrivateKey, user.user_id]);
   const walletConnectLogout = useCallback(async () => {
     const deviceCode = await getDeviceCode();
     await api.removeDevice({
