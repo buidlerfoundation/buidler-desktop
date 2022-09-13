@@ -21,7 +21,7 @@ import {
 import { PopoverItem } from 'renderer/shared/PopoverButton';
 import { debounce } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
-import { createTask, updateTask } from 'renderer/actions/TaskActions';
+import { updateTask, uploadToIPFS } from 'renderer/actions/TaskActions';
 import {
   deleteMessage,
   onRemoveAttachment,
@@ -57,6 +57,7 @@ import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import useMatchCommunityId from 'renderer/hooks/useMatchCommunityId';
 import useTotalTeamUserData from 'renderer/hooks/useTotalMemberUser';
 import actionTypes from 'renderer/actions/ActionTypes';
+import ModalConfirmPin from 'renderer/shared/ModalConfirmPin';
 
 type ChannelViewProps = {
   currentChannel: Channel;
@@ -108,6 +109,10 @@ const ChannelView = forwardRef(
     const channelPrivateKey = useAppSelector(
       (state) => state.configs.channelPrivateKey
     );
+    const [openConfirmPin, setOpenConfirmPin] = useState(false);
+    const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(
+      null
+    );
     const [messageReply, setMessageReply] = useState<MessageData | null>(null);
     const [messageEdit, setMessageEdit] = useState<MessageData | null>(null);
     const [isScrolling, setScrolling] = useState(false);
@@ -118,6 +123,10 @@ const ChannelView = forwardRef(
     const generateId = useRef<string>('');
     const [text, setText] = useState('');
     const inputFileRef = useRef<any>();
+    const toggleConfirmPin = useCallback(
+      () => setOpenConfirmPin((current) => !current),
+      []
+    );
     const onAddFiles = useCallback(
       (fs: any) => {
         inputRef.current?.focus();
@@ -221,31 +230,10 @@ const ChannelView = forwardRef(
     );
     const onCreateTaskFromMessage = useCallback(
       (msg: MessageData | ConversationData) => {
-        const body: any = {
-          content: msg?.content,
-          status: 'pinned',
-          channel_ids:
-            currentChannel.channel_type === 'Direct'
-              ? currentChannel?.user?.user_channels
-              : [currentChannel?.channel_id],
-          task_id: msg.message_id,
-          team_id: communityId,
-          assignee_id:
-            msg.message_tag?.[0]?.mention_id || currentChannel?.user?.user_id,
-        };
-        dispatch(createTask(currentChannel?.channel_id, body));
-        GoogleAnalytics.tracking('Message Pinned', {
-          category: 'Message',
-        });
+        setSelectedMessage(msg);
+        toggleConfirmPin();
       },
-      [
-        currentChannel.channel_type,
-        currentChannel?.user?.user_channels,
-        currentChannel?.user?.user_id,
-        currentChannel?.channel_id,
-        communityId,
-        dispatch,
-      ]
+      [toggleConfirmPin]
     );
     const onReplyPress = useCallback(
       (msg: MessageData | ConversationData) => {
@@ -286,6 +274,13 @@ const ChannelView = forwardRef(
     const onMenuMessage = useCallback(
       (menu: PopoverItem, msg: MessageData | ConversationData) => {
         switch (menu.value) {
+          case 'Upload to IPFS':
+            if (msg.task?.task_id) {
+              dispatch(
+                uploadToIPFS(msg.task?.task_id, currentChannel.channel_id)
+              );
+            }
+            break;
           case 'Delete':
             dispatch(
               deleteMessage(
@@ -361,6 +356,35 @@ const ChannelView = forwardRef(
     const onCircleClick = useCallback(() => {
       openFile();
     }, [openFile]);
+    const onJumpToMessage = useCallback(
+      async (messageId: string) => {
+        dispatch({
+          type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
+          payload: messageId,
+        });
+        if (messages.find((el) => el.message_id === messageId)) {
+          setTimeout(() => {
+            const element = document.getElementById(messageId);
+            element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 0);
+        } else {
+          const success = await dispatch(
+            getAroundMessage(messageId, currentChannel.channel_id)
+          );
+          if (!!success) {
+            const element = document.getElementById(messageId);
+            element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+        setTimeout(() => {
+          dispatch({
+            type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
+            payload: null,
+          });
+        }, 1500);
+      },
+      [currentChannel.channel_id, dispatch, messages]
+    );
     useImperativeHandle(ref, () => {
       return {
         onJumpToMessage,
@@ -545,36 +569,6 @@ const ChannelView = forwardRef(
       [editMessage, messageEdit, onRemoveReply, submitMessage]
     );
 
-    const onJumpToMessage = useCallback(
-      async (messageId: string) => {
-        dispatch({
-          type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
-          payload: messageId,
-        });
-        if (messages.find((el) => el.message_id === messageId)) {
-          setTimeout(() => {
-            const element = document.getElementById(messageId);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 0);
-        } else {
-          const success = await dispatch(
-            getAroundMessage(messageId, currentChannel.channel_id)
-          );
-          if (!!success) {
-            const element = document.getElementById(messageId);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-        setTimeout(() => {
-          dispatch({
-            type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
-            payload: null,
-          });
-        }, 1500);
-      },
-      [currentChannel.channel_id, dispatch, messages]
-    );
-
     const renderMessage = useCallback(
       (msg: any) => {
         if (msg.type === 'date') {
@@ -706,6 +700,11 @@ const ChannelView = forwardRef(
               ref={inputFileRef}
               accept="image/*,video/*,application/*"
               onChange={onChangeFiles}
+            />
+            <ModalConfirmPin
+              open={openConfirmPin}
+              handleClose={toggleConfirmPin}
+              selectedMessage={selectedMessage}
             />
           </div>
         )}

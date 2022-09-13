@@ -44,6 +44,7 @@ import {
   getTaskFromUser,
   getTasks,
   updateTask,
+  uploadToIPFS,
 } from 'renderer/actions/TaskActions';
 import { getMessages } from 'renderer/actions/MessageActions';
 import SideBar from '../Main/Layout/SideBar';
@@ -736,6 +737,9 @@ const Home = () => {
       setSelectedPost(post);
       const { pathname } = history.location;
       switch (menu.value) {
+        case 'Upload to IPFS':
+          dispatch(uploadToIPFS(post.task_id, channelId));
+          break;
         case 'Delete':
           toggleConfirmDeletePost();
           break;
@@ -755,7 +759,7 @@ const Home = () => {
           break;
       }
     },
-    [channelId, history, match_community_id, toggleConfirmDeletePost]
+    [channelId, dispatch, history, match_community_id, toggleConfirmDeletePost]
   );
 
   const handleCreatePinPost = useCallback(() => {
