@@ -221,13 +221,16 @@ class SocketUtil {
       transports: ['websocket'],
       upgrade: false,
     });
-    this.socket.on('connect', () => {
+    this.socket.on('connect', async () => {
       console.log('socket connected');
-      if (publicKey) {
-        store.dispatch({
-          type: actionTypes.SET_PRIVATE_KEY,
-          payload: generatedPrivateKey,
-        });
+      const socketConnectKey = await getCookie(AsyncKey.socketConnectKey);
+      if (typeof socketConnectKey !== 'boolean' || !socketConnectKey) {
+        if (publicKey) {
+          store.dispatch({
+            type: actionTypes.SET_PRIVATE_KEY,
+            payload: generatedPrivateKey,
+          });
+        }
       }
       if (this.firstLoad) {
         this.reloadData();

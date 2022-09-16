@@ -109,8 +109,14 @@ function App() {
     });
   }, [dispatch]);
   useEffect(() => {
-    if (user.user_id) initGeneratedPrivateKey();
-  }, [initGeneratedPrivateKey, user.user_id]);
+    getCookie(AsyncKey.socketConnectKey)
+      .then((res) => {
+        if (typeof res === 'boolean' && res) {
+          initGeneratedPrivateKey();
+        }
+      })
+      .catch(() => {});
+  }, [initGeneratedPrivateKey]);
   const walletConnectLogout = useCallback(async () => {
     const deviceCode = await getDeviceCode();
     await api.removeDevice({
