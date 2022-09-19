@@ -120,7 +120,10 @@ const getMessages = async (
   const isPrivate = channelType === 'Private' || channelType === 'Direct';
   const messageData = isPrivate
     ? await normalizeMessageData(messageRes.data, channelId)
-    : normalizePublicMessageData(messageRes.data);
+    : normalizePublicMessageData(
+        messageRes.data,
+        messageRes.metadata?.encrypt_message_key
+      );
   if (messageRes.statusCode === 200) {
     dispatch({
       type: actionTypes.MESSAGE_SUCCESS,
@@ -181,7 +184,10 @@ const loadMessageIfNeeded = async () => {
     currentChannel.channel_type === 'Private' ||
     currentChannel.channel_type === 'Direct'
       ? await normalizeMessageData(messageRes.data, currentChannel.channel_id)
-      : normalizePublicMessageData(messageRes.data);
+      : normalizePublicMessageData(
+          messageRes.data,
+          messageRes.metadata?.encrypt_message_key
+        );
   if (messageRes.statusCode === 200) {
     store.dispatch({
       type: actionTypes.MESSAGE_SUCCESS,

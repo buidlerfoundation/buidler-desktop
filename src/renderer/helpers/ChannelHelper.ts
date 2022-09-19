@@ -5,6 +5,7 @@ import { AsyncKey } from 'renderer/common/AppConfig';
 import store from 'renderer/store';
 import { uniqBy } from 'lodash';
 import { decrypt } from 'eciesjs';
+import CryptoJS from 'crypto-js';
 
 export const encryptMessage = async (str: string, key: string) => {
   const pubKey = utils.computePublicKey(key, true);
@@ -124,23 +125,17 @@ export const getPrivateChannel = async (privateKey: string) => {
 
 export const normalizePublicMessageItem = (item: any, key: string) => {
   const content = item.content
-    ? decrypt(key, Buffer.from(item.content, 'hex')).toString()
-    : '';
-  const plain_text = item.plain_text
-    ? decrypt(key, Buffer.from(item.plain_text, 'hex')).toString()
+    ? CryptoJS.AES.decrypt(item.content, key).toString(CryptoJS.enc.Utf8)
     : '';
   if (item?.conversation_data) {
-    const configs: any = store.getState()?.configs;
-    const { privateKey } = configs;
     item.conversation_data = normalizePublicMessageItem(
       item.conversation_data,
-      privateKey
+      key
     );
   }
   return {
     ...item,
     content,
-    plain_text,
   };
 };
 
@@ -161,11 +156,20 @@ export const normalizeMessageItem = async (
   };
 };
 
-export const normalizePublicMessageData = (messages: Array<any>) => {
+export const normalizePublicMessageData = (
+  messages: Array<any>,
+  encryptMessageKey?: string
+) => {
   const configs: any = store.getState()?.configs;
   const { privateKey } = configs;
+  const decryptMessageKey = decrypt(
+    privateKey,
+    Buffer.from(encryptMessageKey || '', 'hex')
+  );
   const res =
-    messages?.map?.((el) => normalizePublicMessageItem(el, privateKey)) || [];
+    messages?.map?.((el) =>
+      normalizePublicMessageItem(el, decryptMessageKey.toString())
+    ) || [];
   return res.filter(
     (el) => !!el.content || el?.message_attachments?.length > 0
   );
