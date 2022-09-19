@@ -270,6 +270,7 @@ class SocketUtil {
         this.socket.off('ON_REMOVE_USER_FROM_TEAM');
         this.socket.off('ON_VIEW_MESSAGE_IN_CHANNEL');
         this.socket.off('ON_USER_LEAVE_TEAM');
+        this.socket.off('ON_UPDATE_USER_PERMISSION');
         this.socket.off('disconnect');
       });
       // this.emitOnline(teamId || store.getState().user?.currentTeamId);
@@ -325,6 +326,16 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('ON_UPDATE_USER_PERMISSION', (data) => {
+      const { user_id, role, team_id } = data;
+      const { currentTeamId } = store.getState().user;
+      if (team_id === currentTeamId) {
+        store.dispatch({
+          type: actionTypes.UPDATE_USER_SUCCESS,
+          payload: { user_id, role },
+        });
+      }
+    });
     this.socket.on('ON_USER_LEAVE_TEAM', (data) => {
       const { user_id, team_id } = data;
       const { currentTeamId, userData, team, lastChannel } =
