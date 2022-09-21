@@ -848,13 +848,14 @@ const Home = () => {
                   onEditPinPost={onEditPost}
                   loadMoreAfterMessage={loadMoreAfterMessage}
                 />
-                {currentChannel.channel_type !== 'Direct' && (
-                  <PinPostList
-                    onMenuSelected={onMenuPostSelected}
-                    onCreate={handleCreatePinPost}
-                    onEdit={onEditPost}
-                  />
-                )}
+                {currentChannel.channel_id &&
+                  currentChannel.channel_type !== 'Direct' && (
+                    <PinPostList
+                      onMenuSelected={onMenuPostSelected}
+                      onCreate={handleCreatePinPost}
+                      onEdit={onEditPost}
+                    />
+                  )}
               </>
             )}
           </div>

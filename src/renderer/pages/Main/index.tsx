@@ -171,9 +171,10 @@ const RedirectToHome = () => {
     match_community_id?: string;
   }>();
   const { match_community_id } = match.params;
+  const dispatch = useAppDispatch();
   const channelMap = useAppSelector((state) => state.user.channelMap);
   const channel = useMemo(
-    () => channelMap[match_community_id || ''] || [],
+    () => channelMap[match_community_id || ''],
     [channelMap, match_community_id]
   );
   const team = useAppSelector((state) => state.user.team);
@@ -203,8 +204,11 @@ const RedirectToHome = () => {
       }
       const channelByTeam = lastChannel?.[match_community_id];
       channelId = channelByTeam?.channel_id;
+      if (!channel) {
+        await dispatch(findTeamAndChannel(match_community_id));
+      }
     }
-    const matchChannel = channel.find((el) => el.channel_id === channelId);
+    const matchChannel = channel?.find?.((el) => el.channel_id === channelId);
     if ((!channelId && !cookieChannelId) || !matchChannel) {
       channelId = channel?.[0]?.channel_id;
     }
@@ -219,7 +223,7 @@ const RedirectToHome = () => {
     } else {
       setEmpty(true);
     }
-  }, [match_community_id, lastChannel, channel, team, history]);
+  }, [team, match_community_id, channel, lastChannel, history, dispatch]);
   useEffect(() => {
     gotoChannel();
   }, [gotoChannel]);
