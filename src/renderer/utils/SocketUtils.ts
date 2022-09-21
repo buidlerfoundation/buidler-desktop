@@ -340,6 +340,10 @@ class SocketUtil {
           type: actionTypes.UPDATE_USER_SUCCESS,
           payload: { user_id, role },
         });
+        store.dispatch({
+          type: actionTypes.UPDATE_USER_PERMISSION,
+          payload: data,
+        });
       }
     });
     this.socket.on('ON_USER_LEAVE_TEAM', (data) => {
