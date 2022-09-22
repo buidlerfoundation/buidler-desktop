@@ -81,6 +81,7 @@ import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
 import ModalCreatePinPost from 'renderer/shared/ModalCreatePinPost';
 import PinPostDetail from 'renderer/shared/PinPostDetail';
 import ModalTransactionDetail from 'renderer/shared/ModalTransactionDetail';
+import ModalLoadingConfirmTx from 'renderer/shared/ModalLoadingConfirmTx';
 
 const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
@@ -139,7 +140,8 @@ const Home = () => {
   const teamUserData = useTeamUserData();
   const channelId = useMatchChannelId();
   const { taskData } = useAppSelector((state) => state.task);
-  const { dataFromUrl, privateKey } = useAppSelector((state) => state.configs);
+  const { dataFromUrl, privateKey, isOpenModalConfirmSignMessage } =
+    useAppSelector((state) => state.configs);
   const history = useHistory();
   const inputRef = useRef<any>();
   const channelViewRef = useRef<any>();
@@ -163,6 +165,12 @@ const Home = () => {
   const [openCreatePinPost, setOpenCreatePinPost] = useState(false);
   const viewTxDetail = useCallback(() => setOpenTxDetail(true), []);
   const closeTxDetail = useCallback(() => setOpenTxDetail(false), []);
+  const handleCloseModalConfirmSignMessage = useCallback(() => {
+    dispatch({
+      type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+      payload: false,
+    });
+  }, [dispatch]);
   const onSent = useCallback(() => {
     appTitleBarRef.current?.openTransaction?.();
   }, []);
@@ -937,6 +945,10 @@ const Home = () => {
             open={openTxDetail}
             handleClose={closeTxDetail}
             txHash={selectedHash}
+          />
+          <ModalLoadingConfirmTx
+            open={isOpenModalConfirmSignMessage}
+            handleClose={handleCloseModalConfirmSignMessage}
           />
         </div>
       </DragDropContext>

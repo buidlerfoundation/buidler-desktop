@@ -1,15 +1,16 @@
 import { Dispatch } from 'redux';
 import api from '../api';
 import actionTypes from './ActionTypes';
-import store from '../store';
+import store, { AppGetState } from '../store';
 import { getCookie } from 'renderer/common/Cookie';
 import { AsyncKey, LoginType } from 'renderer/common/AppConfig';
-import { ethers, utils } from 'ethers';
+import { utils } from 'ethers';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import toast from 'react-hot-toast';
 
 export const uploadToIPFS =
-  (pinPostId: string, channelId: string) => async (dispatch: Dispatch) => {
+  (pinPostId: string, channelId: string) =>
+  async (dispatch: Dispatch, getState: AppGetState) => {
     dispatch({
       type: actionTypes.UPDATE_TASK_REQUEST,
       payload: {
@@ -23,18 +24,27 @@ export const uploadToIPFS =
       const timestamp = new Date().getTime();
       const message = `Nonce: ${timestamp}`;
       let signature = '';
-      if (loginType === LoginType.Metamask) {
-        const metamaskProvider: any = window.ethereum;
-        const provider = new ethers.providers.Web3Provider(metamaskProvider);
-        const signer = provider.getSigner();
-        signature = await signer.signMessage(message);
-      } else if (loginType === LoginType.WalletConnect) {
+      if (loginType === LoginType.WalletConnect) {
+        dispatch({
+          type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+          payload: true,
+        });
         const { accounts } = WalletConnectUtils.connector || {};
         const address = accounts?.[0];
         const params = [utils.hexlify(utils.toUtf8Bytes(message)), address];
         signature = await WalletConnectUtils.connector?.signPersonalMessage(
           params
         );
+        dispatch({
+          type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+          payload: false,
+        });
+      } else {
+        const { privateKey } = getState().configs;
+        const msgHash = utils.hashMessage(message);
+        const msgHashBytes = utils.arrayify(msgHash);
+        const signingKey = new utils.SigningKey(`0x${privateKey}`);
+        signature = signingKey.signDigest(msgHashBytes);
       }
       if (signature) {
         api
@@ -74,6 +84,10 @@ export const uploadToIPFS =
           data: { uploadingIPFS: false },
           channelId,
         },
+      });
+      dispatch({
+        type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+        payload: false,
       });
     }
   };
@@ -136,12 +150,12 @@ export const getTasks =
     if (createdAt) {
       dispatch({
         type: actionTypes.TASK_MORE,
-        payload: { channelId, createdAt, controller: controller },
+        payload: { channelId, createdAt, controller },
       });
     } else {
       dispatch({
         type: actionTypes.TASK_REQUEST,
-        payload: { channelId, controller: controller },
+        payload: { channelId, controller },
       });
     }
     try {
