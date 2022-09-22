@@ -72,6 +72,12 @@ const Started = () => {
         GlobalVariable.loginType = LoginType.WalletConnect;
         await setCookie(AsyncKey.accessTokenKey, res?.token);
         await setCookie(AsyncKey.loginType, LoginType.WalletConnect);
+        await setCookie(AsyncKey.refreshTokenKey, res?.refresh_token);
+        await setCookie(AsyncKey.tokenExpire, res?.token_expire_at);
+        await setCookie(
+          AsyncKey.refreshTokenExpire,
+          res?.refresh_token_expire_at
+        );
         gaLoginSuccess('WalletConnect');
         history.replace('/channels');
       } else {
@@ -156,6 +162,12 @@ const Started = () => {
       const res = await api.verifyNonce(message, signature.compact);
       if (res.statusCode === 200) {
         setCookie(AsyncKey.accessTokenKey, res.token);
+        await setCookie(AsyncKey.refreshTokenKey, res?.refresh_token);
+        await setCookie(AsyncKey.tokenExpire, res?.token_expire_at);
+        await setCookie(
+          AsyncKey.refreshTokenExpire,
+          res?.refresh_token_expire_at
+        );
         const privateKeyChannel = await getPrivateChannel(privateKey);
         dispatch({
           type: actionTypes.SET_CHANNEL_PRIVATE_KEY,

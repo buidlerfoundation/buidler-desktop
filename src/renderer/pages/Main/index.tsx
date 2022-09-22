@@ -56,7 +56,7 @@ const PublicRoute = ({ component: Component, ...rest }: any) => {
   useEffect(() => {
     getCookie(AsyncKey.accessTokenKey)
       .then((res: any) => {
-        if (res) {
+        if (res && typeof res === 'string') {
           history.replace('/');
         }
       })
