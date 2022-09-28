@@ -37,9 +37,9 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
     }
     case actionTypes.DELETE_MESSAGE: {
       const { entityType, channelId, currentChannelId } = payload;
-      let pinPostDetail = state.pinPostDetail;
+      let {pinPostDetail} = state;
       const newTasks = state.taskData[currentChannelId]?.tasks;
-      if (!newTasks || entityType !== 'post') {
+      if ((!newTasks && !pinPostDetail) || entityType !== 'post') {
         return {
           ...state,
         };
@@ -58,7 +58,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
           ...state.taskData,
           [currentChannelId]: {
             ...state.taskData[currentChannelId],
-            tasks: newTasks.map((el) => {
+            tasks: newTasks?.map((el) => {
               if (el.task_id === channelId) {
                 return {
                   ...el,
@@ -75,8 +75,8 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
     case actionTypes.RECEIVE_MESSAGE: {
       const { data, currentChannelId } = payload;
       const newTasks = state.taskData[currentChannelId]?.tasks;
-      let pinPostDetail = state.pinPostDetail;
-      if (!newTasks || data.entity_type !== 'post') {
+      let {pinPostDetail} = state;
+      if ((!newTasks && !pinPostDetail) || data.entity_type !== 'post') {
         return {
           ...state,
         };
@@ -102,7 +102,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
           ...state.taskData,
           [currentChannelId]: {
             ...state.taskData[currentChannelId],
-            tasks: newTasks.map((el) => {
+            tasks: newTasks?.map((el) => {
               if (el.task_id === data.entity_id) {
                 return {
                   ...el,
