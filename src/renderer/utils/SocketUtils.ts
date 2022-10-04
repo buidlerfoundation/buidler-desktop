@@ -17,6 +17,7 @@ import { utils } from 'ethers';
 import actionTypes from '../actions/ActionTypes';
 import AppConfig, { AsyncKey, LoginType } from '../common/AppConfig';
 import {
+  clearData,
   GeneratedPrivateKey,
   getCookie,
   getDeviceCode,
@@ -35,6 +36,7 @@ import {
   getCurrentCommunity,
 } from 'renderer/helpers/StoreHelper';
 import { getCollectibles } from 'renderer/actions/CollectibleActions';
+import { logout, refreshToken } from 'renderer/actions/UserActions';
 
 const actionFetchWalletBalance = async (dispatch: Dispatch) => {
   dispatch({ type: actionTypes.WALLET_BALANCE_REQUEST });
@@ -203,9 +205,11 @@ const loadMessageIfNeeded = async () => {
 class SocketUtil {
   socket: any = null;
   firstLoad = false;
+  connecting = false;
   async init(teamId?: string) {
     this.firstLoad = false;
-    if (this.socket?.connected) return;
+    if (this.socket?.connected || this.connecting) return;
+    this.connecting = true;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
     const deviceCode = await getDeviceCode();
     const generatedPrivateKey = await GeneratedPrivateKey();
@@ -228,6 +232,7 @@ class SocketUtil {
       upgrade: false,
     });
     this.socket.on('connect', async () => {
+      this.connecting = false;
       console.log('socket connected');
       const socketConnectKey = await getCookie(AsyncKey.socketConnectKey);
       if (typeof socketConnectKey !== 'boolean' || !socketConnectKey) {
@@ -244,6 +249,7 @@ class SocketUtil {
       this.firstLoad = true;
       this.listenSocket();
       this.socket.on('disconnect', (reason: string) => {
+        this.connecting = false;
         console.log(`socket disconnect: ${reason}`);
         this.socket.off('ON_NEW_MESSAGE');
         this.socket.off('ON_NEW_TASK');
@@ -332,6 +338,20 @@ class SocketUtil {
     });
   };
   listenSocket() {
+    this.socket.on('error', async (err) => {
+      const message = err.message || err;
+      if (message === 'Authentication error') {
+        const res: any = await store.dispatch(refreshToken());
+        if (!!res) {
+          this.init();
+        } else {
+          clearData(() => {
+            window.location.reload();
+            store.dispatch(logout?.());
+          });
+        }
+      }
+    });
     this.socket.on('ON_UPDATE_USER_PERMISSION', (data) => {
       const { user_id, role, team_id } = data;
       const { currentTeamId } = store.getState().user;
