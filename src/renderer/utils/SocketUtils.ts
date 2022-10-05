@@ -34,6 +34,7 @@ import { formatTokenValue } from 'renderer/helpers/TokenHelper';
 import {
   getCurrentChannel,
   getCurrentCommunity,
+  getPostId,
 } from 'renderer/helpers/StoreHelper';
 import { getCollectibles } from 'renderer/actions/CollectibleActions';
 import { logout, refreshToken } from 'renderer/actions/UserActions';
@@ -204,10 +205,12 @@ const loadMessageIfNeeded = async () => {
 
 class SocketUtil {
   socket: Socket | null = null;
-  firstLoad = false;
+  firstLoad = true;
   connecting = false;
-  async init() {
-    this.firstLoad = false;
+  async init(isRefresh = false) {
+    if (!isRefresh) {
+      this.firstLoad = true;
+    }
     if (this.socket?.connected || this.connecting) return;
     this.connecting = true;
     const accessToken = await getCookie(AsyncKey.accessTokenKey);
@@ -237,7 +240,7 @@ class SocketUtil {
       if (message === 'Authentication error') {
         const res: any = await store.dispatch(refreshToken());
         if (!!res) {
-          this.init();
+          this.init(true);
         } else {
           clearData(() => {
             window.location.reload();
@@ -258,10 +261,10 @@ class SocketUtil {
           });
         }
       }
-      if (this.firstLoad) {
+      if (!this.firstLoad) {
         this.reloadData();
       }
-      this.firstLoad = true;
+      this.firstLoad = false;
       this.listenSocket();
       this.socket?.on('disconnect', (reason: string) => {
         this.connecting = false;
@@ -299,6 +302,9 @@ class SocketUtil {
         this.socket?.off('ON_USER_LEAVE_TEAM');
         this.socket?.off('ON_UPDATE_USER_PERMISSION');
         this.socket?.off('disconnect');
+        if (reason === 'io server disconnect') {
+          this.socket?.connect();
+        }
       });
       // this.emitOnline(teamId || store.getState().user?.currentTeamId);
     });
@@ -306,12 +312,17 @@ class SocketUtil {
   reloadData = async () => {
     const currentChannel = getCurrentChannel();
     const currentTeam = getCurrentCommunity();
+    const postId = getPostId();
     if (!!currentTeam && !!currentChannel) {
       await actionSetCurrentTeam(
         currentTeam,
         store.dispatch,
         currentChannel.channel_id
       );
+      // load pin post message
+      if (postId) {
+        store.dispatch(getPinPostMessages(postId));
+      }
       // load message
       getMessages(
         currentChannel.channel_id,
