@@ -8,6 +8,7 @@ import GlobalVariable from 'renderer/services/GlobalVariable';
 import { useHistory } from 'react-router-dom';
 import { AsyncKey } from 'renderer/common/AppConfig';
 import { CustomEventName } from 'renderer/services/WindowEvent';
+import SocketUtils from 'renderer/utils/SocketUtils';
 
 const AppListener = () => {
   const history = useHistory();
@@ -35,6 +36,7 @@ const AppListener = () => {
         dispatch({ type: actionTypes.REMOVE_PRIVATE_KEY });
         history.replace('/unlock');
       }
+      SocketUtils.reconnectIfNeeded();
     };
     const windowBlurListener = () => {
       setCookie(AsyncKey.lastTimeFocus, new Date().getTime());
