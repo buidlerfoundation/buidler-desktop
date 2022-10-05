@@ -232,11 +232,11 @@ class SocketUtil {
       upgrade: false,
     });
     this.socket?.on('connect_error', async (err) => {
+      this.connecting = false;
       const message = err.message || err;
       if (message === 'Authentication error') {
         const res: any = await store.dispatch(refreshToken());
         if (!!res) {
-          this.connecting = false;
           this.init();
         } else {
           clearData(() => {
