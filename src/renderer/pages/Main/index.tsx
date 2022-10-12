@@ -93,6 +93,9 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       loginType === LoginType.WalletImport &&
       !privateKey
     ) {
+      history.replace({
+        pathname: '/unlock',
+      });
       return;
     }
     if (!userData.user_id && !userError) {
@@ -111,15 +114,16 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     }
     setLoading(false);
   }, [
-    currentTeamLoading,
     rest.redirect,
-    currentTeam?.team_id,
-    dispatch,
-    match_community_id,
-    team,
-    userData?.user_id,
-    userError,
     privateKey,
+    userData.user_id,
+    userError,
+    match_community_id,
+    currentTeam?.team_id,
+    history,
+    dispatch,
+    team,
+    currentTeamLoading,
     currentTeamError,
   ]);
   useEffect(() => {
