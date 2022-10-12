@@ -41,6 +41,7 @@ import images from '../../../../common/images';
 import MessageItem from '../../../../shared/MessageItem';
 import {
   extractContent,
+  extractContentMessage,
   getMentionData,
   normalizeMessages,
   normalizeMessageText,
