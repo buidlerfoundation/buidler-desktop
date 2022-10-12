@@ -2,7 +2,7 @@ class GlobalVariable {
   isInputFocus = false;
   isWindowFocus = true;
   loginType = '';
-  version = '1.10.3';
+  version = '1.10.4';
   sessionExpired = false;
 }
 
