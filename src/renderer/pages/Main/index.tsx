@@ -96,6 +96,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       history.replace({
         pathname: '/unlock',
       });
+      setLoading(false);
       return;
     }
     if (!userData.user_id && !userError) {

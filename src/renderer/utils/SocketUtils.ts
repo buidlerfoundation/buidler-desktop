@@ -38,6 +38,7 @@ import {
 } from 'renderer/helpers/StoreHelper';
 import { getCollectibles } from 'renderer/actions/CollectibleActions';
 import { logout, refreshToken } from 'renderer/actions/UserActions';
+import ImageHelper from 'renderer/common/ImageHelper';
 
 const actionFetchWalletBalance = async (dispatch: Dispatch) => {
   dispatch({ type: actionTypes.WALLET_BALANCE_REQUEST });
@@ -820,12 +821,13 @@ class SocketUtil {
             !GlobalVariable.isWindowFocus)
         ) {
           window.electron.ipcRenderer.sendMessage('doing-notification', {
-            title: `${notification_data?.channel_name} (${notification_data?.team_name})`,
+            title: notification_data.title,
             body: notification_data.body,
-            icon: notification_data?.sender_data?.avatar_url,
-            subtitle:
-              normalizeUserName(notification_data?.sender_data?.user_name) ||
-              'Message',
+            icon: ImageHelper.normalizeImage(
+              notification_data?.sender_data?.avatar_url,
+              notification_data?.sender_data?.user_id
+            ),
+            subtitle: notification_data.subtitle,
           });
         }
         const teamNotification = team.find(
