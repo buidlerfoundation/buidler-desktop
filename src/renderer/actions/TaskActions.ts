@@ -43,7 +43,7 @@ export const uploadToIPFS =
         const { privateKey } = getState().configs;
         const msgHash = utils.hashMessage(message);
         const msgHashBytes = utils.arrayify(msgHash);
-        const signingKey = new utils.SigningKey(`0x${privateKey}`);
+        const signingKey = new utils.SigningKey(privateKey);
         signature = signingKey.signDigest(msgHashBytes);
       }
       if (signature) {
