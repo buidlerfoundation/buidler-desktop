@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import {
-  deleteChannel,
-  setCurrentChannel,
-  updateChannel,
-} from 'renderer/actions/UserActions';
+import { deleteChannel, updateChannel } from 'renderer/actions/UserActions';
 import { Channel } from 'renderer/models';
 import api from '../../../../api';
 import images from '../../../../common/images';
@@ -20,12 +16,14 @@ type SettingChannelProps = {
   currentChannel?: Channel;
   onClose: () => void;
   isActiveName: boolean;
+  isOwner?: boolean;
 };
 
 const SettingChannel = ({
   currentChannel,
   onClose,
   isActiveName,
+  isOwner,
 }: SettingChannelProps) => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -34,6 +32,10 @@ const SettingChannel = ({
   const [isOpenConfirm, setOpenConfirm] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [isOpenEditName, setOpenEditName] = useState(false);
+  const [currentNotificationType, setNotificationType] = useState<string>();
+  useEffect(() => {
+    setNotificationType(currentChannel?.notification_type);
+  }, [currentChannel?.notification_type]);
   const handleSelectChannelType = useCallback(
     (item: PopoverItem) => {
       dispatch(
@@ -77,14 +79,9 @@ const SettingChannel = ({
         currentChannel.channel_id,
         item.value
       );
-      dispatch(
-        setCurrentChannel?.({
-          ...currentChannel,
-          notification_type: item.value,
-        })
-      );
+      setNotificationType(item.value);
     },
-    [currentChannel, dispatch]
+    [currentChannel]
   );
   const handleToggleModalDelete = useCallback(
     () => setOpenConfirm((current) => !current),
@@ -149,14 +146,16 @@ const SettingChannel = ({
           />
         </div>
       )}
-      <div
-        className="setting-item normal-button"
-        style={{ marginTop: 12 }}
-        onClick={toggleEditName}
-      >
-        <img src={images.icSettingChannelEdit} alt="" />
-        <span className="setting-label">Edit channel name</span>
-      </div>
+      {isOwner && (
+        <div
+          className="setting-item normal-button"
+          style={{ marginTop: 12 }}
+          onClick={toggleEditName}
+        >
+          <img src={images.icSettingChannelEdit} alt="" />
+          <span className="setting-label">Edit channel name</span>
+        </div>
+      )}
       {isOpenEditName && (
         <div className="edit-name-input__wrapper">
           <AppInput
@@ -176,7 +175,7 @@ const SettingChannel = ({
           <img src={images.icSettingChannelNotification} alt="" />
           <span className="setting-label">Notification</span>
           <PopoverButton
-            title={currentChannel?.notification_type}
+            title={currentNotificationType}
             icon={images.icCollapse}
             data={[
               { value: 'Quiet', label: 'Quiet' },
@@ -187,13 +186,15 @@ const SettingChannel = ({
           />
         </div>
       )}
-      <div
-        className="setting-item normal-button"
-        onClick={handleToggleModalDelete}
-      >
-        <img src={images.icSettingChannelDelete} alt="" />
-        <span className="setting-label">Delete channel</span>
-      </div>
+      {isOwner && (
+        <div
+          className="setting-item normal-button"
+          onClick={handleToggleModalDelete}
+        >
+          <img src={images.icSettingChannelDelete} alt="" />
+          <span className="setting-label">Delete channel</span>
+        </div>
+      )}
       <ModalConfirmDeleteChannel
         open={isOpenConfirm}
         handleClose={handleToggleModalDelete}

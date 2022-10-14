@@ -9,6 +9,7 @@ type ChannelSettingsProps = {
   isActiveMember: boolean;
   isActiveName: boolean;
   onClose: () => void;
+  isOwner?: boolean;
 };
 
 const ChannelSettings = ({
@@ -17,6 +18,7 @@ const ChannelSettings = ({
   isActiveMember,
   onClose,
   isActiveName,
+  isOwner,
 }: ChannelSettingsProps) => {
   const [page, setPage] = useState(1);
   const spaceMembers = useSelector((state) => state.user.spaceMembers);
@@ -52,6 +54,7 @@ const ChannelSettings = ({
           currentChannel={currentChannel}
           onClose={onClose}
           isActiveName={isActiveName}
+          isOwner={isOwner}
         />
       )}
       {page === 0 && (
