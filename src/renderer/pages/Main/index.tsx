@@ -69,7 +69,14 @@ const PublicRoute = ({ component: Component, ...rest }: any) => {
 
 const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const [loading, setLoading] = useState(false);
-  const match_community_id = rest?.computedMatch?.params?.match_community_id;
+  const match_community_id = useMemo(
+    () => rest?.computedMatch?.params?.match_community_id,
+    [rest?.computedMatch?.params?.match_community_id]
+  );
+  const match_channel_id = useMemo(
+    () => rest?.computedMatch?.params?.match_channel_id,
+    [rest?.computedMatch?.params?.match_channel_id]
+  );
   const userData = useAppSelector((state) => state.user.userData);
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const userError = useAppSelector((state) => errorUserSelector(state));
@@ -109,7 +116,12 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
       const matchCommunity = team?.find(
         (t) => t.team_id === match_community_id
       );
-      if (matchCommunity && !currentTeamLoading && !currentTeamError) {
+      if (
+        matchCommunity &&
+        !currentTeamLoading &&
+        !currentTeamError &&
+        match_channel_id
+      ) {
         await dispatch(setCurrentTeam(matchCommunity));
       }
     }
@@ -126,6 +138,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
     team,
     currentTeamLoading,
     currentTeamError,
+    match_channel_id,
   ]);
   useEffect(() => {
     if (window.location.pathname !== '/') {
