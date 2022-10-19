@@ -50,16 +50,8 @@ export const logout: ActionCreator<any> = () => (dispatch: Dispatch) => {
 export const refreshToken = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.REFRESH_TOKEN_REQUEST });
   try {
-    const refreshTokenExpire = await getCookie(AsyncKey.refreshTokenExpire);
-    const refreshToken = await getCookie(AsyncKey.refreshTokenKey);
-    if (
-      !refreshTokenExpire ||
-      !refreshToken ||
-      new Date().getTime() / 1000 > refreshTokenExpire
-    ) {
-      return false;
-    }
-    const refreshTokenRes = await api.refreshToken(refreshToken);
+    const token = await getCookie(AsyncKey.refreshTokenKey);
+    const refreshTokenRes = await api.refreshToken(token);
     if (refreshTokenRes.success) {
       dispatch({
         type: ActionTypes.UPDATE_CURRENT_TOKEN,

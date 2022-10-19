@@ -821,13 +821,22 @@ class SocketUtil {
             !GlobalVariable.isWindowFocus)
         ) {
           window.electron.ipcRenderer.sendMessage('doing-notification', {
-            title: notification_data.title,
-            body: notification_data.body,
+            body: notification_data.body.replace(
+              /(<@)(.*?)(-)(.*?)(>)/gim,
+              '@$2'
+            ),
+            title: notification_data.title.replace(
+              /(<@)(.*?)(-)(.*?)(>)/gim,
+              '@$2'
+            ),
+            subtitle: notification_data.subtitle.replace(
+              /(<@)(.*?)(-)(.*?)(>)/gim,
+              '@$2'
+            ),
             icon: ImageHelper.normalizeImage(
               notification_data?.sender_data?.avatar_url,
               notification_data?.sender_data?.user_id
             ),
-            subtitle: notification_data.subtitle,
           });
         }
         const teamNotification = team.find(
