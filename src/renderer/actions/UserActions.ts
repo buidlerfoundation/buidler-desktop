@@ -258,6 +258,7 @@ export const createNewChannel =
         type: ActionTypes.CREATE_CHANNEL_SUCCESS,
         payload: {
           ...res.data,
+          seen: true,
           group_channel: {
             group_channel_name: groupName,
           },

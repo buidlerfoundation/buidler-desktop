@@ -129,7 +129,8 @@ async function requestAPI<T = any>(
         .json()
         .then((data) => {
           if (res.status !== 200) {
-            return handleError(data.message || data, { uri, fetchOptions });
+            handleError(data.message || data, { uri, fetchOptions });
+            return { data, statusCode: res.status };
           }
           if (data.length >= 0) {
             return { data, statusCode: res.status };
