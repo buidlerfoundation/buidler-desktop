@@ -4,7 +4,12 @@ import { getSpaceBackgroundColor } from 'renderer/helpers/SpaceHelper';
 import api from '../api';
 import ActionTypes from './ActionTypes';
 import { AsyncKey, UserRole } from '../common/AppConfig';
-import { getCookie, removeCookie, setCookie } from '../common/Cookie';
+import {
+  getCookie,
+  getDeviceCode,
+  removeCookie,
+  setCookie,
+} from '../common/Cookie';
 import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
 import { Community, UserData, UserRoleType } from 'renderer/models';
@@ -47,6 +52,13 @@ export const logout: ActionCreator<any> = () => (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.LOGOUT });
 };
 
+const removeDeviceCode = async () => {
+  const deviceCode = await getDeviceCode();
+  await api.removeDevice({
+    device_code: deviceCode,
+  });
+};
+
 export const refreshToken = () => async (dispatch: Dispatch) => {
   dispatch({ type: ActionTypes.REFRESH_TOKEN_REQUEST });
   try {
@@ -67,6 +79,7 @@ export const refreshToken = () => async (dispatch: Dispatch) => {
         refreshTokenRes?.data?.refresh_token_expire_at
       );
     } else {
+      await removeDeviceCode();
       dispatch({
         type: ActionTypes.REFRESH_TOKEN_FAIL,
         payload: refreshTokenRes,
@@ -74,6 +87,7 @@ export const refreshToken = () => async (dispatch: Dispatch) => {
     }
     return refreshTokenRes.success;
   } catch (error) {
+    await removeDeviceCode();
     dispatch({ type: ActionTypes.REFRESH_TOKEN_FAIL, payload: error });
     return false;
   }
