@@ -194,6 +194,9 @@ const Home = () => {
     () => setOpeMembers((current) => !current),
     []
   );
+  const onSettingClick = useCallback(() => {
+    appTitleBarRef.current?.openCommunitySetting?.();
+  }, []);
   const handleDragChannel = useCallback(
     (result: any) => {
       const { draggableId, source, destination } = result;
@@ -923,6 +926,7 @@ const Home = () => {
           <ModalAllMembers
             open={isOpenMembers}
             handleClose={toggleOpenMembers}
+            onSettingClick={onSettingClick}
           />
           <ModalUserProfile
             open={!!currentUserId}
