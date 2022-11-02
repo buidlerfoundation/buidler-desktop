@@ -37,7 +37,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
     }
     case actionTypes.DELETE_MESSAGE: {
       const { entityType, channelId, currentChannelId } = payload;
-      let {pinPostDetail} = state;
+      let { pinPostDetail } = state;
       const newTasks = state.taskData[currentChannelId]?.tasks;
       if ((!newTasks && !pinPostDetail) || entityType !== 'post') {
         return {
@@ -75,7 +75,7 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
     case actionTypes.RECEIVE_MESSAGE: {
       const { data, currentChannelId } = payload;
       const newTasks = state.taskData[currentChannelId]?.tasks;
-      let {pinPostDetail} = state;
+      let { pinPostDetail } = state;
       if ((!newTasks && !pinPostDetail) || data.entity_type !== 'post') {
         return {
           ...state,
@@ -127,14 +127,14 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
       return initialState;
     }
     case actionTypes.ARCHIVED_TASK_SUCCESS: {
-      const { channelId, res, createdAt } = payload;
+      const { channelId, res, id } = payload;
       return {
         ...state,
         taskData: {
           ...state.taskData,
           [channelId]: {
             ...(state.taskData[channelId] || {}),
-            archivedTasks: !createdAt
+            archivedTasks: !id
               ? res
               : [...(state.taskData[channelId]?.archivedTasks || []), ...res],
             canMoreArchivedTask: res.length === 10,
@@ -149,14 +149,14 @@ const taskReducers: Reducer<TaskReducerState, AnyAction> = (
       };
     }
     case actionTypes.TASK_SUCCESS: {
-      const { channelId, tasks, createdAt } = payload;
+      const { channelId, tasks, id } = payload;
       return {
         ...state,
         taskData: {
           ...state.taskData,
           [channelId]: {
             ...(state.taskData[channelId] || {}),
-            tasks: !createdAt
+            tasks: !id
               ? tasks
               : [...(state.taskData[channelId]?.tasks || []), ...tasks],
             canMoreTask: tasks.length === 10,
