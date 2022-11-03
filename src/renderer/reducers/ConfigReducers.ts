@@ -11,6 +11,7 @@ interface ConfigReducerState {
   isFullScreen: boolean;
   somethingWrong?: boolean | null;
   isOpenModalConfirmSignMessage: boolean;
+  internetConnection?: boolean;
 }
 
 const initialState: ConfigReducerState = {
@@ -23,6 +24,7 @@ const initialState: ConfigReducerState = {
   isFullScreen: false,
   somethingWrong: null,
   isOpenModalConfirmSignMessage: false,
+  internetConnection: true,
 };
 
 const configReducers: Reducer<ConfigReducerState, any> = (
@@ -31,6 +33,12 @@ const configReducers: Reducer<ConfigReducerState, any> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.UPDATE_INTERNET_CONNECTION: {
+      return {
+        ...state,
+        internetConnection: payload,
+      };
+    }
     case actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE: {
       return {
         ...state,

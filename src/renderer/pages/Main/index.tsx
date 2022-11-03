@@ -27,6 +27,7 @@ import actionTypes from 'renderer/actions/ActionTypes';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
 import ErrorPage from 'renderer/shared/ErrorBoundary/ErrorPage';
+import NoInternetPage from 'renderer/shared/NoInternetPage';
 
 interface PrivateRouteProps {
   component: any;
@@ -264,12 +265,16 @@ const Main = () => {
   const somethingWrong = useAppSelector(
     (state) => state.configs.somethingWrong
   );
+  const internetConnection = useAppSelector(
+    (state) => state.configs.internetConnection
+  );
   const dispatch = useDispatch();
   useEffect(() => {
     if (navigator.onLine) {
       dispatch(getInitial?.());
     }
   }, [dispatch]);
+  if (!internetConnection || !navigator.onLine) return <NoInternetPage />;
   if (somethingWrong) return <ErrorPage />;
   if (!imgDomain) {
     return <div className="main-load-page" />;

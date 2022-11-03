@@ -238,6 +238,7 @@ export interface TaskData {
   message_sender_id: string;
   cid?: string;
   uploadingIPFS?: boolean;
+  updatedAt?: string;
 }
 
 export interface ConversationData {
