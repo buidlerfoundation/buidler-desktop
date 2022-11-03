@@ -11,6 +11,7 @@ import NormalButton from '../../../../shared/NormalButton';
 import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
 import useChannel from 'renderer/hooks/useChannel';
 import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
+import toast from 'react-hot-toast';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
@@ -64,6 +65,10 @@ const SettingChannel = ({
     setCurrentName(currentChannel.channel_name);
   }, [currentChannel.channel_name, isOpenEditName]);
   const handleSave = useCallback(async () => {
+    if (!currentName) {
+      toast.error('Channel name cannot be empty');
+      return;
+    }
     const success = await dispatch(
       updateChannel(currentChannel.channel_id, {
         channel_name: currentName,

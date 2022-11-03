@@ -53,12 +53,12 @@ export const uploadToIPFS =
             signature,
             sign_message: message,
           })
-          .then(() => {
+          .then((res) => {
             dispatch({
               type: actionTypes.UPDATE_TASK_REQUEST,
               payload: {
                 taskId: pinPostId,
-                data: { uploadingIPFS: false },
+                data: { uploadingIPFS: false, cid: res.data?.cid },
                 channelId,
               },
             });
