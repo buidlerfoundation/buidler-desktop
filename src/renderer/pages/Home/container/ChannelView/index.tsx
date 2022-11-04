@@ -646,7 +646,7 @@ const ChannelView = forwardRef(
       toggleConfirmDeleteMessage,
     ]);
 
-    if (!currentChannel?.channel_name && !currentChannel?.user)
+    if (!currentChannel?.channel_id && !currentChannel?.user)
       return <div className="channel-view-container" />;
     return (
       <Dropzone onDrop={onAddFiles}>

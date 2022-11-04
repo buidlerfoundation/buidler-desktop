@@ -14,6 +14,7 @@ import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
 import { Community, UserData, UserRoleType } from 'renderer/models';
 import store from 'renderer/store';
+import { sleep } from 'renderer/helpers/StoreHelper';
 
 export const getInitial: ActionCreator<any> =
   () => async (dispatch: Dispatch) => {
@@ -63,39 +64,46 @@ const removeDeviceCode = async () => {
   });
 };
 
-export const refreshToken = () => async (dispatch: Dispatch) => {
-  dispatch({ type: ActionTypes.REFRESH_TOKEN_REQUEST });
-  try {
-    const token = await getCookie(AsyncKey.refreshTokenKey);
-    const refreshTokenRes = await api.refreshToken(token);
-    if (refreshTokenRes.success) {
-      await setCookie(AsyncKey.accessTokenKey, refreshTokenRes?.data?.token);
-      await setCookie(
-        AsyncKey.refreshTokenKey,
-        refreshTokenRes?.data?.refresh_token
-      );
-      await setCookie(
-        AsyncKey.tokenExpire,
-        refreshTokenRes?.data?.token_expire_at
-      );
-      await setCookie(
-        AsyncKey.refreshTokenExpire,
-        refreshTokenRes?.data?.refresh_token_expire_at
-      );
-    } else {
+export const refreshToken =
+  (retryCount?: number) => async (dispatch: Dispatch) => {
+    let rCount = retryCount || 0;
+    dispatch({ type: ActionTypes.REFRESH_TOKEN_REQUEST });
+    try {
+      const token = await getCookie(AsyncKey.refreshTokenKey);
+      const refreshTokenRes = await api.refreshToken(token);
+      if (refreshTokenRes.success) {
+        await setCookie(AsyncKey.accessTokenKey, refreshTokenRes?.data?.token);
+        await setCookie(
+          AsyncKey.refreshTokenKey,
+          refreshTokenRes?.data?.refresh_token
+        );
+        await setCookie(
+          AsyncKey.tokenExpire,
+          refreshTokenRes?.data?.token_expire_at
+        );
+        await setCookie(
+          AsyncKey.refreshTokenExpire,
+          refreshTokenRes?.data?.refresh_token_expire_at
+        );
+      } else {
+        if (refreshTokenRes.message === 'Failed to fetch' && rCount <= 5) {
+          rCount += 1;
+          await sleep(3000);
+          return refreshToken(rCount)(dispatch);
+        }
+        await removeDeviceCode();
+        dispatch({
+          type: ActionTypes.REFRESH_TOKEN_FAIL,
+          payload: refreshTokenRes,
+        });
+      }
+      return refreshTokenRes.success;
+    } catch (error) {
       await removeDeviceCode();
-      dispatch({
-        type: ActionTypes.REFRESH_TOKEN_FAIL,
-        payload: refreshTokenRes,
-      });
+      dispatch({ type: ActionTypes.REFRESH_TOKEN_FAIL, payload: error });
+      return false;
     }
-    return refreshTokenRes.success;
-  } catch (error) {
-    await removeDeviceCode();
-    dispatch({ type: ActionTypes.REFRESH_TOKEN_FAIL, payload: error });
-    return false;
-  }
-};
+  };
 
 export const getMemberData =
   (teamId: string, role: UserRoleType, page: number) =>
