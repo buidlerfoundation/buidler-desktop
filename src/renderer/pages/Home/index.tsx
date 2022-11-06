@@ -864,6 +864,7 @@ const Home = () => {
                   teamUserData={teamUserData}
                   onEditPinPost={onEditPost}
                   loadMoreAfterMessage={loadMoreAfterMessage}
+                  hideScrollDown={isOpenMembers}
                 />
                 {currentChannel.channel_id &&
                   currentChannel.channel_type !== 'Direct' && (
