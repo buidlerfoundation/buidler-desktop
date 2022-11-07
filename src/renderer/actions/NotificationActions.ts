@@ -1,7 +1,7 @@
-import { ActionCreator, Dispatch } from "redux";
-import api from "renderer/api";
-import { NotificationFilterType } from "renderer/models";
-import actionTypes from "./ActionTypes";
+import { ActionCreator, Dispatch } from 'redux';
+import api from 'renderer/api';
+import { NotificationFilterType } from 'renderer/models';
+import actionTypes from './ActionTypes';
 
 export const getNotifications: ActionCreator<any> =
   (filterType: NotificationFilterType, before?: string) =>
@@ -19,6 +19,7 @@ export const getNotifications: ActionCreator<any> =
           before,
           data: res.data,
           metadata: res.metadata,
+          filterType,
         },
       });
     } else {
