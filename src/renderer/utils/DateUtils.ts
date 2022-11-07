@@ -33,6 +33,16 @@ export const fromNow = (date: any) => {
   return time;
 };
 
+export const notificationFromNow = (date: any) => {
+  const time = moment(new Date(date)).calendar(null, {
+    sameDay: `[${moment(new Date(date)).fromNow()}]`,
+    lastDay: '[Yesterday at] HH:mm',
+    lastWeek: 'MM-DD-YYYY [at] HH:mm',
+    sameElse: 'MM-DD-YYYY [at] HH:mm',
+  });
+  return time;
+};
+
 export const messageFromNow = (date: any) => {
   const time = moment(new Date(date)).calendar(null, {
     sameDay: '[Today at] HH:mm',
