@@ -815,6 +815,10 @@ const Home = () => {
     [toggleCreatePinPost]
   );
 
+  const onJumpToMessage = useCallback((messageId: string) => {
+    channelViewRef.current?.onJumpToMessage(messageId);
+  }, []);
+
   if (loading && channels.length === 0) {
     return (
       <PageWrapper>
@@ -826,7 +830,7 @@ const Home = () => {
 
   return (
     <PageWrapper>
-      <AppTitleBar ref={appTitleBarRef} />
+      <AppTitleBar ref={appTitleBarRef} onJumpToMessage={onJumpToMessage} />
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="home-container">
           <SideBar
