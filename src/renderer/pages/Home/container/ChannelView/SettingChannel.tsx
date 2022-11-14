@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
+import toast from 'react-hot-toast';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { deleteChannel, updateChannel } from 'renderer/actions/UserActions';
+import useAppDispatch from 'renderer/hooks/useAppDispatch';
+import useChannel from 'renderer/hooks/useChannel';
+import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
 import { Channel } from 'renderer/models';
 import api from '../../../../api';
 import images from '../../../../common/images';
@@ -9,14 +18,12 @@ import AppInput from '../../../../shared/AppInput';
 import ModalConfirmDeleteChannel from '../../../../shared/ModalConfirmDeleteChannel';
 import NormalButton from '../../../../shared/NormalButton';
 import PopoverButton, { PopoverItem } from '../../../../shared/PopoverButton';
-import useChannel from 'renderer/hooks/useChannel';
-import useCurrentCommunity from 'renderer/hooks/useCurrentCommunity';
-import toast from 'react-hot-toast';
 
 type SettingChannelProps = {
   currentChannel?: Channel;
   onClose: () => void;
   isActiveName: boolean;
+  isActiveNotification: boolean;
   isOwner?: boolean;
 };
 
@@ -24,10 +31,12 @@ const SettingChannel = ({
   currentChannel,
   onClose,
   isActiveName,
+  isActiveNotification,
   isOwner,
 }: SettingChannelProps) => {
+  const buttonNotificationRef = useRef<any>();
   const history = useHistory();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const currentTeam = useCurrentCommunity();
   const channels = useChannel();
   const [isOpenConfirm, setOpenConfirm] = useState(false);
@@ -39,6 +48,7 @@ const SettingChannel = ({
   }, [currentChannel?.notification_type]);
   const handleSelectChannelType = useCallback(
     (item: PopoverItem) => {
+      if (!currentChannel?.channel_id) return;
       dispatch(
         updateChannel(currentChannel.channel_id, {
           channel_type: item.value,
@@ -57,14 +67,20 @@ const SettingChannel = ({
     []
   );
   useEffect(() => {
+    if (isActiveNotification) {
+      buttonNotificationRef.current?.show();
+    }
+  }, [isActiveNotification]);
+  useEffect(() => {
     if (isActiveName) {
       setOpenEditName(true);
     }
   }, [isActiveName]);
   useEffect(() => {
-    setCurrentName(currentChannel.channel_name);
-  }, [currentChannel.channel_name, isOpenEditName]);
+    setCurrentName(currentChannel?.channel_name || '');
+  }, [currentChannel?.channel_name, isOpenEditName]);
   const handleSave = useCallback(async () => {
+    if (!currentChannel?.channel_id) return;
     if (!currentName) {
       toast.error('Channel name cannot be empty');
       return;
@@ -80,10 +96,11 @@ const SettingChannel = ({
   }, [currentChannel?.channel_id, currentName, toggleEditName, dispatch]);
   const handleSelectMenu = useCallback(
     async (item: PopoverItem) => {
-      await api.updateChannelNotification(
-        currentChannel.channel_id,
-        item.value
-      );
+      if (!currentChannel?.channel_id) return;
+      const notification_type: any = item.value;
+      await api.updateChannelNotification(currentChannel.channel_id, {
+        notification_type,
+      });
       setNotificationType(item.value);
     },
     [currentChannel]
@@ -106,6 +123,7 @@ const SettingChannel = ({
     );
   }, [channels, currentChannel?.channel_id]);
   const handleDeleteChannel = useCallback(async () => {
+    if (!currentChannel?.channel_id) return;
     const success = await dispatch(
       deleteChannel(currentChannel.channel_id, currentTeam.team_id)
     );
@@ -180,6 +198,7 @@ const SettingChannel = ({
           <img src={images.icSettingChannelNotification} alt="" />
           <span className="setting-label">Notification</span>
           <PopoverButton
+            ref={buttonNotificationRef}
             title={currentNotificationType}
             icon={images.icCollapse}
             data={[
@@ -203,7 +222,7 @@ const SettingChannel = ({
       <ModalConfirmDeleteChannel
         open={isOpenConfirm}
         handleClose={handleToggleModalDelete}
-        channelName={currentChannel.channel_name}
+        channelName={currentChannel?.channel_name || ''}
         onDelete={handleDeleteChannel}
       />
     </div>

@@ -15,6 +15,7 @@ import {
   UserNFTCollection,
   UserRoleType,
 } from 'renderer/models';
+import { ConfigNotificationRequestBody } from 'renderer/models/request';
 import ApiCaller from './ApiCaller';
 import Caller from './Caller';
 
@@ -196,5 +197,7 @@ export const readAllNotification = () => Caller.put('notifications');
 export const deleteNotification = (notificationId: string) =>
   Caller.delete(`notifications/${notificationId}`);
 
-export const configNotificationFromTask = (taskId: string) =>
-  Caller.post(`notifications/task/${taskId}`);
+export const configNotificationFromTask = (
+  pinPostId: string,
+  data: ConfigNotificationRequestBody
+) => Caller.post(`notifications/task/${pinPostId}`, data);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import SettingChannel from './SettingChannel';
 import SettingMember from './SettingMember';
 
@@ -8,6 +8,7 @@ type ChannelSettingsProps = {
   teamUserData: Array<any>;
   isActiveMember: boolean;
   isActiveName: boolean;
+  isActiveNotification: boolean;
   onClose: () => void;
   isOwner?: boolean;
 };
@@ -19,18 +20,19 @@ const ChannelSettings = ({
   onClose,
   isActiveName,
   isOwner,
+  isActiveNotification,
 }: ChannelSettingsProps) => {
   const [page, setPage] = useState(1);
-  const spaceMembers = useSelector((state) => state.user.spaceMembers);
+  const spaceMembers = useAppSelector((state) => state.user.spaceMembers);
   const isChannelPrivate = currentChannel?.channel_type === 'Private';
   useEffect(() => {
     if (isActiveMember) {
       setPage(0);
     }
-    if (isActiveName) {
+    if (isActiveName || isActiveNotification) {
       setPage(1);
     }
-  }, [isActiveMember, isActiveName]);
+  }, [isActiveMember, isActiveName, isActiveNotification]);
   return (
     <div className="channel-setting__container">
       <div className="setting-header">
@@ -55,6 +57,7 @@ const ChannelSettings = ({
           onClose={onClose}
           isActiveName={isActiveName}
           isOwner={isOwner}
+          isActiveNotification={isActiveNotification}
         />
       )}
       {page === 0 && (

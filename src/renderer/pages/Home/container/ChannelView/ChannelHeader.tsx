@@ -8,19 +8,20 @@ import React, {
   useImperativeHandle,
   useCallback,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import {
   updateChannel,
   uploadChannelAvatar,
 } from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
-import { Channel, UserData } from 'renderer/models';
 import EmojiAndAvatarPicker from 'renderer/shared/EmojiAndAvatarPicker';
+import useAppDispatch from 'renderer/hooks/useAppDispatch';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 import images from '../../../../common/images';
 import AvatarView from '../../../../shared/AvatarView';
 import PopoverButton from '../../../../shared/PopoverButton';
 import ChannelSettings from './ChannelSettings';
 import './index.scss';
+import { Channel, UserData } from 'renderer/models';
 
 type ChannelHeaderProps = {
   currentChannel?: Channel;
@@ -30,11 +31,12 @@ type ChannelHeaderProps = {
 
 const ChannelHeader = forwardRef(
   ({ currentChannel, teamUserData, teamId }: ChannelHeaderProps, ref) => {
-    const dispatch = useDispatch();
-    const userData = useSelector((state) => state.user.userData);
+    const dispatch = useAppDispatch();
+    const userData = useAppSelector((state) => state.user.userData);
     const popupChannelIconRef = useRef<any>();
     const [isActiveMember, setActiveMember] = useState(false);
     const [isActiveName, setActiveName] = useState(false);
+    const [isActiveNotification, setActiveNotification] = useState(false);
     const settingButtonRef = useRef<any>();
     const settingRef = useRef<any>();
     const users = useMemo(() => {
@@ -55,12 +57,15 @@ const ChannelHeader = forwardRef(
     const isOwner = role === 'Owner';
     useImperativeHandle(ref, () => {
       return {
-        showSetting(action: 'edit-member' | 'edit-name') {
+        showSetting(action: 'edit-member' | 'edit-name' | 'edit-notification') {
           if (action === 'edit-member') {
             setActiveMember(true);
           }
           if (action === 'edit-name') {
             setActiveName(true);
+          }
+          if (action === 'edit-notification') {
+            setActiveNotification(true);
           }
           settingButtonRef.current.click();
         },
@@ -80,7 +85,7 @@ const ChannelHeader = forwardRef(
           />
         );
       }
-      if (currentChannel.attachment) {
+      if (currentChannel?.attachment) {
         return (
           <>
             <img
@@ -128,7 +133,8 @@ const ChannelHeader = forwardRef(
     );
     const onAddFiles = useCallback(
       async (fs) => {
-        if (fs == null || fs.length === 0) return;
+        if (fs == null || fs.length === 0 || !currentChannel?.channel_id)
+          return;
         const file = [...fs][0];
         dispatch(uploadChannelAvatar(teamId, currentChannel?.channel_id, file));
         popupChannelIconRef.current?.hide();
@@ -137,8 +143,9 @@ const ChannelHeader = forwardRef(
     );
     const onSelectRecentFile = useCallback(
       async (file) => {
+        if (!currentChannel?.channel_id) return;
         await dispatch(
-          updateChannel(currentChannel?.channel_id, {
+          updateChannel(currentChannel.channel_id, {
             channel_emoji: '',
             channel_image_url: file.file_url,
           })
@@ -149,8 +156,9 @@ const ChannelHeader = forwardRef(
     );
     const onAddEmoji = useCallback(
       async (emoji) => {
+        if (!currentChannel?.channel_id) return;
         await dispatch(
-          updateChannel(currentChannel?.channel_id, {
+          updateChannel(currentChannel.channel_id, {
             channel_emoji: emoji.id,
             channel_image_url: '',
           })
@@ -183,6 +191,7 @@ const ChannelHeader = forwardRef(
     const onCloseChannelSetting = useCallback(() => {
       setActiveMember(false);
       setActiveName(false);
+      setActiveNotification(false);
     }, []);
     const handleCloseChannelSetting = useCallback(() => {
       settingRef.current?.hide?.();
@@ -288,6 +297,7 @@ const ChannelHeader = forwardRef(
                 teamUserData={teamUserData}
                 isActiveMember={isActiveMember}
                 isActiveName={isActiveName}
+                isActiveNotification={isActiveNotification}
                 onClose={handleCloseChannelSetting}
                 isOwner={isOwner}
               />

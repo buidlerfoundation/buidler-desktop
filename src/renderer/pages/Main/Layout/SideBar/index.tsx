@@ -12,7 +12,6 @@ import './index.scss';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
 import { Space } from 'renderer/models';
-import SpaceItem from 'renderer/shared/SpaceItem';
 import PopoverButton from 'renderer/shared/PopoverButton';
 import {
   channelMenu,
@@ -21,6 +20,7 @@ import {
   spaceChannelMenu,
   spaceExclusiveChannelMenu,
 } from 'renderer/utils/Menu';
+import SpaceItem from 'renderer/shared/SpaceItem';
 import images from 'renderer/common/images';
 import useMatchCommunityId from 'renderer/hooks/useMatchCommunityId';
 import useSpaceChannel from 'renderer/hooks/useSpaceChannel';
@@ -30,14 +30,15 @@ import CommunityHeader from 'renderer/shared/CommunityHeader';
 type SideBarProps = {
   onEditGroupChannel: (group: any) => void;
   onEditChannelName: (channel: any) => void;
+  onUpdateNotification: (channel: any) => void;
   onDeleteChannel: (channel: any) => void;
   onEditChannelMember: (channel: any) => void;
   onInviteMember: () => void;
+  onViewMembers: () => void;
   onRemoveTeamMember: (user: any) => void;
   onCreateChannel: (initSpace?: any) => void;
   onCreateGroupChannel: () => void;
   onSpaceBadgeClick: (space: Space) => void;
-  onViewMembers: () => void;
 };
 
 const SideBar = forwardRef(
@@ -46,6 +47,7 @@ const SideBar = forwardRef(
       onCreateChannel,
       onCreateGroupChannel,
       onEditChannelName,
+      onUpdateNotification,
       onDeleteChannel,
       onEditChannelMember,
       onInviteMember,
@@ -153,6 +155,10 @@ const SideBar = forwardRef(
             onEditChannelName(selectedMenuChannel);
             break;
           }
+          case 'Notification': {
+            onUpdateNotification(selectedMenuChannel);
+            break;
+          }
           case 'Delete channel': {
             onDeleteChannel(selectedMenuChannel);
             break;
@@ -180,6 +186,7 @@ const SideBar = forwardRef(
         onEditChannelName,
         onEditGroupChannel,
         onSpaceBadgeClick,
+        onUpdateNotification,
         selectedMenuChannel,
         selectedMenuSpaceChannel,
       ]
@@ -218,14 +225,14 @@ const SideBar = forwardRef(
         handleContextMenuChannel,
         handleContextMenuSpace,
         isOwner,
-        onSpaceBadgeClick,
         onCreateChannel,
+        onSpaceBadgeClick,
         spaceExpandMap,
       ]
     );
     return (
       <div id="sidebar">
-        {team?.length > 0 ? (
+        {team && team?.length > 0 ? (
           <div className="sidebar-body">
             <CommunityHeader
               onInvitePress={onInviteMember}
