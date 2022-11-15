@@ -167,6 +167,7 @@ export const getTasks =
             channelId,
             tasks: taskRes.data,
             id,
+            total: taskRes.metadata?.total,
           },
         });
       } else {
@@ -280,6 +281,7 @@ export const getArchivedTasks =
           res: res.data,
           channelId,
           id,
+          total: res.metadata?.total,
         },
       });
     } catch (e) {

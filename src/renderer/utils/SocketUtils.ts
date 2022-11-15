@@ -70,6 +70,7 @@ const getTasks = async (channelId: string, dispatch: Dispatch) => {
         payload: {
           channelId,
           tasks: taskRes.data,
+          total: taskRes.metadata?.total,
         },
       });
     } else {
