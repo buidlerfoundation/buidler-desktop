@@ -28,6 +28,7 @@ interface UserReducerState {
   currentTeamId: string;
   currentChannelId: string;
   imgDomain: string;
+  imgBucket: string;
   imgConfig: any;
   teamUserMap: {
     [key: string]: {
@@ -70,6 +71,7 @@ const initialState: UserReducerState = {
   currentTeamId: '',
   currentChannelId: '',
   imgDomain: '',
+  imgBucket: '',
   imgConfig: {},
   teamUserMap: {},
   lastChannel: {},
@@ -116,6 +118,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     directChannel,
     imgDomain,
     imgConfig,
+    imgBucket,
   } = state;
   const channelId = getChannelId();
   const currentChannel =
@@ -572,7 +575,8 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     case actionTypes.GET_INITIAL: {
       return {
         ...state,
-        imgDomain: payload.data.img_domain,
+        imgDomain: payload.data.imgproxy?.domain,
+        imgBucket: payload.data.imgproxy?.bucket_name,
         imgConfig: payload.data.img_config,
         loginGoogleUrl: payload.data.login_url,
       };
@@ -582,6 +586,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
         ...initialState,
         imgDomain,
         imgConfig,
+        imgBucket,
       };
     }
     case actionTypes.GET_TEAM_USER: {
