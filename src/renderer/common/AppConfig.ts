@@ -3,7 +3,7 @@ import images from './images';
 const Prefix = 'Buidler';
 
 const AppConfig = {
-  apiBaseUrl: 'https://api.buidler.app/',
+  apiBaseUrl: process.env.REACT_APP_API_BASE_URL,
   maxLengthSpaceDescription: 450,
   maxLengthCommunityDescription: 1000,
   maximumFileSize: 100000000,
@@ -90,5 +90,5 @@ export const whiteListRefreshTokenApis = [
   'post-user/refresh',
   'post-user/address',
   'post-user',
-  "delete-user/device",
+  'delete-user/device',
 ];
