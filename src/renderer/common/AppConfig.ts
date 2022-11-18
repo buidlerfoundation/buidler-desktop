@@ -83,6 +83,7 @@ export const importantApis = [
   { uri: 'get-channel', exact: false },
   { uri: 'get-user/team', exact: true },
   { uri: 'get-user', exact: true },
+  { uri: 'post-user/refresh', exact: true },
 ];
 
 export const whiteListRefreshTokenApis = [
