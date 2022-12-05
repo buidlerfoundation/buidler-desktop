@@ -25,6 +25,7 @@ import { getInitial, logout } from './actions/UserActions';
 import useAppSelector from './hooks/useAppSelector';
 import ErrorBoundary from './shared/ErrorBoundary';
 import GoogleAnalytics from './services/analytics/GoogleAnalytics';
+import { initialSpaceToggle } from './actions/SideBarActions';
 
 function App() {
   window.electron.cookies.setPath();
@@ -41,6 +42,9 @@ function App() {
       history.replace('/channels');
     }
   }, [imgDomain, dispatch, history]);
+  useEffect(() => {
+    dispatch(initialSpaceToggle());
+  }, [dispatch]);
   useEffect(() => {
     GoogleAnalytics.init();
   }, []);
