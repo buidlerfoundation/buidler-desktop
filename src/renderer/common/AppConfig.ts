@@ -1,3 +1,4 @@
+import { UserData } from 'renderer/models';
 import images from './images';
 
 const Prefix = 'Buidler';
@@ -94,3 +95,9 @@ export const whiteListRefreshTokenApis = [
   'post-user',
   'delete-user/device',
 ];
+
+export const DeletedUser: UserData = {
+  user_id: "",
+  user_name: "Deleted User",
+  avatar_url: "",
+};
