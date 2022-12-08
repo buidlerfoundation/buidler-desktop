@@ -125,6 +125,8 @@ export const getPinPostMessages: ActionCreator<any> =
             before,
             isFresh,
             reloadSocket: !before,
+            canMoreAfter: messageRes.metadata?.can_loadmore_message_after,
+            canMoreBefore: messageRes.metadata?.can_loadmore_message_before,
           },
         });
       } else {
@@ -201,6 +203,8 @@ export const getMessages: ActionCreator<any> =
             isFresh,
             after,
             reloadSocket: !before,
+            canMoreAfter: messageRes.metadata?.can_loadmore_message_after,
+            canMoreBefore: messageRes.metadata?.can_loadmore_message_before,
           },
         });
       } else {

@@ -956,6 +956,7 @@ const Home = () => {
               messages={messageData[matchPostId]?.data}
               loadMoreMessage={loadMorePPMessage}
               onMoreMessage={onMorePinPostMessage}
+              messageCanMore={messageData[matchPostId]?.canMore}
             />
           )}
           <ModalTransactionDetail
