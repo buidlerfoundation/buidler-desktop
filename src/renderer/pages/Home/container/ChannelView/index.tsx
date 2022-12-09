@@ -686,7 +686,7 @@ const ChannelView = forwardRef(
                   <CircularProgress size={30} color="inherit" />
                 </div>
               )}
-              {canChat && <div style={{ marginTop: 15 }} />}
+              <div style={{ marginTop: 15 }} />
             </div>
             {loadMoreMessage && (
               <div className="message-load-more">
@@ -716,11 +716,15 @@ const ChannelView = forwardRef(
                 </div>
                 {canChat && (
                   <MessageInput
-                    placeholder={`Message to ${
-                      currentChannel?.user?.user_name
-                        ? currentChannel?.user?.user_name
-                        : `# ${currentChannel?.channel_name}`
-                    }`}
+                    placeholder={
+                      canChat
+                        ? `Message to ${
+                            currentChannel?.user?.user_name
+                              ? currentChannel?.user?.user_name
+                              : `# ${currentChannel?.channel_name}`
+                          }`
+                        : 'You do not have permission to send messages in this channel.'
+                    }
                     attachments={files}
                     onRemoveFile={handleRemoveFile}
                     inputRef={inputRef}
@@ -733,6 +737,7 @@ const ChannelView = forwardRef(
                     onRemoveReply={onRemoveReply}
                     messageEdit={messageEdit}
                     inputId="message-input-channel"
+                    disabled={!canChat}
                   />
                 )}
               </div>

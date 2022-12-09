@@ -310,6 +310,13 @@ const Home = () => {
     },
     [dispatch]
   );
+  const onOpenChannelSetting = useCallback(
+    (channel) => {
+      history.replace(`/channels/${currentTeam.team_id}/${channel.channel_id}`);
+      channelViewRef.current.showSetting();
+    },
+    [currentTeam?.team_id, history]
+  );
   const handleOpenEditChannelName = useCallback(
     (channel) => {
       history.replace(`/channels/${currentTeam.team_id}/${channel.channel_id}`);
@@ -845,6 +852,7 @@ const Home = () => {
             onInviteMember={handleOpenInviteMember}
             onSpaceBadgeClick={handleSpaceBadgeClick}
             onViewMembers={toggleOpenMembers}
+            onOpenChannelSetting={onOpenChannelSetting}
           />
 
           <div className="home-body">
