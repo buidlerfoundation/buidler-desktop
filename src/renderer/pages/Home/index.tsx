@@ -606,6 +606,11 @@ const Home = () => {
     }
   }, [dataFromUrl, dispatch]);
   useEffect(() => {
+    if (currentChannel.channel_name && currentTeam.team_display_name) {
+      document.title = `${currentTeam.team_display_name} • ${currentChannel.channel_name}`;
+    }
+  }, [currentChannel.channel_name, currentTeam.team_display_name]);
+  useEffect(() => {
     if (currentChannel.channel_id) channelViewRef.current?.clearText?.();
   }, [currentChannel.channel_id]);
   useEffect(() => {
