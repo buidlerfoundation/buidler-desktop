@@ -9,6 +9,7 @@ const AppConfig = {
   maxLengthCommunityDescription: 1000,
   maximumFileSize: 100000000,
   etherscanUrl: 'https://etherscan.io',
+  buidlerCommunityId: "c9097f50-9f0b-4e0a-a042-ab7790aff3b0",
 };
 
 export default AppConfig;
