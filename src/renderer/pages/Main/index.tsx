@@ -184,6 +184,10 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
+const requestingCommunitySelector = createLoadingSelector([
+  actionTypes.TEAM_PREFIX,
+]);
+
 const RedirectToHome = () => {
   const [isEmpty, setEmpty] = useState(false);
   const match = useRouteMatch<{
@@ -191,6 +195,9 @@ const RedirectToHome = () => {
   }>();
   const { match_community_id } = match.params;
   const dispatch = useAppDispatch();
+  const requestingCommunity = useAppSelector((state) =>
+    requestingCommunitySelector(state)
+  );
   const channelMap = useAppSelector((state) => state.user.channelMap);
   const channel = useMemo(
     () => channelMap[match_community_id || ''],
@@ -200,7 +207,7 @@ const RedirectToHome = () => {
   const lastChannel = useAppSelector((state) => state.user.lastChannel);
   const history = useHistory();
   const gotoChannel = useCallback(async () => {
-    if (!team) return;
+    if (!team || requestingCommunity) return;
     setEmpty(false);
     let cookieChannelId = await getCookie(AsyncKey.lastChannelId);
     if (typeof cookieChannelId !== 'string') {
