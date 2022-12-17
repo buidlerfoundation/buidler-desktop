@@ -199,8 +199,8 @@ const Home = () => {
   const handleDragChannel = useCallback(
     (result: any) => {
       const { draggableId, source, destination } = result;
-      const spaceId = destination.droppableId.split("group-channel-")[1];
-      const sourceSpaceId = source.droppableId.split("group-channel-")[1];
+      const spaceId = destination.droppableId.split('group-channel-')[1];
+      const sourceSpaceId = source.droppableId.split('group-channel-')[1];
       if (spaceId === sourceSpaceId) return;
       dispatch(dragChannel(draggableId, spaceId));
     },
@@ -470,7 +470,7 @@ const Home = () => {
     []
   );
   const onCreateChannel = useCallback(
-    async (channelData: any) => {
+    async (channelData: any, spaceType: string) => {
       GoogleAnalytics.tracking('Create Channel Submitted', {
         category: 'Add Channel',
         space_type: spaceType,

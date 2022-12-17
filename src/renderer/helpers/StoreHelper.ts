@@ -11,14 +11,14 @@ const defaultChannel: Channel = {
 };
 
 const getPathNameWithoutPostOrMessage = () => {
-  const { pathname } = window.location;
+  const pathname = window.location.hash;
   const idx = Math.max(pathname.indexOf('/post'), pathname.indexOf('/message'));
   if (idx > 0) return pathname.substring(0, idx);
   return pathname;
 };
 
 export const getPostId = () => {
-  const { pathname } = window.location;
+  const pathname = window.location.hash;
   return pathname.split('post/')?.[1];
 };
 
