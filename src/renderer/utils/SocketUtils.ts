@@ -938,9 +938,16 @@ class SocketUtil {
           currentChannel.channel_id !== message_data.entity_id
         ) {
           window.electron.ipcRenderer.on('notification-click', (_) => {
-            dispatchChangeRoute(
-              `/channels/${teamNotification.team_id}/${message_data.entity_id}`
-            );
+            let path = '';
+            if (message_data.entity_type === 'channel') {
+              path = `/channels/${teamNotification.team_id}/${message_data.entity_id}/message/${message_data.message_id}`;
+            }
+            if (message_data.entity_type === 'post') {
+              path = `/channels/${teamNotification.team_id}/${currentChannel.channel_id}/post/${message_data.entity_id}`;
+            }
+            if (path) {
+              dispatchChangeRoute(path);
+            }
           });
         }
       }
