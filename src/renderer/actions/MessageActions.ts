@@ -16,10 +16,12 @@ export const getAroundMessage =
     });
     try {
       const messageRes = await api.getAroundMessageById(messageId);
-      const messageData = normalizePublicMessageData(
-        messageRes.data || [],
-        messageRes.metadata?.encrypt_message_key
-      );
+      const messageData = messageRes.metadata?.encrypt_message_key
+        ? normalizePublicMessageData(
+            messageRes.data || [],
+            messageRes.metadata?.encrypt_message_key
+          )
+        : await normalizeMessageData(messageRes.data || [], channelId);
       if (messageRes.statusCode === 200) {
         dispatch({
           type: actionTypes.MESSAGE_SUCCESS,
@@ -27,6 +29,8 @@ export const getAroundMessage =
             data: messageData,
             channelId,
             messageId,
+            canMoreAfter: messageRes.metadata?.can_loadmore_message_after,
+            canMoreBefore: messageRes.metadata?.can_loadmore_message_before,
           },
         });
       } else {
@@ -144,13 +148,7 @@ export const getPinPostMessages: ActionCreator<any> =
   };
 
 export const getMessages: ActionCreator<any> =
-  (
-    channelId: string,
-    channelType: string,
-    before?: string,
-    after?: string,
-    isFresh = false
-  ) =>
+  (channelId: string, before?: string, after?: string, isFresh = false) =>
   async (dispatch: Dispatch) => {
     const { apiController, messageData } = store.getState().message;
     apiController?.abort?.();
@@ -186,13 +184,12 @@ export const getMessages: ActionCreator<any> =
           channelId
         );
       }
-      const isPrivate = channelType === 'Private' || channelType === 'Direct';
-      const data = isPrivate
-        ? await normalizeMessageData(messageRes.data, channelId)
-        : normalizePublicMessageData(
+      const data = messageRes.metadata?.encrypt_message_key
+        ? normalizePublicMessageData(
             messageRes.data,
             messageRes.metadata?.encrypt_message_key
-          );
+          )
+        : await normalizeMessageData(messageRes.data, channelId);
       if (messageRes.statusCode === 200) {
         dispatch({
           type: actionTypes.MESSAGE_SUCCESS,
@@ -202,9 +199,7 @@ export const getMessages: ActionCreator<any> =
             before,
             isFresh,
             after,
-            reloadSocket: !before,
-            canMoreAfter: messageRes.metadata?.can_loadmore_message_after,
-            canMoreBefore: messageRes.metadata?.can_loadmore_message_before,
+            reloadSocket: !before && !after,
           },
         });
       } else {

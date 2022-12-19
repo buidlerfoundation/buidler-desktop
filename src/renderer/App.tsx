@@ -142,6 +142,7 @@ function App() {
   useEffect(() => {
     getCookie(AsyncKey.loginType)
       .then((res) => {
+        dispatch({ type: actionTypes.UPDATE_LOGIN_TYPE, payload: res });
         if (res === LoginType.WalletConnect) {
           WalletConnectUtils.init(walletConnectLogout);
           if (!WalletConnectUtils.connector?.connected) {
@@ -152,7 +153,7 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
-  }, [walletConnectLogout]);
+  }, [dispatch, walletConnectLogout]);
   const overrides: any = {
     MuiPickersDay: {
       day: {

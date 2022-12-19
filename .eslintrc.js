@@ -25,6 +25,7 @@ module.exports = {
     'react/no-danger': 'off',
     'prettier/prettier': 'off',
     'import/order': 'off',
+    'import/no-cycle': 'off'
   },
   parserOptions: {
     ecmaVersion: 2020,

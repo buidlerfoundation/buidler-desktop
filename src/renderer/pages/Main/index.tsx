@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import { Switch, Route, useHistory, useRouteMatch } from 'react-router-dom';
 import AppListener from 'renderer/components/AppListener';
@@ -188,7 +188,7 @@ const requestingCommunitySelector = createLoadingSelector([
   actionTypes.TEAM_PREFIX,
 ]);
 
-const RedirectToHome = () => {
+const RedirectToHome = memo(() => {
   const [isEmpty, setEmpty] = useState(false);
   const match = useRouteMatch<{
     match_community_id?: string;
@@ -249,7 +249,15 @@ const RedirectToHome = () => {
     } else {
       setEmpty(true);
     }
-  }, [team, match_community_id, channel, lastChannel, history, dispatch]);
+  }, [
+    team,
+    requestingCommunity,
+    match_community_id,
+    channel,
+    lastChannel,
+    history,
+    dispatch,
+  ]);
   useEffect(() => {
     gotoChannel();
   }, [gotoChannel]);
@@ -265,7 +273,7 @@ const RedirectToHome = () => {
     return <Home />;
   }
   return <AppTitleBar />;
-};
+});
 
 const Main = () => {
   const imgDomain = useAppSelector((state) => state.user.imgDomain);

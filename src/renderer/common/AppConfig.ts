@@ -1,4 +1,4 @@
-import { UserData } from 'renderer/models';
+import { Community, UserData } from 'renderer/models';
 import images from './images';
 
 const Prefix = 'Buidler';
@@ -9,8 +9,8 @@ const AppConfig = {
   maxLengthCommunityDescription: 1000,
   maximumFileSize: 100000000,
   etherscanUrl: 'https://etherscan.io',
-  buidlerCommunityId: "c9097f50-9f0b-4e0a-a042-ab7790aff3b0",
-  estimateGasRecipientAddress: "0x1908bf9Dae06BB1F6E4C7eE0f7B5D4c82D1Ba6ad",
+  buidlerCommunityId: 'c9097f50-9f0b-4e0a-a042-ab7790aff3b0',
+  estimateGasRecipientAddress: '0x1908bf9Dae06BB1F6E4C7eE0f7B5D4c82D1Ba6ad',
 };
 
 export default AppConfig;
@@ -31,6 +31,7 @@ export const AsyncKey = {
   socketConnectKey: `${Prefix}_socket_connect_key`,
   tokenExpire: `${Prefix}_token_expire_key`,
   refreshTokenExpire: `${Prefix}_refresh_token_expire_key`,
+  lastSyncChannelKey: `${Prefix}_last_sync_channel_key`,
   spaceToggleKey: `${Prefix}_space_toggle_key`,
 };
 
@@ -99,7 +100,14 @@ export const whiteListRefreshTokenApis = [
 ];
 
 export const DeletedUser: UserData = {
-  user_id: "",
-  user_name: "Deleted User",
-  avatar_url: "",
+  user_id: '',
+  user_name: 'Deleted User',
+  avatar_url: '',
+};
+
+export const DirectCommunity: Community = {
+  team_id: 'b796712f-eea4-4ba1-abc6-ca76e9af24bc',
+  team_display_name: 'Direct Message',
+  direct: true,
+  seen: true,
 };

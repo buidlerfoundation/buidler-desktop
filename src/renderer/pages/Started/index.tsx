@@ -79,6 +79,7 @@ const Started = () => {
           res?.refresh_token_expire_at
         );
         gaLoginSuccess('WalletConnect');
+        dispatch({ type: actionTypes.UPDATE_LOGIN_TYPE, payload: LoginType.WalletConnect });
         history.replace('/channels');
       } else {
         toast.error(res.message || '');
@@ -88,7 +89,7 @@ const Started = () => {
       console.log(err);
       WalletConnectUtils.connector.killSession();
     }
-  }, [gaLoginSuccess, history]);
+  }, [dispatch, gaLoginSuccess, history]);
   const handleOpenModalCreate = useCallback(
     () => setOpenPasswordModal(true),
     []
@@ -181,6 +182,7 @@ const Started = () => {
           }
         }
         await setCookie(AsyncKey.loginType, LoginType.WalletImport);
+        dispatch({ type: actionTypes.UPDATE_LOGIN_TYPE, payload: LoginType.WalletImport });
         history.replace('/channels');
       }
     },

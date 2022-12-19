@@ -12,6 +12,7 @@ interface ConfigReducerState {
   somethingWrong?: boolean | null;
   isOpenModalConfirmSignMessage: boolean;
   internetConnection?: boolean;
+  loginType?: string;
 }
 
 const initialState: ConfigReducerState = {
@@ -25,6 +26,7 @@ const initialState: ConfigReducerState = {
   somethingWrong: null,
   isOpenModalConfirmSignMessage: false,
   internetConnection: true,
+  loginType: '',
 };
 
 const configReducers: Reducer<ConfigReducerState, any> = (
@@ -33,6 +35,12 @@ const configReducers: Reducer<ConfigReducerState, any> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.UPDATE_LOGIN_TYPE: {
+      return {
+        ...state,
+        loginType: payload,
+      };
+    }
     case actionTypes.UPDATE_INTERNET_CONNECTION: {
       return {
         ...state,

@@ -1,12 +1,11 @@
-import { Channel, SpaceMember } from 'renderer/models';
+import { Channel, ChannelKeyApiData, SpaceMember } from 'renderer/models';
 import { ConfigNotificationRequestBody } from 'renderer/models/request';
 import Caller from './Caller';
 
 export const createChannel = (teamId: string, body: any) =>
   Caller.post(`channel/${teamId}`, body);
 
-export const getChannels = (teamId: string) =>
-  Caller.get(`channel/${teamId}`);
+export const getChannels = (teamId: string) => Caller.get(`channel/${teamId}`);
 
 export const updateChannel = (id: string, body: any) =>
   Caller.put(`channel/${id}`, body);
@@ -43,3 +42,6 @@ export const getSpaceMembers = (id: string, controller?: AbortController) =>
 
 export const getChannelFromSpace = (id: string) =>
   Caller.get<Array<Channel>>(`space/${id}/channel`);
+
+export const getChannelKey = (timestamp?: number | string = 0) =>
+  Caller.get<ChannelKeyApiData[]>(`channel-key?timestamp=${timestamp}`);

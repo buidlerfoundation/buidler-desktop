@@ -14,7 +14,11 @@ import {
   validateUUID,
 } from 'renderer/helpers/ChannelHelper';
 import { removeCookie, setCookie } from 'renderer/common/Cookie';
-import { AsyncKey, SpaceBadge } from 'renderer/common/AppConfig';
+import {
+  AsyncKey,
+  DirectCommunity,
+  SpaceBadge,
+} from 'renderer/common/AppConfig';
 import ModalOTP from 'renderer/shared/ModalOTP';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import ModalCreateSpace from 'renderer/shared/ModalCreateSpace';
@@ -81,6 +85,7 @@ import ModalCreatePinPost from 'renderer/shared/ModalCreatePinPost';
 import PinPostDetail from 'renderer/shared/PinPostDetail';
 import ModalTransactionDetail from 'renderer/shared/ModalTransactionDetail';
 import ModalLoadingConfirmTx from 'renderer/shared/ModalLoadingConfirmTx';
+import SideBarDM from 'renderer/shared/SideBarDM';
 
 const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
@@ -103,6 +108,10 @@ const Home = () => {
   const { match_channel_id, match_community_id } = useMemo(
     () => match.params,
     [match.params]
+  );
+  const direct = useMemo(
+    () => match_community_id === DirectCommunity.team_id,
+    [match_community_id]
   );
   const currentUserProfileId = useAppSelector(
     (state) => state.user.currentUserProfileId
@@ -363,7 +372,7 @@ const Home = () => {
     (createdAt?: string) => {
       if (!createdAt) return;
 
-      dispatch(getMessages(channelId, 'Public', createdAt));
+      dispatch(getMessages(channelId, createdAt));
     },
     [channelId, dispatch]
   );
@@ -630,14 +639,14 @@ const Home = () => {
   useEffect(() => {
     handleCloseModalSpaceDetail();
     if (match_channel_id && !!community) {
-      if (match_community_id !== 'user') {
+      if (match_community_id !== "user") {
         const matchCommunity = community?.find(
           (c) => c.team_id === match_community_id
         );
         if (!matchCommunity) {
           removeCookie(AsyncKey.lastTeamId);
           removeCookie(AsyncKey.lastChannelId);
-          history.replace('/channels');
+          history.replace("/channels");
         } else {
           const matchChannel = channels.find(
             (c) => c.channel_id === match_channel_id
@@ -699,7 +708,7 @@ const Home = () => {
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 600);
     } else {
-      dispatch(getMessages(channelId, 'Public', undefined));
+      dispatch(getMessages(channelId, undefined));
     }
     setTimeout(() => {
       dispatch({
@@ -712,7 +721,7 @@ const Home = () => {
   useEffect(() => {
     inputRef.current?.focus();
     if (channelId && validateUUID(channelId) && privateKey) {
-      dispatch(getMessages(channelId, 'Public', undefined));
+      dispatch(getMessages(channelId, undefined));
     }
   }, [channelId, dispatch, privateKey]);
 
@@ -722,11 +731,11 @@ const Home = () => {
     }
   }, [channelId, dispatch, handleMessagesById, matchMessageId, privateKey]);
 
-  useEffect(() => {
-    if (currentChannel?.space_id) {
-      dispatch(getSpaceMembers(currentChannel?.space_id));
-    }
-  }, [currentChannel?.space_id, dispatch]);
+  // useEffect(() => {
+  //   if (currentChannel?.space_id) {
+  //     dispatch(getSpaceMembers(currentChannel?.space_id));
+  //   }
+  // }, [currentChannel?.space_id, dispatch]);
 
   useEffect(() => {
     const keyDownListener = (e: any) => {
@@ -844,21 +853,25 @@ const Home = () => {
       <AppTitleBar ref={appTitleBarRef} onJumpToMessage={onJumpToMessage} />
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="home-container">
-          <SideBar
-            ref={sideBarRef}
-            onCreateChannel={handleOpenCreateChannel}
-            onCreateGroupChannel={handleOpenCreateSpace}
-            onEditGroupChannel={handleOpenEditSpace}
-            onDeleteChannel={handleOpenDeleteChannel}
-            onRemoveTeamMember={handleRemoveTeamMember}
-            onEditChannelMember={handleOpenEditChannelMember}
-            onEditChannelName={handleOpenEditChannelName}
-            onUpdateNotification={handleOpenChannelNotification}
-            onInviteMember={handleOpenInviteMember}
-            onSpaceBadgeClick={handleSpaceBadgeClick}
-            onViewMembers={toggleOpenMembers}
-            onOpenChannelSetting={onOpenChannelSetting}
-          />
+          {direct ? (
+            <SideBarDM />
+          ) : (
+            <SideBar
+              ref={sideBarRef}
+              onCreateChannel={handleOpenCreateChannel}
+              onCreateGroupChannel={handleOpenCreateSpace}
+              onEditGroupChannel={handleOpenEditSpace}
+              onDeleteChannel={handleOpenDeleteChannel}
+              onRemoveTeamMember={handleRemoveTeamMember}
+              onEditChannelMember={handleOpenEditChannelMember}
+              onEditChannelName={handleOpenEditChannelName}
+              onUpdateNotification={handleOpenChannelNotification}
+              onInviteMember={handleOpenInviteMember}
+              onSpaceBadgeClick={handleSpaceBadgeClick}
+              onViewMembers={toggleOpenMembers}
+              onOpenChannelSetting={onOpenChannelSetting}
+            />
+          )}
 
           <div className="home-body">
             {team?.length > 0 && (
