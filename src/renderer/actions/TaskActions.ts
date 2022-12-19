@@ -9,7 +9,7 @@ import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils'
 import toast from 'react-hot-toast';
 
 export const uploadToIPFS =
-  (pinPostId: string, channelId: string) =>
+  (pinPostId: string, channelId: string, content: string) =>
   async (dispatch: Dispatch, getState: AppGetState) => {
     dispatch({
       type: actionTypes.UPDATE_TASK_REQUEST,
@@ -22,7 +22,7 @@ export const uploadToIPFS =
     try {
       const loginType = await getCookie(AsyncKey.loginType);
       const timestamp = new Date().getTime();
-      const message = `Nonce: ${timestamp}`;
+      const message = content;
       let signature = '';
       if (loginType === LoginType.WalletConnect) {
         dispatch({
