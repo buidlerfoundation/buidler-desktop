@@ -106,8 +106,8 @@ const createWindow = async () => {
     },
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: {
-      x: 18,
-      y: 20,
+      x: 20,
+      y: 18,
     },
   });
 
