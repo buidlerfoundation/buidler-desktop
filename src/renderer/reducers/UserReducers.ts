@@ -338,6 +338,21 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
         },
       };
     }
+    case actionTypes.NEW_DIRECT_USER: {
+      return {
+        ...state,
+        teamUserMap: {
+          ...teamUserMap,
+          [currentTeamId]: {
+            data: uniqBy(
+              [...(teamUserMap[currentTeamId]?.data || []), ...payload],
+              'user_id'
+            ),
+            total: teamUserMap[currentTeamId]?.total + payload.length,
+          },
+        },
+      };
+    }
     case actionTypes.NEW_USER: {
       return {
         ...state,
@@ -614,11 +629,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       return state;
     }
     case actionTypes.CURRENT_TEAM_SUCCESS: {
-      const {
-        lastChannelId,
-        resChannel,
-        resSpace,
-      } = payload;
+      const { lastChannelId, resChannel, resSpace } = payload;
       let channel: Channel = defaultChannel;
       if (resChannel?.data?.length > 0) {
         channel =
@@ -759,9 +770,10 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     }
     case actionTypes.MARK_UN_SEEN_CHANNEL: {
       const { channelId, communityId } = payload;
-      const unSeenChannel =
-        channelMap[currentTeamId]?.find((el) => el.channel_id === channelId)
-      if (!unSeenChannel?.seen) {
+      const unSeenChannel = channelMap[communityId]?.find(
+        (el) => el.channel_id === channelId
+      );
+      if (!unSeenChannel?.seen && communityId === currentTeamId) {
         return state;
       }
       return {
@@ -808,11 +820,6 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       if (currentChannel.channel_id === payload.channelId) {
         newCurrentChannel =
           newChannel?.[currentIdx] || newChannel?.[0] || defaultChannel;
-        if (newCurrentChannel.channel_type === 'Direct') {
-          newCurrentChannel.user = teamUserData?.find(
-            (u) => u.direct_channel === newCurrentChannel.channel_id
-          );
-        }
       }
       return {
         ...state,
@@ -841,11 +848,6 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       if (currentChannel.channel_id === payload.channelId) {
         newCurrentChannel =
           newChannel?.[currentIdx] || newChannel?.[0] || defaultChannel;
-        if (newCurrentChannel.channel_type === 'Direct') {
-          newCurrentChannel.user = teamUserData?.find(
-            (u) => u.direct_channel === newCurrentChannel.channel_id
-          );
-        }
         setCookie(AsyncKey.lastChannelId, newCurrentChannel?.channel_id);
       } else {
         newCurrentChannel = currentChannel;

@@ -311,21 +311,22 @@ class SocketUtil {
   handleChannelPrivateKey = async (
     channel_id: string,
     key: string,
-    timestamp: number
+    timestamp: number,
   ) => {
     const configs: any = store.getState()?.configs;
-    const { channelPrivateKey, privateKey } = configs;
+    const {channelPrivateKey, privateKey} = configs;
     const decrypted = await getChannelPrivateKey(key, privateKey);
-    storePrivateChannel(channel_id, key, timestamp);
-    this.emitReceivedKey(channel_id, timestamp);
     store.dispatch({
       type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
       payload: {
         ...channelPrivateKey,
-        [channel_id]: [
-          ...(channelPrivateKey?.[channel_id] || []),
-          { key: decrypted, timestamp },
-        ],
+        [channel_id]: uniqBy(
+          [
+            ...(channelPrivateKey?.[channel_id] || []),
+            {key: decrypted, timestamp},
+          ],
+          'key',
+        ),
       },
     });
   };
@@ -716,18 +717,21 @@ class SocketUtil {
       }
     });
     this.socket?.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
-      const { channel, key, timestamp } = data;
+      const {currentTeamId} = store.getState()?.user;
+      const {channel, key, timestamp, new_direct_users} = data;
       if (key && timestamp) {
         this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
       }
-      const user: any = store.getState()?.user;
-      const { currentTeamId } = user;
-      if (currentTeamId === channel.team_id) {
+      if (new_direct_users?.length > 0 && currentTeamId === DirectCommunity.team_id) {
         store.dispatch({
-          type: actionTypes.NEW_CHANNEL,
-          payload: channel,
+          type: actionTypes.NEW_DIRECT_USER,
+          payload: new_direct_users,
         });
       }
+      store.dispatch({
+        type: actionTypes.NEW_CHANNEL,
+        payload: channel,
+      });
     });
     this.socket?.on('ON_ADD_NEW_MEMBER_TO_PRIVATE_CHANNEL', (data: any) => {
       const user = store.getState()?.user;
@@ -852,20 +856,18 @@ class SocketUtil {
       const configs: any = store.getState()?.configs;
       const { channelPrivateKey } = configs;
       const user = store.getState()?.user;
-      const { userData, team, currentTeamId, teamUserMap, channelMap } = user;
+      const { userData, team } = user;
       const direct = notification_data?.channel_type === 'Direct';
       const currentChannel = getCurrentChannel();
       if (!currentChannel) return;
-      const channel = channelMap?.[currentTeamId] || [];
-      const teamUserData = teamUserMap?.[currentTeamId]?.data || [];
       const messageData: any = store.getState()?.message.messageData;
-      const channelNotification = channel.find(
-        (c) => c.channel_id === message_data.entity_id
-      );
       if (currentChannel.channel_id === message_data.entity_id) {
         this.emitSeenChannel(message_data.message_id, message_data.entity_id);
       }
       if (userData?.user_id !== notification_data?.sender_data?.user_id) {
+        const teamNotification = direct
+          ? DirectCommunity
+          : team.find((t: any) => t.team_id === notification_data.team_id);
         if (
           notification_type !== 'Muted' &&
           message_data.entity_type === 'channel'
@@ -875,7 +877,7 @@ class SocketUtil {
               type: actionTypes.MARK_UN_SEEN_CHANNEL,
               payload: {
                 channelId: message_data.entity_id,
-                communityId: notification_data.team_id,
+                communityId: teamNotification.team_id,
               },
             });
           }
@@ -905,18 +907,6 @@ class SocketUtil {
               notification_data?.sender_data?.user_id
             ),
           });
-        }
-        const teamNotification = direct
-          ? DirectCommunity
-          : team.find((t: any) => t.team_id === notification_data.team_id);
-        if (channelNotification?.channel_type === 'Direct') {
-          channelNotification.user = teamUserData.find(
-            (u: any) =>
-              u.user_id ===
-              channelNotification.channel_members.find(
-                (el: string) => el !== userData?.user_id
-              )
-          );
         }
         if (currentChannel.channel_id === message_data.entity_id) {
           const { scrollData } = messageData?.[currentChannel.channel_id] || {};
