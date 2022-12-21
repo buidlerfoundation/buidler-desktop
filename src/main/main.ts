@@ -30,8 +30,6 @@ export default class AppUpdater {
       provider: 'github',
       repo: 'buidler-desktop',
       owner: 'buidlerfoundation',
-      private: true,
-      token: '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',
     });
     autoUpdater.checkForUpdatesAndNotify();
   }
