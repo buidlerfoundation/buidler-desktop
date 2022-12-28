@@ -95,8 +95,8 @@ function App() {
           type: actionTypes.UPDATE_CURRENT_USER_PROFILE_ID,
           payload: href.split('/channels/user/')[1],
         });
-      } else if (href?.includes(window.location.origin)) {
-        history.push(href.replace(window.location.origin, ''));
+      } else if (href?.includes('https://community.buidler.app')) {
+        history.push(href.replace('https://community.buidler.app', ''));
       } else if (href) {
         window.open(href, '_blank');
       }

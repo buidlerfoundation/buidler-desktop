@@ -639,14 +639,14 @@ const Home = () => {
   useEffect(() => {
     handleCloseModalSpaceDetail();
     if (match_channel_id && !!community) {
-      if (match_community_id !== "user") {
+      if (match_community_id !== 'user') {
         const matchCommunity = community?.find(
           (c) => c.team_id === match_community_id
         );
         if (!matchCommunity) {
           removeCookie(AsyncKey.lastTeamId);
           removeCookie(AsyncKey.lastChannelId);
-          history.replace("/channels");
+          history.replace('/channels');
         } else {
           const matchChannel = channels.find(
             (c) => c.channel_id === match_channel_id
@@ -656,7 +656,9 @@ const Home = () => {
               dispatch(setCurrentChannel?.(matchChannel, match_community_id));
             }
           } else {
-            dispatch(clearLastChannel(match_community_id));
+            if (match_community_id !== DirectCommunity.team_id) {
+              dispatch(clearLastChannel(match_community_id));
+            }
             history.replace(`/channels/${match_community_id}`);
           }
         }

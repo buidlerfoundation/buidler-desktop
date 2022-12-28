@@ -311,10 +311,10 @@ class SocketUtil {
   handleChannelPrivateKey = async (
     channel_id: string,
     key: string,
-    timestamp: number,
+    timestamp: number
   ) => {
     const configs: any = store.getState()?.configs;
-    const {channelPrivateKey, privateKey} = configs;
+    const { channelPrivateKey, privateKey } = configs;
     const decrypted = await getChannelPrivateKey(key, privateKey);
     store.dispatch({
       type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
@@ -323,9 +323,9 @@ class SocketUtil {
         [channel_id]: uniqBy(
           [
             ...(channelPrivateKey?.[channel_id] || []),
-            {key: decrypted, timestamp},
+            { key: decrypted, timestamp },
           ],
-          'key',
+          'key'
         ),
       },
     });
@@ -717,12 +717,15 @@ class SocketUtil {
       }
     });
     this.socket?.on('ON_CREATE_NEW_CHANNEL', (data: any) => {
-      const {currentTeamId} = store.getState()?.user;
-      const {channel, key, timestamp, new_direct_users} = data;
+      const { currentTeamId } = store.getState()?.user;
+      const { channel, key, timestamp, new_direct_users } = data;
       if (key && timestamp) {
         this.handleChannelPrivateKey(channel.channel_id, key, timestamp);
       }
-      if (new_direct_users?.length > 0 && currentTeamId === DirectCommunity.team_id) {
+      if (
+        new_direct_users?.length > 0 &&
+        currentTeamId === DirectCommunity.team_id
+      ) {
         store.dispatch({
           type: actionTypes.NEW_DIRECT_USER,
           payload: new_direct_users,
@@ -983,7 +986,10 @@ class SocketUtil {
         (c: any) => c.channel_id === data.entity_id
       );
       let res = data;
-      if (channelNotification?.channel_type === 'Private') {
+      if (
+        channelNotification?.channel_type === 'Private' ||
+        channelNotification?.channel_type === 'Direct'
+      ) {
         const keys = channelPrivateKey[data.entity_id];
         if (keys?.length > 0) {
           res = await normalizeMessageItem(

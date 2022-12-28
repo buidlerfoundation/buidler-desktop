@@ -1,5 +1,5 @@
 import { Channel, ChannelKeyApiData, SpaceMember } from 'renderer/models';
-import { ConfigNotificationRequestBody } from 'renderer/models/request';
+import { ConfigNotificationRequestBody, DirectChannelRequestBody } from 'renderer/models/request';
 import Caller from './Caller';
 
 export const createChannel = (teamId: string, body: any) =>
@@ -42,6 +42,13 @@ export const getSpaceMembers = (id: string, controller?: AbortController) =>
 
 export const getChannelFromSpace = (id: string) =>
   Caller.get<Array<Channel>>(`space/${id}/channel`);
+
+export const createDirectChannel = (
+  teamId: string,
+  requestBody: DirectChannelRequestBody
+) => {
+  return Caller.post<Channel>(`channel/${teamId}`, requestBody);
+};
 
 export const getChannelKey = (timestamp?: number | string = 0) =>
   Caller.get<ChannelKeyApiData[]>(`channel-key?timestamp=${timestamp}`);

@@ -79,7 +79,10 @@ const Started = () => {
           res?.refresh_token_expire_at
         );
         gaLoginSuccess('WalletConnect');
-        dispatch({ type: actionTypes.UPDATE_LOGIN_TYPE, payload: LoginType.WalletConnect });
+        dispatch({
+          type: actionTypes.UPDATE_LOGIN_TYPE,
+          payload: LoginType.WalletConnect,
+        });
         history.replace('/channels');
       } else {
         toast.error(res.message || '');
@@ -182,7 +185,10 @@ const Started = () => {
           }
         }
         await setCookie(AsyncKey.loginType, LoginType.WalletImport);
-        dispatch({ type: actionTypes.UPDATE_LOGIN_TYPE, payload: LoginType.WalletImport });
+        dispatch({
+          type: actionTypes.UPDATE_LOGIN_TYPE,
+          payload: LoginType.WalletImport,
+        });
         history.replace('/channels');
       }
     },
@@ -226,6 +232,7 @@ const Started = () => {
         <div
           className="wallet-button normal-button"
           onClick={handleWalletConnect}
+          style={{ display: 'none' }}
         >
           <span>WalletConnect</span>
           <div className="wallet-icon">

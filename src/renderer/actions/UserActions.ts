@@ -12,7 +12,7 @@ import {
 import ImageHelper from '../common/ImageHelper';
 import SocketUtils from '../utils/SocketUtils';
 import { Community, UserData, UserRoleType } from 'renderer/models';
-import store from 'renderer/store';
+import store, { AppGetState } from 'renderer/store';
 import { sleep } from 'renderer/helpers/StoreHelper';
 
 export const getInitial: ActionCreator<any> =
@@ -204,7 +204,7 @@ export const findTeamAndChannel =
       if (communities.length > 0) {
         const currentTeam =
           communities.find((t: Community) => t.team_id === lastTeamId) ||
-          communities[0];
+          communities[1];
         const teamId = currentTeam.team_id;
         const lastChannelId = await getCookie(AsyncKey.lastChannelId);
         const [resSpace, resChannel, teamUsersRes] = await Promise.all([
@@ -317,9 +317,10 @@ export const createNewChannel =
 const actionSetCurrentTeam = async (
   team: any,
   dispatch: Dispatch,
+  getState: AppGetState,
   channelId?: string
 ) => {
-  const lastController = store.getState().user?.apiTeamController;
+  const lastController = getState().user?.apiTeamController;
   lastController?.abort?.();
   const controller = new AbortController();
   dispatch({
@@ -331,7 +332,7 @@ const actionSetCurrentTeam = async (
     let lastChannelId: any = null;
     const resSpace = await api.getSpaceChannel(team.team_id, controller);
     const resChannel = await api.findChannel(team.team_id, controller);
-    const lastChannel = store.getState().user?.lastChannel?.[team.team_id];
+    const lastChannel = getState().user?.lastChannel?.[team.team_id];
     if (channelId) {
       lastChannelId = channelId;
     } else if (lastChannel) {
@@ -365,8 +366,8 @@ const actionSetCurrentTeam = async (
 };
 
 export const setCurrentTeam =
-  (team: any, channelId?: string) => async (dispatch: Dispatch) =>
-    actionSetCurrentTeam(team, dispatch, channelId);
+  (team: any, channelId?: string) => async (dispatch: Dispatch, getState: AppGetState) =>
+    actionSetCurrentTeam(team, dispatch, getState, channelId);
 
 export const deleteSpaceChannel =
   (spaceId: string) => async (dispatch: Dispatch) => {

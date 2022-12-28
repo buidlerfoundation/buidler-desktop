@@ -68,123 +68,112 @@ const PublicRoute = ({ component: Component, ...rest }: any) => {
   return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
 
-const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
-  const [loading, setLoading] = useState(false);
-  const match_community_id = useMemo(
-    () => rest?.computedMatch?.params?.match_community_id,
-    [rest?.computedMatch?.params?.match_community_id]
-  );
-  const match_channel_id = useMemo(
-    () => rest?.computedMatch?.params?.match_channel_id,
-    [rest?.computedMatch?.params?.match_channel_id]
-  );
-  const userData = useAppSelector((state) => state.user.userData);
-  const privateKey = useAppSelector((state) => state.configs.privateKey);
-  const userError = useAppSelector((state) => errorUserSelector(state));
-  const currentTeamLoading = useAppSelector((state) =>
-    currentTeamLoadingSelector(state)
-  );
-  const currentTeamError = useAppSelector((state) =>
-    currentTeamErrorSelector(state)
-  );
-  const team = useAppSelector((state) => state.user.team);
-  const currentTeam = useCurrentCommunity();
-  const dispatch = useAppDispatch();
-  const history = useHistory();
-  const initApp = useCallback(async () => {
-    if (rest.redirect) {
-      setLoading(true);
-    }
-    const loginType = await getCookie(AsyncKey.loginType);
-    if (
-      typeof loginType === 'string' &&
-      loginType === LoginType.WalletImport &&
-      !privateKey
-    ) {
-      history.replace({
-        pathname: '/unlock',
-      });
-      setLoading(false);
-      return;
-    }
-    if (!userData.user_id && !userError) {
-      await dispatch(findUser());
-      await dispatch(findTeamAndChannel(match_community_id));
-    } else if (
-      match_community_id &&
-      currentTeam?.team_id !== match_community_id
-    ) {
-      const matchCommunity = team?.find(
-        (t) => t.team_id === match_community_id
-      );
+const PrivateRoute = memo(
+  ({ component: Component, ...rest }: PrivateRouteProps) => {
+    const match_community_id = useMemo(
+      () => rest?.computedMatch?.params?.match_community_id,
+      [rest?.computedMatch?.params?.match_community_id]
+    );
+    const match_channel_id = useMemo(
+      () => rest?.computedMatch?.params?.match_channel_id,
+      [rest?.computedMatch?.params?.match_channel_id]
+    );
+    const userData = useAppSelector((state) => state.user.userData);
+    const privateKey = useAppSelector((state) => state.configs.privateKey);
+    const userError = useAppSelector((state) => errorUserSelector(state));
+    const currentTeamLoading = useAppSelector((state) =>
+      currentTeamLoadingSelector(state)
+    );
+    const currentTeamError = useAppSelector((state) =>
+      currentTeamErrorSelector(state)
+    );
+    const team = useAppSelector((state) => state.user.team);
+    const currentTeam = useCurrentCommunity();
+    const dispatch = useAppDispatch();
+    const history = useHistory();
+    const initApp = useCallback(async () => {
+      const loginType = await getCookie(AsyncKey.loginType);
       if (
-        matchCommunity &&
-        !currentTeamLoading &&
-        !currentTeamError &&
-        match_channel_id
+        typeof loginType === 'string' &&
+        loginType === LoginType.WalletImport &&
+        !privateKey
       ) {
-        await dispatch(setCurrentTeam(matchCommunity));
+        history.replace({
+          pathname: '/unlock',
+        });
+        return;
       }
-    }
-    setLoading(false);
-  }, [
-    rest.redirect,
-    privateKey,
-    userData.user_id,
-    userError,
-    match_community_id,
-    currentTeam?.team_id,
-    history,
-    dispatch,
-    team,
-    currentTeamLoading,
-    currentTeamError,
-    match_channel_id,
-  ]);
-  useEffect(() => {
-    if (window.location.pathname !== '/') {
-      const query = new URLSearchParams(window.location.search);
-      GoogleAnalytics.tracking('Page Viewed', {
-        category: 'Traffic',
-        page_name: 'Home',
-        source: query.get('ref') || '',
-        path: window.location.pathname,
-      });
-    }
-  }, []);
-  useEffect(() => {
-    getCookie(AsyncKey.accessTokenKey)
-      .then((res: any) => {
-        if (typeof res === 'string' && !!res) {
-          if (rest.path !== '/unlock') {
-            initApp();
+      if (!userData.user_id && !userError) {
+        await dispatch(findUser());
+        await dispatch(findTeamAndChannel(match_community_id));
+      } else if (
+        match_community_id &&
+        currentTeam?.team_id !== match_community_id
+      ) {
+        const matchCommunity = team?.find(
+          (t) => t.team_id === match_community_id
+        );
+        if (
+          matchCommunity &&
+          !currentTeamLoading &&
+          !currentTeamError &&
+          match_channel_id
+        ) {
+          await dispatch(setCurrentTeam(matchCommunity));
+        }
+      }
+    }, [
+      privateKey,
+      userData.user_id,
+      userError,
+      match_community_id,
+      currentTeam?.team_id,
+      history,
+      dispatch,
+      team,
+      currentTeamLoading,
+      currentTeamError,
+      match_channel_id,
+    ]);
+    useEffect(() => {
+      if (window.location.pathname !== '/') {
+        const query = new URLSearchParams(window.location.search);
+        GoogleAnalytics.tracking('Page Viewed', {
+          category: 'Traffic',
+          page_name: 'Home',
+          source: query.get('ref') || '',
+          path: window.location.pathname,
+        });
+      }
+    }, []);
+    useEffect(() => {
+      getCookie(AsyncKey.accessTokenKey)
+        .then((res: any) => {
+          if (typeof res === 'string' && !!res) {
+            if (rest.path !== '/unlock') {
+              initApp();
+            }
+          } else {
+            history.replace({
+              pathname: '/started',
+              search: window.location.search,
+            });
+            dispatch(logout());
           }
-        } else {
+        })
+        .catch(() => {
           history.replace({
             pathname: '/started',
             search: window.location.search,
           });
           dispatch(logout());
-        }
-      })
-      .catch(() => {
-        history.replace({
-          pathname: '/started',
-          search: window.location.search,
         });
-        dispatch(logout());
-      });
-  }, [dispatch, history, initApp, rest.path]);
-  if (loading)
-    return (
-      <div className="main-load-page">
-        <AppTitleBar />
-      </div>
-    );
-  return <Route {...rest} render={(props) => <Component {...props} />} />;
-};
+    }, [dispatch, history, initApp, rest.path]);
+    return <Route {...rest} render={(props) => <Component {...props} />} />;
+  }
+);
 
-const requestingCommunitySelector = createLoadingSelector([
+const communityRequestingSelector = createLoadingSelector([
   actionTypes.TEAM_PREFIX,
 ]);
 
@@ -195,19 +184,19 @@ const RedirectToHome = memo(() => {
   }>();
   const { match_community_id } = match.params;
   const dispatch = useAppDispatch();
-  const requestingCommunity = useAppSelector((state) =>
-    requestingCommunitySelector(state)
-  );
   const channelMap = useAppSelector((state) => state.user.channelMap);
   const channel = useMemo(
     () => channelMap[match_community_id || ''],
     [channelMap, match_community_id]
   );
+  const communityRequesting = useAppSelector((state) =>
+    communityRequestingSelector(state)
+  );
   const team = useAppSelector((state) => state.user.team);
   const lastChannel = useAppSelector((state) => state.user.lastChannel);
   const history = useHistory();
   const gotoChannel = useCallback(async () => {
-    if (!team || requestingCommunity) return;
+    if (!team || communityRequesting) return;
     setEmpty(false);
     let cookieChannelId = await getCookie(AsyncKey.lastChannelId);
     if (typeof cookieChannelId !== 'string') {
@@ -239,7 +228,7 @@ const RedirectToHome = memo(() => {
       channelId = channel?.[0]?.channel_id;
     }
     if (!teamId) {
-      teamId = team?.[0]?.team_id;
+      teamId = team?.[1]?.team_id;
     }
     if (channelId && teamId) {
       history.replace(`/channels/${teamId}/${channelId}`);
@@ -251,7 +240,7 @@ const RedirectToHome = memo(() => {
     }
   }, [
     team,
-    requestingCommunity,
+    communityRequesting,
     match_community_id,
     channel,
     lastChannel,
