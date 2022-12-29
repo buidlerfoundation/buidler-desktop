@@ -42,7 +42,7 @@ class EthereumUtils {
     );
     const transactionParameters = {
       gasPrice: sendData.gasPrice?.toHexString(),
-      gas: sendData.gasLimit.toHexString(),
+      gasLimit: sendData.gasLimit.toHexString(),
       to: sendData.recipientAddress,
       from,
       value: amount.toHexString(),

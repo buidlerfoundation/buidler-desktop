@@ -140,7 +140,9 @@ export const getEstimateTransaction = (
     if (sendData.asset?.contract.contract_address === 'eth') {
       res.to =
         sendData.recipientAddress || AppConfig.estimateGasRecipientAddress;
-      res.value = getTransactionAmount(sendData).toHexString();
+      res.value = getTransactionAmount(sendData)
+        .toHexString()
+        ?.replace(/^(0x)0+/g, '$1');
     } else {
       res.data = transferData;
       res.to = sendData.asset?.contract?.contract_address;
