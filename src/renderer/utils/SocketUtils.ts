@@ -40,6 +40,7 @@ import {
   getCurrentChannel,
   getCurrentCommunity,
   getPostId,
+  getCommunityId,
 } from 'renderer/helpers/StoreHelper';
 import { getCollectibles } from 'renderer/actions/CollectibleActions';
 import { logout, refreshToken } from 'renderer/actions/UserActions';
@@ -1038,6 +1039,7 @@ class SocketUtil {
     this.socket?.emit?.('ON_VIEW_MESSAGE_IN_CHANNEL', {
       message_id: messageId,
       channel_id: channelId,
+      team_id: getCommunityId(),
     });
   }
   async emitOnline(teamId?: string) {

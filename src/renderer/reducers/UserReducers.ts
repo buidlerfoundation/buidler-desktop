@@ -735,8 +735,8 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       };
     }
     case actionTypes.MARK_SEEN_CHANNEL: {
-      const { channel_id } = payload;
-      const channels = channelMap[currentTeamId]?.map((el) => {
+      const { channel_id, team_id } = payload;
+      const channels = channelMap[team_id]?.map((el) => {
         if (el.channel_id === channel_id) {
           return {
             ...el,
@@ -749,10 +749,10 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
         ...state,
         channelMap: {
           ...channelMap,
-          [currentTeamId]: channels,
+          [team_id]: channels,
         },
         team: state.team?.map((el) => {
-          if (el.team_id === currentTeamId) {
+          if (el.team_id === team_id) {
             return {
               ...el,
               seen:
