@@ -382,6 +382,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
     }
     case actionTypes.NEW_CHANNEL: {
       const isDirect = payload?.channel_type === 'Direct';
+      const newChannels = channelMap[currentTeamId] || [];
       return {
         ...state,
         channelMap: {
