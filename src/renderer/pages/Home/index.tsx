@@ -49,7 +49,7 @@ import {
   updateTask,
   uploadToIPFS,
 } from 'renderer/actions/TaskActions';
-import { getAroundMessage, getMessages } from 'renderer/actions/MessageActions';
+import { getAroundMessage, getMessages, getPinPostMessages } from 'renderer/actions/MessageActions';
 import SideBar from '../Main/Layout/SideBar';
 import ChannelView from './container/ChannelView';
 import './index.scss';
