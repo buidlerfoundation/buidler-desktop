@@ -359,7 +359,7 @@ const Home = () => {
     async (message: MessageData) => {
       if (!message.createdAt) return;
       const messageId = await dispatch(
-        getMessages(channelId, 'Public', undefined, message.createdAt)
+        getMessages(channelId, undefined, message.createdAt)
       );
       if (messageId) {
         const element = document.getElementById(messageId);
