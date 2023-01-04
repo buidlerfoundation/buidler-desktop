@@ -139,9 +139,14 @@ export const normalizeMessageItem = async (
   key: string,
   channelId: string
 ) => {
-  const content = item.content
-    ? CryptoJS.AES.decrypt(item.content, key).toString(CryptoJS.enc.Utf8)
-    : '';
+  let content = '';
+  try {
+    content = item.content
+      ? CryptoJS.AES.decrypt(item.content, key).toString(CryptoJS.enc.Utf8)
+      : '';
+  } catch (error) {
+    console.log(error);
+  }
   if (item?.conversation_data) {
     item.conversation_data = await normalizeMessageItem(
       item.conversation_data,
