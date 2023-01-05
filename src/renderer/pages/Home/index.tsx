@@ -27,17 +27,14 @@ import { uniqBy } from 'lodash';
 import { CreateSpaceData, MessageData, Space, TaskData } from 'renderer/models';
 import ModalSpaceSetting from 'renderer/shared/ModalSpaceSetting';
 import ModalSpaceDetail from 'renderer/shared/ModalSpaceDetail';
-import ImageHelper from 'renderer/common/ImageHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import {
-  clearLastChannel,
   createNewChannel,
   createSpaceChannel,
   deleteChannel,
   deleteSpaceChannel,
   dragChannel,
   findTeamAndChannel,
-  getSpaceMembers,
   removeTeamMember,
   setCurrentChannel,
 } from 'renderer/actions/UserActions';
@@ -49,7 +46,11 @@ import {
   updateTask,
   uploadToIPFS,
 } from 'renderer/actions/TaskActions';
-import { getAroundMessage, getMessages, getPinPostMessages } from 'renderer/actions/MessageActions';
+import {
+  getAroundMessage,
+  getMessages,
+  getPinPostMessages,
+} from 'renderer/actions/MessageActions';
 import SideBar from '../Main/Layout/SideBar';
 import ChannelView from './container/ChannelView';
 import './index.scss';
@@ -655,11 +656,6 @@ const Home = () => {
             if (matchChannel.channel_id !== storeChannelId) {
               dispatch(setCurrentChannel?.(matchChannel, match_community_id));
             }
-          } else {
-            if (match_community_id !== DirectCommunity.team_id) {
-              dispatch(clearLastChannel(match_community_id));
-            }
-            history.replace(`/channels/${match_community_id}`);
           }
         }
       }
