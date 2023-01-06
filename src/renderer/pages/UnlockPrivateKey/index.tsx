@@ -17,6 +17,7 @@ import {
   uniqChannelPrivateKey,
 } from 'renderer/helpers/ChannelHelper';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import GlobalVariable from 'renderer/services/GlobalVariable';
 import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
@@ -137,6 +138,16 @@ const UnlockPrivateKey = () => {
       >
         <span>Logout</span>
       </div>
+      <span
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: 'var(--color-highlight-action-high)',
+          marginBottom: 15,
+        }}
+      >
+        Version: {GlobalVariable.version}
+      </span>
       <ModalConfirmDelete
         open={isOpenConfirmLogout}
         handleClose={toggleModalLogout}
