@@ -937,7 +937,7 @@ class SocketUtil {
               path = `/channels/${teamNotification.team_id}/${message_data.entity_id}/message/${message_data.message_id}`;
             }
             if (message_data.entity_type === 'post') {
-              path = `/channels/${teamNotification.team_id}/${currentChannel.channel_id}/post/${message_data.entity_id}`;
+              path = `/channels/${teamNotification.team_id}/${notification_data.channel_id}/post/${message_data.entity_id}`;
             }
             if (path) {
               dispatchChangeRoute(path);
