@@ -1,6 +1,6 @@
 import { Contract, providers, Wallet, ethers, utils } from 'ethers';
 
-const INFURA_API_KEY = '74de9271d1194b40af956650c6084bb4';
+const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY;
 
 export const checkGasPrice = async () => {
   const provider = new providers.InfuraProvider('goerli', INFURA_API_KEY);

@@ -3,7 +3,7 @@ import { SendData } from 'renderer/models';
 import store from 'renderer/store';
 import MinABI from './MinABI';
 
-const INFURA_API_KEY = '74de9271d1194b40af956650c6084bb4';
+const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY;
 
 class EthereumUtils {
   sendERC721Transaction = async (sendData: SendData, from: string) => {
