@@ -60,6 +60,7 @@ export const LoginType = {
   WalletConnect: 'WalletConnect',
   WalletImport: 'WalletImport',
   Metamask: 'Metamask',
+  Web3Auth: "Web3Auth",
 };
 
 export const SpaceBadge = [
