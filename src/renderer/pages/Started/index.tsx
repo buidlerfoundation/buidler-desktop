@@ -181,6 +181,7 @@ const Started = () => {
           const invitationId = dataFromUrl.split('=')[1];
           const acceptRes = await api.acceptInvitation(invitationId);
           if (acceptRes.statusCode === 200) {
+            setCookie(AsyncKey.lastTeamId, acceptRes.data?.team_id);
             dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
           }
         }

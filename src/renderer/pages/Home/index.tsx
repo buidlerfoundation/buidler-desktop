@@ -610,11 +610,11 @@ const Home = () => {
       if (res.statusCode === 200) {
         toast.success('You have successfully joined new community.');
         dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
-        setCookie(AsyncKey.lastTeamId, res.team_id);
-        dispatch(findTeamAndChannel());
+        setCookie(AsyncKey.lastTeamId, res.data?.team_id);
+        history.replace('/');
       }
     }
-  }, [dataFromUrl, dispatch]);
+  }, [dataFromUrl, dispatch, history]);
   useEffect(() => {
     if (currentChannel.channel_name && currentTeam.team_display_name) {
       document.title = `${currentTeam.team_display_name} • #${currentChannel.channel_name} | Buidler`;
