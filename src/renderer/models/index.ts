@@ -245,7 +245,7 @@ export interface TaskData {
   cid?: string;
   uploadingIPFS?: boolean;
   updatedAt?: string;
-  notification_type?: 'Alert' | 'Muted';
+  notification_type?: 'alert' | 'muted';
   total_unread_notifications?: number;
 }
 

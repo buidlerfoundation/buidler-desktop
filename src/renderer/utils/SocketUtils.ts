@@ -9,7 +9,6 @@ import {
   normalizeMessageData,
   normalizeMessageItem,
   normalizePublicMessageData,
-  storePrivateChannel,
 } from 'renderer/helpers/ChannelHelper';
 import { io, Socket } from 'socket.io-client';
 import { uniqBy } from 'lodash';
@@ -332,6 +331,7 @@ class SocketUtil {
     });
   };
   removeListenSocket() {
+    this.socket?.off('ON_PUSH_NOTIFICATION');
     this.socket?.off('ON_NEW_MESSAGE');
     this.socket?.off('ON_NEW_TASK');
     this.socket?.off('ON_UPDATE_TASK');
@@ -853,44 +853,23 @@ class SocketUtil {
         });
       });
     });
-    this.socket?.on('ON_USER_OFFLINE', (data: any) => {});
-    this.socket?.on('ON_NEW_MESSAGE', async (data: any) => {
-      const { message_data, notification_data } = data;
-      const { notification_type } = notification_data;
-      const configs: any = store.getState()?.configs;
-      const { channelPrivateKey } = configs;
-      const user = store.getState()?.user;
-      const { userData, team } = user;
-      const direct = notification_data?.channel_type === 'Direct';
-      const currentChannel = getCurrentChannel();
-      if (!currentChannel) return;
-      const messageData: any = store.getState()?.message.messageData;
-      if (currentChannel.channel_id === message_data.entity_id) {
-        this.emitSeenChannel(message_data.message_id, message_data.entity_id);
-      }
-      if (userData?.user_id !== notification_data?.sender_data?.user_id) {
+    this.socket?.on('ON_PUSH_NOTIFICATION', (data: any) => {
+      const notificationString = data.data;
+      try {
+        const currentChannel = getCurrentChannel();
+        const user = store.getState()?.user;
+        const { team } = user;
+        if (!currentChannel) return;
+        const notification = JSON.parse(notificationString);
+        const { notification_data, message_data } = notification;
+        const direct = notification_data?.channel_type === 'Direct';
         const teamNotification = direct
           ? DirectCommunity
-          : team.find((t: any) => t.team_id === notification_data.team_id);
-        if (
-          notification_type !== 'Muted' &&
-          message_data.entity_type === 'channel'
-        ) {
-          if (currentChannel.channel_id !== message_data.entity_id) {
-            store.dispatch({
-              type: actionTypes.MARK_UN_SEEN_CHANNEL,
-              payload: {
-                channelId: message_data.entity_id,
-                communityId: teamNotification.team_id,
-              },
-            });
-          }
-        }
+          : team.find((t) => t.team_id === notification_data.team_id);
         window.electron.ipcRenderer.removeAllListeners('notification-click');
         if (
-          notification_type === 'Alert' &&
-          (currentChannel.channel_id !== message_data.entity_id ||
-            !GlobalVariable.isWindowFocus)
+          currentChannel.channel_id !== message_data.entity_id ||
+          !GlobalVariable.isWindowFocus
         ) {
           window.electron.ipcRenderer.sendMessage('doing-notification', {
             body: notification_data.body.replace(
@@ -912,21 +891,6 @@ class SocketUtil {
             ),
           });
         }
-        if (currentChannel.channel_id === message_data.entity_id) {
-          const { scrollData } = messageData?.[currentChannel.channel_id] || {};
-          if (scrollData?.showScrollDown) {
-            store.dispatch({
-              type: actionTypes.SET_CHANNEL_SCROLL_DATA,
-              payload: {
-                channelId: currentChannel.channel_id,
-                data: {
-                  showScrollDown: scrollData?.showScrollDown,
-                  unreadCount: (scrollData?.unreadCount || 0) + 1,
-                },
-              },
-            });
-          }
-        }
         if (
           teamNotification &&
           currentChannel.channel_id !== message_data.entity_id
@@ -943,6 +907,57 @@ class SocketUtil {
               dispatchChangeRoute(path);
             }
           });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+    this.socket?.on('ON_NEW_MESSAGE', async (data: any) => {
+      const { message_data, notification_data } = data;
+      const { notification_type } = notification_data;
+      const configs: any = store.getState()?.configs;
+      const { channelPrivateKey } = configs;
+      const user = store.getState()?.user;
+      const { userData, team } = user;
+      const direct = notification_data?.channel_type === 'Direct';
+      const currentChannel = getCurrentChannel();
+      if (!currentChannel) return;
+      const messageData: any = store.getState()?.message.messageData;
+      if (currentChannel.channel_id === message_data.entity_id) {
+        this.emitSeenChannel(message_data.message_id, message_data.entity_id);
+      }
+      if (userData?.user_id !== notification_data?.sender_data?.user_id) {
+        const teamNotification = direct
+          ? DirectCommunity
+          : team.find((t: any) => t.team_id === notification_data.team_id);
+        if (
+          notification_type !== 'muted' &&
+          message_data.entity_type === 'channel'
+        ) {
+          if (currentChannel.channel_id !== message_data.entity_id) {
+            store.dispatch({
+              type: actionTypes.MARK_UN_SEEN_CHANNEL,
+              payload: {
+                channelId: message_data.entity_id,
+                communityId: teamNotification.team_id,
+              },
+            });
+          }
+        }
+        if (currentChannel.channel_id === message_data.entity_id) {
+          const { scrollData } = messageData?.[currentChannel.channel_id] || {};
+          if (scrollData?.showScrollDown) {
+            store.dispatch({
+              type: actionTypes.SET_CHANNEL_SCROLL_DATA,
+              payload: {
+                channelId: currentChannel.channel_id,
+                data: {
+                  showScrollDown: scrollData?.showScrollDown,
+                  unreadCount: (scrollData?.unreadCount || 0) + 1,
+                },
+              },
+            });
+          }
         }
       }
       let res = message_data;

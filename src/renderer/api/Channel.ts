@@ -1,5 +1,8 @@
 import { Channel, ChannelKeyApiData, SpaceMember } from 'renderer/models';
-import { ConfigNotificationRequestBody, DirectChannelRequestBody } from 'renderer/models/request';
+import {
+  ConfigNotificationRequestBody,
+  DirectChannelRequestBody,
+} from 'renderer/models/request';
 import Caller from './Caller';
 
 export const createChannel = (teamId: string, body: any) =>
@@ -16,7 +19,11 @@ export const updateChannelNotification = (
   channelId: string,
   data: ConfigNotificationRequestBody
 ) => {
-  return Caller.post(`channel/${channelId}/notification`, data);
+  return Caller.post(`notification-setting`, {
+    entity_type: 'CHANNEL',
+    entity_id: channelId,
+    notification_type: data.notification_type,
+  });
 };
 
 export const addUserToChannel = (channelId: string, userId: string) =>
