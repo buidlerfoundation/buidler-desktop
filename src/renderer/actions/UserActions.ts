@@ -126,7 +126,13 @@ export const getMemberData =
     if (res.success) {
       dispatch({
         type: ActionTypes.MEMBER_DATA_SUCCESS,
-        payload: { role, page, data: res.data, total: res.metadata?.total },
+        payload: {
+          role,
+          page,
+          data: res.data,
+          total: res.metadata?.total,
+          teamId,
+        },
       });
     } else {
       dispatch({
@@ -246,7 +252,10 @@ export const findTeamAndChannel =
       } else {
         SocketUtils.init();
       }
-      dispatch({ type: ActionTypes.TEAM_SUCCESS, payload: { team: communities } });
+      dispatch({
+        type: ActionTypes.TEAM_SUCCESS,
+        payload: { team: communities },
+      });
     } else {
       dispatch({ type: ActionTypes.TEAM_FAIL, payload: { message: res } });
       dispatch({
@@ -366,7 +375,8 @@ const actionSetCurrentTeam = async (
 };
 
 export const setCurrentTeam =
-  (team: any, channelId?: string) => async (dispatch: Dispatch, getState: AppGetState) =>
+  (team: any, channelId?: string) =>
+  async (dispatch: Dispatch, getState: AppGetState) =>
     actionSetCurrentTeam(team, dispatch, getState, channelId);
 
 export const deleteSpaceChannel =

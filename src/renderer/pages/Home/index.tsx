@@ -34,7 +34,6 @@ import {
   deleteChannel,
   deleteSpaceChannel,
   dragChannel,
-  findTeamAndChannel,
   removeTeamMember,
   setCurrentChannel,
 } from 'renderer/actions/UserActions';
