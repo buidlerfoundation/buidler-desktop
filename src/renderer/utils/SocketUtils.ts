@@ -859,7 +859,7 @@ class SocketUtil {
       });
     });
     this.socket?.on('ON_PUSH_NOTIFICATION', (data: any) => {
-      const notificationString = data.data;
+      const notificationString = data.data.data;
       try {
         const currentChannel = getCurrentChannel();
         const user = store.getState()?.user;
