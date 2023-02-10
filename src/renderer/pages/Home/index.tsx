@@ -491,6 +491,7 @@ const Home = () => {
         channel_emoji: channelData.emoji,
         channel_image_url: channelData.url,
         is_chat_deactivated: channelData.isDeactivated,
+        notification_type: channelData.notificationType,
       };
       if (channelData.channelId) {
         body.channel_id = channelData.channelId;
