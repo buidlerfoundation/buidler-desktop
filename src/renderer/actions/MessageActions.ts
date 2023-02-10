@@ -189,7 +189,7 @@ export const getMessages: ActionCreator<any> =
             messageRes.data,
             messageRes.metadata?.encrypt_message_key
           )
-        : await normalizeMessageData(messageRes.data, channelId);
+        : await normalizeMessageData(messageRes.data || [], channelId);
       if (messageRes.statusCode === 200) {
         dispatch({
           type: actionTypes.MESSAGE_SUCCESS,

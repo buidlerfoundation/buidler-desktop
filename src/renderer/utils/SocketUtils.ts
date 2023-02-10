@@ -129,7 +129,7 @@ const getMessages = async (channelId: string, dispatch: Dispatch) => {
           messageRes?.data,
           messageRes?.metadata?.encrypt_message_key
         )
-      : await normalizeMessageData(messageRes.data, channelId);
+      : await normalizeMessageData(messageRes.data || [], channelId);
     dispatch({
       type: actionTypes.MESSAGE_SUCCESS,
       payload: { data: messageData, channelId, reloadSocket: true },
@@ -187,7 +187,10 @@ const loadMessageIfNeeded = async () => {
   const messageData =
     currentChannel.channel_type === 'Private' ||
     currentChannel.channel_type === 'Direct'
-      ? await normalizeMessageData(messageRes.data, currentChannel.channel_id)
+      ? await normalizeMessageData(
+          messageRes.data || [],
+          currentChannel.channel_id
+        )
       : normalizePublicMessageData(
           messageRes.data,
           messageRes.metadata?.encrypt_message_key
