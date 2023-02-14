@@ -128,7 +128,7 @@ const Started = () => {
     []
   );
   const loggedOn = useCallback(
-    async (seed: string, password: string, backupLater?: boolean) => {
+    async (seed: string, password: string, method: string) => {
       const iv = await getIV();
       let privateKey;
       let signingKey;
@@ -142,17 +142,14 @@ const Started = () => {
         const wallet = ethers.Wallet.fromMnemonic(seed);
         privateKey = wallet.privateKey;
         signingKey = wallet._signingKey();
+        const encryptedSeed = encryptString(seed, password, iv);
+        setCookie(AsyncKey.encryptedSeedKey, encryptedSeed);
       }
       const publicKey = utils.computePublicKey(privateKey, true);
       const address = utils.computeAddress(privateKey);
       dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
       const data = { [publicKey]: privateKey };
       const encryptedData = encryptString(JSON.stringify(data), password, iv);
-      if (backupLater) {
-        const encryptedSeed = encryptString(seed, password, iv);
-        setCookie(AsyncKey.encryptedSeedKey, encryptedSeed);
-        dispatch({ type: actionTypes.SET_SEED_PHRASE, payload: seed });
-      }
       setCookie(AsyncKey.encryptedDataKey, encryptedData);
       const nonceRes = await api.requestNonceWithAddress(address);
       const message = nonceRes.data?.message;
@@ -190,6 +187,12 @@ const Started = () => {
           type: actionTypes.UPDATE_LOGIN_TYPE,
           payload: LoginType.WalletImport,
         });
+        if (method === 'create') {
+          setCookie(AsyncKey.isBackup, 'false');
+        }
+        if (method === 'import') {
+          setCookie(AsyncKey.isBackup, 'true');
+        }
         history.replace('/channels');
       }
     },

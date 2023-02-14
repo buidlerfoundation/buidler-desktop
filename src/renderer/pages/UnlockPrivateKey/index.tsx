@@ -19,10 +19,21 @@ import {
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
+import IconClose from 'renderer/shared/SVG/IconClose';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
 
-const UnlockPrivateKey = () => {
+type UnlockPrivateKeyProps = {
+  onUnlock?: (secureData: string) => void;
+  embedded?: boolean;
+  onClose?: () => void;
+};
+
+const UnlockPrivateKey = ({
+  onUnlock,
+  embedded,
+  onClose,
+}: UnlockPrivateKeyProps) => {
   const [isOpenConfirmLogout, setOpenConfirmLogout] = useState(false);
   const userData = useAppSelector((state) => state.user.userData);
   const history = useHistory();
@@ -58,13 +69,9 @@ const UnlockPrivateKey = () => {
           const iv = await getIV();
           const encryptedStr: any = await getCookie(AsyncKey.encryptedDataKey);
           const encryptedSeed: any = await getCookie(AsyncKey.encryptedSeedKey);
-
+          let seed = null;
           if (Object.keys(encryptedSeed || {}).length > 0) {
-            const seed = decryptString(encryptedSeed, pass, iv);
-            dispatch({
-              type: actionTypes.SET_SEED_PHRASE,
-              payload: seed,
-            });
+            seed = decryptString(encryptedSeed, pass, iv);
           }
           const decryptedStr = decryptString(encryptedStr, pass, iv);
           if (!decryptedStr) {
@@ -72,6 +79,10 @@ const UnlockPrivateKey = () => {
           } else {
             const json = JSON.parse(decryptedStr);
             const privateKey = json?.[userData.user_id];
+            if (embedded) {
+              onUnlock?.(seed || privateKey);
+              return;
+            }
             dispatch({
               type: actionTypes.SET_PRIVATE_KEY,
               payload: privateKey,
@@ -89,7 +100,7 @@ const UnlockPrivateKey = () => {
         }
       }
     },
-    [dispatch, history, pass, userData?.user_id]
+    [dispatch, embedded, history, onUnlock, pass, userData.user_id]
   );
   const handleLogout = useCallback(() => {
     clearData(() => {
@@ -132,22 +143,26 @@ const UnlockPrivateKey = () => {
           onKeyDown={handlePasswordKeyDown}
         />
       </div>
-      <div
-        className="add-other-button normal-button"
-        onClick={toggleModalLogout}
-      >
-        <span>Logout</span>
-      </div>
-      <span
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--color-highlight-action-high)',
-          marginBottom: 15,
-        }}
-      >
-        Version: {GlobalVariable.version}
-      </span>
+      {!embedded && (
+        <>
+          <div
+            className="add-other-button normal-button"
+            onClick={toggleModalLogout}
+          >
+            <span>Logout</span>
+          </div>
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--color-highlight-action-high)',
+              marginBottom: 15,
+            }}
+          >
+            Version: {GlobalVariable.version}
+          </span>
+        </>
+      )}
       <ModalConfirmDelete
         open={isOpenConfirmLogout}
         handleClose={toggleModalLogout}
@@ -156,6 +171,15 @@ const UnlockPrivateKey = () => {
         onDelete={handleLogout}
         contentDelete="Logout"
       />
+      {embedded && (
+        <div
+          className="normal-button-clear"
+          style={{ position: 'fixed', padding: 10, top: 0, right: 0 }}
+          onClick={onClose}
+        >
+          <IconClose />
+        </div>
+      )}
     </div>
   );
 };
