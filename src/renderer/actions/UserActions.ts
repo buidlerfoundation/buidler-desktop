@@ -208,6 +208,7 @@ export const findTeamAndChannel =
       );
       communities.unshift({ ...DirectCommunity, seen: DM?.seen });
       if (communities.length > 0) {
+        SocketUtils.init();
         const currentTeam =
           communities.find((t: Community) => t.team_id === lastTeamId) ||
           communities?.[1] ||
@@ -229,7 +230,6 @@ export const findTeamAndChannel =
             },
           });
         }
-        SocketUtils.init();
         const directChannelUser = teamUsersRes?.data?.find(
           (u: UserData) => u.direct_channel === lastChannelId
         );
