@@ -5,16 +5,18 @@ import {
   CollectibleDataApi,
   Community,
   Contract,
+  ENSAsset,
   InitialApiData,
   NFTCollectionDataApi,
+  NFTDetailDataApi,
   NotificationData,
   NotificationFilterType,
+  Space,
   SpaceCollectionData,
   Token,
   TokenPrice,
   TransactionApiData,
   UserData,
-  UserNFTCollection,
   UserRoleType,
 } from 'renderer/models';
 import { ConfigNotificationRequestBody } from 'renderer/models/request';
@@ -26,7 +28,8 @@ export const findUser = async () => {
   return Caller.get<UserData>('user');
 };
 
-export const findTeam = () => Caller.get<Community[]>('user/team?include_direct=1');
+export const findTeam = () =>
+  Caller.get<Community[]>('user/team?include_direct=1');
 
 export const getGroupChannel = (teamId: string) =>
   Caller.get(`group/${teamId}`);
@@ -35,14 +38,14 @@ export const getSpaceChannel = (teamId: string, controller?: AbortController) =>
   Caller.get<Array<Space>>(`space/${teamId}`, undefined, controller);
 
 export const findDirectChannel = (
-  status?: 'pending' | 'blocked' | 'accepted' = 'accepted',
+  status?: 'pending' | 'blocked' | 'accepted',
   controller?: AbortController
 ) => {
   let uri =
-    'direct-channel?channel_types[]=Direct&channel_types[]=Multiple Direct';
-  if (status) {
-    uri += `&status=${status}`;
-  }
+    'direct-channel?channel_types[]=Direct&channel_types[]=Multiple Direct&status=accepted';
+  // if (status) {
+  //   uri += `&status=${status}`;
+  // }
   return Caller.get<Array<Channel>>(uri, undefined, controller);
 };
 
@@ -96,7 +99,7 @@ export const acceptInvitation = (invitationId: string) =>
 export const removeDevice = (body: any) => Caller.delete('user/device', body);
 
 export const getNFTCollection = () =>
-  Caller.get<Array<UserNFTCollection>>('user/nft-collection');
+  Caller.get<Array<NFTCollectionDataApi>>('user/nft-collection');
 
 export const getSpaceCondition = (spaceId: string) =>
   Caller.get<Array<SpaceCollectionData>>(`space/${spaceId}/condition`);
@@ -216,3 +219,23 @@ export const configNotificationFromTask = (
   pinPostId: string,
   data: ConfigNotificationRequestBody
 ) => Caller.post(`notifications/task/${pinPostId}`, data);
+
+export const getNFTsDetails = (
+  contractAddresses: string[],
+  tokenIds: string[],
+  networks: string[]
+) => {
+  let uri = 'user/nft?';
+  contractAddresses.forEach(
+    (address) => {
+      uri += `contract_addresses[]=${address}&`
+    }
+  );
+  tokenIds.forEach((id) => {
+    uri += `token_ids[]=${id}&`
+  });
+  networks.forEach((network) => {
+    uri += `networks[]=${network}&`
+  });
+  return Caller.get<NFTDetailDataApi[]>(uri);
+};
