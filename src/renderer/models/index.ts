@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
 export type LocalAttachment = {
   file?: any;
@@ -10,7 +10,7 @@ export type LocalAttachment = {
   url?: string;
 };
 
-export type SpaceType = 'Public' | 'Exclusive';
+export type SpaceType = "Public" | "Exclusive";
 
 export type CreateChannelData = {
   name: string;
@@ -90,7 +90,7 @@ export interface Channel {
   channel_image_url?: string;
   channel_members: Array<string>;
   channel_name: string;
-  channel_type: 'Public' | 'Private' | 'Direct';
+  channel_type: "Public" | "Private" | "Direct";
   notification_type?: string;
   seen?: boolean;
   space?: Space;
@@ -99,6 +99,7 @@ export interface Channel {
   group_channel_id?: string;
   attachment?: any;
   is_chat_deactivated?: boolean;
+  updatedAt?: string;
 }
 
 export interface Space {
@@ -108,7 +109,7 @@ export interface Space {
   space_id: string;
   space_image_url?: string;
   space_name: string;
-  space_type: 'Public' | 'Private';
+  space_type: "Public" | "Private";
   team_id?: string;
   space_description?: string;
   icon_color?: string;
@@ -225,8 +226,8 @@ export interface TaskData {
   creator: UserData;
   creator_id: string;
   reaction_data: Array<ReactionData>;
-  status: 'pinned' | 'todo' | 'doing' | 'done' | 'archived';
-  task_attachments: Array<AttachmentData>;
+  status: "pinned" | "todo" | "doing" | "done" | "archived";
+  task_attachments?: Array<AttachmentData>;
   task_id: string;
   task_tags: Array<TagData>;
   content: string;
@@ -236,6 +237,7 @@ export interface TaskData {
   due_date?: Date | string;
   isHighLight?: boolean;
   createdAt?: string;
+  updatedAt?: string;
   total_messages?: string;
   latest_reply_message_at?: string;
   latest_reply_senders?: Array<string>;
@@ -245,8 +247,7 @@ export interface TaskData {
   message_sender_id: string;
   cid?: string;
   uploadingIPFS?: boolean;
-  updatedAt?: string;
-  notification_type?: 'alert' | 'muted';
+  notification_type?: "alert" | "muted";
   total_unread_notifications?: number;
 }
 
@@ -271,7 +272,7 @@ export interface ConversationData {
 }
 
 export interface MessageDateData {
-  type: 'date';
+  type: "date";
   value: string;
 }
 
@@ -382,7 +383,7 @@ export interface TransactionApiData {
 
 export interface NFTCollectionDataApi {
   name: string;
-  description: string;
+  description?: string;
   contract_address: string;
   token_type: string;
   image_url: string;
@@ -390,8 +391,17 @@ export interface NFTCollectionDataApi {
   external_url: string;
   symbol: string;
   network: string;
-  nft: Array<UserNFTCollection>;
+  nfts: Array<UserNFTCollection>;
   slug: string;
+  marketplaces: {
+    [key: string]: {
+      marketplace: string;
+      last_ingested_at: string;
+      name: string;
+      safelist_request_status: string;
+      slug: string;
+    };
+  };
 }
 
 export interface NFTAsset {
@@ -425,7 +435,7 @@ export type SendData = {
   recipientAddress?: string;
   asset?: Token | null;
   nft?: UserNFTCollection | null;
-  amount?: number;
+  amount?: number | string;
   amountUSD?: number | string;
   gasPrice?: ethers.BigNumber;
   gasLimit: ethers.BigNumber;
@@ -451,7 +461,7 @@ export interface BaseDataApi<T> {
   refresh_token_expire_at?: number;
 }
 
-export type UserRoleType = 'owner' | 'admin' | 'member';
+export type UserRoleType = "owner" | "admin" | "member";
 
 export type AssetTypeItem = {
   label: string;
@@ -465,7 +475,7 @@ export type PinPostData = {
   id?: string;
 };
 
-export type NotificationFilterType = 'All' | 'Mention' | 'Unread';
+export type NotificationFilterType = "All" | "Mention" | "Unread";
 
 export type NotificationData = {
   channel?: Channel;
@@ -480,10 +490,10 @@ export type NotificationData = {
   notification_id: string;
   post?: TaskData;
   notification_type?:
-    | 'post_reply'
-    | 'channel_mention'
-    | 'post_mention'
-    | 'channel_reply';
+    | "post_reply"
+    | "channel_mention"
+    | "post_mention"
+    | "channel_reply";
   team_id?: string;
   to_user_id?: string;
   updatedAt?: string;
@@ -498,4 +508,25 @@ export type ChannelKeyApiData = {
   timestamp: number;
   updatedAt: string;
   user_id: string;
+};
+
+export type NFTDetailDataApi = {
+  _id: string;
+  contract_address: string;
+  token_id: string;
+  user_id: string;
+  name: string;
+  token_type: string;
+  image_url: string;
+  background_image_url: string;
+  network: string;
+  attributes: {
+    _id: string;
+    contract_address: string;
+    token_id: string;
+    trait_type: string;
+    value: string;
+    network: string;
+  }[];
+  collection: NFTCollectionDataApi;
 };
