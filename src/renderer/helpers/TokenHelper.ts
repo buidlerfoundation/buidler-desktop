@@ -72,13 +72,9 @@ export const formatUSDValue = (
 
 export const totalBalanceUSD = (userBalance?: BalanceApiData | null) => {
   if (!userBalance) return 0;
-  const { ETH, tokens } = userBalance;
-  let res = formatUSDValue({
-    value: ETH.balance,
-    decimal: ETH.contract.decimals,
-    price: ETH.price?.current_price,
-  });
-  tokens.forEach((el) => {
+  const { coins, tokens } = userBalance;
+  let res = 0;
+  [...coins, ...tokens].forEach((el) => {
     res += formatUSDValue({
       value: el.balance,
       decimal: el.contract.decimals,
