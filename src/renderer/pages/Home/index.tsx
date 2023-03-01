@@ -86,6 +86,7 @@ import PinPostDetail from 'renderer/shared/PinPostDetail';
 import ModalTransactionDetail from 'renderer/shared/ModalTransactionDetail';
 import ModalLoadingConfirmTx from 'renderer/shared/ModalLoadingConfirmTx';
 import SideBarDM from 'renderer/shared/SideBarDM';
+import ModalNFTDetail from 'renderer/shared/ModalNFTDetail';
 
 const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
@@ -137,6 +138,12 @@ const Home = () => {
   const currentChannel = useCurrentChannel();
   const matchPostId = useMatchPostId();
   const matchMessageId = useMatchMessageId();
+  const [openNFTDetail, setOpenNFTDetail] = useState(false);
+  const [selectedNFT, setSelectedNFT] = useState();
+  const toggleNFTDetail = useCallback(
+    () => setOpenNFTDetail((current) => !current),
+    []
+  );
   const appTitleBarRef = useRef<any>();
   const community = useAppSelector((state) => state.user.team);
   const storeChannelId = useAppSelector((state) => state.user.currentChannelId);
@@ -354,6 +361,13 @@ const Home = () => {
       setOpenSpaceDetail(true);
     },
     [handleCloseModalUserProfile]
+  );
+  const handleOpenNFTDetail = useCallback(
+    (nft: any) => {
+      setSelectedNFT(nft);
+      toggleNFTDetail();
+    },
+    [toggleNFTDetail]
   );
   const onMoreAfterMessage = useCallback(
     async (message: MessageData) => {
@@ -967,7 +981,18 @@ const Home = () => {
             onSent={onSent}
             onViewTxDetail={onViewTxDetail}
             onSpaceClick={handleSpaceBadgeClick}
+            onOpenNFTDetail={handleOpenNFTDetail}
           />
+          {openNFTDetail && (
+            <ModalNFTDetail
+              open={openNFTDetail}
+              nft={selectedNFT}
+              handleClose={toggleNFTDetail}
+              onSent={onSent}
+              onViewTxDetail={onViewTxDetail}
+              isCurrentUser={currentUserId === userData.user_id}
+            />
+          )}
           <ModalCreatePinPost
             open={openCreatePinPost}
             handleClose={toggleCreatePinPost}
