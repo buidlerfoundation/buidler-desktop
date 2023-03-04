@@ -60,6 +60,13 @@ export interface UserNFTCollection {
   nft_collection?: NFTCollection;
   can_set_username?: boolean;
   can_set_avatar?: boolean;
+  media: {
+    bytes: number;
+    format: string;
+    gateway: string;
+    raw: string;
+    thumbnail: string;
+  }[];
 }
 
 export interface UserData {
