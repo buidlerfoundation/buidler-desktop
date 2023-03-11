@@ -70,10 +70,15 @@ export const refreshToken =
   (retryCount?: number) => async (dispatch: Dispatch) => {
     let rCount = retryCount || 0;
     dispatch({ type: ActionTypes.REFRESH_TOKEN_REQUEST });
+    const refreshTokenExpire = await getCookie(AsyncKey.refreshTokenExpire);
+    const token = await getCookie(AsyncKey.refreshTokenKey);
     try {
-      const token = await getCookie(AsyncKey.refreshTokenKey);
       const refreshTokenRes = await api.refreshToken(token);
       if (refreshTokenRes.success) {
+        dispatch({
+          type: ActionTypes.UPDATE_CURRENT_TOKEN,
+          payload: refreshTokenRes?.data?.token,
+        });
         await setCookie(AsyncKey.accessTokenKey, refreshTokenRes?.data?.token);
         await setCookie(
           AsyncKey.refreshTokenKey,
@@ -87,23 +92,36 @@ export const refreshToken =
           AsyncKey.refreshTokenExpire,
           refreshTokenRes?.data?.refresh_token_expire_at
         );
-      } else {
-        if (refreshTokenRes.message === 'Failed to fetch' && rCount <= 5) {
-          rCount += 1;
-          await sleep(3000);
-          return refreshToken(rCount)(dispatch);
-        }
-        await removeDeviceCode();
+      } else if (
+        refreshTokenRes.message === 'Failed to authenticate refresh token'
+      ) {
+        GoogleAnalytics.tracking('Refresh failed', {
+          refreshTokenExpire,
+          message: refreshTokenRes.message || 'Some thing wrong',
+        });
         dispatch({
           type: ActionTypes.REFRESH_TOKEN_FAIL,
           payload: refreshTokenRes,
         });
+        await removeDeviceCode();
+      } else if (rCount <= 5) {
+        rCount++;
+        await sleep(3000);
+        return refreshToken(rCount)(dispatch);
       }
-      return refreshTokenRes.success;
-    } catch (error) {
-      await removeDeviceCode();
+      return refreshTokenRes;
+    } catch (error: any) {
+      const errMessage = error.message || error;
+      GoogleAnalytics.tracking('Refresh failed', {
+        refreshTokenExpire,
+        message: errMessage,
+      });
       dispatch({ type: ActionTypes.REFRESH_TOKEN_FAIL, payload: error });
-      return false;
+      await removeDeviceCode();
+      return {
+        success: false,
+        message: errMessage,
+      };
     }
   };
 
