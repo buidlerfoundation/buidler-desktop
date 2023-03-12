@@ -76,10 +76,6 @@ export const refreshToken =
     try {
       const refreshTokenRes = await api.refreshToken(token);
       if (refreshTokenRes.success) {
-        dispatch({
-          type: ActionTypes.UPDATE_CURRENT_TOKEN,
-          payload: refreshTokenRes?.data?.token,
-        });
         await setCookie(AsyncKey.accessTokenKey, refreshTokenRes?.data?.token);
         await setCookie(
           AsyncKey.refreshTokenKey,
