@@ -14,6 +14,7 @@ import SocketUtils from '../utils/SocketUtils';
 import { Community, UserData, UserRoleType } from 'renderer/models';
 import store, { AppGetState } from 'renderer/store';
 import { sleep } from 'renderer/helpers/StoreHelper';
+import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 
 export const getInitial: ActionCreator<any> =
   () => async (dispatch: Dispatch) => {
