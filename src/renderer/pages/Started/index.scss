@@ -4,6 +4,7 @@
   background-color: var(--color-darkest-background);
   height: 100%;
   justify-content: center;
+  position: relative;
   .started-body {
     display: flex;
     width: 580px;
@@ -91,6 +92,20 @@
       font-weight: 600;
       margin-top: 16px;
       width: 334px;
+    }
+  }
+  .promise-container {
+    position: absolute;
+    bottom: 30px;
+    width: 350px;
+    margin: 0 auto;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-secondary-text);
+    line-height: 19px;
+    a {
+      color: var(--color-secondary-text);
+      text-decoration: underline;
     }
   }
 }
