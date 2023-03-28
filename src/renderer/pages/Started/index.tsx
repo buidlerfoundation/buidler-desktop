@@ -18,6 +18,7 @@ import ModalCreatePassword from '../../shared/ModalCreatePassword';
 import ModalImportSeedPhrase from '../../shared/ModalImportSeedPhrase';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
+import useAppSelector from 'renderer/hooks/useAppSelector';
 
 const Started = () => {
   useEffect(() => {
@@ -25,7 +26,7 @@ const Started = () => {
   }, []);
   const dispatch = useDispatch();
   const history = useHistory();
-  const dataFromUrl = useSelector((state: any) => state.configs.dataFromUrl);
+  const dataFromUrl = useAppSelector((state) => state.configs.dataFromUrl);
   const gaLoginSuccess = useCallback((label: string) => {
     GoogleAnalytics.tracking('Login Successful', {
       category: 'Login',
@@ -174,9 +175,12 @@ const Started = () => {
           type: actionTypes.SET_CHANNEL_PRIVATE_KEY,
           payload: privateKeyChannel,
         });
-        if (dataFromUrl?.includes?.('invitation')) {
-          const invitationId = dataFromUrl.split('=')[1];
-          const acceptRes = await api.acceptInvitation(invitationId);
+        if (dataFromUrl?.invitationId) {
+          const { invitationId, invitationRef } = dataFromUrl;
+          const acceptRes = await api.acceptInvitation(
+            invitationId,
+            invitationRef
+          );
           if (acceptRes.statusCode === 200) {
             setCookie(AsyncKey.lastTeamId, acceptRes.data?.team_id);
             dispatch({ type: actionTypes.REMOVE_DATA_FROM_URL });
@@ -242,11 +246,11 @@ const Started = () => {
       </div>
       <div className="promise-container">
         <span>
-          By connecting wallet, you agree to our{" "}
+          By connecting wallet, you agree to our{' '}
           <a href="https://buidler.app/terms" target="_blank" rel="noreferrer">
             Terms
-          </a>{" "}
-          and{" "}
+          </a>{' '}
+          and{' '}
           <a
             href="https://buidler.app/privacy"
             target="_blank"

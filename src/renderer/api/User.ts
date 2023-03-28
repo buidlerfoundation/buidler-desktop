@@ -93,8 +93,14 @@ export const verifyOtp = (data: any) => Caller.post('user/device/verify', data);
 export const syncChannelKey = (data: any) =>
   Caller.post('user/device/sync', data);
 
-export const acceptInvitation = (invitationId: string) =>
-  Caller.post<Community>(`team/invitation/${invitationId}/accept`);
+export const acceptInvitation = (invitationId: string, ref?: string | null) =>
+  Caller.post<Community>(
+    `team/invitation/${invitationId}/accept`,
+    undefined,
+    undefined,
+    undefined,
+    ref ? { ref } : undefined
+  );
 
 export const removeDevice = (body: any) => Caller.delete('user/device', body);
 
@@ -226,16 +232,14 @@ export const getNFTsDetails = (
   networks: string[]
 ) => {
   let uri = 'user/nft?';
-  contractAddresses.forEach(
-    (address) => {
-      uri += `contract_addresses[]=${address}&`
-    }
-  );
+  contractAddresses.forEach((address) => {
+    uri += `contract_addresses[]=${address}&`;
+  });
   tokenIds.forEach((id) => {
-    uri += `token_ids[]=${id}&`
+    uri += `token_ids[]=${id}&`;
   });
   networks.forEach((network) => {
-    uri += `networks[]=${network}&`
+    uri += `networks[]=${network}&`;
   });
   return Caller.get<NFTDetailDataApi[]>(uri);
 };

@@ -1,4 +1,4 @@
-import { Reducer } from 'redux';
+import { AnyAction, Reducer } from 'redux';
 import actionTypes from 'renderer/actions/ActionTypes';
 
 interface ConfigReducerState {
@@ -7,7 +7,10 @@ interface ConfigReducerState {
   channelPrivateKey: { [key: string]: any };
   openOTP: boolean;
   requestOtpCode: string;
-  dataFromUrl: string;
+  dataFromUrl: {
+    invitationId: string;
+    invitationRef?: string;
+  };
   isFullScreen: boolean;
   somethingWrong?: boolean | null;
   isOpenModalConfirmSignMessage: boolean;
@@ -21,7 +24,9 @@ const initialState: ConfigReducerState = {
   channelPrivateKey: {},
   openOTP: false,
   requestOtpCode: '',
-  dataFromUrl: '',
+  dataFromUrl: {
+    invitationId: '',
+  },
   isFullScreen: false,
   somethingWrong: null,
   isOpenModalConfirmSignMessage: false,
@@ -29,7 +34,7 @@ const initialState: ConfigReducerState = {
   loginType: '',
 };
 
-const configReducers: Reducer<ConfigReducerState, any> = (
+const configReducers: Reducer<ConfigReducerState, AnyAction> = (
   state = initialState,
   action
 ) => {
@@ -74,7 +79,9 @@ const configReducers: Reducer<ConfigReducerState, any> = (
     case actionTypes.REMOVE_DATA_FROM_URL: {
       return {
         ...state,
-        dataFromUrl: '',
+        dataFromUrl: {
+          invitationId: '',
+        },
       };
     }
     case actionTypes.TOGGLE_OTP: {

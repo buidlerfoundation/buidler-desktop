@@ -16,7 +16,14 @@ const AppListener = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     const openUrlListener = (data) => {
-      dispatch({ type: actionTypes.SET_DATA_FROM_URL, payload: data });
+      const query = new URLSearchParams(data);
+      dispatch({
+        type: actionTypes.SET_DATA_FROM_URL,
+        payload: {
+          invitationId: query.get('invitation'),
+          invitationRef: query.get('ref'),
+        },
+      });
     };
     const enterFullscreenListener = () => {
       dispatch({ type: actionTypes.UPDATE_FULL_SCREEN, payload: true });
