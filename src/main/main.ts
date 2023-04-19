@@ -97,6 +97,7 @@ const createWindow = async () => {
     height: 1120,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      webviewTag: true,
       nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')

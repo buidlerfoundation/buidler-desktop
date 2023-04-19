@@ -87,6 +87,7 @@ import ModalTransactionDetail from 'renderer/shared/ModalTransactionDetail';
 import ModalLoadingConfirmTx from 'renderer/shared/ModalLoadingConfirmTx';
 import SideBarDM from 'renderer/shared/SideBarDM';
 import ModalNFTDetail from 'renderer/shared/ModalNFTDetail';
+import BrowserView from './container/BrowserView';
 
 const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
@@ -619,7 +620,7 @@ const Home = () => {
   ]);
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.invitationId) {
-      const {invitationId, invitationRef} = dataFromUrl;
+      const { invitationId, invitationRef } = dataFromUrl;
       const res = await api.acceptInvitation(invitationId, invitationRef);
       if (res.statusCode === 200) {
         toast.success('You have successfully joined new community.');
@@ -909,14 +910,18 @@ const Home = () => {
                   loadMoreAfterMessage={loadMoreAfterMessage}
                   hideScrollDown={isOpenMembers}
                 />
-                {currentChannel.channel_id &&
+                {currentChannel.dapp_integration_url ? (
+                  <BrowserView url={currentChannel.dapp_integration_url} />
+                ) : (
+                  currentChannel.channel_id &&
                   currentChannel.channel_type !== 'Direct' && (
                     <PinPostList
                       onMenuSelected={onMenuPostSelected}
                       onCreate={handleCreatePinPost}
                       onEdit={onEditPost}
                     />
-                  )}
+                  )
+                )}
               </>
             )}
           </div>

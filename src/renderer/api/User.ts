@@ -243,3 +243,5 @@ export const getNFTsDetails = (
   });
   return Caller.get<NFTDetailDataApi[]>(uri);
 };
+
+export const requestOTT = () => Caller.get<string>("authentication/ott");

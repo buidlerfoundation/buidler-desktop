@@ -738,32 +738,30 @@ const ChannelView = forwardRef(
                       </div>
                     )}
                 </div>
-                {canChat && (
-                  <MessageInput
-                    placeholder={
-                      canChat
-                        ? `Message to ${
-                            isDirect && directUser
-                              ? `@ ${directUser.user_name}`
-                              : `# ${currentChannel?.channel_name}`
-                          }`
-                        : 'You do not have permission to send messages in this channel.'
-                    }
-                    attachments={files}
-                    onRemoveFile={handleRemoveFile}
-                    inputRef={inputRef}
-                    onKeyDown={debounce(onKeyDown, 100)}
-                    onPaste={_onPaste}
-                    text={text}
-                    setText={setText}
-                    onCircleClick={onCircleClick}
-                    messageReply={messageReply}
-                    onRemoveReply={onRemoveReply}
-                    messageEdit={messageEdit}
-                    inputId="message-input-channel"
-                    disabled={!canChat}
-                  />
-                )}
+                <MessageInput
+                  placeholder={
+                    canChat
+                      ? `Message to ${
+                          isDirect && directUser
+                            ? `@ ${directUser.user_name}`
+                            : `# ${currentChannel?.channel_name}`
+                        }`
+                      : 'You do not have permission to send messages in this channel.'
+                  }
+                  attachments={files}
+                  onRemoveFile={handleRemoveFile}
+                  inputRef={inputRef}
+                  onKeyDown={debounce(onKeyDown, 100)}
+                  onPaste={_onPaste}
+                  text={text}
+                  setText={setText}
+                  onCircleClick={onCircleClick}
+                  messageReply={messageReply}
+                  onRemoveReply={onRemoveReply}
+                  messageEdit={messageEdit}
+                  inputId="message-input-channel"
+                  disabled={!canChat}
+                />
               </div>
             )}
             <input
