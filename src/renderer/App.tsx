@@ -26,6 +26,8 @@ import useAppSelector from './hooks/useAppSelector';
 import ErrorBoundary from './shared/ErrorBoundary';
 import GoogleAnalytics from './services/analytics/GoogleAnalytics';
 import { initialSpaceToggle } from './actions/SideBarActions';
+import { sameDAppURL } from './helpers/LinkHelper';
+import useCurrentChannel from './hooks/useCurrentChannel';
 
 function App() {
   window.electron.cookies.setPath();
@@ -33,6 +35,7 @@ function App() {
   const dispatch = useDispatch();
   const user = useAppSelector((state) => state.user.userData);
   const imgDomain = useAppSelector((state: any) => state.user.imgDomain);
+  const currentChannel = useCurrentChannel();
   const initApp = useCallback(async () => {
     if (!imgDomain) {
       await dispatch(getInitial?.());
@@ -90,7 +93,9 @@ function App() {
     };
     const eventClick = (e: any) => {
       const href = e?.target?.href || e?.target?.parentElement?.href;
-      if (href?.includes('channels/user')) {
+      if (sameDAppURL(href, currentChannel?.dapp_integration_url)) {
+        e.preventDefault();
+      } else if (href?.includes('channels/user')) {
         dispatch({
           type: actionTypes.UPDATE_CURRENT_USER_PROFILE_ID,
           payload: href.split('/channels/user/')[1],
@@ -112,7 +117,7 @@ function App() {
       window.removeEventListener('paste', eventPaste);
       window.removeEventListener('click', eventClick);
     };
-  }, [user, initApp, history, dispatch]);
+  }, [user, initApp, history, dispatch, currentChannel?.dapp_integration_url]);
   const initGeneratedPrivateKey = useCallback(async () => {
     const generatedPrivateKey = await GeneratedPrivateKey();
     dispatch({

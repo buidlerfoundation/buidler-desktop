@@ -96,7 +96,7 @@ const UnlockPrivateKey = ({
             history.replace('/channels');
           }
         } catch (error) {
-          toast.error('Invalid Password');
+          toast.error('Something went wrong, please try again later.');
         }
       }
     },

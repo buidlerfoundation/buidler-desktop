@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
 export type LocalAttachment = {
   file?: any;
@@ -10,7 +10,7 @@ export type LocalAttachment = {
   url?: string;
 };
 
-export type SpaceType = "Public" | "Exclusive";
+export type SpaceType = 'Public' | 'Exclusive';
 
 export type CreateChannelData = {
   name: string;
@@ -97,7 +97,7 @@ export interface Channel {
   channel_image_url?: string;
   channel_members: Array<string>;
   channel_name: string;
-  channel_type: "Public" | "Private" | "Direct";
+  channel_type: 'Public' | 'Private' | 'Direct';
   notification_type?: string;
   seen?: boolean;
   space?: Space;
@@ -108,6 +108,8 @@ export interface Channel {
   is_chat_deactivated?: boolean;
   updatedAt?: string;
   team_id?: string;
+  dapp_integration_url?: string;
+  is_dapp_extension_required?: boolean;
 }
 
 export interface Space {
@@ -117,7 +119,7 @@ export interface Space {
   space_id: string;
   space_image_url?: string;
   space_name: string;
-  space_type: "Public" | "Private";
+  space_type: 'Public' | 'Private';
   team_id?: string;
   space_description?: string;
   icon_color?: string;
@@ -235,7 +237,7 @@ export interface TaskData {
   creator: UserData;
   creator_id: string;
   reaction_data: Array<ReactionData>;
-  status: "pinned" | "todo" | "doing" | "done" | "archived";
+  status: 'pinned' | 'todo' | 'doing' | 'done' | 'archived';
   task_attachments?: Array<AttachmentData>;
   task_id: string;
   task_tags: Array<TagData>;
@@ -256,7 +258,7 @@ export interface TaskData {
   message_sender_id: string;
   cid?: string;
   uploadingIPFS?: boolean;
-  notification_type?: "alert" | "muted";
+  notification_type?: 'alert' | 'muted';
   total_unread_notifications?: number;
 }
 
@@ -281,7 +283,7 @@ export interface ConversationData {
 }
 
 export interface MessageDateData {
-  type: "date";
+  type: 'date';
   value: string;
 }
 
@@ -463,7 +465,7 @@ export interface BaseDataApi<T> {
   refresh_token_expire_at?: number;
 }
 
-export type UserRoleType = "owner" | "admin" | "member";
+export type UserRoleType = 'owner' | 'admin' | 'member';
 
 export type AssetTypeItem = {
   label: string;
@@ -477,7 +479,7 @@ export type PinPostData = {
   id?: string;
 };
 
-export type NotificationFilterType = "All" | "Mention" | "Unread";
+export type NotificationFilterType = 'All' | 'Mention' | 'Unread';
 
 export type NotificationData = {
   channel?: Channel;
@@ -492,10 +494,10 @@ export type NotificationData = {
   notification_id: string;
   post?: TaskData;
   notification_type?:
-    | "post_reply"
-    | "channel_mention"
-    | "post_mention"
-    | "channel_reply";
+    | 'post_reply'
+    | 'channel_mention'
+    | 'post_mention'
+    | 'channel_reply';
   team_id?: string;
   to_user_id?: string;
   updatedAt?: string;
