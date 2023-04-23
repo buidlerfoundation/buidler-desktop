@@ -61,7 +61,7 @@ export const LoginType = {
   WalletConnect: 'WalletConnect',
   WalletImport: 'WalletImport',
   Metamask: 'Metamask',
-  Web3Auth: "Web3Auth",
+  Web3Auth: 'Web3Auth',
 };
 
 export const SpaceBadge = [
@@ -98,13 +98,17 @@ export const whiteListRefreshTokenApis = [
   'post-user/address',
   'post-user',
   'delete-user/device',
+  'get-authentication/ott/',
 ];
 
-export const ignoreMessageErrorApis = ["delete-user/device", "post-user/refresh"];
+export const ignoreMessageErrorApis = [
+  'delete-user/device',
+  'post-user/refresh',
+];
 
 export const DeletedUser: UserData = {
   user_id: '',
-  user_name: 'Deleted User',
+  user_name: 'User no longer in community',
   avatar_url: '',
 };
 
