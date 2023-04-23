@@ -26,7 +26,7 @@ const sleep = (timeout = 1000) => {
   });
 };
 
-const handleError = (message: string, apiData: any) => {
+const handleError = (message: string, apiData: any, withoutError?: boolean) => {
   const { uri, fetchOptions } = apiData;
   const compareUri = `${fetchOptions.method}-${uri}`;
   const importantApi = importantApis.find((el) => {
@@ -38,7 +38,7 @@ const handleError = (message: string, apiData: any) => {
   if (importantApi) {
     store.dispatch({ type: actionTypes.SOMETHING_WRONG });
     throw new Error('Something wrong');
-  } else if (!ignoreMessageErrorApis.includes(compareUri)) {
+  } else if (!ignoreMessageErrorApis.includes(compareUri) && !withoutError) {
     toast.error(message);
   }
 };
@@ -56,7 +56,8 @@ const fetchWithRetry = (
   uri: string,
   fetchOptions: any = {},
   retries = 0,
-  serviceBaseUrl?: string
+  serviceBaseUrl?: string,
+  withoutError?: boolean
 ) => {
   let apiUrl = '';
   if (serviceBaseUrl) {
@@ -70,7 +71,11 @@ const fetchWithRetry = (
         .json()
         .then(async (data) => {
           if (res.status !== 200) {
-            handleError(data.message || data, { uri, fetchOptions });
+            handleError(
+              data.message || data,
+              { uri, fetchOptions },
+              withoutError
+            );
             return { ...data, statusCode: res.status };
           }
           if (data.data) {
@@ -95,7 +100,13 @@ const fetchWithRetry = (
       if (msg === 'Failed to fetch') {
         if (retries > 0) {
           await sleep();
-          return fetchWithRetry(uri, fetchOptions, retries - 1, serviceBaseUrl);
+          return fetchWithRetry(
+            uri,
+            fetchOptions,
+            retries - 1,
+            serviceBaseUrl,
+            withoutError
+          );
         }
       }
       GoogleAnalytics.trackingError(
@@ -106,7 +117,7 @@ const fetchWithRetry = (
         getRequestBody(fetchOptions.body)
       );
       if (!msg.includes('aborted')) {
-        handleError(msg, { uri, fetchOptions });
+        handleError(msg, { uri, fetchOptions }, withoutError);
       }
       return {
         message: msg,
@@ -114,13 +125,21 @@ const fetchWithRetry = (
     });
 };
 
+function isWhiteList(method: string, uri: string) {
+  return (
+    whiteListRefreshTokenApis.includes(`${method}-${uri}`) ||
+    /authentication\/ott\/.*/.test(`${method}-${uri}`)
+  );
+}
+
 async function requestAPI<T = any>(
   method: string,
   uri: string,
   body?: any,
   serviceBaseUrl?: string,
   controller?: AbortController,
-  h?: any
+  h?: any,
+  withoutError?: boolean
 ): Promise<BaseDataApi<T>> {
   if (GlobalVariable.sessionExpired) {
     return {
@@ -128,7 +147,7 @@ async function requestAPI<T = any>(
       statusCode: 403,
     };
   }
-  if (!whiteListRefreshTokenApis.includes(`${method}-${uri}`)) {
+  if (!isWhiteList(method, uri)) {
     const expireTokenTime = await getCookie(AsyncKey.tokenExpire);
     if (!expireTokenTime || new Date().getTime() / 1000 > expireTokenTime) {
       const { success, message }: any = await store.dispatch(refreshToken());
@@ -176,7 +195,7 @@ async function requestAPI<T = any>(
     console.log(e);
   }
 
-  const { chainId } = store.getState().network;
+  const chainId = store.getState().network.chainId;
 
   if (chainId) {
     headers['Chain-Id'] = chainId;
@@ -225,15 +244,28 @@ async function requestAPI<T = any>(
     uri,
     fetchOptions,
     importantApi ? 5 : 0,
-    serviceBaseUrl
+    serviceBaseUrl,
+    withoutError
   );
 }
 
 const timeRequestMap: { [key: string]: any } = {};
 
 const Caller = {
-  get<T>(url: string, baseUrl?: string, controller?: AbortController) {
-    return requestAPI<T>(METHOD_GET, url, undefined, baseUrl, controller);
+  get<T>(
+    url: string,
+    baseUrl?: string,
+    controller?: AbortController,
+    withoutError?: boolean
+  ) {
+    return requestAPI<T>(
+      METHOD_GET,
+      url,
+      undefined,
+      baseUrl,
+      controller,
+      withoutError
+    );
   },
 
   post<T>(
