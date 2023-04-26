@@ -101,7 +101,20 @@ function App() {
           payload: href.split('/channels/user/')[1],
         });
       } else if (href?.includes('https://community.buidler.app')) {
-        history.push(href.replace('https://community.buidler.app', ''));
+        const path = href.replace('https://community.buidler.app', '');
+        if (`#${path}` === window.location.hash && path?.includes('message')) {
+          const messageId = path?.split('message/')?.[1];
+          if (messageId) {
+            const element = document.getElementById(messageId);
+            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            dispatch({
+              type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
+              payload: messageId,
+            });
+          }
+        } else {
+          history.push(path);
+        }
       } else if (href) {
         window.open(href, '_blank');
       }
