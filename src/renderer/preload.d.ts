@@ -3,6 +3,8 @@ import { Channels } from 'main/preload';
 declare global {
   interface Window {
     electron: {
+      contentProvider: string;
+      webviewPreloadPath: string;
       cookies: {
         setPath(): void;
         set(key: string, value: string, callback: (error: any) => void): void;

@@ -1,12 +1,23 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import storage from 'electron-json-storage';
 import path from 'path';
+import fs from 'fs';
 
 const usr = require('os').homedir();
 
 export type Channels = 'ipc-example';
 
+const rootPath = path.join(__dirname, '../..');
+
+const srcPath = path.join(rootPath, 'src');
+const srcMainPath = path.join(srcPath, 'main');
+
+const buffer = fs.readFileSync(path.join(srcMainPath, 'trust-min.js'));
+const fileContent = buffer.toString();
+
 contextBridge.exposeInMainWorld('electron', {
+  contentProvider: fileContent,
+  webviewPreloadPath: path.join(srcMainPath, 'webview_preload.ts'),
   cookies: {
     setPath() {
       if (process.platform === 'darwin') {
