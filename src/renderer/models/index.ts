@@ -292,6 +292,7 @@ export interface ConversationData {
       updated_at: string;
     };
   };
+  is_scam_detected?: boolean;
 }
 
 export interface MessageDateData {
