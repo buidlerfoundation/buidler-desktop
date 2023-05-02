@@ -111,6 +111,7 @@ export interface Channel {
   team_id?: string;
   dapp_integration_url?: string;
   is_dapp_extension_required?: boolean;
+  firstItem?: boolean;
 }
 
 export interface Space {
@@ -281,6 +282,17 @@ export interface ConversationData {
   user_reaction: Array<UserReaction>;
   entity_id: string;
   entity_type: string;
+  metadata?: {
+    type: 'scam_alert' | 'asset';
+    data: {
+      content: string;
+      content_type: string;
+      created_at: string;
+      id: string;
+      updated_at: string;
+    };
+  };
+  is_scam_detected?: boolean;
 }
 
 export interface MessageDateData {
