@@ -297,6 +297,27 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         setActionLoading(false);
         break;
       }
+      case 'signPersonalMessage': {
+        const message = utils.toUtf8String(object.data);
+        // if (connector.connected) {
+        //   const params = [
+        //     utils.hexlify(ethers.utils.toUtf8Bytes(message)),
+        //     address,
+        //   ];
+        //   const signature = await connector.signPersonalMessage(params);
+        //   const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
+        //   webviewRef.current.injectJavaScript(callback);
+        // } else
+        if (privateKey) {
+          const msgHash = utils.hashMessage(message);
+          const msgHashBytes = utils.arrayify(msgHash);
+          const signingKey = new utils.SigningKey(privateKey);
+          const signature = signingKey.signDigest(msgHashBytes);
+          const callback = `window.${network}.sendResponse(${id}, "${signature.compact}")`;
+          webviewRef.current.executeJavaScript(callback);
+        }
+        break;
+      }
       default:
         break;
     }
