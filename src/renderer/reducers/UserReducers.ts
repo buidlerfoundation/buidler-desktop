@@ -5,6 +5,7 @@ import {
   BalanceApiData,
   Channel,
   Community,
+  DAppChain,
   Space,
   UserData,
 } from 'renderer/models';
@@ -51,6 +52,7 @@ interface UserReducerState {
   apiSpaceMemberController?: AbortController | null;
   currentUserProfileId?: string | null;
   updateFromSocket?: boolean;
+  dAppChains: DAppChain[];
 }
 
 const defaultChannel: Channel = {
@@ -85,6 +87,7 @@ const initialState: UserReducerState = {
   apiTeamController: null,
   currentUserProfileId: null,
   updateFromSocket: false,
+  dAppChains: [],
 };
 
 export const defaultMemberData = {
@@ -692,6 +695,7 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
         imgBucket: payload.data.imgproxy?.bucket_name,
         imgConfig: payload.data.img_config,
         loginGoogleUrl: payload.data.login_url,
+        dAppChains: payload.chains,
       };
     }
     case actionTypes.LOGOUT: {

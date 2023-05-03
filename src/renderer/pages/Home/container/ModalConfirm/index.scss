@@ -1,0 +1,110 @@
+.dapp-confirm__container {
+  display: flex;
+  flex-direction: column;
+  width: 530px;
+  min-width: 300px;
+  border-radius: 5px;
+  border: 1px solid var(--color-stroke);
+  background-color: var(--color-lighter-background);
+  padding: 40px 25px 20px 25px;
+  .dapp-confirm__title {
+    font-weight: 700;
+    font-size: 20px;
+    text-transform: capitalize;
+  }
+  .wallet-account__container {
+    margin-top: 30px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    border: 1px solid var(--color-stroke);
+    .wallet-account__info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-left: 15px;
+      .wallet-account-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-primary-text);
+        line-height: 22px;
+      }
+      .wallet-account-address {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--color-secondary-text);
+        line-height: 20px;
+        margin-top: 5px;
+      }
+    }
+  }
+  .confirm-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-secondary-text);
+    line-height: 20px;
+    margin-top: 20px;
+  }
+  .logo-eth {
+    width: 40px;
+    height: 40px;
+  }
+  .confirm-value__wrap {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-top: 10px;
+    background-color: var(--color-highlight);
+    .confirm-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-primary-text);
+      line-height: 25px;
+    }
+  }
+  .confirm-row-data {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    .confirm-main-text {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 19px;
+      color: var(--color-primary-text);
+    }
+    .confirm-sub-text {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 19px;
+      color: var(--color-secondary-text);
+      margin-left: 10px;
+    }
+  }
+  .confirm-message__wrap {
+    margin-top: 10px;
+    padding: 12px 20px;
+    background-color: var(--color-highlight);
+    border-radius: 5px;
+    border: 1px solid var(--color-stroke);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-secondary-text);
+    line-height: 17px;
+  }
+  .dapp-confirm__bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+  }
+  .MuiSwitch-root {
+    overflow: visible;
+  }
+  .main-button {
+    background-color: var(--color-lighter-background);
+    border: 1px solid var(--color-stroke);
+  }
+  .title-button {
+    text-transform: capitalize;
+  }
+}

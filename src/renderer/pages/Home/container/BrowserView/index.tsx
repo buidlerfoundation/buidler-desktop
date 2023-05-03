@@ -1,9 +1,21 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import api from 'renderer/api';
 import useUserAddress from 'renderer/hooks/useUserAddress';
 import IconReload from 'renderer/shared/SVG/IconReload';
 import IconSecure from 'renderer/shared/SVG/IconSecure';
 import './index.scss';
+import toast from 'react-hot-toast';
+import { Wallet, ethers, providers, utils } from 'ethers';
+import useAppSelector from 'renderer/hooks/useAppSelector';
+import ModalConfirm from '../ModalConfirm';
+import { normalizeErrorMessage } from 'renderer/helpers/DAppHelper';
 
 type BrowserViewProps = {
   url: string;
@@ -11,8 +23,49 @@ type BrowserViewProps = {
 
 const BrowserView = ({ url }: BrowserViewProps) => {
   const [randomId, setRandomId] = useState(0);
+  const [gasPrice, setGasPrice] = useState(0);
+  const [actionLoading, setActionLoading] = useState(false);
+  const privateKey = useAppSelector((state) => state.configs.privateKey);
+  const supportedChains = useAppSelector((state) => state.user.dAppChains);
+  const [openModalConfirm, setOpenModalConfirm] = useState(false);
+  const [currentChain, setCurrentChain] = useState<DAppChain | null>(null);
+  const [confirmData, setConfirmData] = useState<{
+    title: string;
+    message?: string;
+    data: any;
+  } | null>(null);
   const address = useUserAddress();
   const webviewRef = useRef<any>();
+  const timeoutToggleModal = useRef<any>();
+  const toggleModalConfirm = useCallback(
+    () => setOpenModalConfirm((current) => !current),
+    []
+  );
+  const gasPriceHex = useMemo(
+    () => ethers.BigNumber.from(`${gasPrice || 0}`).toHexString(),
+    [gasPrice]
+  );
+  const updateGasPrice = useCallback(async () => {
+    let provider: providers.InfuraProvider | providers.JsonRpcProvider = null;
+    if (currentChain) {
+      provider = new providers.JsonRpcProvider(
+        currentChain.rpc_url,
+        currentChain.chain_id
+      );
+    } else {
+      provider = new providers.InfuraProvider(
+        'mainnet',
+        process.env.REACT_APP_INFURA_API_KEY
+      );
+    }
+    const res = await provider.getGasPrice();
+    setGasPrice(res.toNumber());
+  }, [currentChain]);
+  useEffect(() => {
+    if (openModalConfirm) {
+      updateGasPrice();
+    }
+  }, [openModalConfirm, updateGasPrice]);
   const onReload = useCallback(() => {
     setRandomId(Math.random());
   }, []);
@@ -28,15 +81,75 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         }
       }
       setUrlWithParams(newUrl);
+      setCurrentChain(null);
     }
   }, [url]);
   useEffect(() => {
     initial();
   }, [initial]);
+  const getChain = useCallback(
+    (chainId: number | string) => {
+      return supportedChains.find(
+        // eslint-disable-next-line eqeqeq
+        (el) => el.chain_id == chainId.substring(2) || el.chain_id == chainId
+      );
+    },
+    [supportedChains]
+  );
   const handleMessage = useCallback(
     (json) => {
-      console.log(address, json);
-      // const { id, name, object, network } = json;
+      console.log('XXX: ', json);
+      const { id, name, object } = json || {};
+      if (!id) {
+        toast.error('Missing data');
+        return;
+      }
+      switch (name) {
+        case 'requestAccounts':
+          setConfirmData({
+            title: 'Connect Wallet',
+            data: json,
+          });
+          break;
+        case 'signTransaction':
+          // await updateGasPrice();
+          // gasInterval.current = setInterval(updateGasPrice, 10000);
+          setConfirmData({
+            title: 'Sign Transaction',
+            message: `from: ${object.from}\nto: ${object.to}\nvalue: ${object.value}`,
+            data: json,
+          });
+          break;
+        case 'signPersonalMessage':
+          setConfirmData({
+            title: 'Sign Ethereum Message',
+            message: utils.toUtf8String(object.data),
+            data: json,
+          });
+          break;
+        case 'switchEthereumChain': {
+          const chain = getChain(object.chainId);
+          if (!chain) {
+            toast.error('Unsupported chain');
+            break;
+          }
+          setCurrentChain(chain);
+          setConfirmData({
+            title: 'Switch Chain',
+            message: `ChainId: ${object.chainId}`,
+            data: json,
+          });
+          break;
+        }
+        default:
+          break;
+      }
+      if (timeoutToggleModal.current) {
+        clearTimeout(timeoutToggleModal.current);
+        timeoutToggleModal.current = null;
+      } else {
+        toggleModalConfirm();
+      }
       // if (name === 'requestAccounts') {
       //   const setAddress = `window.${network}.setAddress("${address}")`;
       //   const callbackRequestAccount = `window.${network}.sendResponse(${id}, ["${address}"])`;
@@ -44,15 +157,15 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       //   webviewRef.current.executeJavaScript(callbackRequestAccount);
       // }
     },
-    [address]
+    [getChain, toggleModalConfirm]
   );
   useEffect(() => {
     if (urlWithParams && webviewRef.current) {
-      webviewRef.current.addEventListener('ipc-message', (data) => {
+      const handleIPCMessage = (data) => {
         const json = JSON.parse(data.channel);
         handleMessage(json);
-      });
-      webviewRef.current.addEventListener('load-commit', () => {
+      };
+      const handleInjectJavascript = () => {
         webviewRef.current.executeJavaScript(`
           ${window.electron.contentProvider}
           var config = {
@@ -73,13 +186,133 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           };
           window.ethereum = trustwallet.ethereum;
         `);
-      });
-      webviewRef.current.addEventListener('dom-ready', () => {
-        if (!webviewRef.current.isDevToolsOpened())
-          webviewRef.current.openDevTools();
-      });
+      };
+      webviewRef.current.addEventListener('ipc-message', handleIPCMessage);
+      webviewRef.current.addEventListener(
+        'load-commit',
+        handleInjectJavascript
+      );
+      // webviewRef.current.addEventListener('dom-ready', () => {
+      //   if (!webviewRef.current.isDevToolsOpened())
+      //     webviewRef.current.openDevTools();
+      // });
+      return () => {
+        webviewRef.current?.removeEventListener(
+          'ipc-message',
+          handleIPCMessage
+        );
+        webviewRef.current?.removeEventListener(
+          'load-commit',
+          handleInjectJavascript
+        );
+      };
     }
+    return () => {};
   }, [handleMessage, urlWithParams]);
+  const onCancel = useCallback(() => {
+    const { network, id } = confirmData?.data;
+    const callback = `window.${network}.sendError(${id}, "User cancel action")`;
+    webviewRef.current.executeJavaScript(callback);
+    toggleModalConfirm();
+  }, [confirmData?.data, toggleModalConfirm]);
+  const onConfirm = useCallback(async () => {
+    const { network, id, object } = confirmData?.data;
+    switch (confirmData?.data.name) {
+      case 'requestAccounts': {
+        const setAddress = `window.${network}.setAddress("${address}")`;
+        const callbackRequestAccount = `window.${network}.sendResponse(${id}, ["${address}"])`;
+        webviewRef.current.executeJavaScript(setAddress);
+        webviewRef.current.executeJavaScript(callbackRequestAccount);
+        break;
+      }
+      case 'switchEthereumChain': {
+        const chain = getChain(object.chainId);
+        const config = {
+          ethereum: {
+            address,
+            chainId: chain.chain_id,
+            rpcUrl: chain.rpc_url,
+          },
+        };
+        const configStr = JSON.stringify(config);
+        const setConfig = `window.${network}.setConfig(${configStr})`;
+        const emitChange = `window.${network}.emitChainChanged('0x${chain.chain_id.toString(
+          16
+        )}')`;
+        const callback = `window.${network}.sendResponse(${id})`;
+        webviewRef.current.executeJavaScript(setConfig);
+        webviewRef.current.executeJavaScript(emitChange);
+        webviewRef.current.executeJavaScript(callback);
+        break;
+      }
+      case 'signTransaction': {
+        setActionLoading(true);
+        const transactionParameters = {
+          gasLimit: object.gas,
+          to: object.to,
+          from: object.from,
+          value: object.value,
+          data: object.data,
+          gasPrice: object.gasPrice || gasPriceHex,
+        };
+        // if (connector.connected) {
+        //   try {
+        //     const res = await connector.sendTransaction(transactionParameters);
+        //     const callback = `window.${network}.sendResponse(${id}, "${res}")`;
+        //     webviewRef.current.injectJavaScript(callback);
+        //   } catch (e) {
+        //     const callback = `window.${network}.sendError(${id}, "Network error")`;
+        //     webviewRef.current.injectJavaScript(callback);
+        //     Toast.show({
+        //       type: 'customError',
+        //       props: { message: normalizeErrorMessage(e.message) },
+        //     });
+        //   }
+        // } else
+        if (privateKey) {
+          let provider: providers.InfuraProvider | providers.JsonRpcProvider =
+            null;
+          if (currentChain) {
+            provider = new providers.JsonRpcProvider(
+              currentChain.rpc_url,
+              currentChain.chain_id
+            );
+          } else {
+            provider = new providers.InfuraProvider(
+              'mainnet',
+              process.env.REACT_APP_INFURA_API_KEY
+            );
+          }
+          const signer = new Wallet(privateKey, provider);
+          try {
+            const res = await signer.sendTransaction(transactionParameters);
+            const callback = `window.${network}.sendResponse(${id}, "${res.hash}")`;
+            webviewRef.current.executeJavaScript(callback);
+          } catch (e) {
+            const callback = `window.${network}.sendError(${id}, "Network error")`;
+            webviewRef.current.executeJavaScript(callback);
+            toast.error(normalizeErrorMessage(e.message));
+          }
+        }
+        setActionLoading(false);
+        break;
+      }
+      default:
+        break;
+    }
+    timeoutToggleModal.current = setTimeout(() => {
+      toggleModalConfirm();
+      timeoutToggleModal.current = null;
+    }, 250);
+  }, [
+    address,
+    confirmData?.data,
+    currentChain,
+    gasPriceHex,
+    getChain,
+    privateKey,
+    toggleModalConfirm,
+  ]);
   return (
     <div className="browser-view__container">
       <div className="browser-header-bar">
@@ -99,6 +332,15 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           nodeintegration="true"
         />
       )}
+      <ModalConfirm
+        confirmData={confirmData}
+        open={openModalConfirm}
+        handleClose={toggleModalConfirm}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+        gasPrice={gasPrice}
+        actionLoading={actionLoading}
+      />
     </div>
   );
 };

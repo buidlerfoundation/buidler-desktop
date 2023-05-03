@@ -980,7 +980,7 @@ class SocketUtil {
       if (userData?.user_id !== notification_data?.sender_data?.user_id) {
         const teamNotification = direct
           ? DirectCommunity
-          : team.find((t: any) => t.team_id === notification_data.team_id);
+          : team?.find((t: any) => t.team_id === notification_data.team_id);
         if (
           notification_type !== 'muted' &&
           message_data.entity_type === 'channel'

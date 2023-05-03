@@ -559,3 +559,12 @@ export interface ProfileApiData {
     team_id?: string;
   };
 }
+
+export type DAppChain = {
+  chain_id: number;
+  decimal: number;
+  logo: string;
+  name: string;
+  rpc_url: string;
+  symbol: string;
+};

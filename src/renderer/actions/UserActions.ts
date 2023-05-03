@@ -19,16 +19,22 @@ import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 export const getInitial: ActionCreator<any> =
   () => async (dispatch: Dispatch) => {
     try {
-      const { data } = (await api.getInitial()) || {};
-      ImageHelper.initial(
-        data?.imgproxy.domain || '',
-        data?.imgproxy?.bucket_name || ''
-      );
-      if (data?.force_update && data?.version > GlobalVariable.version) {
-        // Update Desktop App
-      }
-      if (data) {
-        dispatch({ type: ActionTypes.GET_INITIAL, payload: { data } });
+      const [res, resChains] = await Promise.all([
+        api.getInitial(),
+        api.getChains(),
+      ]);
+      if (res.statusCode === 200) {
+        if (res?.data?.force_update && res?.data?.version > GlobalVariable.version) {
+          // Update Desktop App
+        }
+        ImageHelper.initial(
+          res?.data?.imgproxy.domain || '',
+          res?.data?.imgproxy?.bucket_name || ''
+        );
+        dispatch({
+          type: ActionTypes.GET_INITIAL,
+          payload: { data: res.data, chains: resChains.data },
+        });
       }
     } catch (error) {
       dispatch({ type: ActionTypes.GET_INITIAL_FAILED, payload: error });
