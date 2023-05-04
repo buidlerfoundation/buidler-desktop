@@ -236,7 +236,6 @@ const Started = () => {
         <div
           className="wallet-button normal-button"
           onClick={handleWalletConnect}
-          style={{ display: 'none' }}
         >
           <span>WalletConnect</span>
           <div className="wallet-icon">

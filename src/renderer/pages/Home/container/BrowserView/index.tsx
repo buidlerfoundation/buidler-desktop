@@ -16,14 +16,18 @@ import { Wallet, ethers, providers, utils } from 'ethers';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import ModalConfirm from '../ModalConfirm';
 import { normalizeErrorMessage } from 'renderer/helpers/DAppHelper';
+import IconFullScreen from 'renderer/shared/SVG/IconFullScreen';
+import IconClose from 'renderer/shared/SVG/IconClose';
+import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 
 type BrowserViewProps = {
   url: string;
 };
 
 const BrowserView = ({ url }: BrowserViewProps) => {
-  const [randomId, setRandomId] = useState(0);
+  const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
+  const [fullScreen, setFullScreen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const supportedChains = useAppSelector((state) => state.user.dAppChains);
@@ -37,6 +41,14 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   const address = useUserAddress();
   const webviewRef = useRef<any>();
   const timeoutToggleModal = useRef<any>();
+  const isBuidlerAirdrop = useMemo(
+    () => url === 'https://buidler.link/airdrop_hunter',
+    [url]
+  );
+  const toggleFullScreen = useCallback(
+    () => setFullScreen((current) => !current),
+    []
+  );
   const toggleModalConfirm = useCallback(
     () => setOpenModalConfirm((current) => !current),
     []
@@ -71,7 +83,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   }, []);
   const [urlWithParams, setUrlWithParams] = useState('');
   const initial = useCallback(async () => {
-    if (url) {
+    if (url && randomId) {
       let newUrl = url;
       if (url === 'https://buidler.link/airdrop_hunter') {
         newUrl += '?embedded=true';
@@ -83,7 +95,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       setUrlWithParams(newUrl);
       setCurrentChain(null);
     }
-  }, [url]);
+  }, [randomId, url]);
   useEffect(() => {
     initial();
   }, [initial]);
@@ -98,7 +110,6 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   );
   const handleMessage = useCallback(
     (json) => {
-      console.log('XXX: ', json);
       const { id, name, object } = json || {};
       if (!id) {
         toast.error('Missing data');
@@ -150,12 +161,6 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       } else {
         toggleModalConfirm();
       }
-      // if (name === 'requestAccounts') {
-      //   const setAddress = `window.${network}.setAddress("${address}")`;
-      //   const callbackRequestAccount = `window.${network}.sendResponse(${id}, ["${address}"])`;
-      //   webviewRef.current.executeJavaScript(setAddress);
-      //   webviewRef.current.executeJavaScript(callbackRequestAccount);
-      // }
     },
     [getChain, toggleModalConfirm]
   );
@@ -247,7 +252,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       }
       case 'signTransaction': {
         setActionLoading(true);
-        const transactionParameters = {
+        const transactionParameters: any = {
           gasLimit: object.gas,
           to: object.to,
           from: object.from,
@@ -255,21 +260,20 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           data: object.data,
           gasPrice: object.gasPrice || gasPriceHex,
         };
-        // if (connector.connected) {
-        //   try {
-        //     const res = await connector.sendTransaction(transactionParameters);
-        //     const callback = `window.${network}.sendResponse(${id}, "${res}")`;
-        //     webviewRef.current.injectJavaScript(callback);
-        //   } catch (e) {
-        //     const callback = `window.${network}.sendError(${id}, "Network error")`;
-        //     webviewRef.current.injectJavaScript(callback);
-        //     Toast.show({
-        //       type: 'customError',
-        //       props: { message: normalizeErrorMessage(e.message) },
-        //     });
-        //   }
-        // } else
-        if (privateKey) {
+        if (WalletConnectUtils.connector?.connected) {
+          try {
+            transactionParameters.gas = object.gas;
+            const res = await WalletConnectUtils.connector.sendTransaction(
+              transactionParameters
+            );
+            const callback = `window.${network}.sendResponse(${id}, "${res}")`;
+            webviewRef.current.executeJavaScript(callback);
+          } catch (e) {
+            const callback = `window.${network}.sendError(${id}, "Network error")`;
+            webviewRef.current.executeJavaScript(callback);
+            toast.error(normalizeErrorMessage(e.message));
+          }
+        } else if (privateKey) {
           let provider: providers.InfuraProvider | providers.JsonRpcProvider =
             null;
           if (currentChain) {
@@ -299,16 +303,16 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       }
       case 'signPersonalMessage': {
         const message = utils.toUtf8String(object.data);
-        // if (connector.connected) {
-        //   const params = [
-        //     utils.hexlify(ethers.utils.toUtf8Bytes(message)),
-        //     address,
-        //   ];
-        //   const signature = await connector.signPersonalMessage(params);
-        //   const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
-        //   webviewRef.current.injectJavaScript(callback);
-        // } else
-        if (privateKey) {
+        if (WalletConnectUtils.connector?.connected) {
+          const params = [
+            utils.hexlify(ethers.utils.toUtf8Bytes(message)),
+            address,
+          ];
+          const signature =
+            await WalletConnectUtils.connector.signPersonalMessage(params);
+          const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
+          webviewRef.current.executeJavaScript(callback);
+        } else if (privateKey) {
           const msgHash = utils.hashMessage(message);
           const msgHashBytes = utils.arrayify(msgHash);
           const signingKey = new utils.SigningKey(privateKey);
@@ -335,8 +339,15 @@ const BrowserView = ({ url }: BrowserViewProps) => {
     toggleModalConfirm,
   ]);
   return (
-    <div className="browser-view__container">
+    <div
+      className={`browser-view__container ${
+        fullScreen ? 'browser-full-screen' : ''
+      }`}
+    >
       <div className="browser-header-bar">
+        <div className="btn-full-screen" onClick={toggleFullScreen}>
+          {!fullScreen ? <IconFullScreen /> : <IconClose />}
+        </div>
         <IconSecure />
         <span className="browser-url text-ellipsis">{url}</span>
         <div className="btn-reload" onClick={onReload}>
@@ -344,14 +355,22 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         </div>
       </div>
       {!!urlWithParams && (
-        <webview
-          key={randomId}
-          ref={webviewRef}
-          src={urlWithParams}
-          style={{ flex: 1 }}
-          preload={`file://${window.electron.webviewPreloadPath}`}
-          nodeintegration="true"
-        />
+        <div
+          className={`iframe__wrapper ${
+            isBuidlerAirdrop && fullScreen
+              ? 'iframe-buidler-airdrop__wrapper'
+              : ''
+          }`}
+        >
+          <webview
+            key={randomId}
+            ref={webviewRef}
+            src={urlWithParams}
+            preload={`file://${window.electron.webviewPreloadPath}`}
+            nodeintegration="true"
+            className="iframe-full"
+          />
+        </div>
       )}
       <ModalConfirm
         confirmData={confirmData}
