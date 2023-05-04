@@ -1,6 +1,6 @@
 {
   "name": "buidler",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "description": "A foundation for scalable desktop apps",
   "productName": "Buidler",
   "main": "./dist/main/main.js",
