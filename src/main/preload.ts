@@ -7,17 +7,12 @@ const usr = require('os').homedir();
 
 export type Channels = 'ipc-example';
 
-const rootPath = path.join(__dirname, '../..');
-
-const srcPath = path.join(rootPath, 'src');
-const srcMainPath = path.join(srcPath, 'main');
-
-const buffer = fs.readFileSync(path.join(srcMainPath, 'trust-min.js'));
+const buffer = fs.readFileSync(path.join(__dirname, 'trust-min.js'));
 const fileContent = buffer.toString();
 
 contextBridge.exposeInMainWorld('electron', {
   contentProvider: fileContent,
-  webviewPreloadPath: path.join(srcMainPath, 'webview_preload.ts'),
+  webviewPreloadPath: path.join(__dirname, 'webview_preload.js'),
   cookies: {
     setPath() {
       if (process.platform === 'darwin') {

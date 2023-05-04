@@ -33,6 +33,7 @@ const configuration: webpack.Configuration = {
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),
     preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+    webview_preload: path.join(webpackPaths.srcMainPath, 'webview_preload.js'),
   },
 
   output: {

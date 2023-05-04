@@ -28,6 +28,7 @@ import GoogleAnalytics from './services/analytics/GoogleAnalytics';
 import { initialSpaceToggle } from './actions/SideBarActions';
 import { sameDAppURL } from './helpers/LinkHelper';
 import useCurrentChannel from './hooks/useCurrentChannel';
+import { getBlockIntoViewByElement } from './helpers/MessageHelper';
 
 function App() {
   window.electron.cookies.setPath();
@@ -106,7 +107,10 @@ function App() {
           const messageId = path?.split('message/')?.[1];
           if (messageId) {
             const element = document.getElementById(messageId);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            element?.scrollIntoView({
+              behavior: 'smooth',
+              block: getBlockIntoViewByElement(element),
+            });
             dispatch({
               type: actionTypes.UPDATE_HIGHLIGHT_MESSAGE,
               payload: messageId,

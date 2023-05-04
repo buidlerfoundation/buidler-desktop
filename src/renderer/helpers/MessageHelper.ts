@@ -217,3 +217,24 @@ export const normalizeMemberUserName = (str: string, length = 5) => {
   }
   return str;
 };
+
+export const parseMessage = (message: string) => {
+  const updateMessage = message.replace(/\[(.*?)\]\((.*?)\)/gim, '$2');
+  const links = updateMessage
+    .split(/(\s)/g)
+    .filter((el) =>
+      el.match(
+        /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/
+      )
+    );
+  const addresses = message.match(/0x[a-f0-9A-F]{40}/gim);
+  return {
+    links,
+    addresses,
+  };
+};
+
+export const getBlockIntoViewByElement = (element: HTMLElement | null) => {
+  if ((element?.textContent?.length || 0) <= 1000) return 'center';
+  return 'start';
+};

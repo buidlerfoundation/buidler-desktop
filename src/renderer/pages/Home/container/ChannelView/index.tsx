@@ -39,6 +39,7 @@ import MessageItem from '../../../../shared/MessageItem';
 import {
   extractContent,
   extractContentMessage,
+  getBlockIntoViewByElement,
   getMentionData,
   normalizeMessages,
   normalizeMessageText,
@@ -404,7 +405,10 @@ const ChannelView = forwardRef(
         if (messages?.find((el) => el.message_id === messageId)) {
           setTimeout(() => {
             const element = document.getElementById(messageId);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            element?.scrollIntoView({
+              behavior: 'smooth',
+              block: getBlockIntoViewByElement(element),
+            });
           }, 0);
         } else {
           const success = await dispatch(
@@ -413,7 +417,10 @@ const ChannelView = forwardRef(
           if (!!success) {
             setTimeout(() => {
               const element = document.getElementById(messageId);
-              element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              element?.scrollIntoView({
+                behavior: 'smooth',
+                block: getBlockIntoViewByElement(element),
+              });
             }, 500);
           }
         }
