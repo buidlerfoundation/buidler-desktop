@@ -42,7 +42,11 @@ import {
   getCommunityId,
 } from 'renderer/helpers/StoreHelper';
 import { getCollectibles } from 'renderer/actions/CollectibleActions';
-import { logout, refreshToken } from 'renderer/actions/UserActions';
+import {
+  fetchListUserOnline,
+  logout,
+  refreshToken,
+} from 'renderer/actions/UserActions';
 import ImageHelper from 'renderer/common/ImageHelper';
 
 const actionFetchWalletBalance = async (dispatch: Dispatch) => {
@@ -165,6 +169,7 @@ const actionSetCurrentTeam = async (
       type: actionTypes.GET_TEAM_USER,
       payload: { teamUsers: teamUsersRes, teamId: team.team_id },
     });
+    dispatch(fetchListUserOnline(team.team_id));
   }
   if (resSpace.statusCode === 200 && resChannel.statusCode === 200) {
     dispatch({
@@ -237,8 +242,8 @@ class SocketUtil {
     if (this.socket?.connected || this.connecting) return;
     this.connecting = true;
     this.connectingTimeout = setTimeout(() => {
-      this.connectionToastId = toast.custom("Connecting...", {
-        className: "Internet Connection",
+      this.connectionToastId = toast.custom('Connecting...', {
+        className: 'Internet Connection',
         duration: Infinity,
       });
     }, 10000);
@@ -1193,6 +1198,7 @@ class SocketUtil {
         type: actionTypes.GET_TEAM_USER,
         payload: { teamUsers: teamUsersRes, teamId: team.team_id },
       });
+      dispatch(fetchListUserOnline(team.team_id));
     }
     this.changeTeam(team.team_id);
     dispatch({

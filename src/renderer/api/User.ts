@@ -42,7 +42,7 @@ export const findDirectChannel = (
   status?: 'pending' | 'blocked' | 'accepted',
   controller?: AbortController
 ) => {
-  let uri =
+  const uri =
     'direct-channel?channel_types[]=Direct&channel_types[]=Multiple Direct&status=accepted';
   // if (status) {
   //   uri += `&status=${status}`;
@@ -257,3 +257,6 @@ export const getNFTsDetails = (
 export const requestOTT = () => Caller.get<string>('authentication/ott');
 
 export const getChains = () => Caller.get<DAppChain[]>('chains');
+
+export const getListUserOnline = (communityId) =>
+  Caller.get<string[]>(`user/online?team_id=${communityId}`);
