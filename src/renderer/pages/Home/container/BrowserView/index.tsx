@@ -21,6 +21,7 @@ import IconClose from 'renderer/shared/SVG/IconClose';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { useDispatch } from 'react-redux';
+import { CircularProgress } from '@material-ui/core';
 
 type BrowserViewProps = {
   url: string;
@@ -35,6 +36,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const supportedChains = useAppSelector((state) => state.user.dAppChains);
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
+  const [webviewLoaded, setWebviewLoaded] = useState(false);
   const [currentChain, setCurrentChain] = useState<DAppChain | null>(null);
   const [confirmData, setConfirmData] = useState<{
     title: string;
@@ -87,6 +89,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   const [urlWithParams, setUrlWithParams] = useState('');
   const initial = useCallback(async () => {
     if (url && randomId) {
+      setWebviewLoaded(false);
       let newUrl = url;
       if (url === 'https://buidler.link/airdrop_hunter') {
         newUrl += '?embedded=true';
@@ -168,13 +171,14 @@ const BrowserView = ({ url }: BrowserViewProps) => {
     [getChain, toggleModalConfirm]
   );
   useEffect(() => {
-    if (urlWithParams && webviewRef.current) {
+    const web = webviewRef.current;
+    if (urlWithParams && web) {
       const handleIPCMessage = (data) => {
         const json = JSON.parse(data.channel);
         handleMessage(json);
       };
       const handleInjectJavascript = () => {
-        webviewRef.current.executeJavaScript(`
+        web.executeJavaScript(`
           ${window.electron.contentProvider}
           var config = {
             ethereum: {
@@ -195,24 +199,20 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           window.ethereum = trustwallet.ethereum;
         `);
       };
-      webviewRef.current.addEventListener('ipc-message', handleIPCMessage);
-      webviewRef.current.addEventListener(
-        'load-commit',
-        handleInjectJavascript
-      );
+      const handleWebviewLoaded = () => {
+        setWebviewLoaded(true);
+      };
+      web.addEventListener('ipc-message', handleIPCMessage);
+      web.addEventListener('load-commit', handleInjectJavascript);
+      web.addEventListener('did-finish-load', handleWebviewLoaded);
       // webviewRef.current.addEventListener('dom-ready', () => {
       //   if (!webviewRef.current.isDevToolsOpened())
       //     webviewRef.current.openDevTools();
       // });
       return () => {
-        webviewRef.current?.removeEventListener(
-          'ipc-message',
-          handleIPCMessage
-        );
-        webviewRef.current?.removeEventListener(
-          'load-commit',
-          handleInjectJavascript
-        );
+        web?.removeEventListener('ipc-message', handleIPCMessage);
+        web?.removeEventListener('load-commit', handleInjectJavascript);
+        web?.removeEventListener('did-finish-load', handleWebviewLoaded);
       };
     }
     return () => {};
@@ -364,7 +364,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         fullScreen ? 'browser-full-screen' : ''
       }`}
     >
-      {fullScreen && <div className='browser-back-drop' />}
+      {fullScreen && <div className="browser-back-drop" />}
       <div className="browser-header-bar">
         <div className="btn-full-screen" onClick={toggleFullScreen}>
           {!fullScreen ? <IconFullScreen /> : <IconClose />}
@@ -390,7 +390,13 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             preload={`file://${window.electron.webviewPreloadPath}`}
             nodeintegration="true"
             className="webview-full"
+            style={{ opacity: webviewLoaded ? 1 : 0 }}
           />
+          {!webviewLoaded && (
+            <div className="loading">
+              <CircularProgress size={30} color="inherit" />
+            </div>
+          )}
         </div>
       )}
       <ModalConfirm
