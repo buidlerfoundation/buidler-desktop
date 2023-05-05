@@ -19,12 +19,15 @@ import { normalizeErrorMessage } from 'renderer/helpers/DAppHelper';
 import IconFullScreen from 'renderer/shared/SVG/IconFullScreen';
 import IconClose from 'renderer/shared/SVG/IconClose';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
+import actionTypes from 'renderer/actions/ActionTypes';
+import { useDispatch } from 'react-redux';
 
 type BrowserViewProps = {
   url: string;
 };
 
 const BrowserView = ({ url }: BrowserViewProps) => {
+  const dispatch = useDispatch();
   const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
   const [fullScreen, setFullScreen] = useState(false);
@@ -261,6 +264,10 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           gasPrice: object.gasPrice || gasPriceHex,
         };
         if (WalletConnectUtils.connector?.connected) {
+          dispatch({
+            type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+            payload: true,
+          });
           try {
             transactionParameters.gas = object.gas;
             const res = await WalletConnectUtils.connector.sendTransaction(
@@ -273,6 +280,10 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             webviewRef.current.executeJavaScript(callback);
             toast.error(normalizeErrorMessage(e.message));
           }
+          dispatch({
+            type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+            payload: false,
+          });
         } else if (privateKey) {
           let provider: providers.InfuraProvider | providers.JsonRpcProvider =
             null;
@@ -304,6 +315,10 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       case 'signPersonalMessage': {
         const message = utils.toUtf8String(object.data);
         if (WalletConnectUtils.connector?.connected) {
+          dispatch({
+            type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+            payload: true,
+          });
           const params = [
             utils.hexlify(ethers.utils.toUtf8Bytes(message)),
             address,
@@ -312,6 +327,10 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             await WalletConnectUtils.connector.signPersonalMessage(params);
           const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
           webviewRef.current.executeJavaScript(callback);
+          dispatch({
+            type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+            payload: false,
+          });
         } else if (privateKey) {
           const msgHash = utils.hashMessage(message);
           const msgHashBytes = utils.arrayify(msgHash);
@@ -333,6 +352,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
     address,
     confirmData?.data,
     currentChain,
+    dispatch,
     gasPriceHex,
     getChain,
     privateKey,
@@ -344,6 +364,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         fullScreen ? 'browser-full-screen' : ''
       }`}
     >
+      {fullScreen && <div className='browser-back-drop' />}
       <div className="browser-header-bar">
         <div className="btn-full-screen" onClick={toggleFullScreen}>
           {!fullScreen ? <IconFullScreen /> : <IconClose />}
@@ -368,7 +389,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             src={urlWithParams}
             preload={`file://${window.electron.webviewPreloadPath}`}
             nodeintegration="true"
-            className="iframe-full"
+            className="webview-full"
           />
         </div>
       )}
