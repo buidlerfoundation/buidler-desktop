@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 
 const usr = require('os').homedir();
+const tmpdir = require('os').tmpdir()
 
 export type Channels = 'ipc-example';
 
@@ -20,7 +21,7 @@ contextBridge.exposeInMainWorld('electron', {
           `${usr}/Library/Application Support/today-remote/storage`
         );
       } else {
-        storage.setDataPath(path.join(__dirname, '../storage'));
+        storage.setDataPath(tmpdir);
       }
     },
     set(key: string, value: string, callback: (error: any) => void) {

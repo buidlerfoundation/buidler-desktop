@@ -191,11 +191,15 @@ app
   .catch(console.log);
 
 ipcMain.on('show-badge', (event, arg) => {
-  app.dock.setBadge('•');
+  if (process.platform !== 'darwin') {
+    app.dock.setBadge('•');
+  }
 });
 
 ipcMain.on('hide-badge', (event, arg) => {
-  app.dock.setBadge('');
+  if (process.platform !== 'darwin') {
+    app.dock.setBadge('');
+  }
 });
 
 ipcMain.on('doing-login', (event, arg) => {

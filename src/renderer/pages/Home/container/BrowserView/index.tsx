@@ -364,7 +364,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         fullScreen ? 'browser-full-screen' : ''
       }`}
     >
-      {fullScreen && <div className="browser-back-drop" />}
+      {fullScreen && <div className="browser-back-drop" onClick={toggleFullScreen} />}
       <div className="browser-header-bar">
         <div className="btn-full-screen" onClick={toggleFullScreen}>
           {!fullScreen ? <IconFullScreen /> : <IconClose />}

@@ -468,7 +468,7 @@ const ChannelView = forwardRef(
           files.map((el) => el.id || '')
         );
         GoogleAnalytics.tracking('Message Edited', {
-          category: 'Message',
+          category: isDirect ? 'Direct Message' : 'Channel Message',
         });
         setText('');
         setFiles([]);
@@ -476,11 +476,12 @@ const ChannelView = forwardRef(
         generateId.current = '';
       }
     }, [
-      files,
+      messageEdit.message_id,
       text,
-      currentChannel?.channel_type,
-      currentChannel?.channel_id,
-      messageEdit?.message_id,
+      files,
+      currentChannel.channel_type,
+      currentChannel.channel_id,
+      isDirect,
       channelPrivateKey,
     ]);
     const submitMessage = useCallback(async () => {
@@ -544,7 +545,7 @@ const ChannelView = forwardRef(
           gaLabel += ', file';
         }
         GoogleAnalytics.tracking('Message Sent', {
-          category: 'Message',
+          category: isDirect ? 'Direct Message' : 'Channel Message',
           type: gaLabel,
           is_reply: `${!!messageReply}`,
           is_exclusive_space: `${
@@ -559,14 +560,15 @@ const ChannelView = forwardRef(
         scrollDown();
       }
     }, [
-      files,
       messageCanMoreAfter,
       text,
+      files,
       dispatch,
       currentChannel.channel_id,
       currentChannel.channel_type,
       currentChannel?.space?.space_type,
       messageReply,
+      isDirect,
       totalTeamUser,
       scrollDown,
       channelPrivateKey,
@@ -655,12 +657,13 @@ const ChannelView = forwardRef(
         )
       );
       GoogleAnalytics.tracking('Message Deleted', {
-        category: 'Message',
+        category: isDirect ? 'Direct Message' : 'Channel Message',
       });
       toggleConfirmDeleteMessage();
     }, [
       currentChannel.channel_id,
       dispatch,
+      isDirect,
       selectedMessage,
       toggleConfirmDeleteMessage,
     ]);
