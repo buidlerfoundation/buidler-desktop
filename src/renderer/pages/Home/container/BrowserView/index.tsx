@@ -184,6 +184,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             ethereum: {
               chainId: 1,
               rpcUrl: 'https://cloudflare-eth.com',
+              address: '${address}'
             },
             solana: {
               cluster: 'mainnet-beta',
@@ -216,7 +217,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
       };
     }
     return () => {};
-  }, [handleMessage, urlWithParams]);
+  }, [address, handleMessage, urlWithParams]);
   const onCancel = useCallback(() => {
     const { network, id } = confirmData?.data;
     const callback = `window.${network}.sendError(${id}, "User cancel action")`;
@@ -364,7 +365,9 @@ const BrowserView = ({ url }: BrowserViewProps) => {
         fullScreen ? 'browser-full-screen' : ''
       }`}
     >
-      {fullScreen && <div className="browser-back-drop" onClick={toggleFullScreen} />}
+      {fullScreen && (
+        <div className="browser-back-drop" onClick={toggleFullScreen} />
+      )}
       <div className="browser-header-bar">
         <div className="btn-full-screen" onClick={toggleFullScreen}>
           {!fullScreen ? <IconFullScreen /> : <IconClose />}

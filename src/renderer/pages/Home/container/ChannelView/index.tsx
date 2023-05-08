@@ -476,7 +476,7 @@ const ChannelView = forwardRef(
         generateId.current = '';
       }
     }, [
-      messageEdit.message_id,
+      messageEdit?.message_id,
       text,
       files,
       currentChannel.channel_type,
