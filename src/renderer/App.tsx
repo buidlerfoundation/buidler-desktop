@@ -171,15 +171,6 @@ function App() {
       window.removeEventListener('click', eventClick);
     };
   }, [user, initApp, history, dispatch, currentChannel?.dapp_integration_url]);
-  useEffect(() => {
-    if (currentChannel.channel_id) {
-      const element = document.getElementById(currentChannel.channel_id);
-      element?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [currentChannel.channel_id]);
   const initGeneratedPrivateKey = useCallback(async () => {
     const generatedPrivateKey = await GeneratedPrivateKey();
     dispatch({

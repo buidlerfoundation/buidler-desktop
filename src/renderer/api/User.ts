@@ -258,5 +258,9 @@ export const requestOTT = () => Caller.get<string>('authentication/ott');
 
 export const getChains = () => Caller.get<DAppChain[]>('chains');
 
-export const getListUserOnline = (communityId) =>
-  Caller.get<string[]>(`user/online?team_id=${communityId}`);
+export const getListUserOnline = (communityId, controller?: AbortController) =>
+  Caller.get<string[]>(
+    `user/online?team_id=${communityId}`,
+    undefined,
+    controller
+  );
