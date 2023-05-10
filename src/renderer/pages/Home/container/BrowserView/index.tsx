@@ -148,7 +148,7 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           const chain = getChain(object.chainId);
           if (!chain) {
             toast.error('Unsupported chain');
-            break;
+            return;
           }
           setCurrentChain(chain);
           setConfirmData({
