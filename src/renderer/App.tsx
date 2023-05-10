@@ -32,6 +32,7 @@ import { sameDAppURL } from './helpers/LinkHelper';
 import useCurrentChannel from './hooks/useCurrentChannel';
 import { getBlockIntoViewByElement } from './helpers/MessageHelper';
 import toast from 'react-hot-toast';
+import { initialDraft } from './actions/DraftActions';
 
 function App() {
   window.electron.cookies.setPath();
@@ -51,6 +52,7 @@ function App() {
   }, [imgDomain, dispatch, history]);
   useEffect(() => {
     dispatch(initialSpaceToggle());
+    dispatch(initialDraft());
   }, [dispatch]);
   useEffect(() => {
     GoogleAnalytics.init();
@@ -154,6 +156,8 @@ function App() {
             setCookie(AsyncKey.lastTeamId, teamId);
             history.push(`/channels/${teamId}`);
           }
+        } else {
+          window.open(href, '_blank');
         }
       } else if (href) {
         window.open(href, '_blank');
