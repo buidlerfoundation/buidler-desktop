@@ -144,6 +144,13 @@ const BrowserView = ({ url }: BrowserViewProps) => {
             data: json,
           });
           break;
+        case 'signTypedMessage':
+          setConfirmData({
+            title: 'Sign Typed Message',
+            message: object.raw,
+            data: json,
+          });
+          break;
         case 'switchEthereumChain': {
           const chain = getChain(object.chainId);
           if (!chain) {
@@ -339,6 +346,40 @@ const BrowserView = ({ url }: BrowserViewProps) => {
           const signature = signingKey.signDigest(msgHashBytes);
           const callback = `window.${network}.sendResponse(${id}, "${signature.compact}")`;
           webviewRef.current.executeJavaScript(callback);
+        }
+        break;
+      }
+      case 'signTypedMessage': {
+        try {
+          const raw = JSON.parse(object.raw);
+          if (WalletConnectUtils.connector?.connected) {
+            dispatch({
+              type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+              payload: true,
+            });
+            const params = [object.address, raw];
+            const signature = await WalletConnectUtils.connector.signTypedData(
+              params
+            );
+            const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
+            webviewRef.current.executeJavaScript(callback);
+            dispatch({
+              type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
+              payload: false,
+            });
+          } else if (privateKey) {
+            const signer = new Wallet(privateKey);
+            delete raw.types.EIP712Domain;
+            const signature = await signer._signTypedData(
+              raw.domain,
+              raw.types,
+              raw.message
+            );
+            const callback = `window.${network}.sendResponse(${id}, "${signature}")`;
+            webviewRef.current.executeJavaScript(callback);
+          }
+        } catch (error) {
+          toast.error(error);
         }
         break;
       }
