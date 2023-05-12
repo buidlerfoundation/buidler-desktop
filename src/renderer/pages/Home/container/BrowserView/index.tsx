@@ -25,13 +25,14 @@ import { CircularProgress } from '@material-ui/core';
 
 type BrowserViewProps = {
   url: string;
+  fullScreen: boolean;
+  toggleFullScreen: () => void;
 };
 
-const BrowserView = ({ url }: BrowserViewProps) => {
+const BrowserView = ({ url, fullScreen, toggleFullScreen }: BrowserViewProps) => {
   const dispatch = useDispatch();
   const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
-  const [fullScreen, setFullScreen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const supportedChains = useAppSelector((state) => state.user.dAppChains);
@@ -49,10 +50,6 @@ const BrowserView = ({ url }: BrowserViewProps) => {
   const isBuidlerAirdrop = useMemo(
     () => url === 'https://buidler.link/airdrop_hunter',
     [url]
-  );
-  const toggleFullScreen = useCallback(
-    () => setFullScreen((current) => !current),
-    []
   );
   const toggleModalConfirm = useCallback(
     () => setOpenModalConfirm((current) => !current),

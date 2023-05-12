@@ -163,6 +163,7 @@ const Home = () => {
   const inputRef = useRef<any>();
   const channelViewRef = useRef<any>();
   const sideBarRef = useRef<any>();
+  const [fullScreenWebView, setFullScreenWebView] = useState(false);
   const [selectedPost, setSelectedPost] = useState<TaskData | null>(null);
   const [selectedHash, setSelectedHash] = useState<string | null>(null);
   const [openTxDetail, setOpenTxDetail] = useState(false);
@@ -182,6 +183,10 @@ const Home = () => {
   const [openCreatePinPost, setOpenCreatePinPost] = useState(false);
   const viewTxDetail = useCallback(() => setOpenTxDetail(true), []);
   const closeTxDetail = useCallback(() => setOpenTxDetail(false), []);
+  const toggleFullScreenWebView = useCallback(
+    () => setFullScreenWebView((current) => !current),
+    []
+  );
   const handleCloseModalConfirmSignMessage = useCallback(() => {
     dispatch({
       type: actionTypes.TOGGLE_MODAL_CONFIRM_SIGN_MESSAGE,
@@ -762,6 +767,7 @@ const Home = () => {
   useEffect(() => {
     const keyDownListener = (e: any) => {
       if (e.key === 'Escape') {
+        setFullScreenWebView(false);
         setOpenCreateChannel(false);
       } else if (
         e.metaKey &&
@@ -920,7 +926,11 @@ const Home = () => {
                   hideScrollDown={isOpenMembers}
                 />
                 {currentChannel.dapp_integration_url ? (
-                  <BrowserView url={currentChannel.dapp_integration_url} />
+                  <BrowserView
+                    url={currentChannel.dapp_integration_url}
+                    fullScreen={fullScreenWebView}
+                    toggleFullScreen={toggleFullScreenWebView}
+                  />
                 ) : (
                   currentChannel.channel_id &&
                   currentChannel.channel_type !== 'Direct' && (
