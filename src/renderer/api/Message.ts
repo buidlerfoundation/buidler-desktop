@@ -76,3 +76,14 @@ export const upVoteScamMessage = (id) => Caller.post(`scam-alert/${id}/upvote`);
 
 export const downVoteScamMessage = (id) =>
   Caller.post(`scam-alert/${id}/downvote`);
+
+export const getURLMetadata = (url: string) =>
+  Caller.get<{
+    meta?: { title?: string; description?: string };
+    og?: {
+      site_name?: string;
+      image?: string;
+      title?: string;
+      description?: string;
+    };
+  }>(`message/metadata?url=${url}`);

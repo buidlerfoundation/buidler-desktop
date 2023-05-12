@@ -2,6 +2,7 @@ import './index.scss';
 import { Modal } from '@material-ui/core';
 import React, { memo, useCallback, useMemo } from 'react';
 import ImageHelper from 'renderer/common/ImageHelper';
+import images from 'renderer/common/images';
 import { normalizeUserName } from 'renderer/helpers/MessageHelper';
 import { formatTokenFormHex } from 'renderer/helpers/TokenHelper';
 import useUserAddress from 'renderer/hooks/useUserAddress';
@@ -19,6 +20,7 @@ type ModalConfirmProps = {
   currentChain: DAppChain | null;
   gasPrice: number;
   actionLoading: boolean;
+  dappMetadata?: any;
 };
 
 const ModalConfirm = ({
@@ -30,6 +32,7 @@ const ModalConfirm = ({
   currentChain,
   gasPrice,
   actionLoading,
+  dappMetadata,
 }: ModalConfirmProps) => {
   const user = useUserData();
   const address = useUserAddress();
@@ -178,6 +181,22 @@ const ModalConfirm = ({
         <div className="dapp-confirm__container">
           <span className="dapp-confirm__title">{confirmData?.title}</span>
           {renderHead()}
+          <span className="confirm-label" style={{ marginTop: 20 }}>
+            DApp
+          </span>
+          <div className="dapp-info">
+            <img
+              alt=""
+              src={dappMetadata?.imageURL || images.icImageDefault}
+              className="dapp-logo"
+            />
+            <div className='dapp-name'>
+              <span className='dapp-title'>{dappMetadata?.title}</span>
+              <a className='dapp-url' href={dappMetadata?.url} target="_blank" rel="noreferrer">
+                {dappMetadata?.url}
+              </a>
+            </div>
+          </div>
           {renderBody()}
           <div className="dapp-confirm__bottom">
             <NormalButton title="Cancel" onPress={onCancel} type="normal" />

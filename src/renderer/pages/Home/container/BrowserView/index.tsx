@@ -29,7 +29,11 @@ type BrowserViewProps = {
   toggleFullScreen: () => void;
 };
 
-const BrowserView = ({ url, fullScreen, toggleFullScreen }: BrowserViewProps) => {
+const BrowserView = ({
+  url,
+  fullScreen,
+  toggleFullScreen,
+}: BrowserViewProps) => {
   const dispatch = useDispatch();
   const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
@@ -43,6 +47,12 @@ const BrowserView = ({ url, fullScreen, toggleFullScreen }: BrowserViewProps) =>
     title: string;
     message?: string;
     data: any;
+  } | null>(null);
+  const [dappMetadata, setDAppMetadata] = useState<{
+    title?: string;
+    url?: string;
+    imageURL?: string;
+    description?: string;
   } | null>(null);
   const address = useUserAddress();
   const webviewRef = useRef<any>();
@@ -83,6 +93,23 @@ const BrowserView = ({ url, fullScreen, toggleFullScreen }: BrowserViewProps) =>
   const onReload = useCallback(() => {
     setRandomId(Math.random());
   }, []);
+  useEffect(() => {
+    if (url) {
+      api
+        .getURLMetadata(url)
+        .then((res) => {
+          if (res.success) {
+            setDAppMetadata({
+              description: res.data?.meta?.description,
+              imageURL: res.data?.og?.image,
+              title: res.data?.meta?.title,
+              url: new URL(url).origin,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [url]);
   const [urlWithParams, setUrlWithParams] = useState('');
   const initial = useCallback(async () => {
     if (url && randomId) {
@@ -448,6 +475,7 @@ const BrowserView = ({ url, fullScreen, toggleFullScreen }: BrowserViewProps) =>
         onConfirm={onConfirm}
         gasPrice={gasPrice}
         actionLoading={actionLoading}
+        dappMetadata={dappMetadata}
       />
     </div>
   );

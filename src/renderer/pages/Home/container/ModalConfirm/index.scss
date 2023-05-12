@@ -46,6 +46,33 @@
     line-height: 20px;
     margin-top: 20px;
   }
+  .dapp-info {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    .dapp-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 5px;
+    }
+    .dapp-name {
+      display: flex;
+      flex-direction: column;
+      margin-left: 15px;
+    }
+    .dapp-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 25px;
+      color: var(--color-primary-text);
+    }
+    .dapp-url {
+      margin-top: 5px;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 20px;
+    }
+  }
   .logo-eth {
     width: 40px;
     height: 40px;
