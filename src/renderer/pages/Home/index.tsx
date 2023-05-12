@@ -89,6 +89,7 @@ import SideBarDM from 'renderer/shared/SideBarDM';
 import ModalNFTDetail from 'renderer/shared/ModalNFTDetail';
 import BrowserView from './container/BrowserView';
 import { getBlockIntoViewByElement } from 'renderer/helpers/MessageHelper';
+import ModalCommunityProfile from 'renderer/shared/ModalCommunityProfile';
 
 const loadMoreMessageSelector = createLoadMoreSelector([
   actionTypes.MESSAGE_PREFIX,
@@ -121,6 +122,9 @@ const Home = () => {
   );
   const [currentUserId, setCurrentUserId] = useState<string | undefined | null>(
     ''
+  );
+  const currentCommunityProfileId = useAppSelector(
+    (state) => state.user.currentCommunityProfileId
   );
   const dispatch = useAppDispatch();
   const loadMoreMessage = useAppSelector((state) =>
@@ -361,6 +365,12 @@ const Home = () => {
       history.goBack();
     }
   }, [dispatch, history]);
+  const handleCloseModalCommunityProfile = useCallback(() => {
+    dispatch({
+      type: actionTypes.UPDATE_CURRENT_COMMUNITY_PROFILE_ID,
+      payload: '',
+    });
+  }, [dispatch]);
   const handleSpaceBadgeClick = useCallback(
     (s: Space) => {
       handleCloseModalUserProfile();
@@ -769,6 +779,8 @@ const Home = () => {
       if (e.key === 'Escape') {
         setFullScreenWebView(false);
         setOpenCreateChannel(false);
+        handleCloseModalCommunityProfile();
+        handleCloseModalUserProfile();
       } else if (
         e.metaKey &&
         e.key === 'l' &&
@@ -813,11 +825,13 @@ const Home = () => {
     };
   }, [
     history,
-    currentTeam?.team_id,
+    currentTeam.team_id,
     currentChannel?.channel_id,
     dispatch,
     taskData,
     currentChannelId,
+    handleCloseModalCommunityProfile,
+    handleCloseModalUserProfile,
   ]);
 
   const onMenuPostSelected = useCallback(
@@ -1006,6 +1020,11 @@ const Home = () => {
             onViewTxDetail={onViewTxDetail}
             onSpaceClick={handleSpaceBadgeClick}
             onOpenNFTDetail={handleOpenNFTDetail}
+          />
+          <ModalCommunityProfile
+            open={!!currentCommunityProfileId}
+            handleClose={handleCloseModalCommunityProfile}
+            communityId={currentCommunityProfileId}
           />
           {openNFTDetail && (
             <ModalNFTDetail

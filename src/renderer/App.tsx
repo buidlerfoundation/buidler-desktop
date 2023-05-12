@@ -17,13 +17,11 @@ import {
   GeneratedPrivateKey,
   getCookie,
   getDeviceCode,
-  removeCookie,
-  setCookie,
 } from './common/Cookie';
 import { AsyncKey, LoginType } from './common/AppConfig';
 import actionTypes from './actions/ActionTypes';
 import api from './api';
-import { acceptTeam, getInitial, logout } from './actions/UserActions';
+import { getInitial, logout } from './actions/UserActions';
 import useAppSelector from './hooks/useAppSelector';
 import ErrorBoundary from './shared/ErrorBoundary';
 import GoogleAnalytics from './services/analytics/GoogleAnalytics';
@@ -31,7 +29,6 @@ import { initialSpaceToggle } from './actions/SideBarActions';
 import { sameDAppURL } from './helpers/LinkHelper';
 import useCurrentChannel from './hooks/useCurrentChannel';
 import { getBlockIntoViewByElement } from './helpers/MessageHelper';
-import toast from 'react-hot-toast';
 import { initialDraft } from './actions/DraftActions';
 
 function App() {
@@ -138,26 +135,12 @@ function App() {
             payload: userId,
           });
         } else if (teamId) {
-          const invitationRes = await api.invitation(teamId);
-          const invitationUrl = invitationRes.data?.invitation_url;
-          const invitationId = invitationUrl?.substring(
-            invitationUrl?.lastIndexOf('/') + 1
-          );
-          if (!invitationId) {
-            toast.error('Invalid invitation link');
-            return;
-          }
-          const res: any = await dispatch(
-            acceptTeam(invitationId, invitationRef)
-          );
-          if (res.statusCode === 200 && !!res.data?.team_id) {
-            if (res.metadata?.is_new_team_member) {
-              toast.success('You have successfully joined new community.');
-            }
-            removeCookie(AsyncKey.lastChannelId);
-            setCookie(AsyncKey.lastTeamId, teamId);
-            history.push(`/channels/${teamId}`);
-          }
+          dispatch({
+            type: actionTypes.UPDATE_CURRENT_COMMUNITY_PROFILE_ID,
+            payload: `${communityUrl}?${
+              invitationRef ? `&ref=${invitationRef}` : ''
+            }`,
+          });
         } else {
           window.open(href, '_blank');
         }

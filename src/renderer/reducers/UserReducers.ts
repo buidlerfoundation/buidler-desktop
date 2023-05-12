@@ -53,6 +53,7 @@ interface UserReducerState {
   currentUserProfileId?: string | null;
   updateFromSocket?: boolean;
   dAppChains: DAppChain[];
+  currentCommunityProfileId?: string | null;
 }
 
 const defaultChannel: Channel = {
@@ -88,6 +89,7 @@ const initialState: UserReducerState = {
   currentUserProfileId: null,
   updateFromSocket: false,
   dAppChains: [],
+  currentCommunityProfileId: null,
 };
 
 export const defaultMemberData = {
@@ -272,6 +274,12 @@ const userReducers: Reducer<UserReducerState, AnyAction> = (
       return {
         ...state,
         currentUserProfileId: payload,
+      };
+    }
+    case actionTypes.UPDATE_CURRENT_COMMUNITY_PROFILE_ID: {
+      return {
+        ...state,
+        currentCommunityProfileId: payload,
       };
     }
     case actionTypes.UPDATE_LAST_CHANNEL: {
