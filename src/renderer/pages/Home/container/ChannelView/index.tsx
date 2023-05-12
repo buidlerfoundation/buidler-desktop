@@ -63,9 +63,9 @@ import useDirectChannelUser from 'renderer/hooks/useDirectChannelUser';
 import { DirectCommunity, LoginType } from 'renderer/common/AppConfig';
 import useChannel from 'renderer/hooks/useChannel';
 import DirectEmpty from 'renderer/shared/DirectEmpty';
-import DirectNotSupport from 'renderer/shared/DirectNotSupport';
 import useMessageLoading from 'renderer/hooks/useMessageLoading';
 import { updateAttachmentDraft } from 'renderer/actions/DraftActions';
+import DirectNotSupport from '../DirectNotSupport';
 
 type ChannelViewProps = {
   currentChannel: Channel;

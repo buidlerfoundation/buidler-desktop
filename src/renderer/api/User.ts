@@ -22,6 +22,7 @@ import {
 } from 'renderer/models';
 import { ConfigNotificationRequestBody } from 'renderer/models/request';
 import Caller from './Caller';
+import { getDeviceCode } from 'renderer/common/Cookie';
 
 export const loginWithGoogle = (code: string) => Caller.post('user', { code });
 
@@ -264,3 +265,8 @@ export const getListUserOnline = (communityId, controller?: AbortController) =>
     undefined,
     controller
   );
+
+export const removeEncryptedKey = async () => {
+  const deviceCode = await getDeviceCode();
+  return Caller.delete('user/device/encrypt', { device_code: deviceCode });
+};

@@ -1,0 +1,48 @@
+.direct-not-support__container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 11%;
+  margin-top: 18%;
+  .direct-not-support-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-light-text);
+    line-height: 25px;
+  }
+  .direct-not-support-subtext {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-light-text);
+    line-height: 22px;
+    white-space: break-spaces;
+  }
+  .download__wrap {
+    margin-top: 25px;
+    display: flex;
+    align-items: center;
+  }
+  .wallet-button {
+    height: 60px;
+    border-radius: 5px;
+    background-color: var(--color-stroke);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-primary-text);
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0 20px;
+    width: 310px;
+    & + .wallet-button {
+      margin-top: 16px;
+    }
+    .wallet-icon {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
