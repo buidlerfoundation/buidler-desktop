@@ -781,6 +781,7 @@ const Home = () => {
         setOpenCreateChannel(false);
         handleCloseModalCommunityProfile();
         handleCloseModalUserProfile();
+        channelViewRef.current?.hideReply?.()
       } else if (
         e.metaKey &&
         e.key === 'l' &&
