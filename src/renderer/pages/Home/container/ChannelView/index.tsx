@@ -524,6 +524,7 @@ const ChannelView = forwardRef(
         };
         if (files.length > 0) {
           message.file_ids = files.map((el) => el.randomId);
+          message.files = files;
         }
         if (
           currentChannel.channel_type === 'Private' ||
