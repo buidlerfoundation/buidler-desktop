@@ -942,7 +942,7 @@ const Home = () => {
                 />
                 {currentChannel.dapp_integration_url ? (
                   <BrowserView
-                    url={currentChannel.dapp_integration_url}
+                    url={"http://localhost:3000/"}
                     fullScreen={fullScreenWebView}
                     toggleFullScreen={toggleFullScreenWebView}
                   />

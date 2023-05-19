@@ -140,12 +140,15 @@ const BrowserView = ({
   );
   const handleMessage = useCallback(
     (json) => {
+      console.log('XXX: ', json);
       const { id, name, object } = json || {};
       if (!id) {
         toast.error('Missing data');
         return;
       }
       switch (name) {
+        case 'requestPermissions':
+        case 'getProviderState':
         case 'requestAccounts':
           setConfirmData({
             title: 'Connect Wallet',
@@ -220,15 +223,22 @@ const BrowserView = ({
             solana: {
               cluster: 'mainnet-beta',
             },
+            venom: {
+              networkId: 1000,
+              address: '0:1dd06b970ec4b49bed25c6964000a9751c598c43470e8b4922fd1d6ff029c205',
+            },
             isDebug: true,
           };
           trustwallet.ethereum = new trustwallet.Provider(config);
+          trustwallet.venom = new trustwallet.VenomProvider(config);
           trustwallet.ethereum.isMetaMask = true;
           trustwallet.ethereum.isTrust = false;
           trustwallet.postMessage = (json) => {
             window.electron.ipcRenderer.postMessage(JSON.stringify(json));
           };
           window.ethereum = trustwallet.ethereum;
+          window.__venom = trustwallet.venom;
+          window.__hasVenomProvider = true;
         `);
       };
       const handleWebviewLoaded = () => {
@@ -237,10 +247,10 @@ const BrowserView = ({
       web.addEventListener('ipc-message', handleIPCMessage);
       web.addEventListener('load-commit', handleInjectJavascript);
       web.addEventListener('did-finish-load', handleWebviewLoaded);
-      // webviewRef.current.addEventListener('dom-ready', () => {
-      //   if (!webviewRef.current.isDevToolsOpened())
-      //     webviewRef.current.openDevTools();
-      // });
+      webviewRef.current.addEventListener('dom-ready', () => {
+        if (!webviewRef.current.isDevToolsOpened())
+          webviewRef.current.openDevTools();
+      });
       return () => {
         web?.removeEventListener('ipc-message', handleIPCMessage);
         web?.removeEventListener('load-commit', handleInjectJavascript);
@@ -258,6 +268,25 @@ const BrowserView = ({
   const onConfirm = useCallback(async () => {
     const { network, id, object } = confirmData?.data;
     switch (confirmData?.data.name) {
+      case 'requestPermissions':
+      case 'getProviderState': {
+        const setAddress = `window.${network}.setAddress("${address}")`;
+        const providerState = {
+          permissions: {
+            accountInteraction: {
+              address:
+                '0:1dd06b970ec4b49bed25c6964000a9751c598c43470e8b4922fd1d6ff029c205',
+              networkId: 1000,
+            },
+          },
+        };
+        const callbackRequestAccount = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+          providerState
+        )})`;
+        webviewRef.current.executeJavaScript(setAddress);
+        webviewRef.current.executeJavaScript(callbackRequestAccount);
+        break;
+      }
       case 'requestAccounts': {
         const setAddress = `window.${network}.setAddress("${address}")`;
         const callbackRequestAccount = `window.${network}.sendResponse(${id}, ["${address}"])`;
