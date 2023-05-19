@@ -29,6 +29,7 @@ import ModalSpaceSetting from 'renderer/shared/ModalSpaceSetting';
 import ModalSpaceDetail from 'renderer/shared/ModalSpaceDetail';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import {
+  acceptTeam,
   createNewChannel,
   createSpaceChannel,
   deleteChannel,
@@ -640,7 +641,7 @@ const Home = () => {
   const handleDataFromUrl = useCallback(async () => {
     if (dataFromUrl?.invitationId) {
       const { invitationId, invitationRef } = dataFromUrl;
-      const res = await api.acceptInvitation(invitationId, invitationRef);
+      const res: any = await dispatch(acceptTeam(invitationId, invitationRef));
       if (res.statusCode === 200) {
         if (res.metadata?.is_new_team_member) {
           toast.success('You have successfully joined new community.');
@@ -781,7 +782,7 @@ const Home = () => {
         setOpenCreateChannel(false);
         handleCloseModalCommunityProfile();
         handleCloseModalUserProfile();
-        channelViewRef.current?.hideReply?.()
+        channelViewRef.current?.hideReply?.();
       } else if (
         e.metaKey &&
         e.key === 'l' &&
