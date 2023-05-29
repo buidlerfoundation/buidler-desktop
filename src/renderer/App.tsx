@@ -30,6 +30,8 @@ import { sameDAppURL } from './helpers/LinkHelper';
 import useCurrentChannel from './hooks/useCurrentChannel';
 import { getBlockIntoViewByElement } from './helpers/MessageHelper';
 import { initialDraft } from './actions/DraftActions';
+import { onUpdateKey } from './actions/ConfigActions';
+import TonClientProvider from './components/TonClientProvider';
 
 function App() {
   window.electron.cookies.setPath();
@@ -162,10 +164,7 @@ function App() {
   }, [user, initApp, history, dispatch, currentChannel?.dapp_integration_url]);
   const initGeneratedPrivateKey = useCallback(async () => {
     const generatedPrivateKey = await GeneratedPrivateKey();
-    dispatch({
-      type: actionTypes.SET_PRIVATE_KEY,
-      payload: generatedPrivateKey,
-    });
+    dispatch(onUpdateKey({ privateKey: generatedPrivateKey }));
   }, [dispatch]);
   useEffect(() => {
     getCookie(AsyncKey.socketConnectKey)
@@ -227,12 +226,14 @@ function App() {
   });
 
   return (
-    <ThemeProvider theme={materialTheme}>
-      <ErrorBoundary>
-        <Main />
-        <AppToastNotification />
-      </ErrorBoundary>
-    </ThemeProvider>
+    <TonClientProvider>
+      <ThemeProvider theme={materialTheme}>
+        <ErrorBoundary>
+          <Main />
+          <AppToastNotification />
+        </ErrorBoundary>
+      </ThemeProvider>
+    </TonClientProvider>
   );
 }
 

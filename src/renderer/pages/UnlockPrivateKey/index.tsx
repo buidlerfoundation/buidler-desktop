@@ -22,6 +22,7 @@ import ModalConfirmDelete from 'renderer/shared/ModalConfirmDelete';
 import IconClose from 'renderer/shared/SVG/IconClose';
 import { decryptString, getIV } from 'renderer/utils/DataCrypto';
 import './index.scss';
+import { onUpdateKey } from 'renderer/actions/ConfigActions';
 
 type UnlockPrivateKeyProps = {
   onUnlock?: (secureData: string) => void;
@@ -83,10 +84,7 @@ const UnlockPrivateKey = ({
               onUnlock?.(seed || privateKey);
               return;
             }
-            dispatch({
-              type: actionTypes.SET_PRIVATE_KEY,
-              payload: privateKey,
-            });
+            dispatch(onUpdateKey({ privateKey, seed }));
             const privateKeyChannel = await getPrivateChannel(privateKey);
             dispatch({
               type: actionTypes.SET_CHANNEL_PRIVATE_KEY,

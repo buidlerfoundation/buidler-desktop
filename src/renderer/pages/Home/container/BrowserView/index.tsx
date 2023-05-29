@@ -15,13 +15,24 @@ import toast from 'react-hot-toast';
 import { Wallet, ethers, providers, utils } from 'ethers';
 import useAppSelector from 'renderer/hooks/useAppSelector';
 import ModalConfirm from '../ModalConfirm';
-import { normalizeErrorMessage } from 'renderer/helpers/DAppHelper';
+import {
+  normalizeErrorMessage,
+  normalizeSendMessageObject,
+} from 'renderer/helpers/DAppHelper';
 import IconFullScreen from 'renderer/shared/SVG/IconFullScreen';
 import IconClose from 'renderer/shared/SVG/IconClose';
 import WalletConnectUtils from 'renderer/services/connectors/WalletConnectUtils';
 import actionTypes from 'renderer/actions/ActionTypes';
 import { useDispatch } from 'react-redux';
 import { CircularProgress } from '@material-ui/core';
+import UnlockPrivateKey from 'renderer/pages/UnlockPrivateKey';
+import { TonClient } from '@eversdk/core';
+import { libWeb, libWebSetup } from '@eversdk/lib-web';
+import { useTonClient } from 'renderer/components/TonClientProvider';
+
+libWebSetup({
+  disableSeparateWorker: true,
+});
 
 type BrowserViewProps = {
   url: string;
@@ -34,9 +45,17 @@ const BrowserView = ({
   fullScreen,
   toggleFullScreen,
 }: BrowserViewProps) => {
+  TonClient.useBinaryLibrary(libWeb);
   const dispatch = useDispatch();
   const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
+  const venomPublicKey = useAppSelector(
+    (state) => state.configs.venomKey?.publicKey
+  );
+  const venomAddress = useAppSelector(
+    (state) => state.configs.venomKey?.address
+  );
+  const [openLockPage, setOpenLockPage] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const privateKey = useAppSelector((state) => state.configs.privateKey);
   const supportedChains = useAppSelector((state) => state.user.dAppChains);
@@ -54,6 +73,7 @@ const BrowserView = ({
     imageURL?: string;
     description?: string;
   } | null>(null);
+  const tonClient = useTonClient();
   const address = useUserAddress();
   const webviewRef = useRef<any>();
   const timeoutToggleModal = useRef<any>();
@@ -139,16 +159,101 @@ const BrowserView = ({
     [supportedChains]
   );
   const handleMessage = useCallback(
-    (json) => {
-      console.log('XXX: ', json);
-      const { id, name, object } = json || {};
+    async (json) => {
+      const { id, name, object, network } = json || {};
+      if (name !== 'getFullContractState') {
+        console.log('XXX: ', json);
+      }
       if (!id) {
         toast.error('Missing data');
         return;
       }
       switch (name) {
-        case 'requestPermissions':
-        case 'getProviderState':
+        case 'disconnect': {
+          const clearInterval = `window.clearInterval(window.venomNetworkIntervalId)`;
+          const callback = `window.${network}.sendResponse(${id})`;
+          webviewRef.current.executeJavaScript(clearInterval);
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'getTransaction': {
+          const res = await tonClient.getTransaction?.(object.hash);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'runLocal': {
+          const res = await tonClient.runLocal?.(object);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'sendMessage': {
+          const res = await tonClient.sendMessage?.(
+            normalizeSendMessageObject(object)
+          );
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'getProviderState': {
+          if (!venomAddress || !venomPublicKey) return;
+          const setAddress = `window.${network}.setAddress('${venomAddress}')`;
+          const setPublicKey = `window.${network}.setPublicKey('${venomPublicKey}')`;
+          const providerState = {
+            networkId: 1000,
+            permissions: {
+              accountInteraction: {
+                publicKey: venomPublicKey,
+                address: venomAddress,
+              },
+            },
+          };
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            providerState
+          )})`;
+          webviewRef.current.executeJavaScript(setAddress);
+          webviewRef.current.executeJavaScript(setPublicKey);
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'getFullContractState': {
+          const res = await tonClient.query(`
+          query {
+            blockchain {
+              account(
+                address: "${venomAddress}"
+              ) {
+                 info {
+                  balance
+                  boc
+                }
+              }
+            }
+          }
+          `);
+          const fullContractState = {
+            state: res.result.data.blockchain.account.info,
+          };
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            fullContractState
+          )}, true)`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'requestPermissions': {
+          setConfirmData({
+            title: 'Connect Wallet',
+            data: json,
+          });
+          break;
+        }
         case 'requestAccounts':
           setConfirmData({
             title: 'Connect Wallet',
@@ -202,63 +307,52 @@ const BrowserView = ({
         toggleModalConfirm();
       }
     },
-    [getChain, toggleModalConfirm]
+    [getChain, toggleModalConfirm, tonClient, venomAddress, venomPublicKey]
   );
   useEffect(() => {
     const web = webviewRef.current;
-    if (urlWithParams && web) {
+    if (urlWithParams && web && randomId) {
       const handleIPCMessage = (data) => {
         const json = JSON.parse(data.channel);
         handleMessage(json);
       };
       const handleInjectJavascript = () => {
-        web.executeJavaScript(`
-          ${window.electron.contentProvider}
-          var config = {
-            ethereum: {
-              chainId: 1,
-              rpcUrl: 'https://cloudflare-eth.com',
-              address: '${address}'
-            },
-            solana: {
-              cluster: 'mainnet-beta',
-            },
-            venom: {
-              networkId: 1000,
-              address: '0:1dd06b970ec4b49bed25c6964000a9751c598c43470e8b4922fd1d6ff029c205',
-            },
-            isDebug: true,
-          };
-          trustwallet.ethereum = new trustwallet.Provider(config);
-          trustwallet.venom = new trustwallet.VenomProvider(config);
-          trustwallet.ethereum.isMetaMask = true;
-          trustwallet.ethereum.isTrust = false;
-          trustwallet.postMessage = (json) => {
-            window.electron.ipcRenderer.postMessage(JSON.stringify(json));
-          };
-          window.ethereum = trustwallet.ethereum;
-          window.__venom = trustwallet.venom;
-          window.__hasVenomProvider = true;
-        `);
+        if (!webviewRef.current.isDevToolsOpened()) {
+          webviewRef.current.openDevTools();
+        }
       };
       const handleWebviewLoaded = () => {
         setWebviewLoaded(true);
       };
+      const handleNavigateURL = (e) => {
+        console.log('will-navigate: ', e.url);
+        // const nextUrl = new URL(e.url);
+        // console.log('XXX: ', nextUrl);
+        // if (!url.includes(nextUrl.origin)) {
+        //   window.open(e.url, '_blank');
+        // }
+        e.preventDefault();
+      };
       web.addEventListener('ipc-message', handleIPCMessage);
-      web.addEventListener('load-commit', handleInjectJavascript);
+      web.addEventListener('dom-ready', handleInjectJavascript);
       web.addEventListener('did-finish-load', handleWebviewLoaded);
-      webviewRef.current.addEventListener('dom-ready', () => {
-        if (!webviewRef.current.isDevToolsOpened())
-          webviewRef.current.openDevTools();
-      });
+      web.addEventListener('will-navigate', handleNavigateURL);
       return () => {
         web?.removeEventListener('ipc-message', handleIPCMessage);
-        web?.removeEventListener('load-commit', handleInjectJavascript);
+        web?.removeEventListener('dom-ready', handleInjectJavascript);
         web?.removeEventListener('did-finish-load', handleWebviewLoaded);
+        web?.removeEventListener('will-navigate', handleNavigateURL);
       };
     }
     return () => {};
-  }, [address, handleMessage, urlWithParams]);
+  }, [
+    address,
+    handleMessage,
+    randomId,
+    urlWithParams,
+    venomAddress,
+    venomPublicKey,
+  ]);
   const onCancel = useCallback(() => {
     const { network, id } = confirmData?.data;
     const callback = `window.${network}.sendError(${id}, "User cancel action")`;
@@ -268,22 +362,19 @@ const BrowserView = ({
   const onConfirm = useCallback(async () => {
     const { network, id, object } = confirmData?.data;
     switch (confirmData?.data.name) {
-      case 'requestPermissions':
-      case 'getProviderState': {
-        const setAddress = `window.${network}.setAddress("${address}")`;
-        const providerState = {
-          permissions: {
-            accountInteraction: {
-              address:
-                '0:1dd06b970ec4b49bed25c6964000a9751c598c43470e8b4922fd1d6ff029c205',
-              networkId: 1000,
-            },
+      case 'requestPermissions': {
+        const setAddress = `window.${network}.setAddress("${venomAddress}")`;
+        const setPublicKey = `window.${network}.setPublicKey("${venomPublicKey}")`;
+        const permissions = {
+          accountInteraction: {
+            address: venomAddress,
           },
         };
         const callbackRequestAccount = `window.${network}.sendResponse(${id}, ${JSON.stringify(
-          providerState
+          permissions
         )})`;
         webviewRef.current.executeJavaScript(setAddress);
+        webviewRef.current.executeJavaScript(setPublicKey);
         webviewRef.current.executeJavaScript(callbackRequestAccount);
         break;
       }
@@ -452,7 +543,22 @@ const BrowserView = ({
     getChain,
     privateKey,
     toggleModalConfirm,
+    venomAddress,
+    venomPublicKey,
   ]);
+  const onCloseLockPage = useCallback(() => setOpenLockPage(false), []);
+  const onUnlock = useCallback(
+    async (key: string) => {
+      const { name } = confirmData?.data || {};
+      // Handle action need venom secret key
+      switch (name) {
+        default:
+          break;
+      }
+      onCloseLockPage();
+    },
+    [confirmData?.data, onCloseLockPage]
+  );
   return (
     <div
       className={`browser-view__container ${
@@ -488,6 +594,7 @@ const BrowserView = ({
             nodeintegration="true"
             className="webview-full"
             style={{ opacity: webviewLoaded ? 1 : 0 }}
+            useragent="VenomWalletBrowser Buidler"
           />
           {!webviewLoaded && (
             <div className="loading">
@@ -506,6 +613,15 @@ const BrowserView = ({
         actionLoading={actionLoading}
         dappMetadata={dappMetadata}
       />
+      {openLockPage && (
+        <div className="unlock-view">
+          <UnlockPrivateKey
+            embedded
+            onUnlock={onUnlock}
+            onClose={onCloseLockPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

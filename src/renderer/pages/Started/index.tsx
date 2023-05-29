@@ -19,6 +19,7 @@ import ModalImportSeedPhrase from '../../shared/ModalImportSeedPhrase';
 import GlobalVariable from 'renderer/services/GlobalVariable';
 import GoogleAnalytics from 'renderer/services/analytics/GoogleAnalytics';
 import useAppSelector from 'renderer/hooks/useAppSelector';
+import { onUpdateKey } from 'renderer/actions/ConfigActions';
 
 const Started = () => {
   useEffect(() => {
@@ -148,7 +149,12 @@ const Started = () => {
       }
       const publicKey = utils.computePublicKey(privateKey, true);
       const address = utils.computeAddress(privateKey);
-      dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
+      dispatch(
+        onUpdateKey({
+          privateKey,
+          seed: !isValidPrivateKey(seed) ? seed : undefined,
+        })
+      );
       const data = { [publicKey]: privateKey };
       const encryptedData = encryptString(JSON.stringify(data), password, iv);
       setCookie(AsyncKey.encryptedDataKey, encryptedData);

@@ -331,6 +331,14 @@ a {
   }
 }
 
+.unlock-view {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
 .iframe-full {
   width: 100%;
   height: 100vh;
@@ -353,7 +361,7 @@ iframe {
   --color-medium: #fcb828;
   --color-urgent: #d8292f;
   --color-mention: #0584fe;
-  --color-blue: #1159D5;
+  --color-blue: #1159d5;
   --color-secondary-text: #727272;
   --color-primary-text: #e8e8e8;
   --color-dark-text: #222222;

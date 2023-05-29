@@ -13,6 +13,7 @@ import api from 'renderer/api';
 import { getPrivateChannel } from 'renderer/helpers/ChannelHelper';
 import SocketUtils from 'renderer/utils/SocketUtils';
 import { useHistory } from 'react-router-dom';
+import { onUpdateKey } from 'renderer/actions/ConfigActions';
 
 const DirectNotSupport = () => {
   const dispatch = useAppDispatch();
@@ -43,7 +44,12 @@ const DirectNotSupport = () => {
       }
       const publicKey = utils.computePublicKey(privateKey, true);
       const address = utils.computeAddress(privateKey);
-      dispatch({ type: actionTypes.SET_PRIVATE_KEY, payload: privateKey });
+      dispatch(
+        onUpdateKey({
+          privateKey,
+          seed: !isValidPrivateKey(seed) ? seed : undefined,
+        })
+      );
       const data = { [publicKey]: privateKey };
       const encryptedData = encryptString(JSON.stringify(data), password, iv);
       setCookie(AsyncKey.encryptedDataKey, encryptedData);

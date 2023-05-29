@@ -10,8 +10,10 @@ export type Channels = 'ipc-example';
 
 const buffer = fs.readFileSync(path.join(__dirname, 'trust-min.js'));
 const fileContent = buffer.toString();
+const walletBOC = fs.readFileSync(path.join(__dirname, 'Wallet.code.boc')).toString('base64');
 
 contextBridge.exposeInMainWorld('electron', {
+  walletBOC,
   contentProvider: fileContent,
   webviewPreloadPath: path.join(__dirname, 'webview_preload.js'),
   cookies: {

@@ -781,7 +781,7 @@ const Home = () => {
         setOpenCreateChannel(false);
         handleCloseModalCommunityProfile();
         handleCloseModalUserProfile();
-        channelViewRef.current?.hideReply?.()
+        channelViewRef.current?.hideReply?.();
       } else if (
         e.metaKey &&
         e.key === 'l' &&
@@ -942,7 +942,7 @@ const Home = () => {
                 />
                 {currentChannel.dapp_integration_url ? (
                   <BrowserView
-                    url={"http://localhost:3000/"}
+                    url={currentChannel.dapp_integration_url}
                     fullScreen={fullScreenWebView}
                     toggleFullScreen={toggleFullScreenWebView}
                   />

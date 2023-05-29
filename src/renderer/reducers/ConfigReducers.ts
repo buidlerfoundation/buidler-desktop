@@ -16,6 +16,11 @@ interface ConfigReducerState {
   isOpenModalConfirmSignMessage: boolean;
   internetConnection?: boolean;
   loginType?: string;
+  venomKey?: {
+    publicKey?: string;
+    address?: string;
+    secret?: string;
+  };
 }
 
 const initialState: ConfigReducerState = {
@@ -32,6 +37,11 @@ const initialState: ConfigReducerState = {
   isOpenModalConfirmSignMessage: false,
   internetConnection: true,
   loginType: '',
+  venomKey: {
+    publicKey: '',
+    address: '',
+    secret: '',
+  },
 };
 
 const configReducers: Reducer<ConfigReducerState, AnyAction> = (
@@ -40,6 +50,12 @@ const configReducers: Reducer<ConfigReducerState, AnyAction> = (
 ) => {
   const { type, payload } = action;
   switch (type) {
+    case actionTypes.SET_VENOM_KEY: {
+      return {
+        ...state,
+        venomKey: payload,
+      };
+    }
     case actionTypes.UPDATE_LOGIN_TYPE: {
       return {
         ...state,
