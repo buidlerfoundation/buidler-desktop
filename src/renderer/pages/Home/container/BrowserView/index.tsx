@@ -26,13 +26,7 @@ import actionTypes from 'renderer/actions/ActionTypes';
 import { useDispatch } from 'react-redux';
 import { CircularProgress } from '@material-ui/core';
 import UnlockPrivateKey from 'renderer/pages/UnlockPrivateKey';
-import { TonClient } from '@eversdk/core';
-import { libWeb, libWebSetup } from '@eversdk/lib-web';
 import { useTonClient } from 'renderer/components/TonClientProvider';
-
-libWebSetup({
-  disableSeparateWorker: true,
-});
 
 type BrowserViewProps = {
   url: string;
@@ -45,7 +39,6 @@ const BrowserView = ({
   fullScreen,
   toggleFullScreen,
 }: BrowserViewProps) => {
-  TonClient.useBinaryLibrary(libWeb);
   const dispatch = useDispatch();
   const [randomId, setRandomId] = useState(1);
   const [gasPrice, setGasPrice] = useState(0);
@@ -173,6 +166,38 @@ const BrowserView = ({
           const clearInterval = `window.clearInterval(window.venomNetworkIntervalId)`;
           const callback = `window.${network}.sendResponse(${id})`;
           webviewRef.current.executeJavaScript(clearInterval);
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'findTransaction': {
+          const res = await tonClient.findTransaction?.(object);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'signData': {
+          const res = await tonClient.signData?.(object);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'verifySignature': {
+          const res = await tonClient.verifySignature?.(object);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
+          webviewRef.current.executeJavaScript(callback);
+          return;
+        }
+        case 'subscribe': {
+          const res = await tonClient.subscribeTransaction?.(object);
+          const callback = `window.${network}.sendResponse(${id}, ${JSON.stringify(
+            res
+          )})`;
           webviewRef.current.executeJavaScript(callback);
           return;
         }
@@ -317,7 +342,10 @@ const BrowserView = ({
         handleMessage(json);
       };
       const handleInjectJavascript = () => {
-        if (!webviewRef.current.isDevToolsOpened()) {
+        if (
+          !webviewRef.current.isDevToolsOpened() &&
+          process.env.NODE_ENV !== 'production'
+        ) {
           webviewRef.current.openDevTools();
         }
       };

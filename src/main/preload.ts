@@ -4,16 +4,19 @@ import path from 'path';
 import fs from 'fs';
 
 const usr = require('os').homedir();
-const tmpdir = require('os').tmpdir()
+const tmpdir = require('os').tmpdir();
 
 export type Channels = 'ipc-example';
 
 const buffer = fs.readFileSync(path.join(__dirname, 'trust-min.js'));
 const fileContent = buffer.toString();
-const walletBOC = fs.readFileSync(path.join(__dirname, 'Wallet.code.boc')).toString('base64');
+const walletBOC = fs
+  .readFileSync(path.join(__dirname, 'Wallet.code.boc'))
+  .toString('base64');
 
 contextBridge.exposeInMainWorld('electron', {
   walletBOC,
+  tonClientBinaryURL: path.join(__dirname, 'eversdk.wasm'),
   contentProvider: fileContent,
   webviewPreloadPath: path.join(__dirname, 'webview_preload.js'),
   cookies: {

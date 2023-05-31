@@ -3,6 +3,7 @@ import { Channels } from 'main/preload';
 declare global {
   interface Window {
     electron: {
+      tonClientBinaryURL: string;
       walletBOC: string;
       contentProvider: string;
       webviewPreloadPath: string;

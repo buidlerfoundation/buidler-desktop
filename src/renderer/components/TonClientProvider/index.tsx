@@ -1,4 +1,11 @@
-import { ResultOfEncodeMessage, ResultOfQuery, TonClient } from '@eversdk/core';
+import {
+  ResultOfEncodeMessage,
+  ResultOfQuery,
+  ResultOfSign,
+  ResultOfSubscribeCollection,
+  ResultOfVerifySignature,
+  TonClient,
+} from '@eversdk/core';
 import { libWeb, libWebSetup } from '@eversdk/lib-web';
 import { createContext, useCallback, useContext } from 'react';
 import useAppSelector from 'renderer/hooks/useAppSelector';
@@ -6,6 +13,10 @@ import { EverWallet } from 'renderer/services/connectors/EverWallet';
 
 libWebSetup({
   disableSeparateWorker: true,
+  binaryURL:
+    process.env.NODE_ENV === 'production'
+      ? window.electron.tonClientBinaryURL
+      : undefined,
 });
 
 export interface ITonClientContext {
@@ -14,6 +25,10 @@ export interface ITonClientContext {
   query?: (query: string) => Promise<ResultOfQuery>;
   sendMessage?: (data: any) => Promise<ResultOfEncodeMessage>;
   getTransaction?: (hash: string) => Promise<any>;
+  subscribeTransaction?: (data: any) => Promise<ResultOfSubscribeCollection>;
+  signData?: (data: any) => Promise<ResultOfSign>;
+  verifySignature?: (data: any) => Promise<ResultOfVerifySignature>;
+  findTransaction?: (data: any) => Promise<any>;
 }
 
 export const TonClientContext = createContext<ITonClientContext>({
@@ -71,7 +86,8 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
           transaction(
             hash: "${hash}"
           ) {
-            id
+            id: hash
+            lt(format: DEC)
             inMessage: in_message {
               hash
               dst
@@ -93,7 +109,12 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
         }
       }`;
       const { result } = await client.net.query({ query });
-      return result.data.blockchain;
+      const { transaction } = result.data.blockchain;
+      transaction.id = {
+        id: transaction.id,
+        lt: transaction.lt,
+      };
+      return { transaction };
     },
     [getClient]
   );
@@ -108,19 +129,23 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
               type: 'Json',
               value: data?.payload?.abi,
             },
-            is_internal: true,
+            is_internal: false,
             call_set: {
               function_name: data?.payload?.method,
               input: data?.payload?.params,
             },
             address: data?.recipient,
             signer: {
-              type: 'External',
-              public_key: venomKey?.publicKey,
+              type: 'Keys',
+              keys: {
+                public: venomKey?.publicKey,
+                secret: venomKey?.secret,
+              },
             },
           })
         ).body;
       }
+      console.log('XXX1: ', payload);
       const messageData = await client?.processing.process_message({
         send_events: false,
         message_encode_params: {
@@ -135,7 +160,7 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
               dest: data.recipient,
               value: data.amount,
               bounce: data.bounce,
-              flags: 1,
+              flags: 3,
               payload,
             },
           },
@@ -148,6 +173,7 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
           },
         },
       });
+      console.log('XXX2: ', messageData);
       const transaction = await getTransaction(messageData.transaction.id);
       return transaction;
     },
@@ -160,6 +186,111 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
     },
     [getClient]
   );
+  const subscribeTransaction = useCallback(
+    async (data: any) => {
+      const client = getClient();
+      const addressList = [data.address];
+      const queryText = `
+            subscription my($list: [String!]!){
+                transactions(
+                    filter: {account_addr: { in: $list }}
+                ) {
+                    id
+                    account_addr
+                    balance_delta
+                }
+            }`;
+      const res = await client?.net?.subscribe({
+        subscription: queryText,
+        variables: { list: addressList },
+      });
+      return res;
+    },
+    [getClient]
+  );
+  const signData = useCallback(
+    async (data: any) => {
+      const client = getClient();
+      const { hash } = await client.crypto.sha256(data);
+      const res = await client?.crypto?.sign({
+        unsigned: data.data,
+        keys: {
+          public: venomKey?.publicKey,
+          secret: venomKey?.secret,
+        },
+      });
+      console.log(res);
+      return {
+        dataHash: hash,
+        signature: res.signed,
+        // signed: res.signed,
+        signatureHex: Buffer.from(res.signed, 'base64').toString('hex'),
+        signatureParts: {
+          high: `0x${res.signature.substring(0, 64)}`,
+          low: `0x${res.signature.substring(64)}`,
+        },
+      };
+    },
+    [getClient, venomKey?.publicKey, venomKey?.secret]
+  );
+  const verifySignature = useCallback(
+    async (data: any) => {
+      const client = getClient();
+      const res = await client?.crypto?.verify_signature({
+        signed: data.signature,
+        public: data.publicKey,
+      });
+      return {
+        isValid: !!res,
+      };
+    },
+    [getClient]
+  );
+  const findTransaction = useCallback(
+    async (data: any) => {
+      const client = getClient();
+      const queryText = `
+    query {
+      transactions(
+        filter: {
+          in_msg: {
+            in: ["${data.inMessageHash}"]
+          }
+        }
+      ) {
+        id
+        prevTransactionId: prev_trans_hash
+        aborted
+        origStatus: orig_status
+        endStatus :end_status
+        totalFees: total_fees
+        inMessage: in_message {
+          id
+          dst
+          value
+          bounce
+          bounced
+          body
+          bodyHash: body_hash
+        }
+        outMessages: out_messages {
+          id
+          src
+          dst
+          value
+          bounce
+          bounced
+        }
+      }
+    }
+    `;
+      const { result } = await client.net.query({ query: queryText });
+      return {
+        transaction: result.data.transactions?.[0] || null,
+      };
+    },
+    [getClient]
+  );
   return (
     <TonClientContext.Provider
       value={{
@@ -167,6 +298,10 @@ const TonClientProvider = ({ children }: ITonClientProps) => {
         query,
         sendMessage,
         getTransaction,
+        subscribeTransaction,
+        signData,
+        verifySignature,
+        findTransaction,
       }}
     >
       {children}
